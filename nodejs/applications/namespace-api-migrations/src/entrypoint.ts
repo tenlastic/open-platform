@@ -1,6 +1,6 @@
 import 'source-map-support/register';
 
-import * as mongoose from '@tenlastic/mongoose-models';
+import * as mongoose from '@tenlastic/mongoose';
 import {
   Article,
   Authorization,
@@ -11,6 +11,7 @@ import {
   Namespace,
   Queue,
   QueueMember,
+  Schema,
   Storefront,
   User,
   WebSocket,
@@ -38,7 +39,7 @@ const mongoDatabaseName = process.env.MONGO_DATABASE_NAME;
       mongoose.syncIndexes(Namespace),
       mongoose.syncIndexes(Queue),
       mongoose.syncIndexes(QueueMember),
-      mongoose.syncIndexes(mongoose.Schema),
+      mongoose.syncIndexes(Schema),
       mongoose.syncIndexes(Storefront),
       mongoose.syncIndexes(User),
       mongoose.syncIndexes(WebSocket),
@@ -48,19 +49,19 @@ const mongoDatabaseName = process.env.MONGO_DATABASE_NAME;
 
     console.log('Syncing schemas...');
     await Promise.all([
-      mongoose.syncSchema(connection, Article),
-      mongoose.syncSchema(connection, Authorization),
-      mongoose.syncSchema(connection, Build),
-      mongoose.syncSchema(connection, Collection),
-      mongoose.syncSchema(connection, GameServer),
-      mongoose.syncSchema(connection, Group),
-      mongoose.syncSchema(connection, Namespace),
-      mongoose.syncSchema(connection, Queue),
-      mongoose.syncSchema(connection, QueueMember),
-      mongoose.syncSchema(connection, Storefront),
-      mongoose.syncSchema(connection, User),
-      mongoose.syncSchema(connection, WebSocket),
-      mongoose.syncSchema(connection, Workflow),
+      Schema.sync(Article),
+      Schema.sync(Authorization),
+      Schema.sync(Build),
+      Schema.sync(Collection),
+      Schema.sync(GameServer),
+      Schema.sync(Group),
+      Schema.sync(Namespace),
+      Schema.sync(Queue),
+      Schema.sync(QueueMember),
+      Schema.sync(Storefront),
+      Schema.sync(User),
+      Schema.sync(WebSocket),
+      Schema.sync(Workflow),
     ]);
     console.log('Schemas synced successfully!');
 

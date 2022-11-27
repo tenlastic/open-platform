@@ -3,7 +3,7 @@ import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
 
-import { PasswordReset, UserDocument, UserMock } from '../../../mongodb';
+import { PasswordReset, User, UserDocument } from '../../../mongodb';
 import { handler } from '.';
 
 const chance = new Chance();
@@ -13,7 +13,7 @@ describe('web-server/password-resets/create', function () {
   let user: UserDocument;
 
   beforeEach(async function () {
-    user = await UserMock.create();
+    user = await User.mock();
   });
 
   context('when email is not provided', function () {

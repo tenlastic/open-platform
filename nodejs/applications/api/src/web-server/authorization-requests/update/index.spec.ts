@@ -1,17 +1,16 @@
+import { AuthorizationRole } from '@tenlastic/mongoose';
 import { ContextMock, RecordNotFoundError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 
 import {
   Authorization,
-  AuthorizationMock,
+  AuthorizationRequest,
   AuthorizationRequestDocument,
-  AuthorizationRequestMock,
-  AuthorizationRole,
+  Namespace,
   NamespaceDocument,
-  NamespaceMock,
+  User,
   UserDocument,
-  UserMock,
 } from '../../../mongodb';
 import { handler } from './';
 
@@ -23,16 +22,16 @@ describe('web-server/authorization-requests/update', function () {
   let user: UserDocument;
 
   beforeEach(async function () {
-    namespace = await NamespaceMock.create();
-    otherUser = await UserMock.create();
-    user = await UserMock.create();
+    namespace = await Namespace.mock();
+    otherUser = await User.mock();
+    user = await User.mock();
   });
 
   context('when permission is denied', function () {
     let record: AuthorizationRequestDocument;
 
     beforeEach(async function () {
-      record = await AuthorizationRequestMock.create({
+      record = await AuthorizationRequest.mock({
         namespaceId: namespace._id,
         userId: user._id,
       });
@@ -54,12 +53,12 @@ describe('web-server/authorization-requests/update', function () {
     let record: AuthorizationRequestDocument;
 
     beforeEach(async function () {
-      await AuthorizationMock.create({
+      await Authorization.mock({
         namespaceId: namespace._id,
         roles: [AuthorizationRole.AuthorizationsReadWrite],
         userId: user._id,
       });
-      record = await AuthorizationRequestMock.create({
+      record = await AuthorizationRequest.mock({
         grantedAt: new Date(),
         namespaceId: namespace._id,
         roles: [AuthorizationRole.AuthorizationsReadWrite],
@@ -83,7 +82,7 @@ describe('web-server/authorization-requests/update', function () {
 
     context('when denied and the Authorization exists', function () {
       it('updates the Authorization', async function () {
-        await AuthorizationMock.create({
+        await Authorization.mock({
           namespaceId: namespace._id,
           roles: [AuthorizationRole.AuthorizationsReadWrite],
           userId: otherUser._id,
@@ -105,7 +104,7 @@ describe('web-server/authorization-requests/update', function () {
     context('when granted', function () {
       context('when the Authorization exists', function () {
         it('updates the Authorization', async function () {
-          await AuthorizationMock.create({
+          await Authorization.mock({
             namespaceId: namespace._id,
             roles: [AuthorizationRole.NamespacesReadWrite],
             userId: otherUser._id,

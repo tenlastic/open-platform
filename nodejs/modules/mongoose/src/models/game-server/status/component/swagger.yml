@@ -1,0 +1,18 @@
+components:
+  schemas:
+    GameServerStatusComponent:
+      type: object
+      properties:
+        current:
+          type: number
+        name:
+          $ref: '#/components/schemas/GameServerStatusComponentName'
+        phase:
+          $ref: '#/components/schemas/GameServerStatusPhase'
+        total:
+          type: number
+      required:
+        - current
+        - name
+        - phase
+        - total

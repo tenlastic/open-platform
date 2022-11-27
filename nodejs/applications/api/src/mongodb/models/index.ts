@@ -4,5 +4,6 @@ export * from './login';
 export * from './namespace';
 export * from './password-reset';
 export * from './refresh-token';
+export * from './schema';
 export * from './user';
 export * from './web-socket';

@@ -1,4 +1,4 @@
-import { EventEmitter, IDatabasePayload } from '@tenlastic/mongoose-models';
+import { EventEmitter, IDatabasePayload } from '@tenlastic/mongoose';
 
 import { KubernetesQueue, KubernetesQueueSidecar } from '../kubernetes';
 import { Queue, QueueDocument } from '../mongodb';

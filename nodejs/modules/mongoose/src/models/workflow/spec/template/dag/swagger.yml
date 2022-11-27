@@ -1,0 +1,9 @@
+components:
+  schemas:
+    WorkflowSpecTemplateDag:
+      type: object
+      properties:
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowSpecTemplateDagTask'

@@ -1,6 +1,7 @@
+import { AuthorizationRole } from '@tenlastic/mongoose';
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { AuthorizationRole, Workflow, WorkflowDocument } from '../models';
+import { Workflow, WorkflowDocument } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
 const administrator = {

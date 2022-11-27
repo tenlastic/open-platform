@@ -7,10 +7,11 @@ import {
   Namespace,
   PasswordReset,
   RefreshToken,
+  Schema,
   User,
   WebSocket,
 } from '@tenlastic/api';
-import * as mongoose from '@tenlastic/mongoose-models';
+import * as mongoose from '@tenlastic/mongoose';
 
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
 
@@ -29,7 +30,7 @@ const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
       mongoose.syncIndexes(Namespace),
       mongoose.syncIndexes(PasswordReset),
       mongoose.syncIndexes(RefreshToken),
-      mongoose.syncIndexes(mongoose.Schema),
+      mongoose.syncIndexes(Schema),
       mongoose.syncIndexes(User),
       mongoose.syncIndexes(WebSocket),
     ]);
@@ -37,14 +38,14 @@ const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
 
     console.log('Syncing schemas...');
     await Promise.all([
-      mongoose.syncSchema(connection, Authorization),
-      mongoose.syncSchema(connection, AuthorizationRequest),
-      mongoose.syncSchema(connection, Login),
-      mongoose.syncSchema(connection, Namespace),
-      mongoose.syncSchema(connection, PasswordReset),
-      mongoose.syncSchema(connection, RefreshToken),
-      mongoose.syncSchema(connection, User),
-      mongoose.syncSchema(connection, WebSocket),
+      Schema.sync(Authorization),
+      Schema.sync(AuthorizationRequest),
+      Schema.sync(Login),
+      Schema.sync(Namespace),
+      Schema.sync(PasswordReset),
+      Schema.sync(RefreshToken),
+      Schema.sync(User),
+      Schema.sync(WebSocket),
     ]);
     console.log('Schemas synced successfully!');
 

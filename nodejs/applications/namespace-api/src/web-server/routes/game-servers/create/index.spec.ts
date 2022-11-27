@@ -1,3 +1,4 @@
+import { AuthorizationRole, NamespaceLimitError, NamespaceLimits } from '@tenlastic/mongoose';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
@@ -5,15 +6,12 @@ import * as chaiAsPromised from 'chai-as-promised';
 import { Chance } from 'chance';
 
 import {
-  AuthorizationMock,
-  AuthorizationRole,
-  BuildMock,
+  Authorization,
+  Build,
+  Namespace,
   NamespaceDocument,
-  NamespaceLimitError,
-  NamespaceLimitsMock,
-  NamespaceMock,
+  User,
   UserDocument,
-  UserMock,
 } from '../../../../mongodb';
 import { handler } from './';
 
@@ -24,7 +22,7 @@ describe('web-server/game-servers/create', function () {
   let user: UserDocument;
 
   beforeEach(async function () {
-    user = await UserMock.create();
+    user = await User.mock().save();
   });
 
   context('when permission is granted', function () {
@@ -32,15 +30,15 @@ describe('web-server/game-servers/create', function () {
     let namespace: NamespaceDocument;
 
     beforeEach(async function () {
-      namespace = await NamespaceMock.create({
-        limits: NamespaceLimitsMock.create({ cpu: 1, memory: 1 * 1000 * 1000 * 1000 }),
-      });
-      await AuthorizationMock.create({
+      namespace = await Namespace.mock({
+        limits: NamespaceLimits.mock({ cpu: 1, memory: 1 * 1000 * 1000 * 1000 }),
+      }).save();
+      await Authorization.mock({
         namespaceId: namespace._id,
         roles: [AuthorizationRole.GameServersReadWrite],
         userId: user._id,
-      });
-      const build = await BuildMock.create({ namespaceId: namespace._id });
+      }).save();
+      const build = await Build.mock({ namespaceId: namespace._id }).save();
 
       ctx = new ContextMock({
         params: { namespaceId: namespace._id },
@@ -53,7 +51,7 @@ describe('web-server/game-servers/create', function () {
 
     context('when a Namespace Limit is exceeded', function () {
       it('throws an error', async function () {
-        namespace.limits = NamespaceLimitsMock.create({ cpu: 0.5 });
+        namespace.limits = NamespaceLimits.mock({ cpu: 0.5 });
         await namespace.save();
 
         const promise = handler(ctx as any);
@@ -73,9 +71,9 @@ describe('web-server/game-servers/create', function () {
 
   context('when permission is denied', function () {
     it('throws an error', async function () {
-      const namespace = await NamespaceMock.create({
-        limits: NamespaceLimitsMock.create({ cpu: 1, memory: 1 * 1000 * 1000 * 1000 }),
-      });
+      const namespace = await Namespace.mock({
+        limits: NamespaceLimits.mock({ cpu: 1, memory: 1 * 1000 * 1000 * 1000 }),
+      }).save();
 
       const ctx = new ContextMock({
         params: { namespaceId: namespace._id },

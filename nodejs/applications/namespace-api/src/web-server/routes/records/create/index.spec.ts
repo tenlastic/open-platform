@@ -1,17 +1,10 @@
-import {
-  AuthorizationMock,
-  AuthorizationRole,
-  CollectionDocument,
-  CollectionMock,
-  NamespaceMock,
-  UserDocument,
-  UserMock,
-} from '../../../../mongodb';
+import { CollectionPermissions } from '@tenlastic/mongoose';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
 
+import { Collection, CollectionDocument, Namespace, User, UserDocument } from '../../../../mongodb';
 import { handler } from './';
 
 const chance = new Chance();
@@ -22,39 +15,26 @@ describe('web-server/records/create', function () {
   let user: UserDocument;
 
   beforeEach(async function () {
-    user = await UserMock.create();
+    user = await User.mock().save();
 
-    const namespace = await NamespaceMock.create();
-    await AuthorizationMock.create({
-      namespaceId: namespace._id,
-      roles: [AuthorizationRole.RecordsReadWrite],
-      userId: user._id,
-    });
-
-    collection = await CollectionMock.create({
+    const namespace = await Namespace.mock().save();
+    collection = await Collection.mock({
       jsonSchema: {
-        properties: {
-          email: { type: 'string' },
-          name: { type: 'string' },
-        },
+        properties: { email: { type: 'string' }, name: { type: 'string' } },
         type: 'object',
       },
       namespaceId: namespace._id,
-      permissions: {
-        create: {
-          default: ['properties.email', 'properties.name'],
-        },
-        delete: {},
-        find: {
-          default: {},
-        },
-        read: {
-          default: ['_id', 'createdAt', 'properties.email', 'properties.name', 'updatedAt'],
-        },
-        roles: {},
-        update: {},
-      },
-    });
+      permissions: CollectionPermissions.mock({
+        create: new Map(Object.entries({ public: ['properties.email', 'properties.name'] })),
+        find: new Map(Object.entries({ public: {} })),
+        read: new Map(
+          Object.entries({
+            public: ['_id', 'createdAt', 'properties.email', 'properties.name', 'updatedAt'],
+          }),
+        ),
+        roles: new Map(Object.entries({ public: {} })),
+      }),
+    }).save();
   });
 
   it('creates a new record', async function () {

@@ -1,5 +1,5 @@
 import * as minio from '@tenlastic/minio';
-import * as mongooseModels from '@tenlastic/mongoose-models';
+import * as mongoose from '@tenlastic/mongoose';
 import { URL } from 'url';
 
 import {
@@ -31,24 +31,24 @@ before(async function () {
   await minio.makeBucket(process.env.MINIO_BUCKET);
 
   // MongoDB.
-  await mongooseModels.connect({
+  await mongoose.connect({
     connectionString: process.env.MONGO_CONNECTION_STRING,
     databaseName: `namespace-api-test`,
   });
   await Promise.all([
-    Article.syncIndexes({ background: true }),
-    Authorization.syncIndexes({ background: true }),
-    Build.syncIndexes({ background: true }),
-    Collection.syncIndexes({ background: true }),
-    GameServer.syncIndexes({ background: true }),
-    Group.syncIndexes({ background: true }),
-    Namespace.syncIndexes({ background: true }),
-    Queue.syncIndexes({ background: true }),
-    QueueMember.syncIndexes({ background: true }),
-    Storefront.syncIndexes({ background: true }),
-    User.syncIndexes({ background: true }),
-    WebSocket.syncIndexes({ background: true }),
-    Workflow.syncIndexes({ background: true }),
+    Article.syncIndexes(),
+    Authorization.syncIndexes(),
+    Build.syncIndexes(),
+    Collection.syncIndexes(),
+    GameServer.syncIndexes(),
+    Group.syncIndexes(),
+    Namespace.syncIndexes(),
+    Queue.syncIndexes(),
+    QueueMember.syncIndexes(),
+    Storefront.syncIndexes(),
+    User.syncIndexes(),
+    WebSocket.syncIndexes(),
+    Workflow.syncIndexes(),
   ]);
 });
 

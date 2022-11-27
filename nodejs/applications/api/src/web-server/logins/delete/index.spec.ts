@@ -2,7 +2,7 @@ import { Context, ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 
-import { RefreshToken, RefreshTokenDocument, RefreshTokenMock, UserMock } from '../../../mongodb';
+import { RefreshToken, RefreshTokenDocument, User } from '../../../mongodb';
 import { handler } from '.';
 
 use(chaiAsPromised);
@@ -12,8 +12,8 @@ describe('web-server/logins/delete', function () {
   let refreshToken: RefreshTokenDocument;
 
   beforeEach(async function () {
-    refreshToken = await RefreshTokenMock.create();
-    await UserMock.create({ password: 'password' });
+    refreshToken = await RefreshToken.mock();
+    await User.mock({ password: 'password' });
 
     ctx = new ContextMock({
       state: {

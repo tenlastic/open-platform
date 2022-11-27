@@ -1,8 +1,8 @@
-import * as mongooseModels from '@tenlastic/mongoose-models';
+import * as mongoose from '@tenlastic/mongoose';
 import * as nats from '@tenlastic/nats';
 import * as redis from '@tenlastic/redis';
 import Redis from 'ioredis';
-import * as mongoose from 'mongoose';
+import { Connection } from 'mongoose';
 
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
 const natsConnectionString = process.env.NATS_CONNECTION_STRING;
@@ -10,11 +10,11 @@ const redisConnectionString = process.env.REDIS_CONNECTION_STRING;
 const redisPassword = process.env.REDIS_PASSWORD;
 
 let client: Redis;
-let connection: mongoose.Connection;
+let connection: Connection;
 
 before(async function () {
   // MongoDB.
-  connection = await mongooseModels.connect({
+  connection = await mongoose.connect({
     connectionString: mongoConnectionString,
     databaseName: `cdc-test`,
   });

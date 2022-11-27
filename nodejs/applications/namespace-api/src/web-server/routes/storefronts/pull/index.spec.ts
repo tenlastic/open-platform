@@ -1,19 +1,20 @@
 import * as minio from '@tenlastic/minio';
+import { AuthorizationRole } from '@tenlastic/mongoose';
 import { ContextMock, RecordNotFoundError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as fs from 'fs';
 import * as mongoose from 'mongoose';
 
+import { MinioStorefront } from '../../../../minio';
 import {
-  AuthorizationMock,
-  AuthorizationRole,
+  Authorization,
+  Namespace,
   NamespaceDocument,
-  NamespaceMock,
+  Storefront,
   StorefrontDocument,
-  StorefrontMock,
+  User,
   UserDocument,
-  UserMock,
 } from '../../../../mongodb';
 import { handler } from './';
 
@@ -26,8 +27,8 @@ describe('web-server/storefronts/pull', function () {
 
   beforeEach(async function () {
     _id = new mongoose.Types.ObjectId().toString();
-    namespace = await NamespaceMock.create();
-    user = await UserMock.create();
+    namespace = await Namespace.mock().save();
+    user = await User.mock().save();
   });
 
   context('when permission is granted', function () {
@@ -35,21 +36,26 @@ describe('web-server/storefronts/pull', function () {
     let storefront: StorefrontDocument;
 
     beforeEach(async function () {
-      await AuthorizationMock.create({
+      await Authorization.mock({
         namespaceId: namespace._id,
         roles: [AuthorizationRole.StorefrontsReadWrite],
         userId: user._id,
-      });
-      storefront = await StorefrontMock.create({ namespaceId: namespace._id });
+      }).save();
+      storefront = await Storefront.mock({ namespaceId: namespace._id }).save();
 
       // Upload test file to Minio.
-      const path = storefront.getMinioKey('images', _id);
-      await minio.putObject(process.env.MINIO_BUCKET, path, fs.createReadStream(__filename));
+      const objectName = MinioStorefront.getObjectName(
+        storefront.namespaceId,
+        storefront._id,
+        'images',
+        _id,
+      );
+      await minio.putObject(process.env.MINIO_BUCKET, objectName, fs.createReadStream(__filename));
 
       // Add the image to the Storefront.
       const host = 'localhost:3000';
       const protocol = 'http';
-      const url = storefront.getUrl(host, protocol, path);
+      const url = MinioStorefront.getUrl(host, objectName, protocol);
       storefront.images = [url];
       await storefront.save();
 
@@ -76,7 +82,7 @@ describe('web-server/storefronts/pull', function () {
 
       const promise = minio.statObject(
         process.env.MINIO_BUCKET,
-        storefront.getMinioKey('images', _id),
+        MinioStorefront.getObjectName(storefront.namespaceId, storefront._id, 'images', _id),
       );
 
       return expect(promise).to.be.rejected;
@@ -85,7 +91,7 @@ describe('web-server/storefronts/pull', function () {
 
   context('when permission is denied', function () {
     it('throws an error', async function () {
-      const storefront = await StorefrontMock.create({ namespaceId: namespace._id });
+      const storefront = await Storefront.mock({ namespaceId: namespace._id }).save();
 
       const ctx = new ContextMock({
         params: {

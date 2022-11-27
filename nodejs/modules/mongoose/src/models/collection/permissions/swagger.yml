@@ -1,0 +1,17 @@
+components:
+  schemas:
+    CollectionPermissions:
+      type: object
+      properties:
+        create:
+          type: object
+        delete:
+          type: object
+        find:
+          type: object
+        read:
+          type: object
+        roles:
+          type: object
+        update:
+          type: object

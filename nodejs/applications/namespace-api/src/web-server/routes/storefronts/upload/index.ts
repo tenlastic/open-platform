@@ -1,14 +1,11 @@
 import * as minio from '@tenlastic/minio';
+import { NamespaceLimitError } from '@tenlastic/mongoose';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 import * as Busboy from 'busboy';
 
-import {
-  Namespace,
-  NamespaceLimitError,
-  Storefront,
-  StorefrontPermissions,
-} from '../../../../mongodb';
+import { MinioStorefront } from '../../../../minio';
+import { Namespace, Storefront, StorefrontPermissions } from '../../../../mongodb';
 import { NamespaceStorageLimitEvent } from '../../../../nats';
 
 export async function handler(ctx: Context) {
@@ -38,15 +35,19 @@ export async function handler(ctx: Context) {
   }
 
   // Parse files from request body.
-  const paths: string[] = [];
+  const objectNames: string[] = [];
   await new Promise((resolve, reject) => {
     const busboy = Busboy({ headers: ctx.request.headers, limits: { files: 1, fileSize: limit } });
     let promise = Promise.resolve('');
 
     busboy.on('error', reject);
     busboy.on('file', (name, stream, info) => {
-      const path = storefront.getMinioKey(field);
-      paths.push(path);
+      const objectName = MinioStorefront.getObjectName(
+        storefront.namespaceId,
+        storefront._id,
+        field,
+      );
+      objectNames.push(objectName);
 
       // Make sure the file is a valid size.
       stream.on('error', reject);
@@ -79,7 +80,7 @@ export async function handler(ctx: Context) {
 
       // Upload to Minio.
       promise = minio
-        .putObject(process.env.MINIO_BUCKET, path, stream, { 'content-type': mimeType })
+        .putObject(process.env.MINIO_BUCKET, objectName, stream, { 'content-type': mimeType })
         .finally(() => NamespaceStorageLimitEvent.remove(listener));
     });
     busboy.on('filesLimit', () => reject('Cannot upload more than one file at once.'));
@@ -88,7 +89,9 @@ export async function handler(ctx: Context) {
     ctx.req.pipe(busboy);
   });
 
-  const urls = paths.map((p) => storefront.getUrl(ctx.request.host, ctx.request.protocol, p));
+  const urls = objectNames.map((on) =>
+    MinioStorefront.getUrl(ctx.request.host, on, ctx.request.protocol),
+  );
   const result = await Storefront.findOneAndUpdate(
     { _id: storefront._id },
     ['images', 'videos'].includes(field) ? { $addToSet: { [field]: urls } } : { [field]: urls[0] },

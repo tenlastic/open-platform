@@ -1,4 +1,4 @@
-import { UserDocument, UserMock } from '../../../mongodb';
+import { User, UserDocument } from '../../../mongodb';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
 
@@ -8,7 +8,7 @@ describe('web-server/groups/create', function () {
   let user: UserDocument;
 
   beforeEach(async function () {
-    user = await UserMock.create();
+    user = await User.mock();
   });
 
   it('creates a new record', async function () {

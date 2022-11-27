@@ -1,4 +1,5 @@
 import * as minio from '@tenlastic/minio';
+import { AuthorizationRole, NamespaceLimitError, NamespaceLimits } from '@tenlastic/mongoose';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
@@ -7,17 +8,15 @@ import * as FormData from 'form-data';
 import * as fs from 'fs';
 import * as JSZip from 'jszip';
 
+import { MinioBuild } from '../../../../minio';
 import {
-  AuthorizationMock,
-  AuthorizationRole,
+  Authorization,
+  Build,
   BuildDocument,
-  BuildMock,
+  Namespace,
   NamespaceDocument,
-  NamespaceLimitError,
-  NamespaceLimitsMock,
-  NamespaceMock,
+  User,
   UserDocument,
-  UserMock,
 } from '../../../../mongodb';
 import { handler } from './';
 
@@ -28,14 +27,14 @@ describe('web-server/builds/create', function () {
   let user: UserDocument;
 
   beforeEach(async function () {
-    namespace = await NamespaceMock.create({
-      limits: NamespaceLimitsMock.create({
+    namespace = await Namespace.mock({
+      limits: NamespaceLimits.mock({
         cpu: 0.1,
         memory: 100 * 1000 * 1000,
         storage: 1 * 1000 * 1000 * 1000,
       }),
-    });
-    user = await UserMock.create();
+    }).save();
+    user = await User.mock().save();
   });
 
   context('when permission is granted', function () {
@@ -45,13 +44,13 @@ describe('web-server/builds/create', function () {
     let stream: NodeJS.ReadableStream;
 
     beforeEach(async function () {
-      await AuthorizationMock.create({
+      await Authorization.mock({
         namespaceId: namespace._id,
         roles: [AuthorizationRole.BuildsReadWrite],
         userId: user._id,
-      });
+      }).save();
 
-      build = await BuildMock.new({ namespaceId: namespace._id });
+      build = Build.mock({ namespaceId: namespace._id });
 
       const zip = new JSZip();
       zip.file('index.spec.ts', fs.createReadStream(__filename));
@@ -85,7 +84,7 @@ describe('web-server/builds/create', function () {
 
       await handler(ctx as any);
 
-      await minio.statObject(process.env.MINIO_BUCKET, build.getZipPath());
+      await minio.statObject(process.env.MINIO_BUCKET, MinioBuild.getZipObjectName(build));
     });
 
     it('does not allow invalid mimetypes', async function () {
@@ -130,7 +129,7 @@ describe('web-server/builds/create', function () {
 
   context('when permission is denied', function () {
     it('throws an error', async function () {
-      const build = await BuildMock.new({ namespaceId: namespace._id });
+      const build = Build.mock({ namespaceId: namespace._id });
 
       const form = new FormData();
       form.append('record', JSON.stringify(build));

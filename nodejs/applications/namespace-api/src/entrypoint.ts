@@ -1,9 +1,8 @@
 import 'source-map-support/register';
 
 import '@tenlastic/logging';
-import * as minio from '@tenlastic/minio';
-import { URL } from 'url';
 
+import * as minio from './minio';
 import * as mongodb from './mongodb';
 import * as nats from './nats';
 import * as webServer from './web-server';
@@ -19,15 +18,7 @@ const podName = process.env.POD_NAME;
 (async () => {
   try {
     // Minio.
-    const minioConnectionUrl = new URL(minioConnectionString);
-    minio.connect({
-      accessKey: minioConnectionUrl.username,
-      endPoint: minioConnectionUrl.hostname,
-      port: Number(minioConnectionUrl.port || '443'),
-      secretKey: minioConnectionUrl.password,
-      useSSL: minioConnectionUrl.protocol === 'https:',
-    });
-    await minio.makeBucket(minioBucket);
+    await minio.setup({ bucket: minioBucket, connectionString: minioConnectionString });
 
     // MongoDB.
     await mongodb.setup({
@@ -36,13 +27,12 @@ const podName = process.env.POD_NAME;
     });
 
     // NATS.
-    await nats
-      .setup({
-        connectionString: natsConnectionString,
-        database: mongoDatabaseName,
-        durable: mongoDatabaseName,
-        podName,
-      });
+    await nats.setup({
+      connectionString: natsConnectionString,
+      database: mongoDatabaseName,
+      durable: mongoDatabaseName,
+      podName,
+    });
 
     // Web Server.
     const { server } = webServer.setup();

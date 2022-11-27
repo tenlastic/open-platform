@@ -1,35 +1,31 @@
 import * as minio from '@tenlastic/minio';
-import {
-  AuthorizationMock,
-  AuthorizationRole,
-  NamespaceMock,
-  StorefrontMock,
-  UserMock,
-} from '../../../../mongodb';
+import { AuthorizationRole } from '@tenlastic/mongoose';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as fs from 'fs';
 
+import { MinioStorefront } from '../../../../minio';
+import { Authorization, Namespace, Storefront, User } from '../../../../mongodb';
 import { handler } from './';
 
 use(chaiAsPromised);
 
 describe('web-server/storefronts/download', function () {
   it('returns a stream with the requested file', async function () {
-    const user = await UserMock.create();
-    const namespace = await NamespaceMock.create();
-    await AuthorizationMock.create({
+    const user = await User.mock().save();
+    const namespace = await Namespace.mock().save();
+    await Authorization.mock({
       namespaceId: namespace._id,
       roles: [AuthorizationRole.StorefrontsRead],
       userId: user._id,
-    });
-    const storefront = await StorefrontMock.create({ namespaceId: namespace._id });
+    }).save();
+    const storefront = await Storefront.mock({ namespaceId: namespace._id }).save();
 
     // Upload test file to Minio.
     await minio.putObject(
       process.env.MINIO_BUCKET,
-      storefront.getMinioKey('background'),
+      MinioStorefront.getObjectName(storefront.namespaceId, storefront._id, 'background'),
       fs.createReadStream(__filename),
     );
 

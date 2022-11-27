@@ -1,0 +1,23 @@
+components:
+  schemas:
+    WorkflowSpecTemplateDagTask:
+      type: object
+      properties:
+        arguments:
+          type: object
+          properties:
+            parameters:
+              type: array
+              items:
+                $ref: '#/components/schemas/WorkflowSpecArguments'
+        dependencies:
+          type: array
+          items:
+            type: string
+        name:
+          type: string
+        template:
+          type: string
+      required:
+        - name
+        - template

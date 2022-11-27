@@ -6,9 +6,10 @@ import {
   V1Probe,
 } from '@kubernetes/client-node';
 import { networkPolicyApiV1, statefulSetApiV1 } from '@tenlastic/kubernetes';
+import { QueueStatusComponentName } from '@tenlastic/mongoose';
 
 import { version } from '../../package.json';
-import { QueueDocument, QueueStatusComponentName } from '../mongodb';
+import { QueueDocument } from '../mongodb';
 import { KubernetesNamespace } from './namespace';
 
 export const KubernetesQueue = {

@@ -1,0 +1,9 @@
+components:
+  schemas:
+    WorkflowSpecTemplate:
+      type: object
+      properties:
+        parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowSpecParameter'

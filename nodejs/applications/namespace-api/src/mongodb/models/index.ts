@@ -8,6 +8,7 @@ export * from './namespace';
 export * from './queue';
 export * from './queue-member';
 export * from './record';
+export * from './schema';
 export * from './storefront';
 export * from './user';
 export * from './web-socket';

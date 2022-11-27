@@ -1,6 +1,6 @@
 import mailgun from '@tenlastic/mailgun';
 import * as minio from '@tenlastic/minio';
-import * as mongooseModels from '@tenlastic/mongoose-models';
+import * as mongoose from '@tenlastic/mongoose';
 import * as sinon from 'sinon';
 import { URL } from 'url';
 
@@ -30,19 +30,19 @@ before(async function () {
   await minio.makeBucket(process.env.MINIO_BUCKET);
 
   // MongoDB.
-  await mongooseModels.connect({
+  await mongoose.connect({
     connectionString: process.env.MONGO_CONNECTION_STRING,
     databaseName: 'api-test',
   });
   await Promise.all([
-    Authorization.syncIndexes({ background: true }),
-    AuthorizationRequest.syncIndexes({ background: true }),
-    Login.syncIndexes({ background: true }),
-    Namespace.syncIndexes({ background: true }),
-    PasswordReset.syncIndexes({ background: true }),
-    RefreshToken.syncIndexes({ background: true }),
-    User.syncIndexes({ background: true }),
-    WebSocket.syncIndexes({ background: true }),
+    Authorization.syncIndexes(),
+    AuthorizationRequest.syncIndexes(),
+    Login.syncIndexes(),
+    Namespace.syncIndexes(),
+    PasswordReset.syncIndexes(),
+    RefreshToken.syncIndexes(),
+    User.syncIndexes(),
+    WebSocket.syncIndexes(),
   ]);
 });
 

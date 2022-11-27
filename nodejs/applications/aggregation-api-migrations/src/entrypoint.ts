@@ -6,10 +6,11 @@ import {
   Group,
   Namespace,
   QueueMember,
+  Schema,
   Storefront,
   User,
 } from '@tenlastic/aggregation-api';
-import * as mongoose from '@tenlastic/mongoose-models';
+import * as mongoose from '@tenlastic/mongoose';
 
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
 
@@ -27,7 +28,7 @@ const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
       mongoose.syncIndexes(Group),
       mongoose.syncIndexes(Namespace),
       mongoose.syncIndexes(QueueMember),
-      mongoose.syncIndexes(mongoose.Schema),
+      mongoose.syncIndexes(Schema),
       mongoose.syncIndexes(Storefront),
       mongoose.syncIndexes(User),
     ]);
@@ -35,13 +36,13 @@ const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
 
     console.log('Syncing schemas...');
     await Promise.all([
-      mongoose.syncSchema(connection, Authorization),
-      mongoose.syncSchema(connection, GameServer),
-      mongoose.syncSchema(connection, Group),
-      mongoose.syncSchema(connection, Namespace),
-      mongoose.syncSchema(connection, QueueMember),
-      mongoose.syncSchema(connection, Storefront),
-      mongoose.syncSchema(connection, User),
+      Schema.sync(Authorization),
+      Schema.sync(GameServer),
+      Schema.sync(Group),
+      Schema.sync(Namespace),
+      Schema.sync(QueueMember),
+      Schema.sync(Storefront),
+      Schema.sync(User),
     ]);
     console.log('Schemas synced successfully!');
 

@@ -4,13 +4,11 @@ import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
 
 import {
+  PasswordReset,
   PasswordResetDocument,
-  PasswordResetMock,
   RefreshToken,
-  RefreshTokenMock,
-  UserDocument,
-  UserMock,
   User,
+  UserDocument,
 } from '../../../mongodb';
 import { handler } from '.';
 
@@ -22,8 +20,8 @@ describe('web-server/password-resets/delete', function () {
   let user: UserDocument;
 
   beforeEach(async function () {
-    user = await UserMock.create();
-    record = await PasswordResetMock.create({ userId: user._id });
+    user = await User.mock();
+    record = await PasswordReset.mock({ userId: user._id });
   });
 
   context('when password is not provided', function () {
@@ -83,7 +81,7 @@ describe('web-server/password-resets/delete', function () {
         }) as any;
         previousPassword = user.password;
 
-        await RefreshTokenMock.create({ userId: user._id });
+        await RefreshToken.mock({ userId: user._id });
 
         await handler(ctx);
       });

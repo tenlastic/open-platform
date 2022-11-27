@@ -1,6 +1,7 @@
+import { AuthorizationRole } from '@tenlastic/mongoose';
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { AuthorizationRequest, AuthorizationRequestDocument, AuthorizationRole } from '../models';
+import { AuthorizationRequest, AuthorizationRequestDocument } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
 export const AuthorizationRequestPermissions =

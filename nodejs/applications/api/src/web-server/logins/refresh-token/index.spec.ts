@@ -5,7 +5,7 @@ import * as Chance from 'chance';
 import * as jwt from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
 
-import { RefreshTokenMock, UserMock } from '../../../mongodb';
+import { RefreshToken, User } from '../../../mongodb';
 import { handler } from '.';
 
 const chance = new Chance();
@@ -13,7 +13,7 @@ use(chaiAsPromised);
 
 describe('web-server/logins/refresh-token', function () {
   beforeEach(async function () {
-    await UserMock.create({ password: 'password' });
+    await User.mock({ password: 'password' });
   });
 
   context('when a token is not provided', function () {
@@ -66,7 +66,7 @@ describe('web-server/logins/refresh-token', function () {
       context('when the JWT includes required parameters', function () {
         context('when the RefreshToken is not in the database', function () {
           it('throws an error', async function () {
-            const user = await UserMock.create();
+            const user = await User.mock();
             const token = jwt.sign({ user }, process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'), {
               algorithm: 'RS256',
               jwtid: chance.hash(),
@@ -86,8 +86,8 @@ describe('web-server/logins/refresh-token', function () {
         context('when the RefreshToken is in the database', function () {
           context('when the user does not exist', function () {
             it('throws an error', async function () {
-              const user = await UserMock.create();
-              const refreshToken = await RefreshTokenMock.create({
+              const user = await User.mock();
+              const refreshToken = await RefreshToken.mock({
                 userId: new mongoose.Types.ObjectId() as any,
               });
               const token = jwt.sign({ user }, process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'), {
@@ -108,8 +108,8 @@ describe('web-server/logins/refresh-token', function () {
 
           context('when the user exists', function () {
             it('returns accessToken and refreshToken', async function () {
-              const user = await UserMock.create();
-              const refreshToken = await RefreshTokenMock.create({ userId: user._id });
+              const user = await User.mock();
+              const refreshToken = await RefreshToken.mock({ userId: user._id });
               const token = jwt.sign(
                 { type: 'refresh', user },
                 process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'),

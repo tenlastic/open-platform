@@ -1,5 +1,5 @@
-import * as mongooseModels from '@tenlastic/mongoose-models';
+import * as mongoose from '@tenlastic/mongoose';
 
-export function setup(options: mongooseModels.ConnectionOptions) {
-  return mongooseModels.connect(options);
+export function setup(options: mongoose.ConnectionOptions) {
+  return mongoose.connect(options);
 }

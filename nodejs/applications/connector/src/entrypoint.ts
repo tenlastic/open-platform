@@ -1,5 +1,6 @@
-import * as mongooseModels from '@tenlastic/mongoose-models';
+import * as mongoose from '@tenlastic/mongoose';
 import * as nats from '@tenlastic/nats';
+import { getModelForClass } from '@typegoose/typegoose';
 
 import { replicateFromMongo } from './replicate-from-mongo';
 import { replicateFromNats } from './replicate-from-nats';
@@ -18,11 +19,11 @@ const where = process.env.WHERE ? JSON.parse(process.env.WHERE) : {};
   try {
     // MongoDB.
     const collectionNames = mongoCollectionNames ? mongoCollectionNames.split(',') : [];
-    const fromConnection = await mongooseModels.createConnection({
+    const fromConnection = await mongoose.createConnection({
       connectionString: mongoFromConnectionString,
       databaseName: mongoFromDatabaseName,
     });
-    const toConnection = await mongooseModels.createConnection({
+    const toConnection = await mongoose.createConnection({
       connectionString: mongoToConnectionString,
       databaseName: mongoToDatabaseName,
     });
@@ -32,9 +33,10 @@ const where = process.env.WHERE ? JSON.parse(process.env.WHERE) : {};
     await nats.upsertStream(mongoFromDatabaseName);
 
     // Sync schemas from MongoDB and NATS.
+    const Schema = getModelForClass(mongoose.SchemaSchema, { existingConnection: fromConnection });
     const start = new Date();
     console.log(`Fetching schemas from MongoDB (${mongoFromDatabaseName}.schemas)...`);
-    await fetchSchemasFromMongo(fromConnection, toConnection);
+    await fetchSchemasFromMongo(Schema, toConnection);
 
     console.log(`Watching NATS (${mongoFromDatabaseName}.schemas) for schema updates...`);
     fetchSchemasFromNats(mongoFromDatabaseName, fromConnection, start, toConnection).catch(

@@ -1,4 +1,4 @@
-import { IDatabasePayload, DatabaseOperationType } from '@tenlastic/mongoose-models';
+import { IDatabasePayload, DatabaseOperationType } from '@tenlastic/mongoose';
 import {
   filterObject,
   ICredentials,

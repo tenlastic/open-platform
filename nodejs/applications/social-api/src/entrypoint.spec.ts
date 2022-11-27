@@ -1,36 +1,26 @@
-import * as mongooseModels from '@tenlastic/mongoose-models';
+import * as mongoose from '@tenlastic/mongoose';
 
-import {
-  Authorization,
-  Friend,
-  Group,
-  GroupInvitation,
-  Ignoration,
-  Message,
-  User,
-} from './mongodb';
+import { Friend, Group, GroupInvitation, Ignoration, Message, User } from './mongodb';
 
 before(async function () {
   // MongoDB.
-  await mongooseModels.connect({
+  await mongoose.connect({
     connectionString: process.env.MONGO_CONNECTION_STRING,
     databaseName: 'social-api-test',
   });
   await Promise.all([
-    Authorization.syncIndexes({ background: true }),
-    Friend.syncIndexes({ background: true }),
-    Group.syncIndexes({ background: true }),
-    GroupInvitation.syncIndexes({ background: true }),
-    Ignoration.syncIndexes({ background: true }),
-    Message.syncIndexes({ background: true }),
-    User.syncIndexes({ background: true }),
+    Friend.syncIndexes(),
+    Group.syncIndexes(),
+    GroupInvitation.syncIndexes(),
+    Ignoration.syncIndexes(),
+    Message.syncIndexes(),
+    User.syncIndexes(),
   ]);
 });
 
 beforeEach(async function () {
   // MongoDB.
   await Promise.all([
-    Authorization.deleteMany({}),
     Friend.deleteMany({}),
     Group.deleteMany({}),
     GroupInvitation.deleteMany({}),

@@ -1,6 +1,7 @@
-import * as mongooseModels from '@tenlastic/mongoose-models';
+import * as mongoose from '@tenlastic/mongoose';
 import * as nats from '@tenlastic/nats';
 import * as redis from '@tenlastic/redis';
+
 import { watch } from './watch';
 
 const mongoCollectionNames = process.env.MONGO_COLLECTION_NAMES;
@@ -14,7 +15,7 @@ const redisPassword = process.env.REDIS_PASSWORD;
 (async function () {
   try {
     // MongoDB.
-    const connection = await mongooseModels.createConnection({
+    const connection = await mongoose.createConnection({
       connectionString: mongoConnectionString,
       databaseName: mongoDatabaseName,
     });

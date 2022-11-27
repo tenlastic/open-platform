@@ -2,6 +2,7 @@ import * as minio from '@tenlastic/minio';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
+import { MinioStorefront } from '../../../../minio';
 import { Storefront, StorefrontPermissions } from '../../../../mongodb';
 
 export async function handler(ctx: Context) {
@@ -27,10 +28,15 @@ export async function handler(ctx: Context) {
     throw new PermissionError();
   }
 
-  const path = storefront.getMinioKey(field, _id);
-  await minio.removeObject(process.env.MINIO_BUCKET, path);
+  const objectName = MinioStorefront.getObjectName(
+    storefront.namespaceId,
+    storefront._id,
+    field,
+    _id,
+  );
+  await minio.removeObject(process.env.MINIO_BUCKET, objectName);
 
-  const url = storefront.getUrl(ctx.request.host, ctx.request.protocol, path);
+  const url = MinioStorefront.getUrl(ctx.request.host, objectName, ctx.request.protocol);
   const result = await Storefront.findOneAndUpdate(
     { _id: storefront._id },
     { $pull: { [field]: url } },

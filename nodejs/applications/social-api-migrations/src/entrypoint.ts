@@ -1,15 +1,15 @@
 import 'source-map-support/register';
 
 import {
-  Authorization,
   Friend,
   Group,
   GroupInvitation,
   Ignoration,
   Message,
+  Schema,
   User,
 } from '@tenlastic/social-api';
-import * as mongoose from '@tenlastic/mongoose-models';
+import * as mongoose from '@tenlastic/mongoose';
 
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
 
@@ -22,26 +22,24 @@ const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
 
     console.log('Syncing indexes...');
     await Promise.all([
-      mongoose.syncIndexes(Authorization),
       mongoose.syncIndexes(Friend),
       mongoose.syncIndexes(Group),
       mongoose.syncIndexes(GroupInvitation),
       mongoose.syncIndexes(Ignoration),
       mongoose.syncIndexes(Message),
-      mongoose.syncIndexes(mongoose.Schema),
+      mongoose.syncIndexes(Schema),
       mongoose.syncIndexes(User),
     ]);
     console.log('Indexes synced successfully!');
 
     console.log('Syncing schemas...');
     await Promise.all([
-      mongoose.syncSchema(connection, Authorization),
-      mongoose.syncSchema(connection, Friend),
-      mongoose.syncSchema(connection, Group),
-      mongoose.syncSchema(connection, GroupInvitation),
-      mongoose.syncSchema(connection, Ignoration),
-      mongoose.syncSchema(connection, Message),
-      mongoose.syncSchema(connection, User),
+      Schema.sync(Friend),
+      Schema.sync(Group),
+      Schema.sync(GroupInvitation),
+      Schema.sync(Ignoration),
+      Schema.sync(Message),
+      Schema.sync(User),
     ]);
     console.log('Schemas synced successfully!');
 
@@ -51,7 +49,6 @@ const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
 
     console.log('Enabling Document Pre- and Post-Images...');
     await Promise.all([
-      mongoose.enablePrePostImages(Authorization),
       mongoose.enablePrePostImages(Friend),
       mongoose.enablePrePostImages(Group),
       mongoose.enablePrePostImages(GroupInvitation),

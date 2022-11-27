@@ -1,6 +1,7 @@
+import { AuthorizationRole } from '@tenlastic/mongoose';
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { AuthorizationRole, QueueMember, QueueMemberDocument } from '../models';
+import { QueueMember, QueueMemberDocument } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
 export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocument>(QueueMember, {

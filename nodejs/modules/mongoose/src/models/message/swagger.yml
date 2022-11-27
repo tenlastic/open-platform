@@ -1,0 +1,33 @@
+components:
+  schemas:
+    Message:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ^[0-9a-f]{24}$
+        body:
+          type: string
+          format: ^.{0,512}
+        createdAt:
+          type: string
+          format: date-time
+        fromUserId:
+          type: string
+          format: ^[0-9a-f]{24}$
+        readByUserIds:
+          type: array
+          items:
+            type: string
+            format: ^[0-9a-f]{24}$
+        toGroupId:
+          type: string
+          format: ^[0-9a-f]{24}$
+        toUserId:
+          type: string
+          format: ^[0-9a-f]{24}$
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - fromUserId

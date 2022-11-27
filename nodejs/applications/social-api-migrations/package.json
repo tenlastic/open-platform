@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@tenlastic/logging": "0.0.314",
-    "@tenlastic/mongoose-models": "0.0.314",
+    "@tenlastic/mongoose": "0.0.314",
     "@tenlastic/social-api": "0.0.314",
     "source-map-support": "0.5.12"
   },

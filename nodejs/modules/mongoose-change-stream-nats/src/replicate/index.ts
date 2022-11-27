@@ -1,5 +1,5 @@
 import * as nats from '@tenlastic/nats';
-import { IDatabasePayload } from '@tenlastic/mongoose-models';
+import { IDatabasePayload } from '@tenlastic/mongoose';
 import * as mongoose from 'mongoose';
 import { TextDecoder } from 'util';
 

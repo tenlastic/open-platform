@@ -1,0 +1,38 @@
+components:
+  schemas:
+    WorkflowStatusNode:
+      type: object
+      properties:
+        children:
+          type: array
+          items:
+            type: string
+        container:
+          type: string
+        displayName:
+          type: string
+        finishedAt:
+          type: string
+          format: date-time
+        id:
+          type: string
+        message:
+          type: string
+        name:
+          type: string
+        outboundNodes:
+          type: array
+          items:
+            type: string
+        phase:
+          type: string
+        pod:
+          type: string
+        startedAt:
+          type: string
+          format: date-time
+        templateName:
+          type: string
+        type:
+          type: string
+          enum: ['DAG', 'Pod', 'Retry', 'Skipped']

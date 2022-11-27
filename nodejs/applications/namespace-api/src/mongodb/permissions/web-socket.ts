@@ -1,6 +1,7 @@
+import { AuthorizationRole } from '@tenlastic/mongoose';
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { AuthorizationRole, WebSocket, WebSocketDocument } from '../models';
+import { WebSocket, WebSocketDocument } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
 export const WebSocketPermissions = new MongoosePermissions<WebSocketDocument>(WebSocket, {

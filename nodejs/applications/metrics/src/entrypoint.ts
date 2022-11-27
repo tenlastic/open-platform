@@ -1,7 +1,7 @@
 import { V1ResourceQuota } from '@kubernetes/client-node';
 import { resourceQuotaApiV1 } from '@tenlastic/kubernetes';
 import * as minio from '@tenlastic/minio';
-import * as mongooseModels from '@tenlastic/mongoose-models';
+import * as mongoose from '@tenlastic/mongoose';
 import * as nats from '@tenlastic/nats';
 import axios from 'axios';
 import { URL } from 'url';
@@ -40,7 +40,7 @@ let timeout: NodeJS.Timeout;
   await minio.makeBucket(minioBucket);
 
   // MongoDB.
-  await mongooseModels.connect({
+  await mongoose.connect({
     connectionString: mongoConnectionString,
     databaseName: mongoDatabaseName,
   });

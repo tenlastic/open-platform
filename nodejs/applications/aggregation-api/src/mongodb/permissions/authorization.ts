@@ -1,4 +1,4 @@
-import { AuthorizationRole } from '../models';
+import { AuthorizationRole } from '@tenlastic/mongoose';
 
 export const AuthorizationPermissionsHelpers = {
   getFindQuery(roles: AuthorizationRole[], selector = 'namespaceId') {

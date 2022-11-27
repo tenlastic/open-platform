@@ -1,5 +1,7 @@
+import { AuthorizationRole } from '@tenlastic/mongoose';
 import { IOptions, MongoosePermissions } from '@tenlastic/mongoose-permissions';
-import { AuthorizationRole, CollectionDocument, RecordDocument, RecordModel } from '../models';
+
+import { CollectionDocument, RecordDocument, RecordModel } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
 const administrator = {
@@ -11,33 +13,31 @@ const administrator = {
 export function RecordPermissions(collection: CollectionDocument, Model: RecordModel) {
   const permissions: IOptions = {
     create: {
-      ...collection.permissions.create,
+      ...Object.fromEntries(collection.permissions.create || []),
       'namespace-write': administrator.create,
       'user-write': administrator.create,
     },
     delete: {
-      ...collection.permissions.delete,
+      ...Object.fromEntries(collection.permissions.delete || []),
       'namespace-write': true,
       'user-write': true,
     },
     find: {
-      ...collection.permissions.find,
+      ...Object.fromEntries(collection.permissions.find || []),
       default: AuthorizationPermissionsHelpers.getFindQuery([
         AuthorizationRole.RecordsRead,
         AuthorizationRole.RecordsReadWrite,
       ]),
       'user-read': {},
     },
-    populate: collection.permissions.populate
-      ? [...collection.permissions.populate, AuthorizationPermissionsHelpers.getPopulateQuery()]
-      : [AuthorizationPermissionsHelpers.getPopulateQuery()],
+    populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
     read: {
-      ...collection.permissions.read,
+      ...Object.fromEntries(collection.permissions.read || []),
       'namespace-read': administrator.read,
       'user-read': administrator.read,
     },
     roles: {
-      ...collection.permissions.roles,
+      ...Object.fromEntries(collection.permissions.roles || []),
       default: {},
       'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
         AuthorizationRole.RecordsRead,
@@ -55,7 +55,7 @@ export function RecordPermissions(collection: CollectionDocument, Model: RecordM
       ]),
     },
     update: {
-      ...collection.permissions.update,
+      ...Object.fromEntries(collection.permissions.update || []),
       'namespace-write': administrator.update,
       'user-write': administrator.update,
     },

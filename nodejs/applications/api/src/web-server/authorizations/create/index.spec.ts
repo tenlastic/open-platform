@@ -1,18 +1,10 @@
+import { AuthorizationRole, NamespaceLimits, NamespaceLimitError } from '@tenlastic/mongoose';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 
-import {
-  AuthorizationMock,
-  AuthorizationRole,
-  NamespaceDocument,
-  NamespaceLimitError,
-  NamespaceLimitsMock,
-  NamespaceMock,
-  UserDocument,
-  UserMock,
-} from '../../../mongodb';
+import { Authorization, Namespace, NamespaceDocument, User, UserDocument } from '../../../mongodb';
 import { handler } from './';
 
 use(chaiAsPromised);
@@ -22,18 +14,18 @@ describe('web-server/authorizations/create', function () {
   let user: UserDocument;
 
   beforeEach(async function () {
-    otherUser = await UserMock.create();
-    user = await UserMock.create();
+    otherUser = await User.mock();
+    user = await User.mock();
   });
 
   context('when permission is granted', function () {
     let namespace: NamespaceDocument;
 
     beforeEach(async function () {
-      namespace = await NamespaceMock.create({
-        limits: NamespaceLimitsMock.create({ defaultAuthorization: true }),
+      namespace = await Namespace.mock({
+        limits: NamespaceLimits.mock({ defaultAuthorization: true }),
       });
-      await AuthorizationMock.create({
+      await Authorization.mock({
         namespaceId: namespace._id,
         roles: [AuthorizationRole.AuthorizationsReadWrite],
         userId: user._id,
@@ -42,7 +34,7 @@ describe('web-server/authorizations/create', function () {
 
     context('when a Namespace Limit is exceeded', function () {
       it('throws an error', async function () {
-        namespace.limits = NamespaceLimitsMock.create();
+        namespace.limits = NamespaceLimits.mock();
         await namespace.save();
 
         const ctx = new ContextMock({
@@ -74,7 +66,7 @@ describe('web-server/authorizations/create', function () {
 
   context('when permission is denied', function () {
     it('throws an error', async function () {
-      const namespace = await NamespaceMock.create({ limits: NamespaceLimitsMock.create() });
+      const namespace = await Namespace.mock({ limits: NamespaceLimits.mock() });
 
       const ctx = new ContextMock({
         params: { namespaceId: namespace._id },

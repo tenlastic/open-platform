@@ -23,10 +23,10 @@
   },
   "dependencies": {
     "@tenlastic/nats": "0.0.314",
-    "mongoose": "6.6.5"
+    "mongoose": "6.7.3"
   },
   "devDependencies": {
-    "@tenlastic/mongoose-models": "0.0.314",
+    "@tenlastic/mongoose": "0.0.314",
     "eslint": "^7.26.0",
     "mocha": "7.1.2",
     "nyc": "15.0.0",

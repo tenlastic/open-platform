@@ -1,4 +1,4 @@
-import { EventEmitter, IDatabasePayload } from '@tenlastic/mongoose-models';
+import { EventEmitter, IDatabasePayload } from '@tenlastic/mongoose';
 
 import { KubernetesWorkflow, KubernetesWorkflowSidecar } from '../kubernetes';
 import { Workflow, WorkflowDocument } from '../mongodb';

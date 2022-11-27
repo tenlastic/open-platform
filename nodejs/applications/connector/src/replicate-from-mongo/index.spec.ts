@@ -1,27 +1,27 @@
-import * as mongooseModels from '@tenlastic/mongoose-models';
+import * as mongoose from '@tenlastic/mongoose';
 import { expect } from 'chai';
 import * as Chance from 'chance';
-import * as mongoose from 'mongoose';
+import { Document, Model, Schema } from 'mongoose';
 
 import { replicateFromMongo } from './';
 
-interface Document extends mongoose.Document {
+interface ExampleDocument extends Document {
   name?: string;
 }
 
 const chance = new Chance();
-const schema = new mongoose.Schema<Document>({ name: { type: String } });
+const schema = new Schema<ExampleDocument>({ name: { type: String } });
 
 describe('replicateFromMongo()', function () {
-  let FromModel: mongoose.Model<Document>;
-  let ToModel: mongoose.Model<Document>;
+  let FromModel: Model<ExampleDocument>;
+  let ToModel: Model<ExampleDocument>;
 
   before(async function () {
-    const fromConnection = await mongooseModels.createConnection({
+    const fromConnection = await mongoose.createConnection({
       connectionString: process.env.MONGO_CONNECTION_STRING,
       databaseName: 'connector-test-from',
     });
-    const toConnection = await mongooseModels.createConnection({
+    const toConnection = await mongoose.createConnection({
       connectionString: process.env.MONGO_CONNECTION_STRING,
       databaseName: 'connector-test-to',
     });

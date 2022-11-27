@@ -1,13 +1,8 @@
-import { jsonToMongoose, SchemaDocument, SchemaSchema } from '@tenlastic/mongoose-models';
+import { jsonToMongoose, SchemaDocument, SchemaModel } from '@tenlastic/mongoose';
 import * as nats from '@tenlastic/nats';
 import * as mongoose from 'mongoose';
 import { AckPolicy, DeliverPolicy } from 'nats';
 import { TextDecoder } from 'util';
-
-export interface Schema {
-  __v: number;
-  name: string;
-}
 
 const from: { [key: string]: mongoose.Model<mongoose.Document> } = {};
 const to: { [key: string]: mongoose.Model<mongoose.Document> } = {};
@@ -21,18 +16,17 @@ export function getToModel(collection: string) {
 }
 
 export async function fetchSchemasFromMongo(
-  fromConnection: mongoose.Connection,
+  Schema: SchemaModel,
   toConnection: mongoose.Connection,
 ) {
-  const Schema = fromConnection.model('SchemaSchema', SchemaSchema);
-
   const schemas = await Schema.find().lean();
+
   if (schemas.length === 0) {
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    return fetchSchemasFromMongo(fromConnection, toConnection);
+    return fetchSchemasFromMongo(Schema, toConnection);
   }
 
-  schemas.forEach((s) => setModel(fromConnection, s, toConnection));
+  schemas.forEach((s) => setModel(Schema.db, s, toConnection));
 }
 
 export async function fetchSchemasFromNats(

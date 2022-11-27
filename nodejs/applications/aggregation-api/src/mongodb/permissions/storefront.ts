@@ -1,6 +1,7 @@
+import { AuthorizationRole } from '@tenlastic/mongoose';
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { AuthorizationRole, Storefront, StorefrontDocument } from '../models';
+import { Storefront, StorefrontDocument } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
 export const StorefrontPermissions = new MongoosePermissions<StorefrontDocument>(Storefront, {

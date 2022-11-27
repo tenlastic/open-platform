@@ -11,7 +11,7 @@
   "references": [
     { "path": "../../modules/kubernetes/tsconfig.app.json" },
     { "path": "../../modules/minio/tsconfig.app.json" },
-    { "path": "../../modules/mongoose-models/tsconfig.app.json" },
+    { "path": "../../modules/mongoose/tsconfig.app.json" },
     { "path": "../../modules/nats/tsconfig.app.json" }
   ],
   "ts-node": {

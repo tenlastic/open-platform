@@ -1,21 +1,20 @@
 import * as minio from '@tenlastic/minio';
-import {
-  AuthorizationMock,
-  AuthorizationRole,
-  NamespaceDocument,
-  NamespaceLimitError,
-  NamespaceLimitsMock,
-  NamespaceMock,
-  StorefrontDocument,
-  StorefrontMock,
-  UserDocument,
-  UserMock,
-} from '../../../../mongodb';
+import { AuthorizationRole, NamespaceLimitError, NamespaceLimits } from '@tenlastic/mongoose';
 import { ContextMock, RecordNotFoundError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as FormData from 'form-data';
 
+import { MinioStorefront } from '../../../../minio';
+import {
+  Authorization,
+  Namespace,
+  NamespaceDocument,
+  Storefront,
+  StorefrontDocument,
+  User,
+  UserDocument,
+} from '../../../../mongodb';
 import { handler } from './';
 
 use(chaiAsPromised);
@@ -25,10 +24,10 @@ describe('web-server/storefronts/upload', function () {
   let user: UserDocument;
 
   beforeEach(async function () {
-    namespace = await NamespaceMock.create({
-      limits: NamespaceLimitsMock.create({ storage: 1 * 1000 * 1000 * 1000 }),
-    });
-    user = await UserMock.create();
+    namespace = await Namespace.mock({
+      limits: NamespaceLimits.mock({ storage: 1 * 1000 * 1000 * 1000 }),
+    }).save();
+    user = await User.mock().save();
   });
 
   context('when permission is granted', function () {
@@ -37,12 +36,12 @@ describe('web-server/storefronts/upload', function () {
     let storefront: StorefrontDocument;
 
     beforeEach(async function () {
-      await AuthorizationMock.create({
+      await Authorization.mock({
         namespaceId: namespace._id,
         roles: [AuthorizationRole.StorefrontsReadWrite],
         userId: user._id,
-      });
-      storefront = await StorefrontMock.create({ namespaceId: namespace._id });
+      }).save();
+      storefront = await Storefront.mock({ namespaceId: namespace._id }).save();
 
       form = new FormData();
 
@@ -72,7 +71,7 @@ describe('web-server/storefronts/upload', function () {
 
       const result = await minio.statObject(
         process.env.MINIO_BUCKET,
-        storefront.getMinioKey('background'),
+        MinioStorefront.getObjectName(storefront.namespaceId, storefront._id, 'background'),
       );
 
       expect(result).to.exist;
@@ -111,7 +110,7 @@ describe('web-server/storefronts/upload', function () {
 
   context('when permission is denied', function () {
     it('throws an error', async function () {
-      const storefront = await StorefrontMock.create({ namespaceId: namespace._id });
+      const storefront = await Storefront.mock({ namespaceId: namespace._id }).save();
 
       const ctx = new ContextMock({
         params: { _id: storefront._id, field: 'background', namespaceId: namespace._id },

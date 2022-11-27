@@ -1,19 +1,22 @@
+import {
+  AuthorizationRole,
+  NamespaceLimitError,
+  NamespaceLimits,
+  QueueGameServerTemplate,
+} from '@tenlastic/mongoose';
 import { ContextMock, RecordNotFoundError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import { Chance } from 'chance';
 
 import {
-  AuthorizationMock,
-  AuthorizationRole,
-  BuildMock,
+  Authorization,
+  Build,
+  Namespace,
   NamespaceDocument,
-  NamespaceLimitError,
-  NamespaceLimitsMock,
-  NamespaceMock,
-  QueueMock,
+  Queue,
+  User,
   UserDocument,
-  UserMock,
 } from '../../../../mongodb';
 import { handler } from './';
 
@@ -24,7 +27,7 @@ describe('web-server/queues/update', function () {
   let user: UserDocument;
 
   beforeEach(async function () {
-    user = await UserMock.create();
+    user = await User.mock().save();
   });
 
   context('when permission is granted', function () {
@@ -32,21 +35,22 @@ describe('web-server/queues/update', function () {
     let namespace: NamespaceDocument;
 
     beforeEach(async function () {
-      namespace = await NamespaceMock.create({
-        limits: NamespaceLimitsMock.create({ cpu: 1, memory: 1 * 1000 * 1000 * 1000 }),
-      });
-      await AuthorizationMock.create({
+      namespace = await Namespace.mock({
+        limits: NamespaceLimits.mock({ cpu: 1, memory: 1 * 1000 * 1000 * 1000 }),
+      }).save();
+      await Authorization.mock({
         namespaceId: namespace._id,
         roles: [AuthorizationRole.QueuesReadWrite],
         userId: user._id,
-      });
-      const build = await BuildMock.create({ namespaceId: namespace._id });
-      const queue = await QueueMock.create({
+      }).save();
+      const build = await Build.mock({ namespaceId: namespace._id }).save();
+      const queue = await Queue.mock({
         cpu: 0.5,
+        gameServerTemplate: QueueGameServerTemplate.mock({ buildId: build._id }),
         memory: 0.5 * 1000 * 1000 * 1000,
         namespaceId: namespace._id,
         replicas: 1,
-      });
+      }).save();
 
       ctx = new ContextMock({
         params: { _id: queue._id, namespaceId: namespace._id },
@@ -69,7 +73,7 @@ describe('web-server/queues/update', function () {
 
     context('when a Namespace Limit is exceeded', function () {
       it('throws an error', async function () {
-        namespace.limits = NamespaceLimitsMock.create({ cpu: 0.5 });
+        namespace.limits = NamespaceLimits.mock({ cpu: 0.5 });
         await namespace.save();
 
         const promise = handler(ctx as any);
@@ -89,15 +93,17 @@ describe('web-server/queues/update', function () {
 
   context('when permission is denied', function () {
     it('throws an error', async function () {
-      const namespace = await NamespaceMock.create({
-        limits: NamespaceLimitsMock.create({ cpu: 1, memory: 1 * 1000 * 1000 * 1000 }),
-      });
-      const queue = await QueueMock.create({
+      const namespace = await Namespace.mock({
+        limits: NamespaceLimits.mock({ cpu: 1, memory: 1 * 1000 * 1000 * 1000 }),
+      }).save();
+      const build = await Build.mock({ namespaceId: namespace._id }).save();
+      const queue = await Queue.mock({
         cpu: 0.5,
+        gameServerTemplate: QueueGameServerTemplate.mock({ buildId: build._id }),
         memory: 0.5 * 1000 * 1000 * 1000,
         namespaceId: namespace._id,
         replicas: 1,
-      });
+      }).save();
 
       const ctx = new ContextMock({
         params: { _id: queue._id, namespaceId: namespace._id },

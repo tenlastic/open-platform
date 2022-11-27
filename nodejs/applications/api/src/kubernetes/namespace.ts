@@ -21,19 +21,17 @@ import {
   workflowApiV1,
 } from '@tenlastic/kubernetes';
 import * as minio from '@tenlastic/minio';
-import { createConnection } from '@tenlastic/mongoose-models';
+import {
+  AuthorizationRole,
+  createConnection,
+  NamespaceStatusComponentName,
+} from '@tenlastic/mongoose';
 import * as nats from '@tenlastic/nats';
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
 import { version } from '../../package.json';
-import {
-  Authorization,
-  AuthorizationDocument,
-  AuthorizationRole,
-  NamespaceDocument,
-  NamespaceStatusComponentName,
-} from '../mongodb';
+import { Authorization, AuthorizationDocument, NamespaceDocument } from '../mongodb';
 
 const chance = new Chance();
 

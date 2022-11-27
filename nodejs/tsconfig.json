@@ -17,7 +17,7 @@
       "@tenlastic/minio": ["./modules/minio/src"],
       "@tenlastic/mongoose-change-stream-nats": ["./modules/mongoose-change-stream-nats/src"],
       "@tenlastic/mongoose-migrations": ["./modules/mongoose-migrations/src"],
-      "@tenlastic/mongoose-models": ["./modules/mongoose-models/src"],
+      "@tenlastic/mongoose": ["./modules/mongoose/src"],
       "@tenlastic/mongoose-permissions": ["./modules/mongoose-permissions/src"],
       "@tenlastic/namespace-api": ["./applications/namespace-api/src"],
       "@tenlastic/nats": ["./modules/nats/src"],

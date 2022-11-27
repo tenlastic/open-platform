@@ -1,4 +1,4 @@
-import { EventEmitter, IDatabasePayload } from '@tenlastic/mongoose-models';
+import { EventEmitter, IDatabasePayload } from '@tenlastic/mongoose';
 
 import { QueueMember, QueueMemberDocument } from '../mongodb';
 import { GroupEvent } from './group';

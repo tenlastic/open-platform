@@ -1,36 +1,7 @@
-import {
-  DocumentType,
-  ReturnModelType,
-  getModelForClass,
-  index,
-  modelOptions,
-  prop,
-} from '@typegoose/typegoose';
-import * as mongoose from 'mongoose';
+import { FriendSchema as BaseFriendSchema } from '@tenlastic/mongoose';
+import { DocumentType, getModelForClass, ReturnModelType } from '@typegoose/typegoose';
 
-import { UserDocument } from '../user';
-
-@index({ fromUserId: 1, toUserId: 1 }, { unique: true })
-@modelOptions({ schemaOptions: { collection: 'friends', minimize: false, timestamps: true } })
-export class FriendSchema {
-  public _id: mongoose.Types.ObjectId;
-  public createdAt: Date;
-
-  @prop({ ref: 'UserSchema', required: true, type: mongoose.Schema.Types.ObjectId })
-  public fromUserId: mongoose.Types.ObjectId;
-
-  @prop({ ref: 'UserSchema', required: true, type: mongoose.Schema.Types.ObjectId })
-  public toUserId: mongoose.Types.ObjectId;
-
-  public updatedAt: Date;
-
-  @prop({ foreignField: '_id', justOne: true, localField: 'fromUserId', ref: 'UserSchema' })
-  public fromUserIdDocument: UserDocument;
-
-  @prop({ foreignField: '_id', justOne: true, localField: 'toUserId', ref: 'UserSchema' })
-  public toUserIdDocument: UserDocument;
-}
-
+export class FriendSchema extends BaseFriendSchema {}
 export type FriendDocument = DocumentType<FriendSchema>;
 export type FriendModel = ReturnModelType<typeof FriendSchema>;
 export const Friend = getModelForClass(FriendSchema);

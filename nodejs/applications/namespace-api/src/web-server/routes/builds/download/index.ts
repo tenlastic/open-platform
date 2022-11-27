@@ -1,8 +1,10 @@
 import * as minio from '@tenlastic/minio';
-import { BuildPermissions } from '../../../../mongodb';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 import * as JSZip from 'jszip';
+
+import { MinioBuild } from '../../../../minio';
+import { BuildPermissions } from '../../../../mongodb';
 
 export async function handler(ctx: Context) {
   const credentials = { ...ctx.state };
@@ -22,7 +24,10 @@ export async function handler(ctx: Context) {
 
   const zip = new JSZip();
   for (const file of files) {
-    const stream = await minio.getObject(process.env.MINIO_BUCKET, build.getFilePath(file.path));
+    const stream = await minio.getObject(
+      process.env.MINIO_BUCKET,
+      MinioBuild.getFileObjectName(build, file.path),
+    );
     zip.file(file.path, stream as NodeJS.ReadableStream);
   }
 

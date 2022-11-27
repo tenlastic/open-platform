@@ -1,20 +1,20 @@
 import * as minio from '@tenlastic/minio';
-import {
-  AuthorizationMock,
-  AuthorizationRole,
-  BuildDocument,
-  BuildFileMock,
-  BuildMock,
-  NamespaceMock,
-  UserDocument,
-  UserMock,
-} from '../../../../mongodb';
+import { AuthorizationRole, BuildFile } from '@tenlastic/mongoose';
 import { ContextMock, RecordNotFoundError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as fs from 'fs';
 import * as unzipper from 'unzipper';
 
+import { MinioBuild } from '../../../../minio';
+import {
+  Authorization,
+  Build,
+  BuildDocument,
+  Namespace,
+  User,
+  UserDocument,
+} from '../../../../mongodb';
 import { handler } from './';
 
 use(chaiAsPromised);
@@ -23,7 +23,7 @@ describe('web-server/files/download', function () {
   let user: UserDocument;
 
   beforeEach(async function () {
-    user = await UserMock.create();
+    user = await User.mock();
   });
 
   context('when permission is granted', async function () {
@@ -31,31 +31,28 @@ describe('web-server/files/download', function () {
     let build: BuildDocument;
 
     beforeEach(async function () {
-      const namespace = await NamespaceMock.create();
-      await AuthorizationMock.create({
+      const namespace = await Namespace.mock().save();
+      await Authorization.mock({
         namespaceId: namespace._id,
         roles: [AuthorizationRole.BuildsRead],
         userId: user._id,
-      });
+      }).save();
 
-      build = await BuildMock.create({
-        files: [
-          BuildFileMock.create({ path: 'index.ts' }),
-          BuildFileMock.create({ path: 'index.spec.ts' }),
-        ],
+      build = await Build.mock({
+        files: [BuildFile.mock({ path: 'index.ts' }), BuildFile.mock({ path: 'index.spec.ts' })],
         namespaceId: namespace._id,
-      });
+      }).save();
 
-      const firstFileMinioKey = build.getFilePath(build.files[0].path);
-      const secondFileMinioKey = build.getFilePath(build.files[1].path);
+      const firstFileObjectName = MinioBuild.getFileObjectName(build, build.files[0].path);
+      const secondFileObjectName = MinioBuild.getFileObjectName(build, build.files[1].path);
       await minio.putObject(
         process.env.MINIO_BUCKET,
-        firstFileMinioKey,
+        firstFileObjectName,
         fs.createReadStream(__filename),
       );
       await minio.putObject(
         process.env.MINIO_BUCKET,
-        secondFileMinioKey,
+        secondFileObjectName,
         fs.createReadStream(__filename),
       );
 
@@ -99,8 +96,8 @@ describe('web-server/files/download', function () {
 
   context('when permission is denied', function () {
     it('throws an error', async function () {
-      const namespace = await NamespaceMock.create();
-      const build = await BuildMock.create({ namespaceId: namespace._id });
+      const namespace = await Namespace.mock().save();
+      const build = await Build.mock({ namespaceId: namespace._id }).save();
 
       const ctx = new ContextMock({
         params: {

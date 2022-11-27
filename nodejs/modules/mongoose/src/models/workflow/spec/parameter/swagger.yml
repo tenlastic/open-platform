@@ -1,0 +1,12 @@
+components:
+  schemas:
+    WorkflowSpecParameter:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+      required:
+        - name
+        - value

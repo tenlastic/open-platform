@@ -1,19 +1,18 @@
-import {
-  AuthorizationMock,
-  AuthorizationRole,
-  CollectionDocument,
-  CollectionMock,
-  NamespaceMock,
-  RecordDocument,
-  RecordSchema,
-  UserDocument,
-  UserMock,
-} from '../../../../mongodb';
+import { CollectionPermissions } from '@tenlastic/mongoose';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
 
+import {
+  Collection,
+  CollectionDocument,
+  Namespace,
+  RecordDocument,
+  RecordSchema,
+  User,
+  UserDocument,
+} from '../../../../mongodb';
 import { handler } from './';
 
 const chance = new Chance();
@@ -25,32 +24,22 @@ describe('web-server/records/update', function () {
   let user: UserDocument;
 
   beforeEach(async function () {
-    user = await UserMock.create();
+    user = await User.mock().save();
 
-    const namespace = await NamespaceMock.create();
-    await AuthorizationMock.create({
+    const namespace = await Namespace.mock().save();
+    collection = await Collection.mock({
       namespaceId: namespace._id,
-      roles: [AuthorizationRole.RecordsReadWrite],
-      userId: user._id,
-    });
-
-    collection = await CollectionMock.create({
-      namespaceId: namespace._id,
-      permissions: {
-        create: {},
-        delete: {},
-        find: {
-          default: {},
-        },
-        read: {
-          default: ['_id', 'createdAt', 'properties.email', 'properties.name', 'updatedAt'],
-        },
-        roles: {},
-        update: {
-          default: ['properties.email', 'properties.name'],
-        },
-      },
-    });
+      permissions: CollectionPermissions.mock({
+        find: new Map(Object.entries({ public: {} })),
+        read: new Map(
+          Object.entries({
+            public: ['_id', 'createdAt', 'properties.email', 'properties.name', 'updatedAt'],
+          }),
+        ),
+        roles: new Map(Object.entries({ public: {} })),
+        update: new Map(Object.entries({ public: ['properties.email', 'properties.name'] })),
+      }),
+    }).save();
 
     const Model = RecordSchema.getModel(collection);
     record = await Model.create({

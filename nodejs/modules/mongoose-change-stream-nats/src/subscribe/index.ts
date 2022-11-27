@@ -1,4 +1,4 @@
-import { IDatabasePayload } from '@tenlastic/mongoose-models';
+import { IDatabasePayload } from '@tenlastic/mongoose';
 import * as nats from '@tenlastic/nats';
 import * as mongoose from 'mongoose';
 import { AckPolicy } from 'nats';

@@ -1,16 +1,7 @@
 import { subscribe } from '@tenlastic/mongoose-change-stream-nats';
 import * as nats from '@tenlastic/nats';
 
-import {
-  Authorization,
-  Friend,
-  GroupInvitation,
-  Group,
-  Ignoration,
-  Message,
-  User,
-} from '../mongodb';
-import { AuthorizationEvent } from './authorization';
+import { Friend, GroupInvitation, Group, Ignoration, Message, User } from '../mongodb';
 import { FriendEvent } from './friend';
 import { GroupEvent } from './group';
 import { GroupInvitationEvent } from './group-invitation';
@@ -28,9 +19,6 @@ export async function setup(options: SetupOptions) {
   await nats.upsertStream(options.database);
 
   Promise.all([
-    subscribe(options.database, options.durable, Authorization, (payload) =>
-      AuthorizationEvent.emit(payload),
-    ),
     subscribe(options.database, options.durable, Friend, (payload) => FriendEvent.emit(payload)),
     subscribe(options.database, options.durable, GroupInvitation, (payload) =>
       GroupInvitationEvent.emit(payload),

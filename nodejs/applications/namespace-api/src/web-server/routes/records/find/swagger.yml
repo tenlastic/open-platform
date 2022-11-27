@@ -28,4 +28,4 @@ paths:
                   records:
                     type: array
                     items:
-                      $ref: '#/components/schemas/CollectionRecord'
+                      $ref: '#/components/schemas/Record'

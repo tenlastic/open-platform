@@ -1,47 +1,7 @@
-import {
-  DocumentType,
-  ReturnModelType,
-  getModelForClass,
-  index,
-  modelOptions,
-  prop,
-} from '@typegoose/typegoose';
-import * as mongoose from 'mongoose';
+import { ArticleSchema as BaseArticleSchema } from '@tenlastic/mongoose';
+import { DocumentType, ReturnModelType, getModelForClass } from '@typegoose/typegoose';
 
-import { AuthorizationDocument } from '../authorization';
-
-@index({ namespaceId: 1 })
-@index({ publishedAt: 1 })
-@modelOptions({ schemaOptions: { collection: 'articles', minimize: false, timestamps: true } })
-export class ArticleSchema {
-  public _id: mongoose.Types.ObjectId;
-
-  @prop({ required: true, type: String })
-  public body: string;
-
-  @prop({ type: String })
-  public caption: string;
-
-  public createdAt: Date;
-
-  @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
-  public namespaceId: mongoose.Types.ObjectId;
-
-  @prop({ type: Date })
-  public publishedAt: Date;
-
-  @prop({ match: /^.{2,100}$/, required: true, type: String })
-  public title: string;
-
-  @prop({ default: 'News', enum: ['Guide', 'News', 'Patch Notes'], type: String })
-  public type: string;
-
-  public updatedAt: Date;
-
-  @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
-  public authorizationDocuments: AuthorizationDocument[];
-}
-
+export class ArticleSchema extends BaseArticleSchema {}
 export type ArticleDocument = DocumentType<ArticleSchema>;
 export type ArticleModel = ReturnModelType<typeof ArticleSchema>;
 export const Article = getModelForClass(ArticleSchema);

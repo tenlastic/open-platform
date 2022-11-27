@@ -31,4 +31,4 @@ paths:
                 type: object
                 properties:
                   record:
-                    $ref: '#/components/schemas/CollectionRecord'
+                    $ref: '#/components/schemas/Record'

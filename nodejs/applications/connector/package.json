@@ -15,9 +15,10 @@
     "version": "../../scripts/version.sh connector"
   },
   "dependencies": {
-    "@tenlastic/mongoose-models": "0.0.314",
+    "@tenlastic/mongoose": "0.0.314",
     "@tenlastic/mongoose-permissions": "0.0.314",
     "@tenlastic/nats": "0.0.314",
+    "@typegoose/typegoose": "9.13.1",
     "source-map-support": "0.5.12"
   },
   "devDependencies": {

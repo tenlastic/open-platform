@@ -21,7 +21,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CollectionRecord'
+              $ref: '#/components/schemas/Record'
       responses:
         200:
           description: OK
@@ -31,4 +31,4 @@ paths:
                 type: object
                 properties:
                   record:
-                    $ref: '#/components/schemas/CollectionRecord'
+                    $ref: '#/components/schemas/Record'

@@ -1,7 +1,7 @@
-import { EventEmitter, IDatabasePayload } from '@tenlastic/mongoose-models';
+import { EventEmitter, GameServerStatusComponentName, IDatabasePayload } from '@tenlastic/mongoose';
 
 import { KubernetesGameServer, KubernetesGameServerSidecar } from '../kubernetes';
-import { GameServer, GameServerDocument, GameServerStatusComponentName } from '../mongodb';
+import { GameServer, GameServerDocument } from '../mongodb';
 import { NamespaceEvent } from './namespace';
 import { QueueEvent } from './queue';
 

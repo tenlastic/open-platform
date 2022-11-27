@@ -1,17 +1,16 @@
-import {
-  AuthorizationMock,
-  AuthorizationRole,
-  CollectionDocument,
-  CollectionMock,
-  NamespaceDocument,
-  NamespaceMock,
-  RecordSchema,
-  UserDocument,
-  UserMock,
-} from '../../../../mongodb';
+import { CollectionPermissions } from '@tenlastic/mongoose';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
 
+import {
+  Collection,
+  CollectionDocument,
+  Namespace,
+  NamespaceDocument,
+  RecordSchema,
+  User,
+  UserDocument,
+} from '../../../../mongodb';
 import { handler } from './';
 
 describe('web-server/records/find-one', function () {
@@ -20,32 +19,17 @@ describe('web-server/records/find-one', function () {
   let user: UserDocument;
 
   beforeEach(async function () {
-    user = await UserMock.create();
-
-    namespace = await NamespaceMock.create();
-    await AuthorizationMock.create({
+    user = await User.mock().save();
+    namespace = await Namespace.mock().save();
+    collection = await Collection.mock({
       namespaceId: namespace._id,
-      roles: [AuthorizationRole.RecordsRead],
-      userId: user._id,
-    });
-
-    collection = await CollectionMock.create({
-      namespaceId: namespace._id,
-      permissions: {
-        create: {
-          default: ['properties'],
-        },
-        delete: {},
-        find: {
-          default: {},
-        },
-        read: {
-          default: ['_id', 'createdAt', 'properties', 'updatedAt'],
-        },
-        roles: {},
-        update: {},
-      },
-    });
+      permissions: CollectionPermissions.mock({
+        create: new Map(Object.entries({ public: ['properties'] })),
+        find: new Map(Object.entries({ public: {} })),
+        read: new Map(Object.entries({ public: ['_id', 'createdAt', 'properties', 'updatedAt'] })),
+        roles: new Map(Object.entries({ public: {} })),
+      }),
+    }).save();
   });
 
   it('returns the matching record', async function () {

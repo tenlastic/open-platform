@@ -1,4 +1,4 @@
-import { IDatabasePayload } from '@tenlastic/mongoose-models';
+import { IDatabasePayload } from '@tenlastic/mongoose';
 import * as nats from '@tenlastic/nats';
 import { expect } from 'chai';
 import * as Chance from 'chance';

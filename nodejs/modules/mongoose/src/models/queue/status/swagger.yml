@@ -1,0 +1,25 @@
+components:
+  schemas:
+    QueueStatus:
+      type: object
+      properties:
+        components:
+          type: array
+          items:
+            $ref: '#/components/schemas/QueueStatusComponent'
+        message:
+          type: string
+        nodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/QueueStatusNode'
+        phase:
+          $ref: '#/components/schemas/QueueStatusPhase'
+        version:
+          type: string
+    QueueStatusComponentName:
+      type: string
+      enum: [Application, Sidecar]
+    QueueStatusPhase:
+      type: string
+      enum: [Error, Failed, Pending, Running, Succeeded]

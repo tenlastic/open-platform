@@ -1,4 +1,4 @@
-import * as mongoose from '@tenlastic/mongoose-models';
+import * as mongoose from '@tenlastic/mongoose';
 import * as nats from '@tenlastic/nats';
 
 before(async function () {

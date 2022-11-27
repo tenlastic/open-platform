@@ -1,0 +1,35 @@
+components:
+  schemas:
+    Workflow:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ^[0-9a-f]{24}$
+        cpu:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+        memory:
+          type: number
+        name:
+          type: string
+        namespaceId:
+          type: string
+          format: ^[0-9a-f]{24}$
+        preemptible:
+          type: boolean
+        spec:
+          $ref: '#/components/schemas/WorkflowSpec'
+        status:
+          $ref: '#/components/schemas/WorkflowStatus'
+        storage:
+          type: number
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - cpu
+        - memory
+        - name

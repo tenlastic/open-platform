@@ -1,8 +1,9 @@
 import { V1PodTemplateSpec } from '@kubernetes/client-node';
 import { deploymentApiV1, networkPolicyApiV1, podApiV1, serviceApiV1 } from '@tenlastic/kubernetes';
+import { GameServerStatusComponentName } from '@tenlastic/mongoose';
 import { URL } from 'url';
 
-import { GameServerDocument, GameServerStatusComponentName } from '../mongodb';
+import { GameServerDocument } from '../mongodb';
 import { KubernetesNamespace } from './namespace';
 
 export const KubernetesGameServer = {

@@ -1,6 +1,7 @@
+import { AuthorizationRole } from '@tenlastic/mongoose';
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { AuthorizationRole, Collection, CollectionDocument } from '../models';
+import { Collection, CollectionDocument } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
 export const CollectionPermissions = new MongoosePermissions<CollectionDocument>(Collection, {

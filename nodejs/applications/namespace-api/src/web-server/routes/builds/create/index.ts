@@ -1,8 +1,10 @@
 import * as minio from '@tenlastic/minio';
+import { NamespaceLimitError } from '@tenlastic/mongoose';
 import { Context } from '@tenlastic/web-server';
 import * as Busboy from 'busboy';
 
-import { Build, BuildPermissions, Namespace, NamespaceLimitError } from '../../../../mongodb';
+import { MinioBuild } from '../../../../minio';
+import { Build, BuildPermissions, Namespace } from '../../../../mongodb';
 import { NamespaceStorageLimitEvent } from '../../../../nats';
 
 export async function handler(ctx: Context) {
@@ -46,7 +48,7 @@ export async function handler(ctx: Context) {
 
       // Upload to Minio
       promise = minio
-        .putObject(process.env.MINIO_BUCKET, build.getZipPath(), stream)
+        .putObject(process.env.MINIO_BUCKET, MinioBuild.getZipObjectName(build), stream)
         .finally(() => NamespaceStorageLimitEvent.remove(listener));
     });
     busboy.on('filesLimit', () => reject('Cannot upload more than one file at once.'));
@@ -62,7 +64,7 @@ export async function handler(ctx: Context) {
 
     ctx.response.body = { record };
   } catch (e) {
-    await minio.removeObject(process.env.MINIO_BUCKET, build.getZipPath());
+    await minio.removeObject(process.env.MINIO_BUCKET, MinioBuild.getZipObjectName(build));
     throw e;
   }
 }

@@ -1,0 +1,11 @@
+components:
+  schemas:
+    CollectionIndex:
+      type: object
+      properties:
+        key:
+          type: object
+        options:
+          type: object
+      required:
+        - key

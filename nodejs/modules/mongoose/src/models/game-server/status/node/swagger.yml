@@ -1,0 +1,18 @@
+components:
+  schemas:
+    GameServerStatusNode:
+      type: object
+      properties:
+        component:
+          $ref: '#/components/schemas/GameServerStatusComponentName'
+        container:
+          type: string
+        phase:
+          $ref: '#/components/schemas/GameServerStatusPhase'
+        pod:
+          type: string
+      required:
+        - component
+        - container
+        - phase
+        - pod

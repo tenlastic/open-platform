@@ -10,7 +10,7 @@
   "include": ["./src"],
   "references": [
     { "path": "../../modules/logging/tsconfig.app.json" },
-    { "path": "../../modules/mongoose-models/tsconfig.app.json" },
+    { "path": "../../modules/mongoose/tsconfig.app.json" },
     { "path": "../api/tsconfig.app.json" }
   ],
   "ts-node": {

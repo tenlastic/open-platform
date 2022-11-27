@@ -1,15 +1,18 @@
+import { AuthorizationRole, QueueGameServerTemplate } from '@tenlastic/mongoose';
 import { ContextMock } from '@tenlastic/web-server';
-import * as mongoose from 'mongoose';
 import { expect } from 'chai';
 
 import {
-  AuthorizationMock,
-  AuthorizationRole,
+  Authorization,
+  Build,
+  Group,
+  Namespace,
   NamespaceDocument,
-  NamespaceMock,
-  QueueMemberMock,
+  Queue,
+  QueueMember,
+  User,
   UserDocument,
-  UserMock,
+  WebSocket,
 } from '../../../mongodb';
 import { handler } from './';
 
@@ -18,25 +21,47 @@ describe('web-server/queue-members/count', function () {
   let users: UserDocument[];
 
   beforeEach(async function () {
-    users = await Promise.all([UserMock.create(), UserMock.create(), UserMock.create()]);
+    users = await Promise.all([
+      User.mock().save(),
+      User.mock().save(),
+      User.mock().save(),
+      User.mock().save(),
+    ]);
 
-    namespace = await NamespaceMock.create();
-    await AuthorizationMock.create({
+    namespace = await Namespace.mock().save();
+    await Authorization.mock({
       namespaceId: namespace._id,
       roles: [AuthorizationRole.QueuesRead],
       userId: users[0]._id,
-    });
+    }).save();
   });
 
   it('returns the number of matching records', async function () {
-    const queueId = new mongoose.Types.ObjectId();
+    const build = await Build.mock({ namespaceId: namespace._id }).save();
+    const group = await Group.mock({ userIds: [users[1]._id, users[2]._id] }).save();
+    const queue = await Queue.mock({
+      gameServerTemplate: QueueGameServerTemplate.mock({ buildId: build._id }),
+      namespaceId: namespace._id,
+      usersPerTeam: 2,
+    }).save();
+    const webSockets = await Promise.all([
+      WebSocket.mock({ userId: users[0]._id }).save(),
+      WebSocket.mock({ userId: users[1]._id }).save(),
+    ]);
     await Promise.all([
-      QueueMemberMock.create({ namespaceId: namespace._id, queueId, userIds: [users[0]._id] }),
-      QueueMemberMock.create({
+      QueueMember.mock({
         namespaceId: namespace._id,
-        queueId,
-        userIds: [users[1]._id, users[2]._id],
-      }),
+        queueId: queue._id,
+        userId: users[0]._id,
+        webSocketId: webSockets[0]._id,
+      }).save(),
+      QueueMember.mock({
+        groupId: group._id,
+        namespaceId: namespace._id,
+        queueId: queue._id,
+        userId: users[1]._id,
+        webSocketId: webSockets[1]._id,
+      }).save(),
     ]);
     const ctx = new ContextMock({ state: { user: users[0].toObject() } });
 

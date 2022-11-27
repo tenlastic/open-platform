@@ -1,5 +1,6 @@
-import { EventEmitter, IDatabasePayload } from '@tenlastic/mongoose-models';
+import { EventEmitter, IDatabasePayload } from '@tenlastic/mongoose';
 
+import { MinioStorefront } from '../minio';
 import { Storefront, StorefrontDocument } from '../mongodb';
 import { NamespaceEvent } from './namespace';
 
@@ -17,6 +18,6 @@ NamespaceEvent.async(async (payload) => {
 StorefrontEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
-      return payload.fullDocument.removeMinioObjects();
+      return MinioStorefront.removeObject(payload.fullDocument);
   }
 });
