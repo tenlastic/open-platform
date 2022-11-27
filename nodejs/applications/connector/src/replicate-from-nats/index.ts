@@ -1,7 +1,7 @@
 import * as mongoose from '@tenlastic/mongoose';
 import * as mongoosePermissions from '@tenlastic/mongoose-permissions';
 import * as nats from '@tenlastic/nats';
-import { Document, Model, Query } from 'mongoose';
+import { Document as MongooseDocument, Model as MongooseModel, Query } from 'mongoose';
 import { AckPolicy, DeliverPolicy } from 'nats';
 import { TextDecoder } from 'util';
 
@@ -16,7 +16,7 @@ export interface ReplicateOptions {
  * Applies all change events from the topic to the target collection.
  */
 export async function replicateFromNats(
-  model: Model<Document>,
+  Model: MongooseModel<MongooseDocument>,
   options: ReplicateOptions,
   where?: any,
 ) {
@@ -35,7 +35,7 @@ export async function replicateFromNats(
     const json = JSON.parse(data);
 
     try {
-      await eachMessage(model, options, json, new Query().cast(model, where));
+      await eachMessage(Model, options, json, new Query().cast(Model, where));
       message.ack();
     } catch (e) {
       console.error(e);
@@ -47,13 +47,13 @@ export async function replicateFromNats(
 }
 
 export async function eachMessage(
-  model: Model<Document>,
+  Model: MongooseModel<MongooseDocument>,
   options: ReplicateOptions,
-  payload: mongoose.IDatabasePayload<Model<Document>>,
+  payload: mongoose.IDatabasePayload<MongooseModel<MongooseDocument>>,
   where?: any,
 ) {
   if (where) {
-    const fullDocument = new Query().cast(model, payload.fullDocument);
+    const fullDocument = new Query().cast(Model, payload.fullDocument);
 
     if (!mongoosePermissions.isJsonValid(fullDocument, where)) {
       return;
@@ -62,9 +62,9 @@ export async function eachMessage(
 
   const { documentKey, operationType, updateDescription } = payload;
   if (operationType === 'delete') {
-    await model.deleteOne(documentKey);
+    await Model.deleteOne(documentKey);
   } else if (operationType === 'insert') {
-    await model.create(payload.fullDocument);
+    await Model.create(payload.fullDocument);
   } else if (options.useUpdateDescription) {
     const { removedFields, updatedFields } = updateDescription;
     const update: any = {};
@@ -81,11 +81,11 @@ export async function eachMessage(
     }
 
     if (update.$set || update.$unset) {
-      await model.updateOne(documentKey, update, { upsert: true });
+      await Model.updateOne(documentKey, update, { upsert: true });
     }
   } else if (operationType === 'replace') {
-    await model.replaceOne(documentKey, payload.fullDocument, { upsert: true });
+    await Model.replaceOne(documentKey, payload.fullDocument, { upsert: true });
   } else if (operationType === 'update') {
-    await model.updateOne(documentKey, payload.fullDocument, { upsert: true });
+    await Model.updateOne(documentKey, payload.fullDocument, { upsert: true });
   }
 }

@@ -33,10 +33,10 @@ export class SchemaSchema {
 
   public updatedAt: Date;
 
-  public static sync(this: SchemaModel, model: mongoose.Model<mongoose.Document>) {
+  public static sync(this: SchemaModel, Model: mongoose.Model<mongoose.Document>) {
     return this.findOneAndUpdate(
-      { name: model.collection.name },
-      { ...mongooseToJson(model.schema), $inc: { __v: 1 } },
+      { name: Model.collection.name },
+      { ...mongooseToJson(Model.schema), $inc: { __v: 1 } },
       { new: true, upsert: true },
     );
   }
