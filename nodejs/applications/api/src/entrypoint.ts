@@ -8,7 +8,6 @@ import { URL } from 'url';
 import mailgun from './mailgun';
 import * as nats from './nats';
 import * as webServer from './web-server';
-import * as webSocketServer from './web-socket-server';
 
 const mailgunDomain = process.env.MAILGUN_DOMAIN;
 const mailgunSecret = process.env.MAILGUN_SECRET;
@@ -16,7 +15,6 @@ const minioBucket = process.env.MINIO_BUCKET;
 const minioConnectionString = process.env.MINIO_CONNECTION_STRING;
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
 const natsConnectionString = process.env.NATS_CONNECTION_STRING;
-const podName = process.env.POD_NAME;
 
 (async () => {
   try {
@@ -41,10 +39,7 @@ const podName = process.env.POD_NAME;
     await nats.setup({ connectionString: natsConnectionString, database: 'api', durable: 'api' });
 
     // Web Server.
-    const { server } = webServer.setup();
-
-    // Web Socket Server.
-    await webSocketServer.setup({ podName, server });
+    webServer.setup();
   } catch (e) {
     console.error(e);
     process.exit(1);

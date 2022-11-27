@@ -64,7 +64,7 @@ metadata:
   namespace: static
 ---
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   labels:
     app: api
@@ -75,7 +75,6 @@ spec:
   selector:
     matchLabels:
       app: api
-  serviceName: api
   template:
     metadata:
       labels:
@@ -102,11 +101,6 @@ spec:
       containers:
         - name: api
           image: tenlastic/api:0.0.314
-          env:
-            - name: POD_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
           envFrom:
             - secretRef:
                 name: nodejs

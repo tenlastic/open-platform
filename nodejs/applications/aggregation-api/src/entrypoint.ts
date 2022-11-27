@@ -5,9 +5,11 @@ import * as mongoose from '@tenlastic/mongoose';
 
 import * as nats from './nats';
 import * as webServer from './web-server';
+import * as webSocketServer from './web-socket-server';
 
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
 const natsConnectionString = process.env.NATS_CONNECTION_STRING;
+const podName = process.env.POD_NAME;
 
 (async () => {
   try {
@@ -25,7 +27,10 @@ const natsConnectionString = process.env.NATS_CONNECTION_STRING;
     });
 
     // Web Server.
-    webServer.setup();
+    const { server } = webServer.setup();
+
+    // Web Socket Server.
+    await webSocketServer.setup({ podName, server });
   } catch (e) {
     console.error(e);
     process.exit(1);

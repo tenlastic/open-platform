@@ -15,12 +15,14 @@
     "version": "../../scripts/version.sh aggregation-api"
   },
   "dependencies": {
+    "@tenlastic/kubernetes": "0.0.314",
     "@tenlastic/logging": "0.0.314",
     "@tenlastic/mongoose-change-stream-nats": "0.0.314",
     "@tenlastic/mongoose": "0.0.314",
     "@tenlastic/mongoose-permissions": "0.0.314",
     "@tenlastic/nats": "0.0.314",
     "@tenlastic/web-server": "0.0.314",
+    "@tenlastic/web-socket-server": "0.0.314",
     "@typegoose/typegoose": "9.13.1",
     "chance": "1.0.16",
     "koa-router": "12.0.0",

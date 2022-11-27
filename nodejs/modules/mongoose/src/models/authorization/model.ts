@@ -53,7 +53,6 @@ export enum AuthorizationRole {
 @index({ namespaceId: 1, userId: 1 }, { partialFilterExpression: { apiKey: null }, unique: true })
 @index({ roles: 1 })
 @modelOptions({
-  options: { enableMergeHooks: true },
   schemaOptions: { collection: 'authorizations', minimize: false, timestamps: true },
 })
 @plugin(duplicateKeyErrorPlugin)

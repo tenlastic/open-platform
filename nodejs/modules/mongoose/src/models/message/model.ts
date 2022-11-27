@@ -15,10 +15,7 @@ import * as mongoose from 'mongoose';
 @index({ readByUserIds: 1 })
 @index({ toGroupId: 1 })
 @index({ toUserId: 1 })
-@modelOptions({
-  options: { enableMergeHooks: true },
-  schemaOptions: { collection: 'messages', minimize: false, timestamps: true },
-})
+@modelOptions({ schemaOptions: { collection: 'messages', minimize: false, timestamps: true } })
 @pre('save', function (this: MessageDocument) {
   this.readByUserIds = this.readByUserIds?.length ? this.readByUserIds : [this.fromUserId];
 })

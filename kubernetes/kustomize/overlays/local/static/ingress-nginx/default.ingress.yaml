@@ -131,7 +131,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: api
+                name: aggregation-api
                 port:
                   number: 3000
     - host: www.local.tenlastic.com

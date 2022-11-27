@@ -19,7 +19,6 @@ import { AuthorizationDocument } from '../authorization/model';
 @index({ email: 1 }, { partialFilterExpression: { email: { $type: 'string' } }, unique: true })
 @index({ username: 1 }, { collation: { locale: 'en_US', strength: 1 }, unique: true })
 @modelOptions({
-  options: { enableMergeHooks: true },
   schemaOptions: {
     collation: { locale: 'en_US', strength: 1 },
     collection: 'users',

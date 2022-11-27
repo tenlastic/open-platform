@@ -17,7 +17,6 @@ import { AuthorizationDocument, AuthorizationRole } from '../authorization';
 @index({ namespaceId: 1, userId: 1 }, { unique: true })
 @index({ roles: 1 })
 @modelOptions({
-  options: { enableMergeHooks: true },
   schemaOptions: { collection: 'authorization-requests', minimize: false, timestamps: true },
 })
 @plugin(duplicateKeyErrorPlugin)

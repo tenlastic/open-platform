@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   labels:
     app: aggregation-api
@@ -10,6 +10,7 @@ spec:
   selector:
     matchLabels:
       app: aggregation-api
+  serviceName: aggregation-api
   template:
     metadata:
       labels:
@@ -36,6 +37,11 @@ spec:
       containers:
         - name: aggregation-api
           image: tenlastic/aggregation-api:0.0.314
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
           envFrom:
             - secretRef:
                 name: nodejs

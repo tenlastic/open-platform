@@ -26,7 +26,7 @@ import { CollectionModelPermissions, CollectionModelPermissionsSchema } from './
 
 @index({ name: 1, namespaceId: 1 }, { unique: true })
 @modelOptions({
-  options: { allowMixed: Severity.ALLOW, enableMergeHooks: true },
+  options: { allowMixed: Severity.ALLOW },
   schemaOptions: {
     collection: 'collections',
     minimize: false,
