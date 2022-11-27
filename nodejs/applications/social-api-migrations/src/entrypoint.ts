@@ -1,34 +1,38 @@
 import 'source-map-support/register';
 
 import {
+  connect,
+  enablePrePostImages,
   Friend,
   Group,
   GroupInvitation,
   Ignoration,
   Message,
-  Schema,
+  SchemaSchema,
+  syncIndexes,
   User,
-} from '@tenlastic/social-api';
-import * as mongoose from '@tenlastic/mongoose';
+} from '@tenlastic/mongoose';
+import { getModelForClass } from '@typegoose/typegoose';
 
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
+const Schema = getModelForClass(SchemaSchema);
 
 (async () => {
   try {
-    const connection = await mongoose.connect({
+    const connection = await connect({
       connectionString: mongoConnectionString,
       databaseName: 'social-api',
     });
 
     console.log('Syncing indexes...');
     await Promise.all([
-      mongoose.syncIndexes(Friend),
-      mongoose.syncIndexes(Group),
-      mongoose.syncIndexes(GroupInvitation),
-      mongoose.syncIndexes(Ignoration),
-      mongoose.syncIndexes(Message),
-      mongoose.syncIndexes(Schema),
-      mongoose.syncIndexes(User),
+      syncIndexes(Friend),
+      syncIndexes(Group),
+      syncIndexes(GroupInvitation),
+      syncIndexes(Ignoration),
+      syncIndexes(Message),
+      syncIndexes(Schema),
+      syncIndexes(User),
     ]);
     console.log('Indexes synced successfully!');
 
@@ -49,12 +53,12 @@ const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
 
     console.log('Enabling Document Pre- and Post-Images...');
     await Promise.all([
-      mongoose.enablePrePostImages(Friend),
-      mongoose.enablePrePostImages(Group),
-      mongoose.enablePrePostImages(GroupInvitation),
-      mongoose.enablePrePostImages(Ignoration),
-      mongoose.enablePrePostImages(Message),
-      mongoose.enablePrePostImages(User),
+      enablePrePostImages(Friend),
+      enablePrePostImages(Group),
+      enablePrePostImages(GroupInvitation),
+      enablePrePostImages(Ignoration),
+      enablePrePostImages(Message),
+      enablePrePostImages(User),
     ]);
     console.log('Document Pre- and Post-Images enabled successfully!');
 

@@ -3,8 +3,8 @@
     "node": "^14"
   },
   "license": "Apache-2.0",
-  "main": "./dist/src/index.js",
   "name": "@tenlastic/aggregation-api",
+  "private": "true",
   "version": "0.0.314",
   "scripts": {
     "build": "../../scripts/build.sh",

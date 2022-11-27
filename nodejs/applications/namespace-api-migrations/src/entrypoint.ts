@@ -1,49 +1,53 @@
 import 'source-map-support/register';
 
-import * as mongoose from '@tenlastic/mongoose';
 import {
   Article,
   Authorization,
   Build,
   Collection,
+  connect,
+  enablePrePostImages,
   GameServer,
   Group,
   Namespace,
   Queue,
   QueueMember,
-  Schema,
+  SchemaSchema,
   Storefront,
+  syncIndexes,
   User,
   WebSocket,
   Workflow,
-} from '@tenlastic/namespace-api';
+} from '@tenlastic/mongoose';
+import { getModelForClass } from '@typegoose/typegoose';
 
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
 const mongoDatabaseName = process.env.MONGO_DATABASE_NAME;
+const Schema = getModelForClass(SchemaSchema);
 
 (async () => {
   try {
-    const connection = await mongoose.connect({
+    const connection = await connect({
       connectionString: mongoConnectionString,
       databaseName: mongoDatabaseName,
     });
 
     console.log('Syncing indexes...');
     await Promise.all([
-      mongoose.syncIndexes(Article),
-      mongoose.syncIndexes(Authorization),
-      mongoose.syncIndexes(Build),
-      mongoose.syncIndexes(Collection),
-      mongoose.syncIndexes(GameServer),
-      mongoose.syncIndexes(Group),
-      mongoose.syncIndexes(Namespace),
-      mongoose.syncIndexes(Queue),
-      mongoose.syncIndexes(QueueMember),
-      mongoose.syncIndexes(Schema),
-      mongoose.syncIndexes(Storefront),
-      mongoose.syncIndexes(User),
-      mongoose.syncIndexes(WebSocket),
-      mongoose.syncIndexes(Workflow),
+      syncIndexes(Article),
+      syncIndexes(Authorization),
+      syncIndexes(Build),
+      syncIndexes(Collection),
+      syncIndexes(GameServer),
+      syncIndexes(Group),
+      syncIndexes(Namespace),
+      syncIndexes(Queue),
+      syncIndexes(QueueMember),
+      syncIndexes(Schema),
+      syncIndexes(Storefront),
+      syncIndexes(User),
+      syncIndexes(WebSocket),
+      syncIndexes(Workflow),
     ]);
     console.log('Indexes synced successfully!');
 
@@ -71,19 +75,19 @@ const mongoDatabaseName = process.env.MONGO_DATABASE_NAME;
 
     console.log('Enabling Document Pre- and Post-Images...');
     await Promise.all([
-      mongoose.enablePrePostImages(Article),
-      mongoose.enablePrePostImages(Authorization),
-      mongoose.enablePrePostImages(Build),
-      mongoose.enablePrePostImages(Collection),
-      mongoose.enablePrePostImages(GameServer),
-      mongoose.enablePrePostImages(Group),
-      mongoose.enablePrePostImages(Namespace),
-      mongoose.enablePrePostImages(Queue),
-      mongoose.enablePrePostImages(QueueMember),
-      mongoose.enablePrePostImages(Storefront),
-      mongoose.enablePrePostImages(User),
-      mongoose.enablePrePostImages(WebSocket),
-      mongoose.enablePrePostImages(Workflow),
+      enablePrePostImages(Article),
+      enablePrePostImages(Authorization),
+      enablePrePostImages(Build),
+      enablePrePostImages(Collection),
+      enablePrePostImages(GameServer),
+      enablePrePostImages(Group),
+      enablePrePostImages(Namespace),
+      enablePrePostImages(Queue),
+      enablePrePostImages(QueueMember),
+      enablePrePostImages(Storefront),
+      enablePrePostImages(User),
+      enablePrePostImages(WebSocket),
+      enablePrePostImages(Workflow),
     ]);
     console.log('Document Pre- and Post-Images enabled successfully!');
 

@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@tenlastic/mongoose": "0.0.314",
-    "@tenlastic/namespace-api": "0.0.314",
+    "@typegoose/typegoose": "9.13.1",
     "axios": "0.27.2"
   },
   "devDependencies": {

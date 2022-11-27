@@ -3,36 +3,40 @@ import 'source-map-support/register';
 import {
   Authorization,
   AuthorizationRequest,
+  connect,
+  enablePrePostImages,
   Login,
   Namespace,
   PasswordReset,
   RefreshToken,
-  Schema,
+  SchemaSchema,
+  syncIndexes,
   User,
   WebSocket,
-} from '@tenlastic/api';
-import * as mongoose from '@tenlastic/mongoose';
+} from '@tenlastic/mongoose';
+import { getModelForClass } from '@typegoose/typegoose';
 
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
+const Schema = getModelForClass(SchemaSchema);
 
 (async () => {
   try {
-    const connection = await mongoose.connect({
+    const connection = await connect({
       connectionString: mongoConnectionString,
       databaseName: 'api',
     });
 
     console.log('Syncing indexes...');
     await Promise.all([
-      mongoose.syncIndexes(Authorization),
-      mongoose.syncIndexes(AuthorizationRequest),
-      mongoose.syncIndexes(Login),
-      mongoose.syncIndexes(Namespace),
-      mongoose.syncIndexes(PasswordReset),
-      mongoose.syncIndexes(RefreshToken),
-      mongoose.syncIndexes(Schema),
-      mongoose.syncIndexes(User),
-      mongoose.syncIndexes(WebSocket),
+      syncIndexes(Authorization),
+      syncIndexes(AuthorizationRequest),
+      syncIndexes(Login),
+      syncIndexes(Namespace),
+      syncIndexes(PasswordReset),
+      syncIndexes(RefreshToken),
+      syncIndexes(Schema),
+      syncIndexes(User),
+      syncIndexes(WebSocket),
     ]);
     console.log('Indexes synced successfully!');
 
@@ -55,14 +59,14 @@ const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
 
     console.log('Enabling Document Pre- and Post-Images...');
     await Promise.all([
-      mongoose.enablePrePostImages(Authorization),
-      mongoose.enablePrePostImages(AuthorizationRequest),
-      mongoose.enablePrePostImages(Login),
-      mongoose.enablePrePostImages(Namespace),
-      mongoose.enablePrePostImages(PasswordReset),
-      mongoose.enablePrePostImages(RefreshToken),
-      mongoose.enablePrePostImages(User),
-      mongoose.enablePrePostImages(WebSocket),
+      enablePrePostImages(Authorization),
+      enablePrePostImages(AuthorizationRequest),
+      enablePrePostImages(Login),
+      enablePrePostImages(Namespace),
+      enablePrePostImages(PasswordReset),
+      enablePrePostImages(RefreshToken),
+      enablePrePostImages(User),
+      enablePrePostImages(WebSocket),
     ]);
     console.log('Document Pre- and Post-Images enabled successfully!');
 

@@ -2,35 +2,39 @@ import 'source-map-support/register';
 
 import {
   Authorization,
+  connect,
+  enablePrePostImages,
   GameServer,
   Group,
   Namespace,
   QueueMember,
-  Schema,
+  SchemaSchema,
   Storefront,
+  syncIndexes,
   User,
-} from '@tenlastic/aggregation-api';
-import * as mongoose from '@tenlastic/mongoose';
+} from '@tenlastic/mongoose';
+import { getModelForClass } from '@typegoose/typegoose';
 
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
+const Schema = getModelForClass(SchemaSchema);
 
 (async () => {
   try {
-    const connection = await mongoose.connect({
+    const connection = await connect({
       connectionString: mongoConnectionString,
       databaseName: 'aggregation-api',
     });
 
     console.log('Syncing indexes...');
     await Promise.all([
-      mongoose.syncIndexes(Authorization),
-      mongoose.syncIndexes(GameServer),
-      mongoose.syncIndexes(Group),
-      mongoose.syncIndexes(Namespace),
-      mongoose.syncIndexes(QueueMember),
-      mongoose.syncIndexes(Schema),
-      mongoose.syncIndexes(Storefront),
-      mongoose.syncIndexes(User),
+      syncIndexes(Authorization),
+      syncIndexes(GameServer),
+      syncIndexes(Group),
+      syncIndexes(Namespace),
+      syncIndexes(QueueMember),
+      syncIndexes(Schema),
+      syncIndexes(Storefront),
+      syncIndexes(User),
     ]);
     console.log('Indexes synced successfully!');
 
@@ -52,13 +56,13 @@ const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
 
     console.log('Enabling Document Pre- and Post-Images...');
     await Promise.all([
-      mongoose.enablePrePostImages(Authorization),
-      mongoose.enablePrePostImages(GameServer),
-      mongoose.enablePrePostImages(Group),
-      mongoose.enablePrePostImages(Namespace),
-      mongoose.enablePrePostImages(QueueMember),
-      mongoose.enablePrePostImages(Storefront),
-      mongoose.enablePrePostImages(User),
+      enablePrePostImages(Authorization),
+      enablePrePostImages(GameServer),
+      enablePrePostImages(Group),
+      enablePrePostImages(Namespace),
+      enablePrePostImages(QueueMember),
+      enablePrePostImages(Storefront),
+      enablePrePostImages(User),
     ]);
     console.log('Document Pre- and Post-Images enabled successfully!');
 
