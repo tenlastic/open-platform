@@ -5,6 +5,7 @@ import {
   QueueMember,
   Storefront,
   User,
+  WebSocket,
 } from '@tenlastic/mongoose';
 import { subscribe } from '@tenlastic/mongoose-change-stream-nats';
 import * as nats from '@tenlastic/nats';
@@ -15,6 +16,7 @@ import { NamespaceEvent } from './namespace';
 import { QueueMemberEvent } from './queue-member';
 import { StorefrontEvent } from './storefront';
 import { UserEvent } from './user';
+import { WebSocketEvent } from './web-socket';
 
 export interface SetupOptions extends nats.ConnectionOptions {
   database: string;
@@ -40,5 +42,8 @@ export async function setup(options: SetupOptions) {
       StorefrontEvent.emit(payload),
     ),
     subscribe(options.database, options.durable, User, (payload) => UserEvent.emit(payload)),
+    subscribe(options.database, options.durable, WebSocket, (payload) =>
+      WebSocketEvent.emit(payload),
+    ),
   ]).catch((err) => console.error(err));
 }

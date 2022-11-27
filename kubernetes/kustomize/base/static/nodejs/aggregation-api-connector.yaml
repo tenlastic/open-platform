@@ -35,11 +35,11 @@ spec:
                         - aggregation-api-connector
                 topologyKey: kubernetes.io/hostname
       containers:
-        - name: aggregation-api-connector
+        - name: api-connector
           image: tenlastic/connector:0.0.314
           env:
             - name: MONGO_COLLECTION_NAMES
-              value: authorizations,groups,namespaces,users
+              value: authorizations,authorization-requests,namespaces,users
             - name: MONGO_FROM_CONNECTION_STRING
               valueFrom:
                 secretKeyRef:
@@ -53,7 +53,40 @@ spec:
                   name: nodejs
                   key: MONGO_CONNECTION_STRING
             - name: MONGO_TO_DATABASE_NAME
-              value: api
+              value: aggregation-api
+            - name: NATS_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: nodejs
+                  key: NATS_CONNECTION_STRING
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+          resources:
+            requests:
+              cpu: 25m
+              memory: 75M
+        - name: social-api-connector
+          image: tenlastic/connector:0.0.314
+          env:
+            - name: MONGO_COLLECTION_NAMES
+              value: friends,groups,group-invitations,ignorations,messages
+            - name: MONGO_FROM_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: nodejs
+                  key: MONGO_CONNECTION_STRING
+            - name: MONGO_FROM_DATABASE_NAME
+              value: social-api
+            - name: MONGO_TO_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: nodejs
+                  key: MONGO_CONNECTION_STRING
+            - name: MONGO_TO_DATABASE_NAME
+              value: aggregation-api
             - name: NATS_CONNECTION_STRING
               valueFrom:
                 secretKeyRef:

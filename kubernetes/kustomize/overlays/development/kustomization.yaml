@@ -80,6 +80,13 @@ patches:
       name: social-api
       namespace: static
       version: v1
+  - path: ./static/nodejs/social-api-cdc.json
+    target:
+      group: apps
+      kind: StatefulSet
+      name: social-api-cdc
+      namespace: static
+      version: v1
   - path: ./static/nodejs/social-api-migrations.json
     target:
       group: batch

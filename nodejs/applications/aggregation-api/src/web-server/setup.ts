@@ -5,6 +5,7 @@ import gameServersRoutes from './game-servers';
 import probesRoutes from './probes';
 import queueMembersRoutes from './queue-members';
 import storefrontsRoutes from './storefronts';
+import webSocketsRoutes from './web-sockets';
 
 export function setup() {
   const webServer = new WebServer(loggingMiddleware);
@@ -14,6 +15,7 @@ export function setup() {
   router.use(probesRoutes);
   router.use(queueMembersRoutes);
   router.use(storefrontsRoutes);
+  router.use(webSocketsRoutes);
   webServer.use(router.routes());
 
   webServer.start();

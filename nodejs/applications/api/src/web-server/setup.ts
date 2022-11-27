@@ -10,7 +10,6 @@ import probesRoutes from './probes';
 import publicKeysRoutes from './public-keys';
 import refreshTokensRoutes from './refresh-tokens';
 import usersRoutes from './users';
-import webSocketsRoutes from './web-sockets';
 
 export function setup() {
   const webServer = new WebServer(loggingMiddleware);
@@ -25,7 +24,6 @@ export function setup() {
   router.use(publicKeysRoutes);
   router.use(refreshTokensRoutes);
   router.use(usersRoutes);
-  router.use(webSocketsRoutes);
   webServer.use(router.routes());
 
   webServer.start();

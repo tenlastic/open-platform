@@ -91,6 +91,13 @@ spec:
                 name: documentation
                 port:
                   number: 3000
+          - path: /web-sockets
+            pathType: Prefix
+            backend:
+              service:
+                name: aggregation-api
+                port:
+                  number: 3000
           - path: /
             pathType: Prefix
             backend:

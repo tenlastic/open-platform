@@ -5,7 +5,6 @@ import {
   Namespace,
   PasswordReset,
   User,
-  WebSocket,
 } from '@tenlastic/mongoose';
 import { subscribe } from '@tenlastic/mongoose-change-stream-nats';
 import * as nats from '@tenlastic/nats';
@@ -16,7 +15,6 @@ import { LoginEvent } from './login';
 import { NamespaceEvent } from './namespace';
 import { PasswordResetEvent } from './password-reset';
 import { UserEvent } from './user';
-import { WebSocketEvent } from './web-socket';
 
 export interface SetupOptions extends nats.ConnectionOptions {
   database: string;
@@ -42,8 +40,5 @@ export async function setup(options: SetupOptions) {
       PasswordResetEvent.emit(payload),
     ),
     subscribe(options.database, options.durable, User, (payload) => UserEvent.emit(payload)),
-    subscribe(options.database, options.durable, WebSocket, (payload) =>
-      WebSocketEvent.emit(payload),
-    ),
   ]).catch((err) => console.error(err));
 }

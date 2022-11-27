@@ -4,8 +4,12 @@ import {
   Authorization,
   connect,
   enablePrePostImages,
+  Friend,
   GameServer,
   Group,
+  GroupInvitation,
+  Ignoration,
+  Message,
   Namespace,
   QueueMember,
   SchemaSchema,
@@ -28,8 +32,12 @@ const Schema = getModelForClass(SchemaSchema);
     console.log('Syncing indexes...');
     await Promise.all([
       syncIndexes(Authorization),
+      syncIndexes(Friend),
       syncIndexes(GameServer),
       syncIndexes(Group),
+      syncIndexes(GroupInvitation),
+      syncIndexes(Ignoration),
+      syncIndexes(Message),
       syncIndexes(Namespace),
       syncIndexes(QueueMember),
       syncIndexes(Schema),
@@ -41,8 +49,12 @@ const Schema = getModelForClass(SchemaSchema);
     console.log('Syncing schemas...');
     await Promise.all([
       Schema.sync(Authorization),
+      Schema.sync(Friend),
       Schema.sync(GameServer),
       Schema.sync(Group),
+      Schema.sync(GroupInvitation),
+      Schema.sync(Ignoration),
+      Schema.sync(Message),
       Schema.sync(Namespace),
       Schema.sync(QueueMember),
       Schema.sync(Storefront),
@@ -57,8 +69,12 @@ const Schema = getModelForClass(SchemaSchema);
     console.log('Enabling Document Pre- and Post-Images...');
     await Promise.all([
       enablePrePostImages(Authorization),
+      enablePrePostImages(Friend),
       enablePrePostImages(GameServer),
       enablePrePostImages(Group),
+      enablePrePostImages(GroupInvitation),
+      enablePrePostImages(Ignoration),
+      enablePrePostImages(Message),
       enablePrePostImages(Namespace),
       enablePrePostImages(QueueMember),
       enablePrePostImages(Storefront),
