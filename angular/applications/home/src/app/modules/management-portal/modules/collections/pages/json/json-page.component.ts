@@ -77,12 +77,12 @@ export class CollectionsJsonPageComponent implements OnInit {
       name: '',
       permissions: [
         {
-          create: { default: [] },
-          delete: { default: false },
-          find: { default: null },
-          read: { default: [] },
-          roles: [{ name: 'default', query: { $and: [] } }],
-          update: { default: [] },
+          create: { public: [] },
+          delete: { public: false },
+          find: { public: null },
+          read: { public: [] },
+          roles: { public: {} },
+          update: { public: [] },
         },
       ],
     });

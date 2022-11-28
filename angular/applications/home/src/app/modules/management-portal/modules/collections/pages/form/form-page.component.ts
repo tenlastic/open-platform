@@ -13,6 +13,7 @@ import {
   CollectionFormService,
   FormService,
   IdentityService,
+  RoleFormGroup,
 } from '../../../../../../core/services';
 
 @Component({
@@ -159,9 +160,11 @@ export class CollectionsFormPageComponent implements OnInit {
       this.form.getRawValue().roles,
     );
 
-    const roles = this.form.getRawValue().roles.map((role) => {
-      return this.collectionFormService.getJsonFromRole(role, this.form.get('properties').value);
-    });
+    const properties = this.form.get('properties').value;
+    const roles = this.form.get('roles').value.reduce((previous, current: RoleFormGroup) => {
+      previous[current.key] = this.collectionFormService.getQueryFromRole(properties, current);
+      return previous;
+    }, {});
 
     return { ...permissions, roles };
   }
@@ -172,8 +175,7 @@ export class CollectionsFormPageComponent implements OnInit {
     const properties = [];
     if (this.data.jsonSchema && this.data.jsonSchema.properties) {
       Object.entries(this.data.jsonSchema.properties).forEach(([key, property]) => {
-        const required =
-          this.data.jsonSchema.required && this.data.jsonSchema.required.includes(key);
+        const required = this.data.jsonSchema.required?.includes(key);
 
         const formGroup = this.collectionFormService.getFormGroupFromProperty(
           key,
@@ -189,25 +191,12 @@ export class CollectionsFormPageComponent implements OnInit {
     }
 
     const roles = [];
-    if (
-      this.data.permissions &&
-      this.data.permissions.roles &&
-      this.data.permissions.roles.length > 0
-    ) {
-      this.data.permissions.roles.forEach((role) => {
-        const formGroup = this.collectionFormService.getFormGroupFromRole(
-          this.data.permissions,
-          role,
-        );
+    if (this.data.permissions?.roles) {
+      const { permissions } = this.data;
+      Object.entries(this.data.permissions.roles).forEach(([name, query]) => {
+        const formGroup = this.collectionFormService.getFormGroupFromRole(name, permissions, query);
         roles.push(formGroup);
       });
-    }
-
-    if (roles.length === 0) {
-      const role = this.collectionFormService.getDefaultRoleFormGroup();
-      role.patchValue({ key: 'default' });
-
-      roles.push(role);
     }
 
     this.form = this.formBuilder.group({
@@ -221,10 +210,6 @@ export class CollectionsFormPageComponent implements OnInit {
     }
 
     this.form.valueChanges.subscribe(() => (this.errors = []));
-
-    const formArray = this.form.get('roles') as FormArray;
-    const defaultRole = formArray.at(formArray.length - 1);
-    defaultRole.get('key').disable();
   }
 
   private async upsert(values: Partial<CollectionModel>) {

@@ -106,32 +106,27 @@ export class CollectionFormService {
     return this.formBuilder.group(options);
   }
 
-  public getFormGroupFromPermissions(
-    permissions: ICollection.Permissions,
-    role: ICollection.RolePermissions,
-  ) {
-    const { name } = role;
-
+  public getFormGroupFromPermissions(permissions: ICollection.Permissions, role: string) {
     const findCriteria = [];
     if (
       permissions.find &&
-      permissions.find[name] &&
-      Object.keys(permissions.find[name]).length > 0
+      permissions.find[role] &&
+      Object.keys(permissions.find[role]).length > 0
     ) {
-      const operator = '$and' in permissions.find[name] ? '$and' : '$or';
+      const operator = '$and' in permissions.find[role] ? '$and' : '$or';
 
-      permissions.find[name][operator].forEach((criterion) => {
+      permissions.find[role][operator].forEach((criterion) => {
         const formGroup = this.getFormGroupFromCriterion(criterion);
         findCriteria.push(formGroup);
       });
     }
 
     return this.formBuilder.group({
-      create: [permissions.create && permissions.create ? permissions.create[name] : null],
-      delete: permissions.delete && permissions.delete ? permissions.delete[name] : false,
+      create: [permissions.create && permissions.create ? permissions.create[role] : null],
+      delete: permissions.delete && permissions.delete ? permissions.delete[role] : false,
       find: this.formBuilder.array(findCriteria),
-      read: [permissions.read && permissions.read ? permissions.read[name] : null],
-      update: [permissions.update && permissions.update ? permissions.update[name] : null],
+      read: [permissions.read && permissions.read ? permissions.read[role] : null],
+      update: [permissions.update && permissions.update ? permissions.update[role] : null],
     });
   }
 
@@ -158,15 +153,12 @@ export class CollectionFormService {
     return this.formBuilder.group(options);
   }
 
-  public getFormGroupFromRole(
-    permissions: ICollection.Permissions,
-    role: ICollection.RolePermissions,
-  ) {
-    const options = { key: this.formBuilder.control(role.name) } as any;
+  public getFormGroupFromRole(name: string, permissions: ICollection.Permissions, query: any) {
+    const options = { key: this.formBuilder.control(name) } as any;
 
-    if (Object.keys(role.query).length > 0) {
-      const operator = '$and' in role.query ? '$and' : '$or';
-      const criteria = role.query[operator].map((criterion) =>
+    if (Object.keys(query).length > 0) {
+      const operator = '$and' in query ? '$and' : '$or';
+      const criteria = query[operator].map((criterion) =>
         this.getFormGroupFromCriterion(criterion),
       );
 
@@ -175,7 +167,7 @@ export class CollectionFormService {
     }
 
     if (permissions) {
-      options.permissions = this.getFormGroupFromPermissions(permissions, role);
+      options.permissions = this.getFormGroupFromPermissions(permissions, name);
     }
 
     return this.formBuilder.group(options);
@@ -229,14 +221,6 @@ export class CollectionFormService {
     return o;
   }
 
-  public getJsonFromRole(
-    role: RoleFormGroup,
-    properties: PropertyFormGroup[],
-  ): ICollection.RolePermissions {
-    const criteria = role.criteria.map((c) => this.getJsonFromCriterion(c, properties));
-    return { name: role.key, query: { [role.operator]: criteria } };
-  }
-
   public getPermissionsJsonFromRoles(properties: PropertyFormGroup[], roles: RoleFormGroup[]) {
     return roles.reduce(
       (accumulator, role) => {
@@ -262,5 +246,10 @@ export class CollectionFormService {
   public getPropertyType(key: string, properties: PropertyFormGroup[]) {
     const property = properties.find((v) => `properties.${v.key}` === key);
     return property ? property.type : 'string';
+  }
+
+  public getQueryFromRole(properties: PropertyFormGroup[], role: RoleFormGroup) {
+    const criteria = role.criteria.map((c) => this.getJsonFromCriterion(c, properties));
+    return { [role.operator]: criteria };
   }
 }

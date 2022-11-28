@@ -8,9 +8,6 @@ export interface ConnectionOptions {
 }
 
 export async function connect(options: ConnectionOptions) {
-  mongoose.set('autoCreate', options.autoCreate);
-  mongoose.set('autoIndex', options.autoIndex);
-
   await mongoose.connect(options.connectionString, {
     autoCreate: options.autoCreate,
     autoIndex: options.autoIndex,
@@ -23,9 +20,6 @@ export async function connect(options: ConnectionOptions) {
 }
 
 export function createConnection(options: ConnectionOptions) {
-  mongoose.set('autoCreate', options.autoCreate);
-  mongoose.set('autoIndex', options.autoIndex);
-
   return new Promise<mongoose.Connection>((resolve, reject) => {
     const connection = mongoose.createConnection(options.connectionString, {
       autoCreate: options.autoCreate,

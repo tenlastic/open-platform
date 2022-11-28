@@ -1,9 +1,9 @@
 import {
   DocumentType,
-  ReturnModelType,
   getModelForClass,
   modelOptions,
   prop,
+  ReturnModelType,
   Severity,
 } from '@typegoose/typegoose';
 import { Chance } from 'chance';

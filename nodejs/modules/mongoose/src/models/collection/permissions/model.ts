@@ -1,11 +1,11 @@
 import {
   DocumentType,
-  ReturnModelType,
   getModelForClass,
   modelOptions,
   prop,
-  Severity,
   PropType,
+  ReturnModelType,
+  Severity,
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 

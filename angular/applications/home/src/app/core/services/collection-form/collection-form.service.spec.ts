@@ -93,27 +93,14 @@ describe('CollectionFormService', () => {
     context('when find permissions exist', () => {
       it('returns an initialized FormGroup', () => {
         const permissions = {
-          create: {
-            default: [chance.hash()],
-          },
-          delete: {
-            default: true,
-          },
-          find: {
-            default: {
-              $and: [{ name: { $eq: 'test' } }],
-            },
-          },
-          read: {
-            default: [chance.hash()],
-          },
-          update: {
-            default: [chance.hash()],
-          },
+          create: { default: [chance.hash()] },
+          delete: { default: true },
+          find: { default: { $and: [{ name: { $eq: 'test' } }] } },
+          read: { default: [chance.hash()] },
+          update: { default: [chance.hash()] },
         };
-        const role = { name: 'default' };
 
-        const formGroup = service.getFormGroupFromPermissions(permissions, role);
+        const formGroup = service.getFormGroupFromPermissions(permissions, 'default');
 
         expect(formGroup.get('create').value).toEqual(permissions.create.default);
         expect(formGroup.get('delete').value).toEqual(permissions.delete.default);
@@ -129,22 +116,13 @@ describe('CollectionFormService', () => {
     context('when find permissions do not exist', () => {
       it('returns an initialized FormGroup', () => {
         const permissions = {
-          create: {
-            default: [chance.hash()],
-          },
-          delete: {
-            default: true,
-          },
-          read: {
-            default: [chance.hash()],
-          },
-          update: {
-            default: [chance.hash()],
-          },
+          create: { default: [chance.hash()] },
+          delete: { default: true },
+          read: { default: [chance.hash()] },
+          update: { default: [chance.hash()] },
         };
-        const role = { name: 'default' };
 
-        const formGroup = service.getFormGroupFromPermissions(permissions, role);
+        const formGroup = service.getFormGroupFromPermissions(permissions, 'default');
 
         expect(formGroup.get('create').value).toEqual(permissions.create.default);
         expect(formGroup.get('delete').value).toEqual(permissions.delete.default);
@@ -185,15 +163,13 @@ describe('CollectionFormService', () => {
   describe('getFormGroupFromRole()', () => {
     context('when the query is defined', () => {
       it('returns an initialized FormGroup', () => {
+        const name = 'default';
         const permissions = null;
-        const role = {
-          name: 'default',
-          query: {
-            $and: [{ email: { $eq: 'test@example.com' } }, { username: { $eq: 'test' } }],
-          },
+        const query = {
+          $and: [{ email: { $eq: 'test@example.com' } }, { username: { $eq: 'test' } }],
         };
 
-        const formGroup = service.getFormGroupFromRole(permissions, role);
+        const formGroup = service.getFormGroupFromRole(name, permissions, query);
 
         expect(formGroup.get('criteria.0.field').value).toEqual('email');
         expect(formGroup.get('criteria.0.operator').value).toEqual('$eq');
@@ -206,10 +182,11 @@ describe('CollectionFormService', () => {
 
     context('when the query is not defined', () => {
       it('returns an initialized FormGroup', () => {
+        const name = 'default';
         const permissions = null;
-        const role = { name: 'default', query: {} };
+        const query = {};
 
-        const formGroup = service.getFormGroupFromRole(permissions, role);
+        const formGroup = service.getFormGroupFromRole(name, permissions, query);
 
         expect(formGroup.get('key').value).toEqual('default');
       });
@@ -353,14 +330,13 @@ describe('CollectionFormService', () => {
     });
   });
 
-  describe('getJsonFromRole()', () => {
+  describe('getQueryFromRole()', () => {
     it('returns valid JSON', () => {
       const role = { criteria: [], key: 'name', operator: '$and' };
 
-      const json = service.getJsonFromRole(role, null);
+      const json = service.getQueryFromRole(null, role);
 
-      expect(json.name).toEqual('name');
-      expect(json.query).toEqual({ $and: [] });
+      expect(json).toEqual({ $and: [] });
     });
   });
 

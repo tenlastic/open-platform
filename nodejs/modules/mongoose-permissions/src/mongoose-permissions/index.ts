@@ -223,7 +223,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       throw new PermissionError();
     }
 
-    const object = record.toObject();
+    const object = record.toObject({ flattenMaps: true });
     return filterObject(object, readPermissions);
   }
 

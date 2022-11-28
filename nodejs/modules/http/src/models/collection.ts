@@ -28,18 +28,13 @@ export namespace ICollection {
     find?: { [key: string]: any };
     populate?: PopulatePermissions[];
     read?: { [key: string]: string[] };
-    roles?: RolePermissions[];
+    roles?: { [key: string]: any };
     update?: { [key: string]: string[] };
   }
 
   export interface PopulatePermissions {
     path?: string;
     populate?: PopulatePermissions;
-  }
-
-  export interface RolePermissions {
-    name?: string;
-    query?: any;
   }
 }
 
