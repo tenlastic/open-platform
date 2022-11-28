@@ -9,27 +9,31 @@ import {
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
+import { excludeKeysValidator } from '../../../validators';
+
+const keys = ['default', 'namespace-read', 'namespace-write', 'user-read', 'user-write'];
+
 @modelOptions({
   options: { allowMixed: Severity.ALLOW },
   schemaOptions: { _id: false, id: false, minimize: false },
 })
 export class CollectionModelPermissionsSchema {
-  @prop({ type: [String] }, PropType.MAP)
+  @prop({ type: [String], validate: excludeKeysValidator(keys) }, PropType.MAP)
   public create: Map<string, string[]>;
 
-  @prop({ type: Boolean }, PropType.MAP)
+  @prop({ type: Boolean, validate: excludeKeysValidator(keys) }, PropType.MAP)
   public delete: Map<string, boolean>;
 
-  @prop({ type: mongoose.Schema.Types.Mixed }, PropType.MAP)
+  @prop({ type: mongoose.Schema.Types.Mixed, validate: excludeKeysValidator(keys) }, PropType.MAP)
   public find: Map<string, any>;
 
-  @prop({ type: [String] }, PropType.MAP)
+  @prop({ type: [String], validate: excludeKeysValidator(keys) }, PropType.MAP)
   public read: Map<string, string[]>;
 
-  @prop({ type: mongoose.Schema.Types.Mixed }, PropType.MAP)
+  @prop({ type: mongoose.Schema.Types.Mixed, validate: excludeKeysValidator(keys) }, PropType.MAP)
   public roles: Map<string, any>;
 
-  @prop({ type: [String] }, PropType.MAP)
+  @prop({ type: [String], validate: excludeKeysValidator(keys) }, PropType.MAP)
   public update: Map<string, string[]>;
 
   /**

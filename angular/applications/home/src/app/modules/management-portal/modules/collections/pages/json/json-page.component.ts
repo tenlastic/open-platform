@@ -75,16 +75,14 @@ export class CollectionsJsonPageComponent implements OnInit {
     this.data ??= new CollectionModel({
       jsonSchema: { properties: {}, type: 'object' },
       name: '',
-      permissions: [
-        {
-          create: { public: [] },
-          delete: { public: false },
-          find: { public: null },
-          read: { public: [] },
-          roles: { public: {} },
-          update: { public: [] },
-        },
-      ],
+      permissions: {
+        create: { public: [] },
+        delete: { public: false },
+        find: { public: null },
+        read: { public: [] },
+        roles: { public: {} },
+        update: { public: [] },
+      },
     });
 
     const keys = ['indexes', 'jsonSchema', 'name', 'permissions'];

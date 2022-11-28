@@ -1,5 +1,11 @@
 import { Injectable } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
 import { ICollection } from '@tenlastic/http';
 
 export interface CriterionFormGroup {
@@ -72,7 +78,7 @@ export class CollectionFormService {
   public getDefaultRoleFormGroup() {
     return this.formBuilder.group({
       criteria: this.formBuilder.array([]),
-      key: ['', Validators.required],
+      key: ['', [this.excludeKeysValidator, Validators.required]],
       operator: '$and',
       permissions: this.formBuilder.group({
         create: [[]],
@@ -154,7 +160,9 @@ export class CollectionFormService {
   }
 
   public getFormGroupFromRole(name: string, permissions: ICollection.Permissions, query: any) {
-    const options = { key: this.formBuilder.control(name) } as any;
+    const options = {
+      key: this.formBuilder.control(name, [this.excludeKeysValidator, Validators.required]),
+    } as any;
 
     if (Object.keys(query).length > 0) {
       const operator = '$and' in query ? '$and' : '$or';
@@ -251,5 +259,12 @@ export class CollectionFormService {
   public getQueryFromRole(properties: PropertyFormGroup[], role: RoleFormGroup) {
     const criteria = role.criteria.map((c) => this.getJsonFromCriterion(c, properties));
     return { [role.operator]: criteria };
+  }
+
+  private excludeKeysValidator(control: AbstractControl): ValidationErrors {
+    const keys = ['default', 'namespace-read', 'namespace-write', 'user-read', 'user-write'];
+    const excludeKeys = keys.includes(control.value);
+
+    return excludeKeys ? { excludeKeys: { value: control.value } } : null;
   }
 }

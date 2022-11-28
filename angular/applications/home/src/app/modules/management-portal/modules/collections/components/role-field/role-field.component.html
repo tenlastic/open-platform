@@ -3,7 +3,10 @@
   <input matInput
          required
          [formControl]="form.controls.key | asAny" />
-  <mat-error>Enter a valid key.</mat-error>
+  <mat-error *ngIf="!form.get('key').hasError('excludeKeys')">Enter a valid key.</mat-error>
+  <mat-error *ngIf="form.get('key').hasError('excludeKeys')">
+    Key cannot be 'default', 'namespace-read', 'namespace-write', 'user-read', or 'user-write'.
+  </mat-error>
 </mat-form-field>
 
 <div class="row">

@@ -12,7 +12,7 @@ export class FormService {
   public handleHttpError(err: ApiError, pathMap?: { [key: string]: string }) {
     return err.errors.map((e) => {
       if (e.name === 'CastError' || e.name === 'ValidatorError') {
-        const path = pathMap ? pathMap[e.path] : e.path;
+        const path = (pathMap && pathMap[e.path]) ?? e.path;
         return `(${path}) ${e.message}`;
       } else if (e.name === 'DuplicateKeyError') {
         const combination = e.paths.length > 1 ? 'combination ' : '';
