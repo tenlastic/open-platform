@@ -12,6 +12,7 @@ import * as mongoose from 'mongoose';
 import { alphabeticalKeysValidator, excludeKeysValidator } from '../../../validators';
 
 const keys = ['default', 'namespace-read', 'namespace-write', 'user-read', 'user-write'];
+const validate = [alphabeticalKeysValidator, excludeKeysValidator(keys)];
 
 @modelOptions({
   options: { allowMixed: Severity.ALLOW },
@@ -24,46 +25,22 @@ const keys = ['default', 'namespace-read', 'namespace-write', 'user-read', 'user
   },
 })
 export class CollectionModelPermissionsSchema {
-  @prop(
-    { type: [String], validate: [alphabeticalKeysValidator, excludeKeysValidator(keys)] },
-    PropType.MAP,
-  )
+  @prop({ type: [String], validate }, PropType.MAP)
   public create: Map<string, string[]>;
 
-  @prop(
-    { type: Boolean, validate: [alphabeticalKeysValidator, excludeKeysValidator(keys)] },
-    PropType.MAP,
-  )
+  @prop({ type: Boolean, validate }, PropType.MAP)
   public delete: Map<string, boolean>;
 
-  @prop(
-    {
-      type: mongoose.Schema.Types.Mixed,
-      validate: [alphabeticalKeysValidator, excludeKeysValidator(keys)],
-    },
-    PropType.MAP,
-  )
+  @prop({ type: mongoose.Schema.Types.Mixed, validate }, PropType.MAP)
   public find: Map<string, any>;
 
-  @prop(
-    { type: [String], validate: [alphabeticalKeysValidator, excludeKeysValidator(keys)] },
-    PropType.MAP,
-  )
+  @prop({ type: [String], validate }, PropType.MAP)
   public read: Map<string, string[]>;
 
-  @prop(
-    {
-      type: mongoose.Schema.Types.Mixed,
-      validate: [alphabeticalKeysValidator, excludeKeysValidator(keys)],
-    },
-    PropType.MAP,
-  )
+  @prop({ type: mongoose.Schema.Types.Mixed, validate }, PropType.MAP)
   public roles: Map<string, any>;
 
-  @prop(
-    { type: [String], validate: [alphabeticalKeysValidator, excludeKeysValidator(keys)] },
-    PropType.MAP,
-  )
+  @prop({ type: [String], validate }, PropType.MAP)
   public update: Map<string, string[]>;
 
   /**

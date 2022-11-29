@@ -5,7 +5,10 @@ components:
       properties:
         key:
           type: object
+          additionalProperties:
+            enum: [-1, 1]
+            type: number
         options:
-          type: object
+          $ref: '#/components/schemas/CollectionIndexOptions'
       required:
         - key

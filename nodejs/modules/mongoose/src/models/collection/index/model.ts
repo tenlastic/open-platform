@@ -3,31 +3,23 @@ import {
   getModelForClass,
   modelOptions,
   prop,
+  PropType,
   ReturnModelType,
-  Severity,
 } from '@typegoose/typegoose';
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
-export interface CollectionIndexKey {
-  [s: string]: number;
-}
+import { CollectionIndexOptionsSchema } from './options';
 
-export interface CollectionIndexOptions {
-  expireAfterSeconds?: number;
-  partialFilterExpression?: any;
-  unique?: boolean;
-}
-
-@modelOptions({ options: { allowMixed: Severity.ALLOW }, schemaOptions: { minimize: false } })
+@modelOptions({ schemaOptions: { minimize: false } })
 export class CollectionIndexSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @prop({ required: true, type: mongoose.Schema.Types.Mixed })
-  public key: CollectionIndexKey;
+  @prop({ required: true, type: Number }, PropType.MAP)
+  public key: Map<string, number>;
 
-  @prop({ type: mongoose.Schema.Types.Mixed })
-  public options?: CollectionIndexOptions;
+  @prop({ type: CollectionIndexOptionsSchema })
+  public options: CollectionIndexOptionsSchema;
 
   /**
    * Creates a record with randomized required parameters if not specified.

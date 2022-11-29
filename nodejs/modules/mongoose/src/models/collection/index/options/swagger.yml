@@ -1,0 +1,11 @@
+components:
+  schemas:
+    CollectionIndexOptions:
+      type: object
+      properties:
+        expireAfterSeconds:
+          type: number
+        partialFilterExpression:
+          type: object
+        unique:
+          type: boolean
