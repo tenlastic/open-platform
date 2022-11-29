@@ -13,9 +13,9 @@ import * as mongoose from 'mongoose';
 
 import { duplicateKeyErrorPlugin } from '../../plugins';
 import { AuthorizationDocument } from '../authorization';
-import { WorkflowStatusSchema } from '../workflow';
-import { BuildFileSchema } from './file';
-import { BuildReferenceSchema } from './reference';
+import { WorkflowStatusDocument, WorkflowStatusSchema } from '../workflow';
+import { BuildFileDocument, BuildFileSchema } from './file';
+import { BuildReferenceDocument, BuildReferenceSchema } from './reference';
 
 export enum BuildPlatform {
   Server64 = 'Server64',
@@ -33,7 +33,7 @@ export class BuildSchema {
   public entrypoint: string;
 
   @prop({ type: BuildFileSchema }, PropType.ARRAY)
-  public files: BuildFileSchema[];
+  public files: BuildFileDocument[];
 
   @prop({ required: true, type: String })
   public name: string;
@@ -48,10 +48,10 @@ export class BuildSchema {
   public publishedAt: Date;
 
   @prop({ type: BuildReferenceSchema })
-  public reference: BuildReferenceSchema;
+  public reference: BuildReferenceDocument;
 
   @prop({ merge: true, type: WorkflowStatusSchema })
-  public status: WorkflowStatusSchema;
+  public status: WorkflowStatusDocument;
 
   public updatedAt: Date;
 

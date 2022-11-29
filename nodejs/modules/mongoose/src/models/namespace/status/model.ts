@@ -7,9 +7,9 @@ import {
   ReturnModelType,
 } from '@typegoose/typegoose';
 
-import { NamespaceStatusComponentSchema } from './component';
-import { NamespaceStatusLimitsSchema } from './limits';
-import { NamespaceStatusNodeSchema } from './node';
+import { NamespaceStatusComponentDocument, NamespaceStatusComponentSchema } from './component';
+import { NamespaceStatusLimitsDocument, NamespaceStatusLimitsSchema } from './limits';
+import { NamespaceStatusNodeDocument, NamespaceStatusNodeSchema } from './node';
 
 export enum NamespaceStatusComponentName {
   API = 'API',
@@ -30,13 +30,13 @@ export enum NamespaceStatusPhase {
 @modelOptions({ schemaOptions: { _id: false } })
 export class NamespaceStatusSchema {
   @prop({ type: NamespaceStatusComponentSchema }, PropType.ARRAY)
-  public components: NamespaceStatusComponentSchema[];
+  public components: NamespaceStatusComponentDocument[];
 
   @prop({ type: NamespaceStatusLimitsSchema })
-  public limits: NamespaceStatusLimitsSchema;
+  public limits: NamespaceStatusLimitsDocument;
 
   @prop({ type: NamespaceStatusNodeSchema }, PropType.ARRAY)
-  public nodes: NamespaceStatusNodeSchema[];
+  public nodes: NamespaceStatusNodeDocument[];
 
   @prop({
     default: NamespaceStatusPhase.Pending,

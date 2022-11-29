@@ -7,8 +7,8 @@ import {
   ReturnModelType,
 } from '@typegoose/typegoose';
 
-import { QueueStatusComponentSchema } from './component';
-import { QueueStatusNodeSchema } from './node';
+import { QueueStatusComponentDocument, QueueStatusComponentSchema } from './component';
+import { QueueStatusNodeDocument, QueueStatusNodeSchema } from './node';
 
 export enum QueueStatusComponentName {
   Application = 'Application',
@@ -26,13 +26,13 @@ export enum QueueStatusPhase {
 @modelOptions({ schemaOptions: { _id: false } })
 export class QueueStatusSchema {
   @prop({ type: QueueStatusComponentSchema }, PropType.ARRAY)
-  public components: QueueStatusComponentSchema[];
+  public components: QueueStatusComponentDocument[];
 
   @prop({ type: String })
   public message: string;
 
   @prop({ type: QueueStatusNodeSchema }, PropType.ARRAY)
-  public nodes: QueueStatusNodeSchema[];
+  public nodes: QueueStatusNodeDocument[];
 
   @prop({
     default: QueueStatusPhase.Pending,

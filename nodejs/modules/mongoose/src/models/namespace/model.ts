@@ -12,7 +12,7 @@ import * as mongoose from 'mongoose';
 
 import { duplicateKeyErrorPlugin } from '../../plugins';
 import { AuthorizationDocument } from '../authorization';
-import { NamespaceLimits, NamespaceLimitsSchema } from './limits';
+import { NamespaceLimits, NamespaceLimitsDocument, NamespaceLimitsSchema } from './limits';
 import {
   NamespaceStatus,
   NamespaceStatusComponent,
@@ -42,7 +42,7 @@ export class NamespaceSchema {
   public createdAt: Date;
 
   @prop({ default: new NamespaceLimits(), type: NamespaceLimitsSchema })
-  public limits: NamespaceLimitsSchema;
+  public limits: NamespaceLimitsDocument;
 
   @prop({ required: true, type: String })
   public name: string;

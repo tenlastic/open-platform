@@ -7,7 +7,7 @@ import {
   ReturnModelType,
 } from '@typegoose/typegoose';
 
-import { WorkflowStatusNodeSchema } from './node';
+import { WorkflowStatusNodeDocument, WorkflowStatusNodeSchema } from './node';
 
 export enum WorkflowStatusPhase {
   Error = 'Error',
@@ -26,7 +26,7 @@ export class WorkflowStatusSchema {
   public message: string;
 
   @prop({ type: WorkflowStatusNodeSchema }, PropType.ARRAY)
-  public nodes: WorkflowStatusNodeSchema[];
+  public nodes: WorkflowStatusNodeDocument[];
 
   @prop({ enum: WorkflowStatusPhase, type: String })
   public phase: WorkflowStatusPhase;

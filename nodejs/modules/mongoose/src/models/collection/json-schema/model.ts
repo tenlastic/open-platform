@@ -88,7 +88,7 @@ export class CollectionChildJsonSchemaSchema {
   public default: any;
 
   @prop({ type: CollectionArrayJsonSchemaSchema })
-  public items: CollectionArrayJsonSchemaSchema;
+  public items: CollectionArrayJsonSchemaDocument;
 
   @prop({
     enum: [

@@ -12,11 +12,16 @@ import * as mongoose from 'mongoose';
 
 import { enumValidator } from '../../validators';
 import { AuthorizationDocument } from '../authorization';
-import { QueueGameServerTemplate, QueueGameServerTemplateSchema } from './game-server-template';
+import {
+  QueueGameServerTemplate,
+  QueueGameServerTemplateDocument,
+  QueueGameServerTemplateSchema,
+} from './game-server-template';
 import {
   QueueStatus,
   QueueStatusComponent,
   QueueStatusComponentName,
+  QueueStatusDocument,
   QueueStatusPhase,
   QueueStatusSchema,
 } from './status';
@@ -38,7 +43,7 @@ export class QueueSchema {
   public description: string;
 
   @prop({ required: true, type: QueueGameServerTemplateSchema })
-  public gameServerTemplate: QueueGameServerTemplateSchema;
+  public gameServerTemplate: QueueGameServerTemplateDocument;
 
   @prop({ min: 100 * 1000 * 1000, required: true, type: Number })
   public memory: number;
@@ -83,7 +88,7 @@ export class QueueSchema {
     merge: true,
     type: QueueStatusSchema,
   })
-  public status: QueueStatusSchema;
+  public status: QueueStatusDocument;
 
   @prop({ min: 1, required: true, type: Number })
   public teams: number;

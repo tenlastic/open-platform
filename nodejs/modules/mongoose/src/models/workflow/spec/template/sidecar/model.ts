@@ -8,7 +8,7 @@ import {
 } from '@typegoose/typegoose';
 import { Chance } from 'chance';
 
-import { WorkflowSpecEnvSchema } from '../../env';
+import { WorkflowSpecEnvDocument, WorkflowSpecEnvSchema } from '../../env';
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class WorkflowSpecTemplateSidecarSchema {
@@ -19,7 +19,7 @@ export class WorkflowSpecTemplateSidecarSchema {
   public command: string[];
 
   @prop({ default: undefined, type: WorkflowSpecEnvSchema }, PropType.ARRAY)
-  public env: WorkflowSpecEnvSchema[];
+  public env: WorkflowSpecEnvDocument[];
 
   @prop({ required: true, type: String })
   public image: string;

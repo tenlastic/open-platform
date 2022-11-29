@@ -20,7 +20,7 @@ import { syncIndexes } from '../../sync-indexes';
 import { AuthorizationDocument } from '../authorization';
 import { RecordSchema } from '../record';
 import { SchemaSchema } from '../schema';
-import { CollectionIndexSchema } from './index/index';
+import { CollectionIndexDocument, CollectionIndexSchema } from './index/index';
 import {
   CollectionJsonSchema,
   CollectionJsonSchemaDocument,
@@ -69,7 +69,7 @@ export class CollectionSchema {
   public createdAt: Date;
 
   @prop({ type: CollectionIndexSchema }, PropType.ARRAY)
-  public indexes: CollectionIndexSchema[];
+  public indexes: CollectionIndexDocument[];
 
   @prop({ required: true, type: CollectionJsonSchemaSchema })
   public jsonSchema: CollectionJsonSchemaDocument;
@@ -86,16 +86,19 @@ export class CollectionSchema {
     set(this: CollectionDocument, value: CollectionModelPermissionsDocument) {
       const record = new CollectionModelPermissions(value);
 
-      const error = record.validateSync();
-      for (const [k, v] of Object.entries(error?.errors ?? {})) {
-        this.invalidate(`permissions.${k}`, v.message, v.value, v.kind);
+      if (this instanceof mongoose.Document) {
+        const error = record.validateSync();
+
+        for (const [k, v] of Object.entries(error?.errors ?? {})) {
+          this.invalidate(`permissions.${k}`, v.message, v.value, v.kind);
+        }
       }
 
       return record.setter();
     },
     type: CollectionModelPermissionsSchema,
   })
-  public permissions: CollectionModelPermissionsSchema;
+  public permissions: CollectionModelPermissionsDocument;
 
   public updatedAt: Date;
 

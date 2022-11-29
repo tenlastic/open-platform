@@ -9,7 +9,7 @@ import {
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
-import { CollectionIndexOptionsSchema } from './options';
+import { CollectionIndexOptionsDocument, CollectionIndexOptionsSchema } from './options';
 
 @modelOptions({ schemaOptions: { minimize: false } })
 export class CollectionIndexSchema {
@@ -19,7 +19,7 @@ export class CollectionIndexSchema {
   public key: Map<string, number>;
 
   @prop({ type: CollectionIndexOptionsSchema })
-  public options: CollectionIndexOptionsSchema;
+  public options: CollectionIndexOptionsDocument;
 
   /**
    * Creates a record with randomized required parameters if not specified.

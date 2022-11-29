@@ -8,13 +8,17 @@ import {
 } from '@typegoose/typegoose';
 import { Chance } from 'chance';
 
-import { WorkflowSpecArgumentsSchema } from './arguments';
-import { WorkflowSpecTemplate, WorkflowSpecTemplateSchema } from './template';
+import { WorkflowSpecArgumentsDocument, WorkflowSpecArgumentsSchema } from './arguments';
+import {
+  WorkflowSpecTemplate,
+  WorkflowSpecTemplateDocument,
+  WorkflowSpecTemplateSchema,
+} from './template';
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class WorkflowSpecSchema {
   @prop({ type: WorkflowSpecArgumentsSchema })
-  public arguments: WorkflowSpecArgumentsSchema;
+  public arguments: WorkflowSpecArgumentsDocument;
 
   @prop({ required: true, type: String })
   public entrypoint: string;
@@ -23,7 +27,7 @@ export class WorkflowSpecSchema {
   public parallelism: number;
 
   @prop({ required: true, type: WorkflowSpecTemplateSchema }, PropType.ARRAY)
-  public templates: WorkflowSpecTemplateSchema[];
+  public templates: WorkflowSpecTemplateDocument[];
 
   /**
    * Creates a record with randomized required parameters if not specified.

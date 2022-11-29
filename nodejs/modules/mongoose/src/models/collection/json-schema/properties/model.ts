@@ -9,7 +9,7 @@ import {
 import * as mongoose from 'mongoose';
 
 import { CollectionJsonSchemaType } from '../model';
-import { CollectionJsonSchemaArraySchema } from './array';
+import { CollectionJsonSchemaArrayDocument, CollectionJsonSchemaArraySchema } from './array';
 
 @modelOptions({
   options: { allowMixed: Severity.ALLOW },
@@ -20,7 +20,7 @@ export class CollectionJsonSchemaPropertiesSchema {
   public default: any;
 
   @prop({ type: CollectionJsonSchemaArraySchema })
-  public items: CollectionJsonSchemaArraySchema;
+  public items: CollectionJsonSchemaArrayDocument;
 
   @prop({
     enum: [

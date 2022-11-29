@@ -7,9 +7,9 @@ import {
   ReturnModelType,
 } from '@typegoose/typegoose';
 
-import { GameServerStatusComponentSchema } from './component';
-import { GameServerStatusEndpointsSchema } from './endpoints';
-import { GameServerStatusNodeSchema } from './node';
+import { GameServerStatusComponentDocument, GameServerStatusComponentSchema } from './component';
+import { GameServerStatusEndpointsDocument, GameServerStatusEndpointsSchema } from './endpoints';
+import { GameServerStatusNodeDocument, GameServerStatusNodeSchema } from './node';
 
 export enum GameServerStatusComponentName {
   Application = 'Application',
@@ -27,16 +27,16 @@ export enum GameServerStatusPhase {
 @modelOptions({ schemaOptions: { _id: false } })
 export class GameServerStatusSchema {
   @prop({ type: GameServerStatusComponentSchema }, PropType.ARRAY)
-  public components: GameServerStatusComponentSchema[];
+  public components: GameServerStatusComponentDocument[];
 
   @prop({ type: GameServerStatusEndpointsSchema })
-  public endpoints: GameServerStatusEndpointsSchema;
+  public endpoints: GameServerStatusEndpointsDocument;
 
   @prop({ type: String })
   public message: string;
 
   @prop({ type: GameServerStatusNodeSchema }, PropType.ARRAY)
-  public nodes: GameServerStatusNodeSchema[];
+  public nodes: GameServerStatusNodeDocument[];
 
   @prop({
     default: GameServerStatusPhase.Pending,

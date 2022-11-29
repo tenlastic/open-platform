@@ -7,12 +7,16 @@ import {
   ReturnModelType,
 } from '@typegoose/typegoose';
 
-import { WorkflowSpecTemplateDagTask, WorkflowSpecTemplateDagTaskSchema } from './task';
+import {
+  WorkflowSpecTemplateDagTask,
+  WorkflowSpecTemplateDagTaskDocument,
+  WorkflowSpecTemplateDagTaskSchema,
+} from './task';
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class WorkflowSpecTemplateDagSchema {
   @prop({ required: true, type: WorkflowSpecTemplateDagTaskSchema }, PropType.ARRAY)
-  public tasks: WorkflowSpecTemplateDagTaskSchema[];
+  public tasks: WorkflowSpecTemplateDagTaskDocument[];
 
   /**
    * Creates a record with randomized required parameters if not specified.

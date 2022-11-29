@@ -7,12 +7,12 @@ import {
   ReturnModelType,
 } from '@typegoose/typegoose';
 
-import { WorkflowSpecParameterSchema } from '../../parameter';
+import { WorkflowSpecParameterDocument, WorkflowSpecParameterSchema } from '../../parameter';
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class WorkflowSpecTemplateInputsSchema {
   @prop({ type: WorkflowSpecParameterSchema }, PropType.ARRAY)
-  public parameters: WorkflowSpecParameterSchema[];
+  public parameters: WorkflowSpecParameterDocument[];
 
   /**
    * Creates a record with randomized required parameters if not specified.

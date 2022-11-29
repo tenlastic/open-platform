@@ -8,31 +8,34 @@ import {
 } from '@typegoose/typegoose';
 import { Chance } from 'chance';
 
-import { WorkflowSpecTemplateDagSchema } from './dag';
-import { WorkflowSpecTemplateInputsSchema } from './inputs';
-import { WorkflowSpecTemplateRetryStrategySchema } from './retry-strategy';
-import { WorkflowSpecTemplateScriptSchema } from './script';
-import { WorkflowSpecTemplateSidecarSchema } from './sidecar';
+import { WorkflowSpecTemplateDagDocument, WorkflowSpecTemplateDagSchema } from './dag';
+import { WorkflowSpecTemplateInputsDocument, WorkflowSpecTemplateInputsSchema } from './inputs';
+import {
+  WorkflowSpecTemplateRetryStrategyDocument,
+  WorkflowSpecTemplateRetryStrategySchema,
+} from './retry-strategy';
+import { WorkflowSpecTemplateScriptDocument, WorkflowSpecTemplateScriptSchema } from './script';
+import { WorkflowSpecTemplateSidecarDocument, WorkflowSpecTemplateSidecarSchema } from './sidecar';
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class WorkflowSpecTemplateSchema {
   @prop({ type: WorkflowSpecTemplateDagSchema })
-  public dag: WorkflowSpecTemplateDagSchema;
+  public dag: WorkflowSpecTemplateDagDocument;
 
-  @prop({ WorkflowSpecTemplateInputsSchema })
-  public inputs: WorkflowSpecTemplateInputsSchema;
+  @prop({ type: WorkflowSpecTemplateInputsSchema })
+  public inputs: WorkflowSpecTemplateInputsDocument;
 
   @prop({ required: true, type: String })
   public name: string;
 
   @prop({ type: WorkflowSpecTemplateRetryStrategySchema })
-  public retryStrategy: WorkflowSpecTemplateRetryStrategySchema;
+  public retryStrategy: WorkflowSpecTemplateRetryStrategyDocument;
 
-  @prop({ WorkflowSpecTemplateScriptSchema })
-  public script: WorkflowSpecTemplateScriptSchema;
+  @prop({ type: WorkflowSpecTemplateScriptSchema })
+  public script: WorkflowSpecTemplateScriptDocument;
 
   @prop({ type: WorkflowSpecTemplateSidecarSchema }, PropType.ARRAY)
-  public sidecars: WorkflowSpecTemplateSidecarSchema[];
+  public sidecars: WorkflowSpecTemplateSidecarDocument[];
 
   /**
    * Creates a record with randomized required parameters if not specified.

@@ -19,6 +19,7 @@ import {
   GameServerStatus,
   GameServerStatusComponent,
   GameServerStatusComponentName,
+  GameServerStatusDocument,
   GameServerStatusPhase,
   GameServerStatusSchema,
 } from './status';
@@ -107,7 +108,7 @@ export class GameServerSchema {
     merge: true,
     type: GameServerStatusSchema,
   })
-  public status: GameServerStatusSchema;
+  public status: GameServerStatusDocument;
 
   public updatedAt: Date;
 
