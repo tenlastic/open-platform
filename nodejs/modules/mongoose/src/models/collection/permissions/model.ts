@@ -43,39 +43,51 @@ export class CollectionModelPermissionsSchema {
   public update: Map<string, string[]>;
 
   /**
+   * Creates a record with randomized required parameters if not specified.
+   */
+  public static mock(
+    this: CollectionModelPermissionsModel,
+    values: Partial<CollectionModelPermissionsSchema> = {},
+  ) {
+    const defaults = {};
+
+    return new this({ ...defaults, ...values });
+  }
+
+  /**
    * Converts find and roles values from Strings to Objects.
    */
-  public static getter(value: CollectionModelPermissionsDocument) {
-    if (value.find) {
-      value.find = this.getObjectValues(value.find);
+   public getter(this: CollectionModelPermissionsDocument) {
+    if (this.find) {
+      this.find = this.getObjectValues(this.find);
     }
 
-    if (value.roles) {
-      value.roles = this.getObjectValues(value.roles);
+    if (this.roles) {
+      this.roles = this.getObjectValues(this.roles);
     }
 
-    return value;
+    return this;
   }
 
   /**
    * Converts find and roles values from Objects to String.
    */
-  public static setter(value: CollectionModelPermissionsDocument) {
-    if (value.find) {
-      value.find = this.getStringValues(value.find);
+  public setter(this: CollectionModelPermissionsDocument) {
+    if (this.find) {
+      this.find = this.getStringValues(this.find);
     }
 
-    if (value.roles) {
-      value.roles = this.getStringValues(value.roles);
+    if (this.roles) {
+      this.roles = this.getStringValues(this.roles);
     }
 
-    return value;
+    return this;
   }
 
   /**
    * Converts Map values from JSON strings to Objects.
    */
-  private static getObjectValues(value: any): any {
+  private getObjectValues(value: any): any {
     value = value.toJSON ? value.toJSON() : value;
 
     return Object.entries(value).reduce((previous, [k, v]) => {
@@ -87,25 +99,13 @@ export class CollectionModelPermissionsSchema {
   /**
    * Converts Map values from Objects to JSON strings.
    */
-  private static getStringValues(value: any): any {
+  private getStringValues(value: any): any {
     value = value.toJSON ? value.toJSON() : value;
 
     return Object.entries(value).reduce((previous, [k, v]) => {
       previous.set(k, typeof v === 'string' ? v : JSON.stringify(v));
       return previous;
     }, new mongoose.Types.Map());
-  }
-
-  /**
-   * Creates a record with randomized required parameters if not specified.
-   */
-  public static mock(
-    this: CollectionModelPermissionsModel,
-    values: Partial<CollectionModelPermissionsSchema> = {},
-  ) {
-    const defaults = {};
-
-    return new this({ ...defaults, ...values });
   }
 }
 

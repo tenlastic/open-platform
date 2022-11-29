@@ -82,10 +82,7 @@ export class CollectionSchema {
 
   @prop({
     default: new CollectionModelPermissions(),
-    get: (value) => {
-      const record = new CollectionModelPermissions(value);
-      return CollectionModelPermissions.getter(record);
-    },
+    get: (value) => new CollectionModelPermissions(value).getter(),
     set(this: CollectionDocument, value: CollectionModelPermissionsDocument) {
       const record = new CollectionModelPermissions(value);
 
@@ -94,7 +91,7 @@ export class CollectionSchema {
         this.invalidate(`permissions.${k}`, v.message, v.value, v.kind);
       }
 
-      return CollectionModelPermissions.setter(record);
+      return record.setter();
     },
     type: CollectionModelPermissionsSchema,
   })
