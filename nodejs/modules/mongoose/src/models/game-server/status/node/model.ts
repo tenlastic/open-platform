@@ -9,7 +9,7 @@ import { Chance } from 'chance';
 
 import { GameServerStatusComponentName, GameServerStatusPhase } from '../model';
 
-@modelOptions({ schemaOptions: { _id: false, id: false } })
+@modelOptions({ schemaOptions: { _id: false } })
 export class GameServerStatusNodeSchema {
   @prop({ enum: GameServerStatusComponentName, required: true, type: String })
   public component: GameServerStatusComponentName;

@@ -1,0 +1,17 @@
+components:
+  schemas:
+    CollectionJsonSchema:
+      type: object
+      properties:
+        additionalProperties:
+          type: boolean
+        properties:
+          $ref: '#/components/schemas/CollectionJsonSchemaProperties'
+        required:
+          type: array
+          items:
+            type: string
+        type:
+          type: string
+          enum:
+            - object

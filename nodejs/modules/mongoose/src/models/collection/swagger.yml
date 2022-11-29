@@ -14,7 +14,7 @@ components:
           items:
             $ref: '#/components/schemas/CollectionIndex'
         jsonSchema:
-          type: object
+          $ref: '#/components/schemas/CollectionJsonSchema'
         name:
           type: string
         namespaceId:

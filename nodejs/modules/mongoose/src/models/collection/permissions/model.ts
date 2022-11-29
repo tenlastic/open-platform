@@ -18,7 +18,6 @@ const validate = [alphabeticalKeysValidator, excludeKeysValidator(keys)];
   options: { allowMixed: Severity.ALLOW },
   schemaOptions: {
     _id: false,
-    id: false,
     minimize: false,
     toJSON: { getters: true },
     toObject: { getters: true },

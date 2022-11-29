@@ -4,6 +4,9 @@ import * as mongoose from 'mongoose';
 import * as sinon from 'sinon';
 
 import { CollectionIndex } from './index';
+import { CollectionIndexOptions } from './index/options';
+import { CollectionJsonSchema, CollectionJsonSchemaType } from './json-schema';
+import { CollectionJsonSchemaProperties } from './json-schema/properties';
 import { Collection } from './model';
 
 use(chaiAsPromised);
@@ -23,8 +26,8 @@ describe('models/collection', function () {
     it('creates an index on the collection within MongoDB', async () => {
       const index = await CollectionIndex.mock({
         _id: new mongoose.Types.ObjectId(),
-        key: { properties: 1 },
-        options: { unique: true },
+        key: new Map([['properties', 1]]),
+        options: CollectionIndexOptions.mock({ unique: true }),
       }).save();
       const collection = await Collection.mock({ indexes: [index] }).save();
 
@@ -38,8 +41,8 @@ describe('models/collection', function () {
     it('deletes the index on the collection within MongoDB', async function () {
       const index = await CollectionIndex.mock({
         _id: new mongoose.Types.ObjectId(),
-        key: { properties: 1 },
-        options: { unique: true },
+        key: new Map([['properties', 1]]),
+        options: CollectionIndexOptions.mock({ unique: true }),
       }).save();
       const collection = await Collection.mock({ indexes: [index] }).save();
 
@@ -56,39 +59,37 @@ describe('models/collection', function () {
   describe('jsonSchema', function () {
     it('does not return an error', async function () {
       const record = await Collection.mock({
-        jsonSchema: {
+        jsonSchema: CollectionJsonSchema.mock({
           additionalProperties: false,
-          properties: {
-            name: { type: 'string' },
-          },
+          properties: new Map([
+            [
+              'name',
+              CollectionJsonSchemaProperties.mock({ type: CollectionJsonSchemaType.String }),
+            ],
+          ]),
           required: ['name'],
-          type: 'object',
-        },
+          type: CollectionJsonSchemaType.Object,
+        }),
       }).save();
 
       expect(record).to.exist;
-    });
-
-    it('returns an error', function () {
-      const promise = Collection.mock({
-        jsonSchema: '{a:123}',
-      }).save();
-
-      expect(promise).to.be.rejected;
     });
   });
 
   describe('setValidator()', function () {
     it('sets the validator on the collection within MongoDB', async function () {
       const collection = await Collection.mock({
-        jsonSchema: {
+        jsonSchema: CollectionJsonSchema.mock({
           additionalProperties: false,
-          properties: {
-            name: { type: 'string' },
-          },
+          properties: new Map([
+            [
+              'name',
+              CollectionJsonSchemaProperties.mock({ type: CollectionJsonSchemaType.String }),
+            ],
+          ]),
           required: ['name'],
-          type: 'object',
-        },
+          type: CollectionJsonSchemaType.Object,
+        }),
       }).save();
 
       await collection.setValidator();

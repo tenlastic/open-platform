@@ -17,11 +17,15 @@ import * as mongoose from 'mongoose';
 import { jsonToMongo } from '../../json-schema';
 import { duplicateKeyErrorPlugin } from '../../plugins';
 import { syncIndexes } from '../../sync-indexes';
-import { jsonSchemaPropertiesValidator } from '../../validators';
 import { AuthorizationDocument } from '../authorization';
 import { RecordSchema } from '../record';
 import { SchemaSchema } from '../schema';
 import { CollectionIndexSchema } from './index/index';
+import {
+  CollectionJsonSchema,
+  CollectionJsonSchemaDocument,
+  CollectionJsonSchemaSchema,
+} from './json-schema';
 import {
   CollectionModelPermissions,
   CollectionModelPermissionsDocument,
@@ -67,18 +71,8 @@ export class CollectionSchema {
   @prop({ type: CollectionIndexSchema }, PropType.ARRAY)
   public indexes: CollectionIndexSchema[];
 
-  @prop(
-    {
-      _id: false,
-      default: JSON.stringify({ type: 'object' }),
-      get: (value) => (typeof value === 'string' ? JSON.parse(value) : value),
-      set: (value) => (typeof value === 'string' ? value : JSON.stringify(value)),
-      type: mongoose.Schema.Types.Mixed,
-      validate: jsonSchemaPropertiesValidator,
-    },
-    PropType.NONE,
-  )
-  public jsonSchema: any;
+  @prop({ required: true, type: CollectionJsonSchemaSchema })
+  public jsonSchema: CollectionJsonSchemaDocument;
 
   @prop({ required: true, type: String })
   public name: string;
@@ -120,7 +114,11 @@ export class CollectionSchema {
    */
   public static mock(this: CollectionModel, values: Partial<CollectionSchema> = {}) {
     const chance = new Chance();
-    const defaults = { name: chance.hash(), namespaceId: new mongoose.Types.ObjectId() };
+    const defaults = {
+      jsonSchema: CollectionJsonSchema.mock(),
+      name: chance.hash(),
+      namespaceId: new mongoose.Types.ObjectId(),
+    };
 
     return new this({ ...defaults, ...values });
   }
@@ -164,7 +162,9 @@ export class CollectionSchema {
   /**
    * Gets the MongoDB validator schema.
    */
-  private getValidator() {
+  private getValidator(this: CollectionDocument) {
+    const { jsonSchema } = this.toJSON();
+
     return {
       $jsonSchema: {
         additionalProperties: false,
@@ -175,7 +175,7 @@ export class CollectionSchema {
           collectionId: { bsonType: 'objectId' },
           createdAt: { bsonType: 'date' },
           namespaceId: { bsonType: 'objectId' },
-          properties: jsonToMongo(this.jsonSchema),
+          properties: jsonToMongo(jsonSchema),
           updatedAt: { bsonType: 'date' },
           userId: { bsonType: ['null', 'objectId', 'undefined'] },
         },

@@ -9,7 +9,7 @@ import { Chance } from 'chance';
 
 import { QueueStatusComponentName, QueueStatusPhase } from '../model';
 
-@modelOptions({ schemaOptions: { _id: false, id: false } })
+@modelOptions({ schemaOptions: { _id: false } })
 export class QueueStatusComponentSchema {
   @prop({ required: true, type: Number })
   public current: number;

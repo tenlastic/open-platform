@@ -16,7 +16,7 @@ export enum WorkflowStatusNodeType {
   Skipped = 'Skipped',
 }
 
-@modelOptions({ schemaOptions: { _id: false, id: false } })
+@modelOptions({ schemaOptions: { _id: false } })
 export class WorkflowStatusNodeSchema {
   @prop({ type: String }, PropType.ARRAY)
   public children: string[];

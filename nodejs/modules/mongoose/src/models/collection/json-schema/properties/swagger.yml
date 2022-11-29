@@ -1,0 +1,15 @@
+components:
+  schemas:
+    CollectionJsonSchemaProperties:
+      type: object
+      properties:
+        default:
+          oneOf:
+            - type: boolean
+            - type: number
+            - type: string
+        items:
+          $ref: '#/components/schemas/CollectionJsonSchemaPropertiesArray'
+        type:
+          type: string
+          enum: [array, boolean, integer, number, string]

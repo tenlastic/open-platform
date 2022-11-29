@@ -9,7 +9,7 @@ import { Chance } from 'chance';
 
 import { QueueStatusComponentName, QueueStatusPhase } from '../model';
 
-@modelOptions({ schemaOptions: { _id: false, id: false } })
+@modelOptions({ schemaOptions: { _id: false } })
 export class QueueStatusNodeSchema {
   @prop({ enum: QueueStatusComponentName, required: true, type: String })
   public component: QueueStatusComponentName;

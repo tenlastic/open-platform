@@ -1,0 +1,10 @@
+components:
+  schemas:
+    CollectionJsonSchemaPropertiesArray:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [boolean, integer, number, string]
+      required:
+        - type

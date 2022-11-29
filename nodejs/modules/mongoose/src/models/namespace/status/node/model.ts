@@ -9,7 +9,7 @@ import { Chance } from 'chance';
 
 import { NamespaceStatusComponentName, NamespaceStatusPhase } from '../model';
 
-@modelOptions({ schemaOptions: { _id: false, id: false } })
+@modelOptions({ schemaOptions: { _id: false } })
 export class NamespaceStatusNodeSchema {
   @prop({ enum: NamespaceStatusComponentName, required: true, type: String })
   public component: NamespaceStatusComponentName;

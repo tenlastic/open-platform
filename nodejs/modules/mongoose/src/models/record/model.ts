@@ -48,17 +48,15 @@ export class RecordSchema {
    * Gets the Model defined by the Collection.
    */
   public static getModel(collection: CollectionDocument) {
-    // Build schema from Collection's properties.
+    const { indexes, jsonSchema } = collection.toJSON();
     const schema = buildSchema(RecordSchema).clone();
-    schema.add({
-      properties: { _id: false, merge: true, type: jsonToMongoose(collection.jsonSchema) },
-    });
+
+    // Build schema from Collection's properties.
+    schema.add({ properties: { _id: false, merge: true, type: jsonToMongoose(jsonSchema) } });
     schema.set('collection', collection.mongoName);
 
     // Register indexes with Mongoose.
-    collection.indexes.forEach((i) => {
-      schema.index(i.key as any, { ...i.options, name: i._id.toHexString() });
-    });
+    indexes.forEach((i) => schema.index(i.key, { ...i.options, name: `${i._id}` }));
 
     // Remove cached Model from Mongoose.
     try {
