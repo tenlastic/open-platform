@@ -6,7 +6,7 @@ export const excludeKeysValidator = (keys: string[]) => {
     validator: (value: any) => {
       if (value instanceof Map) {
         return !Array.from(value.keys()).some((k) => keys.includes(k));
-      } else if (value) {
+      } else if (value && typeof value === 'object' && !Array.isArray(value)) {
         return !Object.keys(value).some((k) => keys.includes(k));
       } else {
         return true;

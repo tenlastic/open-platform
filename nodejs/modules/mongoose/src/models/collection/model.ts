@@ -22,7 +22,11 @@ import { AuthorizationDocument } from '../authorization';
 import { RecordSchema } from '../record';
 import { SchemaSchema } from '../schema';
 import { CollectionIndexSchema } from './index/index';
-import { CollectionModelPermissions, CollectionModelPermissionsSchema } from './permissions';
+import {
+  CollectionModelPermissions,
+  CollectionModelPermissionsDocument,
+  CollectionModelPermissionsSchema,
+} from './permissions';
 
 @index({ name: 1, namespaceId: 1 }, { unique: true })
 @modelOptions({
@@ -82,7 +86,24 @@ export class CollectionSchema {
   @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public namespaceId: mongoose.Types.ObjectId;
 
-  @prop({ default: new CollectionModelPermissions(), type: CollectionModelPermissionsSchema })
+  @prop({
+    default: new CollectionModelPermissions(),
+    get: (value) => {
+      const record = new CollectionModelPermissions(value);
+      return CollectionModelPermissions.getter(record);
+    },
+    set(this: CollectionDocument, value: CollectionModelPermissionsDocument) {
+      const record = new CollectionModelPermissions(value);
+
+      const error = record.validateSync();
+      for (const [k, v] of Object.entries(error?.errors ?? {})) {
+        this.invalidate(`permissions.${k}`, v.message, v.value, v.kind);
+      }
+
+      return CollectionModelPermissions.setter(record);
+    },
+    type: CollectionModelPermissionsSchema,
+  })
   public permissions: CollectionModelPermissionsSchema;
 
   public updatedAt: Date;

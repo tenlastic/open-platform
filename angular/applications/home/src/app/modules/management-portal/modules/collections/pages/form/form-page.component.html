@@ -29,9 +29,9 @@
     </div>
 
     <app-toggle-section title="Properties">
-      <div class="row"
-           formArrayName="properties"
-           *ngFor="let property of form['controls'].properties['controls']; let i = index">
+      <div *ngFor="let property of properties.controls; let i = index"
+           class="row"
+           formArrayName="properties">
         <app-property-field [form]="property"
                             (remove)="removeProperty(i)"></app-property-field>
       </div>
@@ -48,14 +48,13 @@
     </app-toggle-section>
 
     <app-toggle-section title="Roles">
-      <div class="row"
-           formArrayName="roles"
-           *ngFor="let role of form['controls'].roles['controls']; let i = index">
+      <div *ngFor="let role of roles.controls; let i = index"
+           class="row"
+           formArrayName="roles">
         <app-role-field [form]="role"
                         [index]="i"
-                        [isDefault]="i === form['controls'].roles['controls'].length - 1"
-                        [length]="form['controls'].roles['controls'].length"
-                        [properties]="form['controls'].properties | asAny"
+                        [length]="roles.length"
+                        [properties]="properties"
                         (moveDown)="moveRoleDown(i)"
                         (moveUp)="moveRoleUp(i)"
                         (remove)="removeRole(i)"></app-role-field>

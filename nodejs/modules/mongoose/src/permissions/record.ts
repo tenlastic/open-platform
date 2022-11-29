@@ -12,17 +12,17 @@ const administrator = {
 export function RecordPermissions(collection: CollectionDocument, Model: RecordModel) {
   const permissions: IOptions = {
     create: {
-      ...Object.fromEntries(collection.permissions.create || []),
+      ...Object.fromEntries(collection.permissions?.create || []),
       'namespace-write': administrator.create,
       'user-write': administrator.create,
     },
     delete: {
-      ...Object.fromEntries(collection.permissions.delete || []),
+      ...Object.fromEntries(collection.permissions?.delete || []),
       'namespace-write': true,
       'user-write': true,
     },
     find: {
-      ...Object.fromEntries(collection.permissions.find || []),
+      ...Object.fromEntries(collection.permissions?.find || []),
       default: AuthorizationPermissionsHelpers.getFindQuery([
         AuthorizationRole.RecordsRead,
         AuthorizationRole.RecordsReadWrite,
@@ -31,12 +31,12 @@ export function RecordPermissions(collection: CollectionDocument, Model: RecordM
     },
     populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
     read: {
-      ...Object.fromEntries(collection.permissions.read || []),
+      ...Object.fromEntries(collection.permissions?.read || []),
       'namespace-read': administrator.read,
       'user-read': administrator.read,
     },
     roles: {
-      ...Object.fromEntries(collection.permissions.roles || []),
+      ...Object.fromEntries(collection.permissions?.roles || []),
       default: {},
       'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
         AuthorizationRole.RecordsRead,
@@ -54,7 +54,7 @@ export function RecordPermissions(collection: CollectionDocument, Model: RecordM
       ]),
     },
     update: {
-      ...Object.fromEntries(collection.permissions.update || []),
+      ...Object.fromEntries(collection.permissions?.update || []),
       'namespace-write': administrator.update,
       'user-write': administrator.update,
     },

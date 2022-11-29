@@ -1,28 +1,30 @@
 import { TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RouterTestingModule } from '@angular/router/testing';
 import { Chance } from 'chance';
 
-import { HttpModule } from '../../../http.module';
-import { CollectionFormService } from './collection-form.service';
+import { HttpModule } from '../../../../../../http.module';
+import { MaterialModule } from '../../../../../../material.module';
+import { CollectionsFormPageComponent } from './form-page.component';
 
 const chance = new Chance();
 const context = describe;
 
-describe('CollectionFormService', () => {
-  let service: CollectionFormService;
+describe('CollectionsFormPageComponent', () => {
+  let service: CollectionsFormPageComponent;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [FormsModule, HttpModule, ReactiveFormsModule],
-      providers: [CollectionFormService],
+      imports: [FormsModule, HttpModule, MaterialModule, ReactiveFormsModule, RouterTestingModule],
+      providers: [CollectionsFormPageComponent],
     });
 
-    service = TestBed.inject(CollectionFormService);
+    service = TestBed.inject(CollectionsFormPageComponent);
   });
 
   describe('getDefaultCriterionFormGroup()', () => {
     it('returns an initialized FormGroup', () => {
-      const formGroup = service.getDefaultCriterionFormGroup();
+      const formGroup = service['getDefaultCriterionFormGroup']();
 
       expect(formGroup.get('field')).toBeTruthy();
       expect(formGroup.get('operator')).toBeTruthy();
@@ -36,9 +38,9 @@ describe('CollectionFormService', () => {
 
   describe('getDefaultPropertyFormGroup()', () => {
     it('returns an initialized FormGroup', () => {
-      const formGroup = service.getDefaultPropertyFormGroup();
+      const formGroup = service['getDefaultPropertyFormGroup']();
 
-      expect(formGroup.get('arrayType')).toBeTruthy();
+      expect(formGroup.get('array')).toBeTruthy();
       expect(formGroup.get('default')).toBeTruthy();
       expect(formGroup.get('key')).toBeTruthy();
       expect(formGroup.get('required')).toBeTruthy();
@@ -48,7 +50,7 @@ describe('CollectionFormService', () => {
 
   describe('getDefaultRoleFormGroup()', () => {
     it('returns an initialized FormGroup', () => {
-      const formGroup = service.getDefaultRoleFormGroup();
+      const formGroup = service['getDefaultRoleFormGroup']();
 
       expect(formGroup.get('criteria')).toBeTruthy();
       expect(formGroup.get('key')).toBeTruthy();
@@ -65,7 +67,7 @@ describe('CollectionFormService', () => {
     context('when using a reference', () => {
       it('returns an initialized FormGroup', () => {
         const criterion = { username: { $eq: { $ref: 'user.username' } } };
-        const formGroup = service.getFormGroupFromCriterion(criterion);
+        const formGroup = service['getFormGroupFromCriterion'](criterion);
 
         expect(formGroup.get('field').value).toEqual('username');
         expect(formGroup.get('operator').value).toEqual('$eq');
@@ -77,7 +79,7 @@ describe('CollectionFormService', () => {
     context('when using a value', () => {
       it('returns an initialized FormGroup', () => {
         const criterion = { username: { $eq: 'test' } };
-        const formGroup = service.getFormGroupFromCriterion(criterion);
+        const formGroup = service['getFormGroupFromCriterion'](criterion);
 
         expect(formGroup.get('field').value).toEqual('username');
         expect(formGroup.get('operator').value).toEqual('$eq');
@@ -100,7 +102,7 @@ describe('CollectionFormService', () => {
           update: { default: [chance.hash()] },
         };
 
-        const formGroup = service.getFormGroupFromPermissions(permissions, 'default');
+        const formGroup = service['getFormGroupFromPermissions'](permissions, 'default');
 
         expect(formGroup.get('create').value).toEqual(permissions.create.default);
         expect(formGroup.get('delete').value).toEqual(permissions.delete.default);
@@ -122,7 +124,7 @@ describe('CollectionFormService', () => {
           update: { default: [chance.hash()] },
         };
 
-        const formGroup = service.getFormGroupFromPermissions(permissions, 'default');
+        const formGroup = service['getFormGroupFromPermissions'](permissions, 'default');
 
         expect(formGroup.get('create').value).toEqual(permissions.create.default);
         expect(formGroup.get('delete').value).toEqual(permissions.delete.default);
@@ -137,9 +139,9 @@ describe('CollectionFormService', () => {
     context('when the type is an array', () => {
       it('returns an initialized FormGroup', () => {
         const property = { items: { type: 'number' }, type: 'array' };
-        const formGroup = service.getFormGroupFromProperty('key', property, false);
+        const formGroup = service['getFormGroupFromProperty']('key', property, false);
 
-        expect(formGroup.get('arrayType').value).toEqual('number');
+        expect(formGroup.get('array').value).toEqual('number');
         expect(formGroup.get('default').value).toBeFalsy();
         expect(formGroup.get('key').value).toEqual('key');
         expect(formGroup.get('required').value).toEqual(false);
@@ -150,7 +152,7 @@ describe('CollectionFormService', () => {
     context('when the type is not an array', () => {
       it('returns an initialized FormGroup', () => {
         const property = { default: 'default', type: 'string' };
-        const formGroup = service.getFormGroupFromProperty('key', property, true);
+        const formGroup = service['getFormGroupFromProperty']('key', property, true);
 
         expect(formGroup.get('default').value).toEqual('default');
         expect(formGroup.get('key').value).toEqual('key');
@@ -169,7 +171,7 @@ describe('CollectionFormService', () => {
           $and: [{ email: { $eq: 'test@example.com' } }, { username: { $eq: 'test' } }],
         };
 
-        const formGroup = service.getFormGroupFromRole(name, permissions, query);
+        const formGroup = service['getFormGroupFromRole'](name, permissions, query);
 
         expect(formGroup.get('criteria.0.field').value).toEqual('email');
         expect(formGroup.get('criteria.0.operator').value).toEqual('$eq');
@@ -186,7 +188,7 @@ describe('CollectionFormService', () => {
         const permissions = null;
         const query = {};
 
-        const formGroup = service.getFormGroupFromRole(name, permissions, query);
+        const formGroup = service['getFormGroupFromRole'](name, permissions, query);
 
         expect(formGroup.get('key').value).toEqual('default');
       });
@@ -196,12 +198,12 @@ describe('CollectionFormService', () => {
   describe('getJsonFromCriteria()', () => {
     context('when using a reference', () => {
       it('returns valid JSON', () => {
-        const criterion = service.getDefaultCriterionFormGroup();
-        const property = service.getDefaultPropertyFormGroup();
+        const criterion = service['getDefaultCriterionFormGroup']();
+        const property = service['getDefaultPropertyFormGroup']();
 
         criterion.patchValue({ field: 'username', operator: '$eq', reference: 'user.username' });
 
-        const json = service.getJsonFromCriterion(criterion.value, [property.value]);
+        const json = service['getJsonFromCriterion'](criterion.value, [property.value]);
 
         expect(json.username).toEqual({ $eq: { $ref: 'user.username' } });
       });
@@ -210,8 +212,8 @@ describe('CollectionFormService', () => {
     context('when using a value', () => {
       context('when the value is a boolean', () => {
         it('returns valid JSON', () => {
-          const criterion = service.getDefaultCriterionFormGroup();
-          const property = service.getDefaultPropertyFormGroup();
+          const criterion = service['getDefaultCriterionFormGroup']();
+          const property = service['getDefaultPropertyFormGroup']();
 
           criterion.patchValue({
             field: 'properties.name',
@@ -225,7 +227,7 @@ describe('CollectionFormService', () => {
           });
           property.patchValue({ key: 'name', type: 'boolean' });
 
-          const json = service.getJsonFromCriterion(criterion.value, [property.value]);
+          const json = service['getJsonFromCriterion'](criterion.value, [property.value]);
 
           expect(json['properties.name']).toEqual({ $eq: true });
         });
@@ -233,8 +235,8 @@ describe('CollectionFormService', () => {
 
       context('when the value is a number', () => {
         it('returns valid JSON', () => {
-          const criterion = service.getDefaultCriterionFormGroup();
-          const property = service.getDefaultPropertyFormGroup();
+          const criterion = service['getDefaultCriterionFormGroup']();
+          const property = service['getDefaultPropertyFormGroup']();
 
           criterion.patchValue({
             field: 'properties.age',
@@ -248,7 +250,7 @@ describe('CollectionFormService', () => {
           });
           property.patchValue({ key: 'age', type: 'number' });
 
-          const json = service.getJsonFromCriterion(criterion.value, [property.value]);
+          const json = service['getJsonFromCriterion'](criterion.value, [property.value]);
 
           expect(json['properties.age']).toEqual({ $eq: 6 });
         });
@@ -256,8 +258,8 @@ describe('CollectionFormService', () => {
 
       context('when the value is a string', () => {
         it('returns valid JSON', () => {
-          const criterion = service.getDefaultCriterionFormGroup();
-          const property = service.getDefaultPropertyFormGroup();
+          const criterion = service['getDefaultCriterionFormGroup']();
+          const property = service['getDefaultPropertyFormGroup']();
 
           criterion.patchValue({
             field: 'properties.name',
@@ -271,7 +273,7 @@ describe('CollectionFormService', () => {
           });
           property.patchValue({ key: 'name', type: 'string' });
 
-          const json = service.getJsonFromCriterion(criterion.value, [property.value]);
+          const json = service['getJsonFromCriterion'](criterion.value, [property.value]);
 
           expect(json['properties.name']).toEqual({ $eq: 'test' });
         });
@@ -282,10 +284,10 @@ describe('CollectionFormService', () => {
   describe('getJsonFromProperty()', () => {
     context('when the type is an array', () => {
       it('returns valid JSON', () => {
-        const property = service.getDefaultPropertyFormGroup();
-        property.patchValue({ arrayType: 'boolean', default: true, key: 'age', type: 'array' });
+        const property = service['getDefaultPropertyFormGroup']();
+        property.patchValue({ array: 'boolean', default: true, key: 'age', type: 'array' });
 
-        const json = service.getJsonFromProperty(property.value);
+        const json = service['getJsonFromProperty'](property.value);
 
         expect(json.default).toBeFalsy();
         expect(json.items.type).toEqual('boolean');
@@ -295,10 +297,10 @@ describe('CollectionFormService', () => {
 
     context('when the type is a boolean', () => {
       it('returns valid JSON', () => {
-        const property = service.getDefaultPropertyFormGroup();
+        const property = service['getDefaultPropertyFormGroup']();
         property.patchValue({ default: true, key: 'age', type: 'boolean' });
 
-        const json = service.getJsonFromProperty(property.value);
+        const json = service['getJsonFromProperty'](property.value);
 
         expect(json.default).toEqual(true);
         expect(json.type).toEqual('boolean');
@@ -307,10 +309,10 @@ describe('CollectionFormService', () => {
 
     context('when the type is a number', () => {
       it('returns valid JSON', () => {
-        const property = service.getDefaultPropertyFormGroup();
+        const property = service['getDefaultPropertyFormGroup']();
         property.patchValue({ default: 5, key: 'age', type: 'number' });
 
-        const json = service.getJsonFromProperty(property.value);
+        const json = service['getJsonFromProperty'](property.value);
 
         expect(json.default).toEqual(5);
         expect(json.type).toEqual('number');
@@ -319,10 +321,10 @@ describe('CollectionFormService', () => {
 
     context('when the type is a string', () => {
       it('returns valid JSON', () => {
-        const property = service.getDefaultPropertyFormGroup();
+        const property = service['getDefaultPropertyFormGroup']();
         property.patchValue({ default: 'test', key: 'name', type: 'string' });
 
-        const json = service.getJsonFromProperty(property.value);
+        const json = service['getJsonFromProperty'](property.value);
 
         expect(json.default).toEqual('test');
         expect(json.type).toEqual('string');
@@ -334,13 +336,13 @@ describe('CollectionFormService', () => {
     it('returns valid JSON', () => {
       const role = { criteria: [], key: 'name', operator: '$and' };
 
-      const json = service.getQueryFromRole(null, role);
+      const json = service['getQueryFromRole'](null, role);
 
       expect(json).toEqual({ $and: [] });
     });
   });
 
-  describe('getPermissionsJsonFromRoles()', () => {
+  describe('getJsonFromRoles()', () => {
     it('returns valid JSON', () => {
       const property = { key: 'name', type: 'string' };
       const role = {
@@ -361,7 +363,7 @@ describe('CollectionFormService', () => {
         },
       };
 
-      const json = service.getPermissionsJsonFromRoles([property], [role]) as any;
+      const json = service['getJsonFromRoles']([property], [role]) as any;
 
       expect(json.create.default).toEqual(role.permissions.create);
       expect(json.delete.default).toEqual(role.permissions.delete);
@@ -376,10 +378,10 @@ describe('CollectionFormService', () => {
   describe('getPropertyType()', () => {
     context('when a matching property is found', () => {
       it('returns the property type', () => {
-        const property = service.getDefaultPropertyFormGroup();
+        const property = service['getDefaultPropertyFormGroup']();
         property.patchValue({ key: 'name', type: 'boolean' });
 
-        const type = service.getPropertyType('properties.name', [property.value]);
+        const type = service['getPropertyType']('properties.name', [property.value]);
 
         expect(type).toEqual('boolean');
       });
@@ -387,10 +389,10 @@ describe('CollectionFormService', () => {
 
     context('when a matching property is not found', () => {
       it('returns string', () => {
-        const property = service.getDefaultPropertyFormGroup();
+        const property = service['getDefaultPropertyFormGroup']();
         property.patchValue({ key: 'name', type: 'boolean' });
 
-        const type = service.getPropertyType('properties.age', [property.value]);
+        const type = service['getPropertyType']('properties.age', [property.value]);
 
         expect(type).toEqual('string');
       });

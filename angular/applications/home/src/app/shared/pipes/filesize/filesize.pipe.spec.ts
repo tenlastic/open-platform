@@ -8,7 +8,7 @@ describe('FilesizePipe', () => {
   });
 
   it('returns the correct value', () => {
-    const result = pipe.transform(2048);
+    const result = pipe.transform(2000);
 
     expect(result).toBe('2.00 KB');
   });

@@ -1,7 +1,12 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { FormGroup, FormArray } from '@angular/forms';
-
-import { CollectionFormService } from '../../../../../../core/services';
+import {
+  FormGroup,
+  FormArray,
+  FormBuilder,
+  Validators,
+  AbstractControl,
+  ValidationErrors,
+} from '@angular/forms';
 
 @Component({
   selector: 'app-role-field',
@@ -11,13 +16,15 @@ import { CollectionFormService } from '../../../../../../core/services';
 export class RoleFieldComponent {
   @Input() public form: FormGroup;
   @Input() public index: number;
-  @Input() public isDefault: boolean;
   @Input() public length: number;
   @Input() public properties: FormArray;
   @Output() public moveDown = new EventEmitter();
   @Output() public moveUp = new EventEmitter();
   @Output() public remove = new EventEmitter();
 
+  public get criteria() {
+    return this.form.get('criteria') as FormArray;
+  }
   public get criteriaFields() {
     const propertyFields = this.propertyFields.map((f) => `record.${f}`);
     const recordFields = this.recordFields.map((f) => `record.${f}`);
@@ -25,6 +32,9 @@ export class RoleFieldComponent {
     return propertyFields.concat(recordFields, this.userFields).sort();
   }
   public criteriaOperators = [{ label: 'Equals', value: '$eq' }];
+  public get find() {
+    return this.form.get('permissions').get('find') as FormArray;
+  }
   public findOperators = [
     { label: 'Equal', value: '$eq' },
     { label: 'Greater Than', value: '$gt' },
@@ -45,17 +55,17 @@ export class RoleFieldComponent {
     return this.properties.value.filter((v) => v.key);
   }
 
-  constructor(private collectionFormService: CollectionFormService) {}
+  constructor(private formBuilder: FormBuilder) {}
 
   public addCriterion() {
-    const criterion = this.collectionFormService.getDefaultCriterionFormGroup();
+    const criterion = this.getDefaultCriterionFormGroup();
     const formArray = this.form.get('criteria') as FormArray;
 
     formArray.push(criterion);
   }
 
   public addFindCriterion() {
-    const criterion = this.collectionFormService.getDefaultCriterionFormGroup();
+    const criterion = this.getDefaultCriterionFormGroup();
     const formArray = this.form.get('permissions.find') as FormArray;
 
     formArray.push(criterion);
@@ -69,5 +79,29 @@ export class RoleFieldComponent {
   public removeFindCriterion(index: number) {
     const formArray = this.form.get('permissions.find') as FormArray;
     formArray.removeAt(index);
+  }
+
+  private getDefaultCriterionFormGroup() {
+    const form = this.formBuilder.group({
+      field: [null as string, Validators.required],
+      operator: '$eq',
+      reference: null as string,
+      type: 'reference',
+      value: this.formBuilder.group({ boolean: false, number: 0, string: '' }),
+    });
+
+    form.get('type').valueChanges.subscribe((value) => {
+      const reference = form.get('reference');
+
+      if (value === 'reference') {
+        reference.addValidators([Validators.required]);
+      } else {
+        reference.removeValidators([Validators.required]);
+      }
+
+      reference.updateValueAndValidity({ emitEvent: false });
+    });
+
+    return form;
   }
 }

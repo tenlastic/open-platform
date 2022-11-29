@@ -1,7 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormGroup, FormArray } from '@angular/forms';
-
-import { CollectionFormService } from '../../../../../../core/services';
+import { PropertyFormGroup } from '../../pages';
 
 export interface CriterionFieldComponentOperator {
   label: string;
@@ -21,10 +20,17 @@ export class CriterionFieldComponent {
   @Input() public referenceFields: string[];
   @Output() public remove = new EventEmitter();
 
-  constructor(private collectionFormService: CollectionFormService) {}
+  public get type() {
+    return this.form.get('type').value;
+  }
 
   public get fieldType() {
     const field = this.form.get('field').value;
-    return this.collectionFormService.getPropertyType(field, this.properties.value);
+    return this.getPropertyType(field, this.properties.value);
+  }
+
+  private getPropertyType(key: string, properties: PropertyFormGroup[]) {
+    const property = properties.find((v) => `properties.${v.key}` === key);
+    return property ? property.type : 'string';
   }
 }
