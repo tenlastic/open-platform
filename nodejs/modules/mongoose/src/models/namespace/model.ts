@@ -12,11 +12,12 @@ import * as mongoose from 'mongoose';
 
 import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 import { AuthorizationDocument } from '../authorization';
-import { NamespaceLimits, NamespaceLimitsDocument, NamespaceLimitsSchema } from './limits';
+import { NamespaceLimitsDocument, NamespaceLimitsSchema } from './limits';
 import {
   NamespaceStatus,
   NamespaceStatusComponent,
   NamespaceStatusComponentName,
+  NamespaceStatusDocument,
   NamespaceStatusPhase,
   NamespaceStatusSchema,
 } from './status';
@@ -42,7 +43,7 @@ export class NamespaceSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ default: new NamespaceLimits(), type: NamespaceLimitsSchema })
+  @prop({ type: NamespaceLimitsSchema })
   public limits: NamespaceLimitsDocument;
 
   @prop({ required: true, type: String })
@@ -88,7 +89,7 @@ export class NamespaceSchema {
     merge: true,
     type: NamespaceStatusSchema,
   })
-  public status: NamespaceStatusSchema;
+  public status: NamespaceStatusDocument;
 
   public updatedAt: Date;
 
@@ -147,9 +148,9 @@ export class NamespaceSchema {
   /**
    * Throws a NamespaceLimitError if the preemptible limit is reached.
    */
-  public checkPreemptibleLimit(current: boolean) {
-    if (!current && this.limits?.preemptible) {
-      throw new NamespaceLimitError('preemptible');
+  public checkNonPreemptibleLimit(current: boolean) {
+    if (!current && !this.limits?.nonPreemptible) {
+      throw new NamespaceLimitError('nonPreemptible');
     }
   }
 
@@ -165,30 +166,6 @@ export class NamespaceSchema {
 
     if (current - previous + status > limit) {
       throw new NamespaceLimitError('storage');
-    }
-  }
-
-  /**
-   * Returns a NamespaceLimitError if one is reached.
-   */
-  public getLimitError(
-    current: Partial<NamespaceLimitsSchema>,
-    previous?: Partial<NamespaceLimitsSchema>,
-  ) {
-    current = { cpu: current.cpu || 0, memory: current.memory || 0 };
-    previous = { cpu: previous.cpu || 0, memory: previous.memory || 0 };
-
-    const limits = { cpu: this.limits?.cpu || 0, memory: this.limits?.memory || 0 };
-    const status = { cpu: this.status?.limits?.cpu || 0, memory: this.status?.limits?.memory || 0 };
-
-    if (current.cpu - previous.cpu + status.cpu > limits.cpu) {
-      return new NamespaceLimitError('cpu');
-    }
-    if (current.memory - previous.memory + status.memory > limits.memory) {
-      return new NamespaceLimitError('memory');
-    }
-    if (!current.preemptible && this.limits?.preemptible) {
-      return new NamespaceLimitError('preemptible');
     }
   }
 }

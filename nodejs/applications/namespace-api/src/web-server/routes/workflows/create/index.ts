@@ -10,7 +10,7 @@ export async function handler(ctx: Context) {
   const namespace = await Namespace.findOne({ _id: ctx.params.namespaceId });
   namespace.checkCpuLimit(cpu);
   namespace.checkMemoryLimit(memory);
-  namespace.checkPreemptibleLimit(preemptible);
+  namespace.checkNonPreemptibleLimit(preemptible);
 
   const credentials = { ...ctx.state };
   const result = await WorkflowPermissions.create(credentials, ctx.params, ctx.request.body);

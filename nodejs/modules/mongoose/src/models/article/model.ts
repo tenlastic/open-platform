@@ -13,6 +13,12 @@ import * as mongoose from 'mongoose';
 import { unsetPlugin } from '../../plugins';
 import { AuthorizationDocument } from '../authorization';
 
+export enum ArticleType {
+  Guide = 'Guide',
+  News = 'News',
+  PatchNotes = 'PatchNotes',
+}
+
 @index({ namespaceId: 1 })
 @index({ publishedAt: 1 })
 @modelOptions({ schemaOptions: { collection: 'articles', minimize: false, timestamps: true } })
@@ -37,8 +43,8 @@ export class ArticleSchema {
   @prop({ match: /^.{2,100}$/, required: true, type: String })
   public title: string;
 
-  @prop({ default: 'News', enum: ['Guide', 'News', 'Patch Notes'], type: String })
-  public type: string;
+  @prop({ enum: ArticleType, required: true, type: String })
+  public type: ArticleType;
 
   public updatedAt: Date;
 
@@ -53,6 +59,7 @@ export class ArticleSchema {
     const defaults = {
       body: chance.hash(),
       namespaceId: new mongoose.Types.ObjectId(),
+      type: ArticleType.Guide,
       title: chance.hash(),
     };
 

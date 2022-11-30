@@ -4,7 +4,7 @@ export namespace IArticle {
   export enum Type {
     Guide = 'Guide',
     News = 'News',
-    PatchNotes = 'Patch Notes',
+    PatchNotes = 'PatchNotes',
   }
 }
 

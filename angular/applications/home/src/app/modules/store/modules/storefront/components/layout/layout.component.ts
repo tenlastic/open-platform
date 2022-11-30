@@ -156,14 +156,15 @@ export class LayoutComponent implements OnDestroy, OnInit {
       this.$guide = this.articleQuery
         .selectAll({
           filterBy: (a) =>
-            a.namespaceId === this.namespaceId && a.publishedAt && a.type === 'Guide',
+            a.namespaceId === this.namespaceId && a.publishedAt && a.type === IArticle.Type.Guide,
           sortBy: 'publishedAt',
           sortByOrder: Order.DESC,
         })
         .pipe(map((a) => a[0]));
       this.$news = this.articleQuery
         .selectAll({
-          filterBy: (a) => a.namespaceId === this.namespaceId && a.publishedAt && a.type === 'News',
+          filterBy: (a) =>
+            a.namespaceId === this.namespaceId && a.publishedAt && a.type === IArticle.Type.News,
           sortBy: 'publishedAt',
           sortByOrder: Order.DESC,
         })
@@ -171,7 +172,9 @@ export class LayoutComponent implements OnDestroy, OnInit {
       this.$patchNotes = this.articleQuery
         .selectAll({
           filterBy: (a) =>
-            a.namespaceId === this.namespaceId && a.publishedAt && a.type === 'Patch Notes',
+            a.namespaceId === this.namespaceId &&
+            a.publishedAt &&
+            a.type === IArticle.Type.PatchNotes,
           sortBy: 'publishedAt',
           sortByOrder: Order.DESC,
         })

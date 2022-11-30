@@ -13,7 +13,7 @@ export async function handler(ctx: Context) {
     const namespace = await Namespace.findOne({ _id: ctx.params.namespaceId });
     namespace.checkCpuLimit(cpu, existing.cpu);
     namespace.checkMemoryLimit(memory, existing.memory);
-    namespace.checkPreemptibleLimit(preemptible ?? existing.preemptible);
+    namespace.checkNonPreemptibleLimit(preemptible ?? existing.preemptible);
   }
 
   const result = await GameServerPermissions.update(

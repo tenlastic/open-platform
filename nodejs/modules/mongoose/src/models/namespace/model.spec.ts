@@ -71,23 +71,23 @@ describe('models/namespace', function () {
     });
   });
 
-  describe('checkPreemptibleLimit()', function () {
+  describe('checkNonPreemptibleLimit()', function () {
     it('returns an error', async function () {
       const namespace = await Namespace.mock({
-        limits: NamespaceLimits.mock({ preemptible: true }),
+        limits: NamespaceLimits.mock({ nonPreemptible: false }),
       }).save();
 
-      const result = namespace.checkPreemptibleLimit.bind(namespace, false);
+      const result = namespace.checkNonPreemptibleLimit.bind(namespace, false);
 
       expect(result).to.throw(NamespaceLimitError);
     });
 
     it('returns nothing', async function () {
       const namespace = await Namespace.mock({
-        limits: NamespaceLimits.mock({ preemptible: true }),
+        limits: NamespaceLimits.mock({ nonPreemptible: false }),
       }).save();
 
-      const result = namespace.checkPreemptibleLimit(true);
+      const result = namespace.checkNonPreemptibleLimit(true);
 
       expect(result).to.not.exist;
     });

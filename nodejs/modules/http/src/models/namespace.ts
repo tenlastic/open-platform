@@ -14,7 +14,7 @@ export namespace INamespace {
     cpu?: number;
     defaultAuthorization?: boolean;
     memory?: number;
-    preemptible?: boolean;
+    nonPreemptible?: boolean;
     storage?: number;
   }
 

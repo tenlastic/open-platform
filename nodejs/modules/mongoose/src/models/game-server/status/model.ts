@@ -38,12 +38,7 @@ export class GameServerStatusSchema {
   @prop({ type: GameServerStatusNodeSchema }, PropType.ARRAY)
   public nodes: GameServerStatusNodeDocument[];
 
-  @prop({
-    default: GameServerStatusPhase.Pending,
-    enum: GameServerStatusPhase,
-    required: true,
-    type: String,
-  })
+  @prop({ default: GameServerStatusPhase.Pending, enum: GameServerStatusPhase, type: String })
   public phase: GameServerStatusPhase;
 
   @prop({ type: String })

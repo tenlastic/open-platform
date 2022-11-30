@@ -75,13 +75,13 @@
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
-          <mat-label>Only Preemptible</mat-label>
-          <input *ngIf="form.get('limits').get('preemptible').disabled"
+          <mat-label>Non-Preemptible Nodes</mat-label>
+          <input *ngIf="form.get('limits').get('nonPreemptible').disabled"
                  disabled
                  matInput
-                 [value]="form.get('limits').get('preemptible').value ? 'Yes' : 'No'" />
-          <mat-select *ngIf="!form.get('limits').get('preemptible').disabled"
-                      formControlName="preemptible">
+                 [value]="form.get('limits').get('nonPreemptible').value ? 'Yes' : 'No'" />
+          <mat-select *ngIf="!form.get('limits').get('nonPreemptible').disabled"
+                      formControlName="nonPreemptible">
             <mat-option [value]="true">Yes</mat-option>
             <mat-option [value]="false">No</mat-option>
           </mat-select>

@@ -71,15 +71,16 @@ export class NamespacesFormPageComponent implements OnDestroy, OnInit {
       return;
     }
 
+    const limits = this.form.get('limits');
     const values: Partial<NamespaceModel> = {
       _id: this.data._id,
       limits: {
-        bandwidth: this.form.get('limits').get('bandwidth').value * 1000 * 1000 * 1000,
-        cpu: this.form.get('limits').get('cpu').value,
-        defaultAuthorization: this.form.get('limits').get('defaultAuthorization').value,
-        memory: this.form.get('limits').get('memory').value * 1000 * 1000 * 1000,
-        preemptible: this.form.get('limits').get('preemptible').value,
-        storage: this.form.get('limits').get('storage').value * 1000 * 1000 * 1000,
+        bandwidth: limits.get('bandwidth').value * 1000 * 1000 * 1000,
+        cpu: limits.get('cpu').value,
+        defaultAuthorization: limits.get('defaultAuthorization').value,
+        memory: limits.get('memory').value * 1000 * 1000 * 1000,
+        nonPreemptible: limits.get('nonPreemptible').value,
+        storage: limits.get('storage').value * 1000 * 1000 * 1000,
       },
       name: this.form.get('name').value,
     };
@@ -100,7 +101,7 @@ export class NamespacesFormPageComponent implements OnDestroy, OnInit {
         cpu: [this.data.limits?.cpu || 0, Validators.required],
         defaultAuthorization: this.data.limits?.defaultAuthorization ?? false,
         memory: [this.data.limits?.memory / (1000 * 1000 * 1000) || 0, Validators.required],
-        preemptible: this.data.limits?.preemptible,
+        nonPreemptible: this.data.limits?.nonPreemptible ?? false,
         storage: [this.data.limits?.storage / (1000 * 1000 * 1000) || 0, Validators.required],
       }),
       name: [this.data.name, Validators.required],

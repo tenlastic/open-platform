@@ -73,8 +73,9 @@ export class NamespacesJsonPageComponent implements OnInit {
       limits: {
         bandwidth: 0,
         cpu: 0,
+        defaultAuthorization: false,
         memory: 0,
-        preemptible: true,
+        nonPreemptible: false,
         storage: 0,
       },
       name: '',

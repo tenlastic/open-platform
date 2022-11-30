@@ -34,12 +34,7 @@ export class QueueStatusSchema {
   @prop({ type: QueueStatusNodeSchema }, PropType.ARRAY)
   public nodes: QueueStatusNodeDocument[];
 
-  @prop({
-    default: QueueStatusPhase.Pending,
-    enum: QueueStatusPhase,
-    required: true,
-    type: String,
-  })
+  @prop({ default: QueueStatusPhase.Pending, enum: QueueStatusPhase, type: String })
   public phase: QueueStatusPhase;
 
   @prop({ type: String })

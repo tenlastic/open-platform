@@ -35,9 +35,9 @@ export class ArticlesFormPageComponent implements OnInit {
   }
   public type: IArticle.Type;
   public types = [
-    { label: 'Guide', value: 'Guide' },
-    { label: 'News', value: 'News' },
-    { label: 'Patch Notes', value: 'Patch Notes' },
+    { label: 'Guide', value: IArticle.Type.Guide },
+    { label: 'News', value: IArticle.Type.News },
+    { label: 'Patch Notes', value: IArticle.Type.PatchNotes },
   ];
 
   private params: Params;

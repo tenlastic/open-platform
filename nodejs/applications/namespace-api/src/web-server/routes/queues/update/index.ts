@@ -19,7 +19,7 @@ export async function handler(ctx: Context) {
       memory * (replicas ?? existing.replicas),
       existing.memory * existing.replicas,
     );
-    namespace.checkPreemptibleLimit(preemptible ?? existing.preemptible);
+    namespace.checkNonPreemptibleLimit(preemptible ?? existing.preemptible);
   }
 
   const result = await QueuePermissions.update(credentials, ctx.params, ctx.request.body, existing);

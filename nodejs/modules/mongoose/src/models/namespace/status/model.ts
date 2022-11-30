@@ -38,12 +38,7 @@ export class NamespaceStatusSchema {
   @prop({ type: NamespaceStatusNodeSchema }, PropType.ARRAY)
   public nodes: NamespaceStatusNodeDocument[];
 
-  @prop({
-    default: NamespaceStatusPhase.Pending,
-    enum: NamespaceStatusPhase,
-    required: true,
-    type: String,
-  })
+  @prop({ default: NamespaceStatusPhase.Pending, enum: NamespaceStatusPhase, type: String })
   public phase: NamespaceStatusPhase;
 
   @prop({ type: String })

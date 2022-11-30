@@ -10,7 +10,7 @@ export async function handler(ctx: Context) {
   const namespace = await Namespace.findOne({ _id: ctx.params.namespaceId });
   namespace.checkCpuLimit(cpu * replicas);
   namespace.checkMemoryLimit(memory * replicas);
-  namespace.checkPreemptibleLimit(preemptible);
+  namespace.checkNonPreemptibleLimit(preemptible);
 
   const credentials = { ...ctx.state };
   const result = await QueuePermissions.create(credentials, ctx.params, ctx.request.body);
