@@ -64,7 +64,7 @@ export class GameServerSchema {
   @prop({ min: 100 * 1000 * 1000, required: true, type: Number })
   public memory: number;
 
-  @prop({ type: mongoose.Schema.Types.Mixed })
+  @prop({ type: mongoose.Schema.Types.Mixed, unset: false })
   public metadata: any;
 
   @prop({ required: true, type: String })

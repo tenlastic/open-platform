@@ -3,7 +3,12 @@ import * as mongoose from 'mongoose';
 
 import { unsetPlugin } from './';
 
-const options = { boolean: { type: Boolean }, number: { type: Number }, string: { type: String } };
+const options = {
+  boolean: { type: Boolean },
+  exclude: { type: String, unset: false },
+  number: { type: Number },
+  string: { type: String },
+};
 const subDocumentSchema = new mongoose.Schema({ ...options, array: [], object: this });
 const schema = new mongoose.Schema(
   { ...options, array: { type: [subDocumentSchema] }, object: { type: subDocumentSchema } },
@@ -94,6 +99,24 @@ describe('plugins/unset', function () {
       expect(result.array[0].number).to.not.exist;
       expect(result.array[0].object).to.not.exist;
       expect(result.array[0].string).to.not.exist;
+    });
+
+    it('skips excluded fields', async function () {
+      const record = await Model.create({
+        array: [{ exclude: 'exclude' }],
+        exclude: 'exclude',
+        object: { exclude: 'exclude' },
+      });
+
+      record.array[0].exclude = '';
+      record.exclude = '';
+      record.object.exclude = '';
+      await record.save();
+
+      const result = await Model.findOne({ _id: record._id });
+      expect(result.array[0].exclude).to.eql('');
+      expect(result.exclude).to.eql('');
+      expect(result.object.exclude).to.eql('');
     });
   });
 });

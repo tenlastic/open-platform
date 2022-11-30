@@ -30,13 +30,13 @@ export class CollectionModelPermissionsSchema {
   @prop({ type: Boolean, validate }, PropType.MAP)
   public delete: Map<string, boolean>;
 
-  @prop({ type: mongoose.Schema.Types.Mixed, validate }, PropType.MAP)
+  @prop({ type: mongoose.Schema.Types.Mixed, unset: false, validate }, PropType.MAP)
   public find: Map<string, any>;
 
   @prop({ type: [String], validate }, PropType.MAP)
   public read: Map<string, string[]>;
 
-  @prop({ type: mongoose.Schema.Types.Mixed, validate }, PropType.MAP)
+  @prop({ type: mongoose.Schema.Types.Mixed, unset: false, validate }, PropType.MAP)
   public roles: Map<string, any>;
 
   @prop({ type: [String], validate }, PropType.MAP)

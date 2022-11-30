@@ -194,6 +194,9 @@ export class CollectionsFormPageComponent implements OnInit {
     return invalid ? { excludeKeys: { value: control.value } } : null;
   }
 
+  /**
+   * Used for test mocks.
+   */
   private getDefaultCriterionFormGroup() {
     const form = this.formBuilder.group({
       field: [null as string, Validators.required],
@@ -256,7 +259,7 @@ export class CollectionsFormPageComponent implements OnInit {
       options.value = this.formBuilder.group({ boolean: false, number: 0, string: '' });
     } else {
       const boolean = typeof value === 'boolean' ? value : false;
-      const number = typeof value === 'number' ? value.toString() : '0';
+      const number = typeof value === 'number' ? value : 0;
       const string = typeof value === 'string' ? value : '';
 
       options.reference = null;

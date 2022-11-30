@@ -26,7 +26,7 @@ export class SchemaSchema {
   @prop({ required: true, type: String })
   public name: string;
 
-  @prop({ required: true, type: mongoose.Schema.Types.Mixed })
+  @prop({ required: true, type: mongoose.Schema.Types.Mixed, unset: false })
   public properties: any;
 
   @prop({ required: true, type: String })

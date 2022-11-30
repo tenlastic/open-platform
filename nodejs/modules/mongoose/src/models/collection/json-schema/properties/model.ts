@@ -16,7 +16,7 @@ import { CollectionJsonSchemaArrayDocument, CollectionJsonSchemaArraySchema } fr
   schemaOptions: { _id: false, minimize: false },
 })
 export class CollectionJsonSchemaPropertiesSchema {
-  @prop({ type: mongoose.Schema.Types.Mixed })
+  @prop({ type: mongoose.Schema.Types.Mixed, unset: false })
   public default: any;
 
   @prop({ type: CollectionJsonSchemaArraySchema })

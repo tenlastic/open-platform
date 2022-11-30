@@ -18,7 +18,7 @@ export class CollectionIndexOptionsSchema {
   @prop({ type: Number })
   public expireAfterSeconds: number;
 
-  @prop({ type: mongoose.Schema.Types.Mixed })
+  @prop({ type: mongoose.Schema.Types.Mixed, unset: false })
   public partialFilterExpression: any;
 
   @prop({ type: Boolean })

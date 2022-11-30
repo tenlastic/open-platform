@@ -43,7 +43,7 @@ export class StorefrontSchema {
   @prop({ type: String })
   public logo: string;
 
-  @prop({ type: mongoose.Schema.Types.Mixed })
+  @prop({ type: mongoose.Schema.Types.Mixed, unset: false })
   public metadata: any;
 
   @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
