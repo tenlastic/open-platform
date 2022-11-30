@@ -29,7 +29,7 @@
 
             <ng-container [ngSwitch]="collection.jsonSchema.properties[key].items.type">
               <mat-select *ngSwitchCase="'boolean'"
-                          [formControlName]="i | asAny">
+                          [formControlName]="i">
                 <mat-option [value]="true">True</mat-option>
                 <mat-option [value]="false">False</mat-option>
               </mat-select>
@@ -37,11 +37,11 @@
               <input *ngSwitchCase="'number'"
                      matInput
                      type="number"
-                     [formControlName]="i | asAny" />
+                     [formControlName]="i" />
 
               <input *ngSwitchCase="'string'"
                      matInput
-                     [formControlName]="i | asAny" />
+                     [formControlName]="i" />
             </ng-container>
 
             <mat-error>Enter a valid {{ key }}.</mat-error>

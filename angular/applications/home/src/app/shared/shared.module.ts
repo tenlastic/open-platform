@@ -36,7 +36,6 @@ import {
 } from './components';
 import { AutofocusDirective, HighlightDirective, NavDirective } from './directives';
 import {
-  AsAnyPipe,
   CamelCaseToTitleCasePipe,
   DurationPipe,
   FilesizePipe,
@@ -87,7 +86,6 @@ const modules = [
   RouterModule,
 ];
 const pipes = [
-  AsAnyPipe,
   CamelCaseToTitleCasePipe,
   DurationPipe,
   FilesizePipe,

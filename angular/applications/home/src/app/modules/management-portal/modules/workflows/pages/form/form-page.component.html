@@ -76,16 +76,16 @@
 
     <app-toggle-section title="Templates"
                         [isVisible]="!$data">
-      <div class="row template"
-           formArrayName="templates"
-           *ngFor="let template of form['controls'].templates['controls']; let i = index">
+      <div *ngFor="let template of form['controls'].templates['controls']; let i = index"
+           class="row template"
+           formArrayName="templates">
         <div class="name">
           <mat-form-field floatLabel="always">
             <mat-label>Name</mat-label>
             <input matInput
                    placeholder="Echo"
                    required
-                   [formControl]="template.controls.name | asAny" />
+                   [formControl]="template.controls.name" />
             <mat-error>Enter a valid name.</mat-error>
           </mat-form-field>
 

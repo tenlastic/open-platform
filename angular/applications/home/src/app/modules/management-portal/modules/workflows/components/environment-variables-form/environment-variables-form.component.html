@@ -7,7 +7,7 @@
       <input matInput
              placeholder="MESSAGE"
              required
-             [formControl]="env.controls.name | asAny" />
+             [formControl]="env.controls.name" />
       <mat-error>Enter a valid name.</mat-error>
     </mat-form-field>
 
@@ -16,7 +16,7 @@
       <input matInput
              placeholder="Hello World!"
              required
-             [formControl]="env.controls.value | asAny" />
+             [formControl]="env.controls.value" />
       <mat-error>Enter a valid value.</mat-error>
     </mat-form-field>
 

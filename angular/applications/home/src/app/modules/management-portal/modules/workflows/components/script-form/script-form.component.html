@@ -6,7 +6,7 @@
       <input matInput
              placeholder="alpine:latest"
              required
-             [formControl]="formGroup.controls.image | asAny" />
+             [formControl]="formGroup.controls.image" />
       <mat-error>Enter a valid image.</mat-error>
     </mat-form-field>
 
@@ -48,7 +48,7 @@
                     required
                     cdkTextareaAutosize
                     cdkAutosizeMinRows="3"
-                    [formControl]="formGroup.controls.source | asAny"></textarea>
+                    [formControl]="formGroup.controls.source"></textarea>
           <mat-error>Enter a valid source.</mat-error>
         </mat-form-field>
       </div>

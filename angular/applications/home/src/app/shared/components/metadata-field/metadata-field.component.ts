@@ -10,6 +10,10 @@ export class MetadataFieldComponent implements OnInit {
   @Input() public form: FormGroup;
   @Output() public remove = new EventEmitter();
 
+  public get type() {
+    return this.form.get('type').value;
+  }
+
   public ngOnInit() {
     this.form.controls.type.valueChanges.subscribe((val) => {
       switch (val) {

@@ -3,7 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { FormResolver } from '../../../../core/resolvers';
 import { SharedModule } from '../../../../shared/shared.module';
-import { LayoutComponent, NamespaceUserFieldComponent } from './components';
+import { LayoutComponent } from './components';
 import {
   NamespacesFormPageComponent,
   NamespacesJsonPageComponent,
@@ -88,7 +88,6 @@ export const ROUTES: Routes = [
 @NgModule({
   declarations: [
     LayoutComponent,
-    NamespaceUserFieldComponent,
 
     NamespacesFormPageComponent,
     NamespacesJsonPageComponent,

@@ -40,7 +40,7 @@
          class="row">
       <mat-form-field floatLabel="always">
         <mat-label>Type</mat-label>
-        <mat-select [formControl]="form.controls.type | asAny">
+        <mat-select formControlName="type">
           <mat-option *ngFor="let type of types"
                       [value]="type.value">
             {{ type.label }}
