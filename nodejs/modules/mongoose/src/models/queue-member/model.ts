@@ -12,7 +12,7 @@ import {
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
-import { DuplicateKeyError, duplicateKeyErrorPlugin } from '../../plugins';
+import { DuplicateKeyError, duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 import { namespaceValidator } from '../../validators';
 import { AuthorizationDocument } from '../authorization';
 import { GroupDocument } from '../group';
@@ -34,6 +34,7 @@ export class QueueMemberDuplicateKeyError extends Error {
 @index({ webSocketId: 1 })
 @modelOptions({ schemaOptions: { collection: 'queue-members', minimize: false, timestamps: true } })
 @plugin(duplicateKeyErrorPlugin)
+@plugin(unsetPlugin)
 @pre('save', async function (this: QueueMemberDocument) {
   await this.setUserIds();
   await this.checkPlayersPerTeam();

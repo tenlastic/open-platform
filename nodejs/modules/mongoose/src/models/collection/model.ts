@@ -15,7 +15,7 @@ import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
 import { jsonToMongo } from '../../json-schema';
-import { duplicateKeyErrorPlugin } from '../../plugins';
+import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 import { syncIndexes } from '../../sync-indexes';
 import { AuthorizationDocument } from '../authorization';
 import { RecordSchema } from '../record';
@@ -44,6 +44,7 @@ import {
   },
 })
 @plugin(duplicateKeyErrorPlugin)
+@plugin(unsetPlugin)
 @pre('save', async function (this: CollectionDocument) {
   const Record = RecordSchema.getModel(this);
   await syncIndexes(Record);
@@ -81,7 +82,6 @@ export class CollectionSchema {
   public namespaceId: mongoose.Types.ObjectId;
 
   @prop({
-    default: new CollectionModelPermissions(),
     get: (value) => new CollectionModelPermissions(value).getter(),
     set(this: CollectionDocument, value: CollectionModelPermissionsDocument) {
       const record = new CollectionModelPermissions(value);

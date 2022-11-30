@@ -10,7 +10,7 @@ import {
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
-import { duplicateKeyErrorPlugin } from '../../plugins';
+import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 
 @index(
   { name: 1 },
@@ -30,6 +30,7 @@ import { duplicateKeyErrorPlugin } from '../../plugins';
   },
 })
 @plugin(duplicateKeyErrorPlugin)
+@plugin(unsetPlugin)
 export class GroupSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;

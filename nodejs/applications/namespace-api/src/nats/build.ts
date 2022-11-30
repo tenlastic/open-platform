@@ -46,8 +46,8 @@ NamespaceEvent.async(async (payload) => {
 // Terminate Builds if Namespace storage limit is reached.
 NamespaceStorageLimitEvent.async(async (namespace) => {
   const builds = await Build.find({
-    $or: [{ 'status.finishedAt': { $exists: false } }, { 'status.finishedAt': null }],
     namespaceId: namespace._id,
+    'status.finishedAt': { $exists: false },
   });
   const promises = builds.map((b) => KubernetesBuild.terminate(b));
   return Promise.all(promises);

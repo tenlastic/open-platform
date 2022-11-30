@@ -10,7 +10,7 @@ import {
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
-import { duplicateKeyErrorPlugin } from '../../plugins';
+import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 @index({ hash: 1 }, { unique: true })
@@ -19,6 +19,7 @@ import { duplicateKeyErrorPlugin } from '../../plugins';
   schemaOptions: { collection: 'password-resets', minimize: false, timestamps: true },
 })
 @plugin(duplicateKeyErrorPlugin)
+@plugin(unsetPlugin)
 export class PasswordResetSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;

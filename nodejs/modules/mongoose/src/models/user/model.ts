@@ -12,7 +12,7 @@ import * as bcrypt from 'bcryptjs';
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
-import { duplicateKeyErrorPlugin } from '../../plugins';
+import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 import { alphanumericValidator, emailValidator, stringLengthValidator } from '../../validators';
 import { AuthorizationDocument } from '../authorization/model';
 
@@ -27,6 +27,7 @@ import { AuthorizationDocument } from '../authorization/model';
   },
 })
 @plugin(duplicateKeyErrorPlugin)
+@plugin(unsetPlugin)
 @pre('save', async function (this: UserDocument) {
   if (this.isModified('email') && this.email === '') {
     this.email = undefined;

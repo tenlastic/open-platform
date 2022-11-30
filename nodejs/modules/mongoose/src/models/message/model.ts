@@ -3,6 +3,7 @@ import {
   getModelForClass,
   index,
   modelOptions,
+  plugin,
   pre,
   prop,
   PropType,
@@ -10,12 +11,14 @@ import {
 } from '@typegoose/typegoose';
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
+import { unsetPlugin } from '../../plugins';
 
 @index({ fromUserId: 1 })
 @index({ readByUserIds: 1 })
 @index({ toGroupId: 1 })
 @index({ toUserId: 1 })
 @modelOptions({ schemaOptions: { collection: 'messages', minimize: false, timestamps: true } })
+@plugin(unsetPlugin)
 @pre('save', function (this: MessageDocument) {
   this.readByUserIds = this.readByUserIds?.length ? this.readByUserIds : [this.fromUserId];
 })

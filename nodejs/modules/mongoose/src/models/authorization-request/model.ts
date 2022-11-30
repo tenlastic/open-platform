@@ -11,7 +11,12 @@ import {
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
-import { duplicateKeyErrorPlugin, ModifiedPlugin, modifiedPlugin } from '../../plugins';
+import {
+  duplicateKeyErrorPlugin,
+  ModifiedPlugin,
+  modifiedPlugin,
+  unsetPlugin,
+} from '../../plugins';
 import { AuthorizationDocument, AuthorizationRole } from '../authorization';
 
 @index({ namespaceId: 1, userId: 1 }, { unique: true })
@@ -21,6 +26,7 @@ import { AuthorizationDocument, AuthorizationRole } from '../authorization';
 })
 @plugin(duplicateKeyErrorPlugin)
 @plugin(modifiedPlugin)
+@plugin(unsetPlugin)
 @pre('save', function (this: AuthorizationRequestDocument) {
   if (this.deniedAt && this.isModified('deniedAt')) {
     this.grantedAt = undefined;

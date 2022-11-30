@@ -9,11 +9,12 @@ import {
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
-import { duplicateKeyErrorPlugin } from '../../plugins';
+import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 
 @index({ fromUserId: 1, toUserId: 1 }, { unique: true })
 @modelOptions({ schemaOptions: { collection: 'ignorations', minimize: false, timestamps: true } })
 @plugin(duplicateKeyErrorPlugin)
+@plugin(unsetPlugin)
 export class IgnorationSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;

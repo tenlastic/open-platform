@@ -10,7 +10,7 @@ import {
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
-import { duplicateKeyErrorPlugin } from '../../plugins';
+import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 import { GroupDocument } from '../group';
 
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
@@ -20,6 +20,7 @@ import { GroupDocument } from '../group';
   schemaOptions: { collection: 'group-invitations', minimize: false, timestamps: true },
 })
 @plugin(duplicateKeyErrorPlugin)
+@plugin(unsetPlugin)
 @pre('validate', function (this: GroupInvitationDocument) {
   if (!this.isNew) {
     return;

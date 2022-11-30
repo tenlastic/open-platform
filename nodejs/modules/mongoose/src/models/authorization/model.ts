@@ -12,7 +12,7 @@ import {
 import * as jsonwebtoken from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
 
-import { duplicateKeyErrorPlugin } from '../../plugins';
+import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 
 export enum AuthorizationRole {
   ArticlesRead = 'Articles:Read',
@@ -56,6 +56,7 @@ export enum AuthorizationRole {
   schemaOptions: { collection: 'authorizations', minimize: false, timestamps: true },
 })
 @plugin(duplicateKeyErrorPlugin)
+@plugin(unsetPlugin)
 @pre('validate', function (this: AuthorizationDocument) {
   if (!this.apiKey && !this.namespaceId && !this.userId) {
     const message = 'API Key, Namespace, and/or User must be specified.';

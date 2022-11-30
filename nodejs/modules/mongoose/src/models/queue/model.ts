@@ -3,12 +3,14 @@ import {
   getModelForClass,
   index,
   modelOptions,
+  plugin,
   prop,
   ReturnModelType,
   Severity,
 } from '@typegoose/typegoose';
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
+import { unsetPlugin } from '../../plugins';
 
 import { enumValidator } from '../../validators';
 import { AuthorizationDocument } from '../authorization';
@@ -31,6 +33,7 @@ import {
   options: { allowMixed: Severity.ALLOW },
   schemaOptions: { collection: 'queues', minimize: false, timestamps: true },
 })
+@plugin(unsetPlugin)
 export class QueueSchema {
   public _id: mongoose.Types.ObjectId;
 

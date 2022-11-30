@@ -3,18 +3,21 @@ import {
   getModelForClass,
   index,
   modelOptions,
+  plugin,
   prop,
   ReturnModelType,
 } from '@typegoose/typegoose';
 import * as jsonwebtoken from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
 
+import { unsetPlugin } from '../../plugins';
 import { AuthorizationSchema } from '../authorization';
 import { RefreshTokenDocument, RefreshTokenSchema } from '../refresh-token';
 import { UserDocument } from '../user';
 
 @index({ userId: 1 })
 @modelOptions({ schemaOptions: { collection: 'logins', minimize: false, timestamps: true } })
+@plugin(unsetPlugin)
 export class LoginSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;

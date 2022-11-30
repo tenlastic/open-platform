@@ -3,16 +3,19 @@ import {
   getModelForClass,
   index,
   modelOptions,
+  plugin,
   prop,
   ReturnModelType,
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
+import { unsetPlugin } from '../../plugins';
 
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 @index({ userId: 1 })
 @modelOptions({
   schemaOptions: { collection: 'refresh-tokens', minimize: false, timestamps: true },
 })
+@plugin(unsetPlugin)
 export class RefreshTokenSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;

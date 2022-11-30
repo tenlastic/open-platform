@@ -3,16 +3,20 @@ import {
   getModelForClass,
   index,
   modelOptions,
+  plugin,
   prop,
   ReturnModelType,
 } from '@typegoose/typegoose';
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
+import { unsetPlugin } from '../../plugins';
+
 @index({ namespaceId: 1 })
 @index({ nodeId: 1 })
 @index({ userId: 1 })
 @modelOptions({ schemaOptions: { collection: 'web-sockets', minimize: false, timestamps: true } })
+@plugin(unsetPlugin)
 export class WebSocketSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;

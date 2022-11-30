@@ -31,14 +31,8 @@ export const AuthorizationPermissionsHelpers = {
                 select: 'namespaceId',
                 where: {
                   $or: [
-                    {
-                      apiKey: { $ref: 'apiKey' },
-                      roles: { $in: roles },
-                    },
-                    {
-                      roles: { $in: roles },
-                      userId: { $ref: 'user._id' },
-                    },
+                    { apiKey: { $ref: 'apiKey' }, roles: { $in: roles } },
+                    { roles: { $in: roles }, userId: { $ref: 'user._id' } },
                     {
                       apiKey: { $exists: false },
                       roles: { $in: roles },
@@ -59,18 +53,12 @@ export const AuthorizationPermissionsHelpers = {
       $or: [
         {
           'record.authorizationDocuments': {
-            $elemMatch: {
-              apiKey: { $ref: 'apiKey' },
-              roles: { $in: roles },
-            },
+            $elemMatch: { apiKey: { $ref: 'apiKey' }, roles: { $in: roles } },
           },
         },
         {
           'record.authorizationDocuments': {
-            $elemMatch: {
-              roles: { $in: roles },
-              userId: { $ref: 'user._id' },
-            },
+            $elemMatch: { roles: { $in: roles }, userId: { $ref: 'user._id' } },
           },
         },
         {
@@ -85,10 +73,7 @@ export const AuthorizationPermissionsHelpers = {
       ],
       'record.authorizationDocuments': {
         $not: {
-          $elemMatch: {
-            bannedAt: { $exists: true, $ne: null },
-            userId: { $ref: 'user._id' },
-          },
+          $elemMatch: { bannedAt: { $exists: true, $ne: null }, userId: { $ref: 'user._id' } },
         },
       },
     };
@@ -113,10 +98,7 @@ export const AuthorizationPermissionsHelpers = {
     };
   },
   getUserRoleQuery(roles: AuthorizationRole[]) {
-    return {
-      $or: [{ 'authorization.bannedAt': null }, { 'authorization.bannedAt': { $exists: false } }],
-      'authorization.roles': { $in: roles },
-    };
+    return { 'authorization.bannedAt': { $exists: false }, 'authorization.roles': { $in: roles } };
   },
 };
 

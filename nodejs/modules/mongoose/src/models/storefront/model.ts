@@ -12,7 +12,7 @@ import {
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
-import { duplicateKeyErrorPlugin } from '../../plugins';
+import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 import { AuthorizationDocument } from '../authorization';
 
 @index({ namespaceId: 1 }, { unique: true })
@@ -22,6 +22,7 @@ import { AuthorizationDocument } from '../authorization';
   schemaOptions: { collection: 'storefronts', minimize: false, timestamps: true },
 })
 @plugin(duplicateKeyErrorPlugin)
+@plugin(unsetPlugin)
 export class StorefrontSchema {
   public _id: mongoose.Types.ObjectId;
 

@@ -9,13 +9,14 @@ import {
 import * as mongoose from 'mongoose';
 
 import { jsonToMongoose } from '../../json-schema';
-import { duplicateKeyErrorPlugin } from '../../plugins';
+import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 import { namespaceValidator } from '../../validators';
 import { CollectionDocument } from '../collection';
 import { AuthorizationDocument } from '../authorization';
 
 @modelOptions({ schemaOptions: { minimize: false, timestamps: true } })
 @plugin(duplicateKeyErrorPlugin)
+@plugin(unsetPlugin)
 export class RecordSchema {
   public _id: mongoose.Types.ObjectId;
 

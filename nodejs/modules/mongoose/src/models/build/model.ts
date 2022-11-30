@@ -11,7 +11,7 @@ import {
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
-import { duplicateKeyErrorPlugin } from '../../plugins';
+import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 import { AuthorizationDocument } from '../authorization';
 import { WorkflowStatusDocument, WorkflowStatusSchema } from '../workflow';
 import { BuildFileDocument, BuildFileSchema } from './file';
@@ -25,6 +25,7 @@ export enum BuildPlatform {
 @index({ name: 1, namespaceId: 1, platform: 1 }, { unique: true })
 @modelOptions({ schemaOptions: { collection: 'builds', minimize: false, timestamps: true } })
 @plugin(duplicateKeyErrorPlugin)
+@plugin(unsetPlugin)
 export class BuildSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;

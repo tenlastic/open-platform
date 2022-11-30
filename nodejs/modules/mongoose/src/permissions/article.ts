@@ -61,7 +61,7 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
           ...AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
             AuthorizationRole.ArticlesReadPublished,
           ]),
-          publishedAt: { $ne: null },
+          publishedAt: { $exists: true, $ne: null },
         },
       ],
     },

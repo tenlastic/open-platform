@@ -9,9 +9,10 @@ import { isPathValid } from '../is-path-valid';
 export function filterObject(object: any, permissions: string[], path: string[] = []) {
   return Object.entries<any>(object).reduce((agg, [key, value]) => {
     let result = value;
-    if (value && value.constructor === Object) {
+
+    if (value?.constructor === Object) {
       result = filterObject(value, permissions, path.concat(key));
-    } else if (value && value.constructor === Array) {
+    } else if (value?.constructor === Array) {
       result = value
         .map((v) => {
           if (v && v.constructor === Object) {

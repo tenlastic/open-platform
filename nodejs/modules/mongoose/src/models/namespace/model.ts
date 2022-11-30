@@ -10,7 +10,7 @@ import {
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
-import { duplicateKeyErrorPlugin } from '../../plugins';
+import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 import { AuthorizationDocument } from '../authorization';
 import { NamespaceLimits, NamespaceLimitsDocument, NamespaceLimitsSchema } from './limits';
 import {
@@ -37,6 +37,7 @@ export class NamespaceLimitError extends Error {
   schemaOptions: { collection: 'namespaces', minimize: false, timestamps: true },
 })
 @plugin(duplicateKeyErrorPlugin)
+@plugin(unsetPlugin)
 export class NamespaceSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;

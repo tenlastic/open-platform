@@ -10,7 +10,7 @@ import {
 import * as mongoose from 'mongoose';
 
 import { mongooseToJson } from '../../json-schema';
-import { duplicateKeyErrorPlugin } from '../../plugins';
+import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 
 @index({ name: 1 }, { unique: true })
 @modelOptions({
@@ -18,6 +18,7 @@ import { duplicateKeyErrorPlugin } from '../../plugins';
   schemaOptions: { collection: 'schemas', minimize: false, timestamps: true },
 })
 @plugin(duplicateKeyErrorPlugin)
+@plugin(unsetPlugin)
 export class SchemaSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;

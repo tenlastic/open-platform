@@ -3,17 +3,20 @@ import {
   getModelForClass,
   index,
   modelOptions,
+  plugin,
   prop,
   ReturnModelType,
 } from '@typegoose/typegoose';
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
+import { unsetPlugin } from '../../plugins';
 import { AuthorizationDocument } from '../authorization';
 
 @index({ namespaceId: 1 })
 @index({ publishedAt: 1 })
 @modelOptions({ schemaOptions: { collection: 'articles', minimize: false, timestamps: true } })
+@plugin(unsetPlugin)
 export class ArticleSchema {
   public _id: mongoose.Types.ObjectId;
 

@@ -3,6 +3,7 @@ import {
   getModelForClass,
   index,
   modelOptions,
+  plugin,
   prop,
   PropType,
   ReturnModelType,
@@ -11,6 +12,7 @@ import {
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
+import { unsetPlugin } from '../../plugins';
 import { namespaceValidator } from '../../validators';
 import { AuthorizationDocument } from '../authorization';
 import { BuildDocument } from '../build';
@@ -33,6 +35,7 @@ import {
   options: { allowMixed: Severity.ALLOW },
   schemaOptions: { collection: 'game-servers', minimize: false, timestamps: true },
 })
+@plugin(unsetPlugin)
 export class GameServerSchema {
   public _id: mongoose.Types.ObjectId;
 
