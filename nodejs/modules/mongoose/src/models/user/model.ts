@@ -29,10 +29,6 @@ import { AuthorizationDocument } from '../authorization/model';
 @plugin(duplicateKeyErrorPlugin)
 @plugin(unsetPlugin)
 @pre('save', async function (this: UserDocument) {
-  if (this.isModified('email') && this.email === '') {
-    this.email = undefined;
-  }
-
   if (this.isModified('password')) {
     this.password = await User.hashPassword(this.password);
   }
