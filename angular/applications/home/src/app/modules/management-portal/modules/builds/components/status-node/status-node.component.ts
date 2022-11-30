@@ -90,7 +90,7 @@ export class BuildStatusNodeComponent {
   }
 
   private getNodes(build: BuildModel) {
-    const nodes = build.status?.nodes?.filter((n) => n.type === 'Pod');
+    const nodes = build.status.nodes.filter((n) => n.type === 'Pod');
     return nodes
       .map((n) => ({ container: n.container, label: this.getLabel(n.displayName), pod: n.pod }))
       .sort((a, b) => (a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1));

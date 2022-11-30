@@ -17,7 +17,7 @@ export class QueueStatusNodeSchema {
   @prop({ require: true, type: String })
   public container: string;
 
-  @prop({ enum: QueueStatusPhase, required: true, type: String })
+  @prop({ default: () => QueueStatusPhase.Pending, enum: QueueStatusPhase, type: String })
   public phase: QueueStatusPhase;
 
   @prop({ required: true, type: String })

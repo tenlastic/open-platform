@@ -17,14 +17,7 @@ import { namespaceValidator } from '../../validators';
 import { AuthorizationDocument } from '../authorization';
 import { BuildDocument } from '../build';
 import { QueueDocument } from '../queue';
-import {
-  GameServerStatus,
-  GameServerStatusComponent,
-  GameServerStatusComponentName,
-  GameServerStatusDocument,
-  GameServerStatusPhase,
-  GameServerStatusSchema,
-} from './status';
+import { GameServerStatus, GameServerStatusDocument, GameServerStatusSchema } from './status';
 
 @index({ authorizedUserIds: 1 })
 @index({ buildId: 1 })
@@ -89,28 +82,7 @@ export class GameServerSchema {
   @prop({ type: Date })
   public restartedAt: Date;
 
-  @prop({
-    default(this: GameServerDocument) {
-      return new GameServerStatus({
-        components: [
-          new GameServerStatusComponent({
-            current: 0,
-            name: GameServerStatusComponentName.Application,
-            phase: GameServerStatusPhase.Pending,
-            total: 1,
-          }),
-          new GameServerStatusComponent({
-            current: 0,
-            name: GameServerStatusComponentName.Sidecar,
-            phase: GameServerStatusPhase.Pending,
-            total: 1,
-          }),
-        ],
-      });
-    },
-    merge: true,
-    type: GameServerStatusSchema,
-  })
+  @prop({ default: () => new GameServerStatus(), merge: true, type: GameServerStatusSchema })
   public status: GameServerStatusDocument;
 
   public updatedAt: Date;

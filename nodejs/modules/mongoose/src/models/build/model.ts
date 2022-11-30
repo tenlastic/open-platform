@@ -13,7 +13,7 @@ import * as mongoose from 'mongoose';
 
 import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 import { AuthorizationDocument } from '../authorization';
-import { WorkflowStatusDocument, WorkflowStatusSchema } from '../workflow';
+import { WorkflowStatus, WorkflowStatusDocument, WorkflowStatusSchema } from '../workflow';
 import { BuildFileDocument, BuildFileSchema } from './file';
 import { BuildReferenceDocument, BuildReferenceSchema } from './reference';
 
@@ -51,7 +51,7 @@ export class BuildSchema {
   @prop({ type: BuildReferenceSchema })
   public reference: BuildReferenceDocument;
 
-  @prop({ merge: true, type: WorkflowStatusSchema })
+  @prop({ default: () => new WorkflowStatus(), merge: true, type: WorkflowStatusSchema })
   public status: WorkflowStatusDocument;
 
   public updatedAt: Date;

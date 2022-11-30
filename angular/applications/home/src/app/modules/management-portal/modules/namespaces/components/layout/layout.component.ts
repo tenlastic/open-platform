@@ -164,7 +164,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
         .pipe(map((s) => s[0]));
 
       this.fetchStorefront$ = this.$namespace.subscribe(async (namespace) => {
-        if (namespace?.status?.phase === 'Running') {
+        if (namespace?.status.phase === 'Running') {
           return this.storefrontService.find(params.namespaceId, { limit: 1 });
         }
       });
@@ -173,7 +173,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
           return;
         }
 
-        if (namespace?.status?.phase === 'Running') {
+        if (namespace?.status.phase === 'Running') {
           this.connected = true;
 
           const accessToken = await this.tokenService.getAccessToken();

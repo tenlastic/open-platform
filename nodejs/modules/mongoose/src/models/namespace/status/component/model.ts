@@ -17,7 +17,7 @@ export class NamespaceStatusComponentSchema {
   @prop({ enum: NamespaceStatusComponentName, required: true, type: String })
   public name: NamespaceStatusComponentName;
 
-  @prop({ enum: NamespaceStatusPhase, required: true, type: String })
+  @prop({ default: () => NamespaceStatusPhase.Pending, enum: NamespaceStatusPhase, type: String })
   public phase: NamespaceStatusPhase;
 
   @prop({ required: true, type: Number })

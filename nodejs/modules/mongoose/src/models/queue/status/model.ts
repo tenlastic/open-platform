@@ -25,7 +25,7 @@ export enum QueueStatusPhase {
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class QueueStatusSchema {
-  @prop({ type: QueueStatusComponentSchema }, PropType.ARRAY)
+  @prop({ type: QueueStatusComponentSchema, unset: false }, PropType.ARRAY)
   public components: QueueStatusComponentDocument[];
 
   @prop({ type: String })
@@ -34,7 +34,7 @@ export class QueueStatusSchema {
   @prop({ type: QueueStatusNodeSchema }, PropType.ARRAY)
   public nodes: QueueStatusNodeDocument[];
 
-  @prop({ default: QueueStatusPhase.Pending, enum: QueueStatusPhase, type: String })
+  @prop({ default: () => QueueStatusPhase.Pending, enum: QueueStatusPhase, type: String })
   public phase: QueueStatusPhase;
 
   @prop({ type: String })

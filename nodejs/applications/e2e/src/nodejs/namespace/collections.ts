@@ -35,7 +35,7 @@ describe('/nodejs/namespace/collections', function () {
   step('runs the Namespace successfully', async function () {
     await wait(5 * 1000, 60 * 1000, async () => {
       namespace = await dependencies.namespaceService.findOne(namespace._id);
-      return namespace.status?.phase === 'Running';
+      return namespace.status.phase === 'Running';
     });
   });
 

@@ -170,10 +170,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
 
     this.dataSource.filterPredicate = (data: GameServerModel, filter: string) => {
       const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
-
-      return (
-        regex.test(data.description) || regex.test(data.name) || regex.test(data.status?.phase)
-      );
+      return regex.test(data.description) || regex.test(data.name) || regex.test(data.status.phase);
     };
 
     this.dataSource.paginator = this.paginator;
@@ -186,7 +183,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
   }
 
   private getNodes(gameServer: GameServerModel) {
-    return gameServer.status?.nodes
+    return gameServer.status.nodes
       .map((n) => {
         let label: string = 'Game Server';
         if (

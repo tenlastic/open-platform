@@ -12,15 +12,8 @@ import * as mongoose from 'mongoose';
 
 import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 import { AuthorizationDocument } from '../authorization';
-import { NamespaceLimitsDocument, NamespaceLimitsSchema } from './limits';
-import {
-  NamespaceStatus,
-  NamespaceStatusComponent,
-  NamespaceStatusComponentName,
-  NamespaceStatusDocument,
-  NamespaceStatusPhase,
-  NamespaceStatusSchema,
-} from './status';
+import { NamespaceLimits, NamespaceLimitsDocument, NamespaceLimitsSchema } from './limits';
+import { NamespaceStatus, NamespaceStatusDocument, NamespaceStatusSchema } from './status';
 
 export class NamespaceLimitError extends Error {
   public path: string;
@@ -43,52 +36,13 @@ export class NamespaceSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ type: NamespaceLimitsSchema })
+  @prop({ default: () => new NamespaceLimits(), type: NamespaceLimitsSchema, unset: false })
   public limits: NamespaceLimitsDocument;
 
   @prop({ required: true, type: String })
   public name: string;
 
-  @prop({
-    default(this: NamespaceDocument) {
-      return new NamespaceStatus({
-        components: [
-          new NamespaceStatusComponent({
-            current: 0,
-            name: NamespaceStatusComponentName.API,
-            phase: NamespaceStatusPhase.Pending,
-            total: 1,
-          }),
-          new NamespaceStatusComponent({
-            current: 0,
-            name: NamespaceStatusComponentName.CDC,
-            phase: NamespaceStatusPhase.Pending,
-            total: 1,
-          }),
-          new NamespaceStatusComponent({
-            current: 0,
-            name: NamespaceStatusComponentName.Connector,
-            phase: NamespaceStatusPhase.Pending,
-            total: 1,
-          }),
-          new NamespaceStatusComponent({
-            current: 0,
-            name: NamespaceStatusComponentName.Metrics,
-            phase: NamespaceStatusPhase.Pending,
-            total: 1,
-          }),
-          new NamespaceStatusComponent({
-            current: 0,
-            name: NamespaceStatusComponentName.Sidecar,
-            phase: NamespaceStatusPhase.Pending,
-            total: 1,
-          }),
-        ],
-      });
-    },
-    merge: true,
-    type: NamespaceStatusSchema,
-  })
+  @prop({ default: () => new NamespaceStatus(), merge: true, type: NamespaceStatusSchema })
   public status: NamespaceStatusDocument;
 
   public updatedAt: Date;
@@ -113,8 +67,8 @@ export class NamespaceSchema {
     current = current ?? 0;
     previous = previous ?? 0;
 
-    const limit = this.limits?.cpu || 0;
-    const status = this.status?.limits?.cpu || 0;
+    const limit = this.limits.cpu || 0;
+    const status = this.status.limits.cpu || 0;
 
     if (current - previous + status > limit) {
       throw new NamespaceLimitError('cpu');
@@ -125,7 +79,7 @@ export class NamespaceSchema {
    * Throws a NamespaceLimitError if the default authorization limit is reached.
    */
   public checkDefaultAuthorizationLimit(current: boolean) {
-    if (current && !this.limits?.defaultAuthorization) {
+    if (current && !this.limits.defaultAuthorization) {
       throw new NamespaceLimitError('defaultAuthorization');
     }
   }
@@ -137,8 +91,8 @@ export class NamespaceSchema {
     current = current ?? 0;
     previous = previous ?? 0;
 
-    const limit = this.limits?.memory || 0;
-    const status = this.status?.limits?.memory || 0;
+    const limit = this.limits.memory || 0;
+    const status = this.status.limits.memory || 0;
 
     if (current - previous + status > limit) {
       throw new NamespaceLimitError('memory');
@@ -149,7 +103,7 @@ export class NamespaceSchema {
    * Throws a NamespaceLimitError if the preemptible limit is reached.
    */
   public checkNonPreemptibleLimit(current: boolean) {
-    if (!current && !this.limits?.nonPreemptible) {
+    if (!current && !this.limits.nonPreemptible) {
       throw new NamespaceLimitError('nonPreemptible');
     }
   }
@@ -161,8 +115,8 @@ export class NamespaceSchema {
     current = current ?? 0;
     previous = previous ?? 0;
 
-    const limit = this.limits?.storage || 0;
-    const status = this.status?.limits?.storage || 0;
+    const limit = this.limits.storage || 0;
+    const status = this.status.limits.storage || 0;
 
     if (current - previous + status > limit) {
       throw new NamespaceLimitError('storage');

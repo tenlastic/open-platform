@@ -86,7 +86,7 @@ export async function logs(
   }
 
   // Check if the record contains the requested node.
-  const node = record.status?.nodes?.find(
+  const node = record.status.nodes.find(
     (n) => n.container === data.parameters.container && n.pod === data.parameters.pod,
   );
   if (!node) {

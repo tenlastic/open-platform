@@ -171,7 +171,7 @@ function watchPods() {
       console.log(`Pod - ${type}: ${pod.metadata.name}.`);
 
       if (
-        pod.status?.message === 'Pod was terminated in response to imminent node shutdown.' ||
+        pod.status.message === 'Pod was terminated in response to imminent node shutdown.' ||
         type === 'DELETED'
       ) {
         delete pods[pod.metadata.name];

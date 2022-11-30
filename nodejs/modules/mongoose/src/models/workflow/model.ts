@@ -13,7 +13,7 @@ import * as mongoose from 'mongoose';
 import { unsetPlugin } from '../../plugins';
 import { AuthorizationDocument } from '../authorization';
 import { WorkflowSpec, WorkflowSpecDocument, WorkflowSpecSchema } from './spec';
-import { WorkflowStatusDocument, WorkflowStatusSchema } from './status';
+import { WorkflowStatus, WorkflowStatusDocument, WorkflowStatusSchema } from './status';
 
 @index({ namespaceId: 1 })
 @modelOptions({ schemaOptions: { collection: 'workflows', minimize: false, timestamps: true } })
@@ -41,7 +41,7 @@ export class WorkflowSchema {
   @prop({ required: true, type: WorkflowSpecSchema })
   public spec: WorkflowSpecDocument;
 
-  @prop({ merge: true, type: WorkflowStatusSchema })
+  @prop({ default: () => new WorkflowStatus(), merge: true, type: WorkflowStatusSchema })
   public status: WorkflowStatusDocument;
 
   @prop({ min: 0, required: true, type: Number })

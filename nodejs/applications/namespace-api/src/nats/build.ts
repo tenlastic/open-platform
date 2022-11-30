@@ -29,7 +29,7 @@ BuildEvent.async(async (payload) => {
   } else if (payload.operationType === 'insert') {
     await KubernetesBuild.upsert(payload.fullDocument);
     await KubernetesBuildSidecar.upsert(payload.fullDocument);
-  } else if (payload.operationType === 'update' && payload.fullDocument.status?.finishedAt) {
+  } else if (payload.operationType === 'update' && payload.fullDocument.status.finishedAt) {
     await KubernetesBuild.delete(payload.fullDocument);
     await KubernetesBuildSidecar.delete(payload.fullDocument);
   }

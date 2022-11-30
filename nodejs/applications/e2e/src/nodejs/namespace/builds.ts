@@ -39,7 +39,7 @@ describe('/nodejs/namespace/builds', function () {
   step('runs the Namespace successfully', async function () {
     await wait(5 * 1000, 60 * 1000, async () => {
       namespace = await dependencies.namespaceService.findOne(namespace._id);
-      return namespace.status?.phase === 'Running';
+      return namespace.status.phase === 'Running';
     });
   });
 
@@ -76,7 +76,7 @@ describe('/nodejs/namespace/builds', function () {
   step('finishes the Build successfully', async function () {
     const phase = await wait(5 * 1000, 2 * 60 * 1000, async () => {
       build = await dependencies.buildService.findOne(namespace._id, build._id);
-      return build.status?.finishedAt ? build.status.phase : null;
+      return build.status.finishedAt ? build.status.phase : null;
     });
 
     expect(phase).to.eql('Succeeded');

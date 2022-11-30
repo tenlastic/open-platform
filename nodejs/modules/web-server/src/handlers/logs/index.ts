@@ -29,7 +29,7 @@ export function logs<TDocument extends mongoose.Document & Record>(
     }
 
     // Check if the record contains the requested node.
-    const node = record.status?.nodes?.find(
+    const node = record.status.nodes.find(
       (n) => n.container === ctx.params.container && n.pod === ctx.params.pod,
     );
     if (!node) {

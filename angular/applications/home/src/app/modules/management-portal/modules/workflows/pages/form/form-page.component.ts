@@ -38,9 +38,8 @@ interface StatusNode {
 export class WorkflowsFormPageComponent implements OnInit {
   public $data: Observable<WorkflowModel>;
   public get cpus() {
-    const limit = this.namespace.limits?.cpu ? this.namespace.limits.cpu : Infinity;
-    return this.namespace.limits?.cpu
-      ? IWorkflow.Cpu.filter((r) => r.value <= limit)
+    return this.namespace.limits.cpu
+      ? IWorkflow.Cpu.filter((r) => r.value <= this.namespace.limits.cpu)
       : IWorkflow.Cpu;
   }
   public data: WorkflowModel;
@@ -49,9 +48,8 @@ export class WorkflowsFormPageComponent implements OnInit {
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
   public get memories() {
-    const limit = this.namespace.limits?.memory ? this.namespace.limits.memory : Infinity;
-    return this.namespace.limits?.memory
-      ? IWorkflow.Memory.filter((r) => r.value <= limit)
+    return this.namespace.limits.memory
+      ? IWorkflow.Memory.filter((r) => r.value <= this.namespace.limits.memory)
       : IWorkflow.Memory;
   }
   public get parallelisms() {
@@ -59,9 +57,8 @@ export class WorkflowsFormPageComponent implements OnInit {
   }
   public readonly separatorKeysCodes: number[] = [ENTER];
   public get storages() {
-    const limit = this.namespace.limits?.storage ? this.namespace.limits.storage : Infinity;
-    return this.namespace.limits?.storage
-      ? IWorkflow.Storage.filter((r) => r.value <= limit)
+    return this.namespace.limits.storage
+      ? IWorkflow.Storage.filter((r) => r.value <= this.namespace.limits.storage)
       : IWorkflow.Storage;
   }
   public treeControl = new NestedTreeControl<StatusNode>((node) => node.children);

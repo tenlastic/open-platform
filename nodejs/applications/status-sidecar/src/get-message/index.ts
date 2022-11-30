@@ -8,7 +8,7 @@ export function getMessage(
   statefulSets: V1StatefulSet[],
 ) {
   for (const deployment of deployments) {
-    if (!deployment.status?.conditions) {
+    if (!deployment.status.conditions) {
       continue;
     }
 

@@ -34,9 +34,8 @@ interface PropertyFormGroup {
 export class GameServersFormPageComponent implements OnDestroy, OnInit {
   public builds: BuildModel[];
   public get cpus() {
-    const limit = this.namespace.limits?.cpu ? this.namespace.limits.cpu : Infinity;
-    return this.namespace.limits?.cpu
-      ? IGameServer.Cpu.filter((r) => r.value <= limit)
+    return this.namespace.limits.cpu
+      ? IGameServer.Cpu.filter((r) => r.value <= this.namespace.limits.cpu)
       : IGameServer.Cpu;
   }
   public data: GameServerModel;
@@ -44,9 +43,8 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
   public get memories() {
-    const limit = this.namespace.limits?.memory ? this.namespace.limits.memory : Infinity;
-    return this.namespace.limits?.memory
-      ? IGameServer.Memory.filter((r) => r.value <= limit)
+    return this.namespace.limits.memory
+      ? IGameServer.Memory.filter((r) => r.value <= this.namespace.limits.memory)
       : IGameServer.Memory;
   }
 

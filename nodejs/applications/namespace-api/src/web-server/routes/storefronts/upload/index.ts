@@ -19,7 +19,7 @@ export async function handler(ctx: Context) {
   namespace.checkStorageLimit(0);
   const limit = Math.min(
     25 * 1000 * 1000,
-    namespace.limits.storage - (namespace.status?.limits?.storage || 0),
+    namespace.limits.storage - namespace.status.limits.storage,
   );
 
   const credentials = { ...ctx.state };

@@ -11,7 +11,7 @@ export async function handler(ctx: Context) {
   namespace.checkCpuLimit(0.1);
   namespace.checkMemoryLimit(100 * 1000 * 1000);
   namespace.checkStorageLimit(0);
-  const limit = namespace.limits.storage - (namespace.status?.limits?.storage || 0);
+  const limit = namespace.limits.storage - namespace.status.limits.storage;
 
   const build = new Build();
   await new Promise((resolve, reject) => {

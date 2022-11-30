@@ -189,7 +189,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
       // Subscribe to the new Namespace.
       const $namespace = this.namespaceQuery.selectEntity(this.namespaceId);
       this.subscribe$ = $namespace.subscribe(async (namespace) => {
-        if (namespace?.status?.phase !== 'Running') {
+        if (namespace.status.phase !== 'Running') {
           return;
         }
 

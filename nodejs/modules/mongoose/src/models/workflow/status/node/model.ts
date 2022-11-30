@@ -45,7 +45,7 @@ export class WorkflowStatusNodeSchema {
   @prop({ type: String }, PropType.ARRAY)
   public outboundNodes: string[];
 
-  @prop({ type: String })
+  @prop({ default: () => WorkflowStatusPhase.Pending, enum: WorkflowStatusPhase, type: String })
   public phase: WorkflowStatusPhase;
 
   @prop({ type: String })

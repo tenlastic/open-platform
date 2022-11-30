@@ -149,7 +149,7 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
   }
 
   private getNodes(namespace: NamespaceModel) {
-    return namespace.status?.nodes
+    return namespace.status.nodes
       .map((n) => {
         let label: string = INamespace.StatusComponentName.API;
 

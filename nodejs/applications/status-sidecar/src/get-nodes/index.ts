@@ -11,7 +11,7 @@ export function getNodes(pods: V1Pod[]) {
   return Object.values(pods)
     .filter((p) => !p.metadata.deletionTimestamp)
     .map<Node[]>((p) => {
-      if (!p.status?.containerStatuses) {
+      if (!p.status.containerStatuses) {
         return [];
       }
 

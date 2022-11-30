@@ -35,29 +35,27 @@ interface PropertyFormGroup {
 export class QueuesFormPageComponent implements OnDestroy, OnInit {
   public builds: BuildModel[];
   public get cpus() {
-    const limit = this.namespace.limits?.cpu ? this.namespace.limits.cpu : Infinity;
-    return this.namespace.limits?.cpu ? IQueue.Cpu.filter((r) => r.value <= limit) : IQueue.Cpu;
+    return this.namespace.limits.cpu
+      ? IQueue.Cpu.filter((r) => r.value <= this.namespace.limits.cpu)
+      : IQueue.Cpu;
   }
   public data: QueueModel;
   public errors: string[] = [];
   public form: FormGroup;
   public get gameServerCpus() {
-    const limit = this.namespace.limits?.cpu ? this.namespace.limits.cpu : Infinity;
-    return this.namespace.limits?.cpu
-      ? IGameServer.Cpu.filter((r) => r.value <= limit)
+    return this.namespace.limits.cpu
+      ? IGameServer.Cpu.filter((r) => r.value <= this.namespace.limits.cpu)
       : IGameServer.Cpu;
   }
   public get gameServerMemories() {
-    const limit = this.namespace.limits?.memory ? this.namespace.limits.memory : Infinity;
-    return this.namespace.limits?.memory
-      ? IGameServer.Memory.filter((r) => r.value <= limit)
+    return this.namespace.limits.memory
+      ? IGameServer.Memory.filter((r) => r.value <= this.namespace.limits.memory)
       : IGameServer.Memory;
   }
   public hasWriteAuthorization: boolean;
   public get memories() {
-    const limit = this.namespace.limits?.memory ? this.namespace.limits.memory : Infinity;
-    return this.namespace.limits?.memory
-      ? IQueue.Memory.filter((r) => r.value <= limit)
+    return this.namespace.limits.memory
+      ? IQueue.Memory.filter((r) => r.value <= this.namespace.limits.memory)
       : IQueue.Memory;
   }
   public get replicas() {

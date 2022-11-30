@@ -17,7 +17,7 @@ export class GameServerStatusNodeSchema {
   @prop({ required: true, type: String })
   public container: string;
 
-  @prop({ enum: GameServerStatusPhase, required: true, type: String })
+  @prop({ default: () => GameServerStatusPhase.Pending, enum: GameServerStatusPhase, type: String })
   public phase: GameServerStatusPhase;
 
   @prop({ required: true, type: String })

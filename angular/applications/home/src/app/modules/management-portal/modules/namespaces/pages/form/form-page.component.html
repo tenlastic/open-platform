@@ -129,21 +129,21 @@
           <mat-label>Total CPUs</mat-label>
           <input matInput
                  disabled
-                 [value]="data.status?.limits?.cpu || 0 | number:'1.0':'en-US'" />
+                 [value]="data.status.limits.cpu | number:'1.0':'en-US'" />
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
           <mat-label>Total Memory</mat-label>
           <input matInput
                  disabled
-                 [value]="data.status?.limits?.memory || 0 | filesize" />
+                 [value]="data.status.limits.memory | filesize" />
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
           <mat-label>Total Storage</mat-label>
           <input matInput
                  disabled
-                 [value]="data.status?.limits?.storage || 0 | filesize" />
+                 [value]="data.status.limits.storage | filesize" />
         </mat-form-field>
       </div>
     </app-toggle-section>

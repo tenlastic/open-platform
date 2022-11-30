@@ -7,8 +7,16 @@ import {
   ReturnModelType,
 } from '@typegoose/typegoose';
 
-import { NamespaceStatusComponentDocument, NamespaceStatusComponentSchema } from './component';
-import { NamespaceStatusLimitsDocument, NamespaceStatusLimitsSchema } from './limits';
+import {
+  NamespaceStatusComponent,
+  NamespaceStatusComponentDocument,
+  NamespaceStatusComponentSchema,
+} from './component';
+import {
+  NamespaceStatusLimits,
+  NamespaceStatusLimitsDocument,
+  NamespaceStatusLimitsSchema,
+} from './limits';
 import { NamespaceStatusNodeDocument, NamespaceStatusNodeSchema } from './node';
 
 export enum NamespaceStatusComponentName {
@@ -29,16 +37,58 @@ export enum NamespaceStatusPhase {
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class NamespaceStatusSchema {
-  @prop({ type: NamespaceStatusComponentSchema }, PropType.ARRAY)
+  @prop(
+    {
+      default: () => [
+        new NamespaceStatusComponent({
+          current: 0,
+          name: NamespaceStatusComponentName.API,
+          phase: NamespaceStatusPhase.Pending,
+          total: 1,
+        }),
+        new NamespaceStatusComponent({
+          current: 0,
+          name: NamespaceStatusComponentName.CDC,
+          phase: NamespaceStatusPhase.Pending,
+          total: 1,
+        }),
+        new NamespaceStatusComponent({
+          current: 0,
+          name: NamespaceStatusComponentName.Connector,
+          phase: NamespaceStatusPhase.Pending,
+          total: 1,
+        }),
+        new NamespaceStatusComponent({
+          current: 0,
+          name: NamespaceStatusComponentName.Metrics,
+          phase: NamespaceStatusPhase.Pending,
+          total: 1,
+        }),
+        new NamespaceStatusComponent({
+          current: 0,
+          name: NamespaceStatusComponentName.Sidecar,
+          phase: NamespaceStatusPhase.Pending,
+          total: 1,
+        }),
+      ],
+      type: NamespaceStatusComponentSchema,
+      unset: false,
+    },
+    PropType.ARRAY,
+  )
   public components: NamespaceStatusComponentDocument[];
 
-  @prop({ type: NamespaceStatusLimitsSchema })
+  @prop({
+    default: () => new NamespaceStatusLimits(),
+    type: NamespaceStatusLimitsSchema,
+    unset: false,
+  })
   public limits: NamespaceStatusLimitsDocument;
 
   @prop({ type: NamespaceStatusNodeSchema }, PropType.ARRAY)
   public nodes: NamespaceStatusNodeDocument[];
 
-  @prop({ default: NamespaceStatusPhase.Pending, enum: NamespaceStatusPhase, type: String })
+  @prop({ default: () => NamespaceStatusPhase.Pending, enum: NamespaceStatusPhase, type: String })
   public phase: NamespaceStatusPhase;
 
   @prop({ type: String })

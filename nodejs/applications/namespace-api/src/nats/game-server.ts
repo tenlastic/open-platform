@@ -19,7 +19,7 @@ GameServerEvent.async(async (payload) => {
   }
 
   const component = GameServerStatusComponentName.Application;
-  const node = payload.fullDocument.status?.nodes?.find((n) => n.component === component);
+  const node = payload.fullDocument.status.nodes.find((n) => n.component === component);
 
   if (node?.phase === 'Failed' || node?.phase === 'Succeeded') {
     await payload.fullDocument.remove();

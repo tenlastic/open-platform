@@ -69,11 +69,6 @@ minio.connect({
     await dependencies.buildService.update(namespaceId, buildId, { files: build.files });
 
     // If building a server, download files for Docker.
-    console.log(
-      build.platform,
-      IBuild.Platform.Server64,
-      build.platform === IBuild.Platform.Server64,
-    );
     if (build.platform === IBuild.Platform.Server64) {
       for (const file of build.files) {
         console.log(`Downloading file: ${file.path}.`);

@@ -74,7 +74,7 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
   }
 
   public getTooltip(record: BuildModel) {
-    if (!record.status?.nodes?.length) {
+    if (!record.status.nodes.length) {
       return null;
     }
 
@@ -191,7 +191,7 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
 
       return (
         regex.test(data.name) ||
-        regex.test(data.status?.phase) ||
+        regex.test(data.status.phase) ||
         regex.test(platform) ||
         exactRegex.test(published)
       );

@@ -157,10 +157,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
 
     this.dataSource.filterPredicate = (data: QueueModel, filter: string) => {
       const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
-
-      return (
-        regex.test(data.description) || regex.test(data.name) || regex.test(data.status?.phase)
-      );
+      return regex.test(data.description) || regex.test(data.name) || regex.test(data.status.phase);
     };
 
     this.dataSource.paginator = this.paginator;
@@ -173,7 +170,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
   }
 
   private getNodes(queue: QueueModel) {
-    return queue.status?.nodes
+    return queue.status.nodes
       .map((n) => {
         let label = 'Queue';
         if (n.component === IQueue.StatusComponentName.Sidecar) {

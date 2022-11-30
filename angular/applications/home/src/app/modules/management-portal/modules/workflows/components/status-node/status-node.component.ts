@@ -90,7 +90,7 @@ export class WorkflowStatusNodeComponent {
   }
 
   private getNodes(workflow: WorkflowModel) {
-    const nodes = workflow.status?.nodes?.filter((n) => n.type === 'Pod');
+    const nodes = workflow.status.nodes?.filter((n) => n.type === 'Pod');
     return nodes
       .map((n) => ({ container: n.container, label: this.getLabel(n.displayName), pod: n.pod }))
       .sort((a, b) => (a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1));

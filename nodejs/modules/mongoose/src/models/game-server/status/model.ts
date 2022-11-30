@@ -7,7 +7,11 @@ import {
   ReturnModelType,
 } from '@typegoose/typegoose';
 
-import { GameServerStatusComponentDocument, GameServerStatusComponentSchema } from './component';
+import {
+  GameServerStatusComponent,
+  GameServerStatusComponentDocument,
+  GameServerStatusComponentSchema,
+} from './component';
 import { GameServerStatusEndpointsDocument, GameServerStatusEndpointsSchema } from './endpoints';
 import { GameServerStatusNodeDocument, GameServerStatusNodeSchema } from './node';
 
@@ -26,7 +30,27 @@ export enum GameServerStatusPhase {
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class GameServerStatusSchema {
-  @prop({ type: GameServerStatusComponentSchema }, PropType.ARRAY)
+  @prop(
+    {
+      default: () => [
+        new GameServerStatusComponent({
+          current: 0,
+          name: GameServerStatusComponentName.Application,
+          phase: GameServerStatusPhase.Pending,
+          total: 1,
+        }),
+        new GameServerStatusComponent({
+          current: 0,
+          name: GameServerStatusComponentName.Sidecar,
+          phase: GameServerStatusPhase.Pending,
+          total: 1,
+        }),
+      ],
+      type: GameServerStatusComponentSchema,
+      unset: false,
+    },
+    PropType.ARRAY,
+  )
   public components: GameServerStatusComponentDocument[];
 
   @prop({ type: GameServerStatusEndpointsSchema })
@@ -38,7 +62,7 @@ export class GameServerStatusSchema {
   @prop({ type: GameServerStatusNodeSchema }, PropType.ARRAY)
   public nodes: GameServerStatusNodeDocument[];
 
-  @prop({ default: GameServerStatusPhase.Pending, enum: GameServerStatusPhase, type: String })
+  @prop({ default: () => GameServerStatusPhase.Pending, enum: GameServerStatusPhase, type: String })
   public phase: GameServerStatusPhase;
 
   @prop({ type: String })

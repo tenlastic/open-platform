@@ -60,7 +60,7 @@ export class WorkflowsListPageComponent implements OnDestroy, OnInit {
   }
 
   public getTooltip(record: WorkflowModel) {
-    if (!record.status?.nodes?.length) {
+    if (!record.status.nodes.length) {
       return null;
     }
 
