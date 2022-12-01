@@ -21,7 +21,7 @@ export enum ArticleType {
 
 @index({ namespaceId: 1 })
 @index({ publishedAt: 1 })
-@modelOptions({ schemaOptions: { collection: 'articles', minimize: false, timestamps: true } })
+@modelOptions({ schemaOptions: { collection: 'articles', timestamps: true } })
 @plugin(unsetPlugin)
 export class ArticleSchema {
   public _id: mongoose.Types.ObjectId;

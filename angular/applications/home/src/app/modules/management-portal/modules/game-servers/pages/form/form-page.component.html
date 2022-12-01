@@ -80,7 +80,7 @@
 
     <app-toggle-section *ngIf="!form.get('metadata').disabled || form.get('metadata').value.length"
                         title="Metadata">
-      <app-metadata-fields [formArray]="form['controls'].metadata"></app-metadata-fields>
+      <app-metadata-fields [formArray]="form.get('metadata')"></app-metadata-fields>
     </app-toggle-section>
 
     <app-toggle-section *ngIf="data._id"
@@ -90,10 +90,10 @@
           <mat-label>Phase</mat-label>
           <input matInput
                  disabled
-                 [value]="data.status?.phase || 'Pending'" />
+                 [value]="data.status.phase" />
         </mat-form-field>
 
-        <mat-form-field *ngIf="data.status?.message"
+        <mat-form-field *ngIf="data.status.message"
                         floatLabel="always"
                         [matTooltip]="data.status.message.length >= 30 ? data.status.message : null"
                         matTooltipPosition="right">
@@ -107,7 +107,7 @@
       <h4>Components</h4>
 
       <div class="row">
-        <mat-form-field *ngFor="let component of data.status?.components"
+        <mat-form-field *ngFor="let component of data.status.components"
                         floatLabel="always">
           <mat-label>{{ component.name }}</mat-label>
           <input matInput
@@ -123,21 +123,21 @@
           <mat-label>TCP</mat-label>
           <input disabled
                  matInput
-                 [value]="data.status?.endpoints?.tcp || 'Pending'" />
+                 [value]="data.status.endpoints?.tcp || 'Pending'" />
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
           <mat-label>UDP</mat-label>
           <input disabled
                  matInput
-                 [value]="data.status?.endpoints?.udp || 'Pending'" />
+                 [value]="data.status.endpoints?.udp || 'Pending'" />
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
           <mat-label>Websocket</mat-label>
           <input disabled
                  matInput
-                 [value]="data.status?.endpoints?.websocket || 'Pending'" />
+                 [value]="data.status.endpoints?.websocket || 'Pending'" />
         </mat-form-field>
       </div>
     </app-toggle-section>

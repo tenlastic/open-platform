@@ -8,13 +8,13 @@ import {
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
-import { CollectionJsonSchemaType } from '../model';
-import { CollectionJsonSchemaArrayDocument, CollectionJsonSchemaArraySchema } from './array';
+import {
+  CollectionJsonSchemaArrayDocument,
+  CollectionJsonSchemaArraySchema,
+  CollectionJsonSchemaType,
+} from './array';
 
-@modelOptions({
-  options: { allowMixed: Severity.ALLOW },
-  schemaOptions: { _id: false, minimize: false },
-})
+@modelOptions({ options: { allowMixed: Severity.ALLOW }, schemaOptions: { _id: false } })
 export class CollectionJsonSchemaPropertiesSchema {
   @prop({ type: mongoose.Schema.Types.Mixed, unset: false })
   public default: any;

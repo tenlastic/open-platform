@@ -25,7 +25,6 @@ import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
   schemaOptions: {
     collation: { locale: 'en_US', strength: 1 },
     collection: 'groups',
-    minimize: false,
     timestamps: true,
   },
 })

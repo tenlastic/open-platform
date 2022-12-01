@@ -6,9 +6,17 @@ import {
   ReturnModelType,
 } from '@typegoose/typegoose';
 
-import { CollectionJsonSchemaType } from '../../model';
+export enum CollectionJsonSchemaType {
+  Array = 'array',
+  Boolean = 'boolean',
+  Integer = 'integer',
+  Null = 'null',
+  Number = 'number',
+  Object = 'object',
+  String = 'string',
+}
 
-@modelOptions({ schemaOptions: { _id: false, minimize: false } })
+@modelOptions({ schemaOptions: { _id: false } })
 export class CollectionJsonSchemaArraySchema {
   @prop({
     enum: [

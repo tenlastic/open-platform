@@ -14,7 +14,7 @@ import { namespaceValidator } from '../../validators';
 import { CollectionDocument } from '../collection';
 import { AuthorizationDocument } from '../authorization';
 
-@modelOptions({ schemaOptions: { minimize: false, timestamps: true } })
+@modelOptions({ schemaOptions: { timestamps: true } })
 @plugin(duplicateKeyErrorPlugin)
 @plugin(unsetPlugin)
 export class RecordSchema {

@@ -16,12 +16,7 @@ const validate = [alphabeticalKeysValidator, excludeKeysValidator(keys)];
 
 @modelOptions({
   options: { allowMixed: Severity.ALLOW },
-  schemaOptions: {
-    _id: false,
-    minimize: false,
-    toJSON: { getters: true },
-    toObject: { getters: true },
-  },
+  schemaOptions: { _id: false, toJSON: { getters: true }, toObject: { getters: true } },
 })
 export class CollectionModelPermissionsSchema {
   @prop({ type: [String], validate }, PropType.MAP)
@@ -30,13 +25,13 @@ export class CollectionModelPermissionsSchema {
   @prop({ type: Boolean, validate }, PropType.MAP)
   public delete: Map<string, boolean>;
 
-  @prop({ type: mongoose.Schema.Types.Mixed, unset: false, validate }, PropType.MAP)
+  @prop({ type: mongoose.Schema.Types.Mixed, validate }, PropType.MAP)
   public find: Map<string, any>;
 
   @prop({ type: [String], validate }, PropType.MAP)
   public read: Map<string, string[]>;
 
-  @prop({ type: mongoose.Schema.Types.Mixed, unset: false, validate }, PropType.MAP)
+  @prop({ type: mongoose.Schema.Types.Mixed, validate }, PropType.MAP)
   public roles: Map<string, any>;
 
   @prop({ type: [String], validate }, PropType.MAP)
@@ -57,7 +52,7 @@ export class CollectionModelPermissionsSchema {
   /**
    * Converts find and roles values from Strings to Objects.
    */
-   public getter(this: CollectionModelPermissionsDocument) {
+  public getter(this: CollectionModelPermissionsDocument) {
     if (this.find) {
       this.find = this.getObjectValues(this.find);
     }
@@ -88,7 +83,7 @@ export class CollectionModelPermissionsSchema {
    * Converts Map values from JSON strings to Objects.
    */
   private getObjectValues(value: any): any {
-    value = value.toJSON ? value.toJSON() : value;
+    value = value.toJSON ? value.toJSON({ minimize: false }) : value;
 
     return Object.entries(value).reduce((previous, [k, v]) => {
       previous.set(k, typeof v === 'string' ? JSON.parse(v) : v);
@@ -100,7 +95,7 @@ export class CollectionModelPermissionsSchema {
    * Converts Map values from Objects to JSON strings.
    */
   private getStringValues(value: any): any {
-    value = value.toJSON ? value.toJSON() : value;
+    value = value.toJSON ? value.toJSON({ minimize: false }) : value;
 
     return Object.entries(value).reduce((previous, [k, v]) => {
       previous.set(k, typeof v === 'string' ? v : JSON.stringify(v));

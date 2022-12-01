@@ -85,7 +85,7 @@
             <mat-icon>visibility_off</mat-icon>
           </app-button>
 
-          <app-button *ngIf="!element.publishedAt && element.status?.phase === 'Succeeded'"
+          <app-button *ngIf="!element.publishedAt && element.status.phase === 'Succeeded'"
                       color="accent"
                       appHighlight
                       matTooltip="Publish"

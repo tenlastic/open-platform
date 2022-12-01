@@ -15,9 +15,7 @@ import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 @index({ hash: 1 }, { unique: true })
 @index({ userId: 1 })
-@modelOptions({
-  schemaOptions: { collection: 'password-resets', minimize: false, timestamps: true },
-})
+@modelOptions({ schemaOptions: { collection: 'password-resets', timestamps: true } })
 @plugin(duplicateKeyErrorPlugin)
 @plugin(unsetPlugin)
 export class PasswordResetSchema {

@@ -16,7 +16,7 @@ import { RefreshTokenDocument, RefreshTokenSchema } from '../refresh-token';
 import { UserDocument } from '../user';
 
 @index({ userId: 1 })
-@modelOptions({ schemaOptions: { collection: 'logins', minimize: false, timestamps: true } })
+@modelOptions({ schemaOptions: { collection: 'logins', timestamps: true } })
 @plugin(unsetPlugin)
 export class LoginSchema {
   public _id: mongoose.Types.ObjectId;

@@ -5,7 +5,7 @@
     <app-button color="accent"
                 layout="vertical"
                 [ngClass]="{ active: isActive }"
-                [routerLink]="namespace.status?.phase === 'Running' ? ['./'] : null"
+                [routerLink]="namespace.status.phase === 'Running' ? ['./'] : null"
                 text="left"
                 width="full">
       <mat-icon>layers</mat-icon>
@@ -16,11 +16,11 @@
 
     <app-button *ngIf="$hasPermission(IAuthorization.authorizationRoles) | async"
                 color="accent"
-                [disabled]="namespace.status?.phase !== 'Running'"
+                [disabled]="namespace.status.phase !== 'Running'"
                 layout="vertical"
-                [matTooltip]="namespace.status?.phase === 'Running' ? null : 'Namespace must be running.'"
+                [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
                 matTooltipPosition="right"
-                [routerLink]="namespace.status?.phase === 'Running' ? ['authorizations'] : null"
+                [routerLink]="namespace.status.phase === 'Running' ? ['authorizations'] : null"
                 routerLinkActive="active"
                 text="left"
                 width="full">
@@ -30,11 +30,11 @@
 
     <app-button *ngIf="$hasPermission(IAuthorization.authorizationRoles) | async"
                 color="accent"
-                [disabled]="namespace.status?.phase !== 'Running'"
+                [disabled]="namespace.status.phase !== 'Running'"
                 layout="vertical"
-                [matTooltip]="namespace.status?.phase === 'Running' ? null : 'Namespace must be running.'"
+                [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
                 matTooltipPosition="right"
-                [routerLink]="namespace.status?.phase === 'Running' ? ['authorization-requests'] : null"
+                [routerLink]="namespace.status.phase === 'Running' ? ['authorization-requests'] : null"
                 routerLinkActive="active"
                 text="left"
                 width="full">
@@ -44,11 +44,11 @@
 
     <app-button *ngIf="$hasPermission(IAuthorization.buildRoles) | async"
                 color="accent"
-                [disabled]="namespace.status?.phase !== 'Running'"
+                [disabled]="namespace.status.phase !== 'Running'"
                 layout="vertical"
-                [matTooltip]="namespace.status?.phase === 'Running' ? null : 'Namespace must be running.'"
+                [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
                 matTooltipPosition="right"
-                [routerLink]="namespace.status?.phase === 'Running' ? ['builds'] : null"
+                [routerLink]="namespace.status.phase === 'Running' ? ['builds'] : null"
                 routerLinkActive="active"
                 text="left"
                 width="full">
@@ -58,11 +58,11 @@
 
     <app-button *ngIf="$hasPermission(IAuthorization.collectionRoles) | async"
                 color="accent"
-                [disabled]="namespace.status?.phase !== 'Running'"
+                [disabled]="namespace.status.phase !== 'Running'"
                 layout="vertical"
-                [matTooltip]="namespace.status?.phase === 'Running' ? null : 'Namespace must be running.'"
+                [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
                 matTooltipPosition="right"
-                [routerLink]="namespace.status?.phase === 'Running' ? ['collections'] : null"
+                [routerLink]="namespace.status.phase === 'Running' ? ['collections'] : null"
                 routerLinkActive="active"
                 text="left"
                 width="full">
@@ -72,11 +72,11 @@
 
     <app-button *ngIf="$hasPermission(IAuthorization.gameServerRoles) | async"
                 color="accent"
-                [disabled]="namespace.status?.phase !== 'Running'"
+                [disabled]="namespace.status.phase !== 'Running'"
                 layout="vertical"
-                [matTooltip]="namespace.status?.phase === 'Running' ? null : 'Namespace must be running.'"
+                [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
                 matTooltipPosition="right"
-                [routerLink]="namespace.status?.phase === 'Running' ? ['game-servers'] : null"
+                [routerLink]="namespace.status.phase === 'Running' ? ['game-servers'] : null"
                 routerLinkActive="active"
                 text="left"
                 width="full">
@@ -86,11 +86,11 @@
 
     <app-button *ngIf="$hasPermission(IAuthorization.queueRoles) | async"
                 color="accent"
-                [disabled]="namespace.status?.phase !== 'Running'"
+                [disabled]="namespace.status.phase !== 'Running'"
                 layout="vertical"
-                [matTooltip]="namespace.status?.phase === 'Running' ? null : 'Namespace must be running.'"
+                [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
                 matTooltipPosition="right"
-                [routerLink]="namespace.status?.phase === 'Running' ? ['queues'] : null"
+                [routerLink]="namespace.status.phase === 'Running' ? ['queues'] : null"
                 routerLinkActive="active"
                 text="left"
                 width="full">
@@ -100,11 +100,11 @@
 
     <app-button *ngIf="$hasPermission(IAuthorization.storefrontRoles) | async"
                 color="accent"
-                [disabled]="namespace.status?.phase !== 'Running'"
+                [disabled]="namespace.status.phase !== 'Running'"
                 layout="vertical"
-                [matTooltip]="namespace.status?.phase === 'Running' ? null : 'Namespace must be running.'"
+                [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
                 matTooltipPosition="right"
-                [routerLink]="namespace.status?.phase === 'Running' ? ['storefront'] : null"
+                [routerLink]="namespace.status.phase === 'Running' ? ['storefront'] : null"
                 routerLinkActive="active"
                 text="left"
                 width="full">
@@ -113,10 +113,10 @@
     </app-button>
 
     <app-button color="accent"
-                [disabled]="namespace.status?.phase !== 'Running'"
+                [disabled]="namespace.status.phase !== 'Running'"
                 layout="vertical"
-                [matTooltip]="namespace.status?.phase === 'Running' ? null : 'Namespace must be running.'"
-                [routerLink]="namespace.status?.phase === 'Running' ? ['web-sockets'] : null"
+                [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
+                [routerLink]="namespace.status.phase === 'Running' ? ['web-sockets'] : null"
                 routerLinkActive="active"
                 text="left"
                 width="full">
@@ -126,11 +126,11 @@
 
     <app-button *ngIf="$hasPermission(IAuthorization.workflowRoles) | async"
                 color="accent"
-                [disabled]="namespace.status?.phase !== 'Running'"
+                [disabled]="namespace.status.phase !== 'Running'"
                 layout="vertical"
-                [matTooltip]="namespace.status?.phase === 'Running' ? null : 'Namespace must be running.'"
+                [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
                 matTooltipPosition="right"
-                [routerLink]="namespace.status?.phase === 'Running' ? ['workflows'] : null"
+                [routerLink]="namespace.status.phase === 'Running' ? ['workflows'] : null"
                 routerLinkActive="active"
                 text="left"
                 width="full">

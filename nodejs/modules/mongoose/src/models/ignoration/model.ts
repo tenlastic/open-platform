@@ -12,7 +12,7 @@ import * as mongoose from 'mongoose';
 import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 
 @index({ fromUserId: 1, toUserId: 1 }, { unique: true })
-@modelOptions({ schemaOptions: { collection: 'ignorations', minimize: false, timestamps: true } })
+@modelOptions({ schemaOptions: { collection: 'ignorations', timestamps: true } })
 @plugin(duplicateKeyErrorPlugin)
 @plugin(unsetPlugin)
 export class IgnorationSchema {

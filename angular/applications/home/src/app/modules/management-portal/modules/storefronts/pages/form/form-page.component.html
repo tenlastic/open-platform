@@ -57,7 +57,7 @@
     </div>
 
     <app-toggle-section title="Metadata">
-      <app-metadata-fields [formArray]="form['controls'].metadata"></app-metadata-fields>
+      <app-metadata-fields [formArray]="form.get('metadata')"></app-metadata-fields>
     </app-toggle-section>
   </form>
 </div>

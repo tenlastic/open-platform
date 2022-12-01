@@ -12,9 +12,7 @@ import { unsetPlugin } from '../../plugins';
 
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 @index({ userId: 1 })
-@modelOptions({
-  schemaOptions: { collection: 'refresh-tokens', minimize: false, timestamps: true },
-})
+@modelOptions({ schemaOptions: { collection: 'refresh-tokens', timestamps: true } })
 @plugin(unsetPlugin)
 export class RefreshTokenSchema {
   public _id: mongoose.Types.ObjectId;

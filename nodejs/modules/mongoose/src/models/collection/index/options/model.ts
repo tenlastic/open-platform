@@ -8,10 +8,7 @@ import {
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
-@modelOptions({
-  options: { allowMixed: Severity.ALLOW },
-  schemaOptions: { _id: false, minimize: false },
-})
+@modelOptions({ options: { allowMixed: Severity.ALLOW }, schemaOptions: { _id: false } })
 export class CollectionIndexOptionsSchema {
   public _id: mongoose.Types.ObjectId;
 

@@ -9,7 +9,6 @@ import {
   prop,
   PropType,
   ReturnModelType,
-  Severity,
 } from '@typegoose/typegoose';
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
@@ -34,10 +33,8 @@ import {
 
 @index({ name: 1, namespaceId: 1 }, { unique: true })
 @modelOptions({
-  options: { allowMixed: Severity.ALLOW },
   schemaOptions: {
     collection: 'collections',
-    minimize: false,
     timestamps: true,
     toJSON: { getters: true },
     toObject: { getters: true },
@@ -82,7 +79,12 @@ export class CollectionSchema {
   public namespaceId: mongoose.Types.ObjectId;
 
   @prop({
-    get: (value) => new CollectionModelPermissions(value).getter(),
+    get: (value) => {
+      const record = new CollectionModelPermissions(value);
+      const result = record.getter();
+      console.log(result);
+      return result;
+    },
     set(this: CollectionDocument, value: CollectionModelPermissionsDocument) {
       const record = new CollectionModelPermissions(value);
 

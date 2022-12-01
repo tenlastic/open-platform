@@ -22,7 +22,6 @@ import { AuthorizationDocument } from '../authorization/model';
   schemaOptions: {
     collation: { locale: 'en_US', strength: 1 },
     collection: 'users',
-    minimize: false,
     timestamps: true,
   },
 })

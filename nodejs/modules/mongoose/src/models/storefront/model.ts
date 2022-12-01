@@ -19,7 +19,7 @@ import { AuthorizationDocument } from '../authorization';
 @index({ subtitle: 1, title: 1 }, { unique: true })
 @modelOptions({
   options: { allowMixed: Severity.ALLOW },
-  schemaOptions: { collection: 'storefronts', minimize: false, timestamps: true },
+  schemaOptions: { collection: 'storefronts', timestamps: true },
 })
 @plugin(duplicateKeyErrorPlugin)
 @plugin(unsetPlugin)

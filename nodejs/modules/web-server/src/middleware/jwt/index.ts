@@ -23,9 +23,7 @@ export async function jwtMiddleware(ctx: Context, next: Next) {
       jwtPublicKey = `-----BEGIN PUBLIC KEY-----\n${x5c}\n-----END PUBLIC KEY-----`;
     }
 
-    jwt = jsonwebtoken.verify(token, jwtPublicKey.replace(/\\n/g, '\n'), {
-      algorithms: ['RS256'],
-    });
+    jwt = jsonwebtoken.verify(token, jwtPublicKey.replace(/\\n/g, '\n'), { algorithms: ['RS256'] });
   } catch {
     await next();
     return;

@@ -1,7 +1,6 @@
 import {
   DocumentType,
   getModelForClass,
-  modelOptions,
   prop,
   PropType,
   ReturnModelType,
@@ -11,7 +10,6 @@ import * as mongoose from 'mongoose';
 
 import { CollectionIndexOptionsDocument, CollectionIndexOptionsSchema } from './options';
 
-@modelOptions({ schemaOptions: { minimize: false } })
 export class CollectionIndexSchema {
   public _id: mongoose.Types.ObjectId;
 

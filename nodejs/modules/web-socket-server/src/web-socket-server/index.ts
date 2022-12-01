@@ -54,7 +54,7 @@ export class WebSocketServer {
             this.wss.emit('connection', auth, ws);
           });
         } catch (e) {
-          console.error(e);
+          console.error(e.message);
           socket.destroy();
         }
       },
@@ -109,9 +109,13 @@ export class WebSocketServer {
     if (accessToken) {
       // If the public key is not specified via environment variables, fetch it from the API.
       if (!this.jwtPublicKey) {
-        const response = await axios({ method: 'get', url: process.env.JWK_URL });
-        const x5c = response.data.keys[0].x5c[0];
-        this.jwtPublicKey = `-----BEGIN PUBLIC KEY-----\n${x5c}\n-----END PUBLIC KEY-----`;
+        try {
+          const response = await axios({ method: 'get', url: process.env.JWK_URL });
+          const x5c = response.data.keys[0].x5c[0];
+          this.jwtPublicKey = `-----BEGIN PUBLIC KEY-----\n${x5c}\n-----END PUBLIC KEY-----`;
+        } catch {
+          throw new Error('Could not fetch JWK from API.');
+        }
       }
 
       // Verify it is a valid JWT.

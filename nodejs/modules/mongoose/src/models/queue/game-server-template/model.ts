@@ -12,10 +12,7 @@ import * as mongoose from 'mongoose';
 import { namespaceValidator } from '../../../validators';
 import { BuildDocument } from '../../build';
 
-@modelOptions({
-  options: { allowMixed: Severity.ALLOW },
-  schemaOptions: { _id: false },
-})
+@modelOptions({ options: { allowMixed: Severity.ALLOW }, schemaOptions: { _id: false } })
 export class QueueGameServerTemplateSchema {
   @prop({
     ref: 'BuildSchema',

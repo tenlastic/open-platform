@@ -31,7 +31,7 @@ import {
 @index({ namespaceId: 1 })
 @modelOptions({
   options: { allowMixed: Severity.ALLOW },
-  schemaOptions: { collection: 'queues', minimize: false, timestamps: true },
+  schemaOptions: { collection: 'queues', timestamps: true },
 })
 @plugin(unsetPlugin)
 export class QueueSchema {

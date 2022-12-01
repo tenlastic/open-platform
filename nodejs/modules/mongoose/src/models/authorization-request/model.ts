@@ -21,9 +21,7 @@ import { AuthorizationDocument, AuthorizationRole } from '../authorization';
 
 @index({ namespaceId: 1, userId: 1 }, { unique: true })
 @index({ roles: 1 })
-@modelOptions({
-  schemaOptions: { collection: 'authorization-requests', minimize: false, timestamps: true },
-})
+@modelOptions({ schemaOptions: { collection: 'authorization-requests', timestamps: true } })
 @plugin(duplicateKeyErrorPlugin)
 @plugin(modifiedPlugin)
 @plugin(unsetPlugin)

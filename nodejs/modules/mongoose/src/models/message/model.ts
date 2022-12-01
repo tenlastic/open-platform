@@ -17,7 +17,7 @@ import { unsetPlugin } from '../../plugins';
 @index({ readByUserIds: 1 })
 @index({ toGroupId: 1 })
 @index({ toUserId: 1 })
-@modelOptions({ schemaOptions: { collection: 'messages', minimize: false, timestamps: true } })
+@modelOptions({ schemaOptions: { collection: 'messages', timestamps: true } })
 @plugin(unsetPlugin)
 @pre('save', function (this: MessageDocument) {
   this.readByUserIds = this.readByUserIds?.length ? this.readByUserIds : [this.fromUserId];

@@ -106,14 +106,14 @@
           <mat-label>Phase</mat-label>
           <input matInput
                  disabled
-                 [value]="data.status?.phase || 'Pending'" />
+                 [value]="data.status.phase" />
         </mat-form-field>
       </div>
 
       <h4>Components</h4>
 
       <div class="row">
-        <mat-form-field *ngFor="let component of data.status?.components"
+        <mat-form-field *ngFor="let component of data.status.components"
                         floatLabel="always">
           <mat-label>{{ component.name }}</mat-label>
           <input matInput

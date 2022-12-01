@@ -15,7 +15,7 @@ import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 @index({ name: 1 }, { unique: true })
 @modelOptions({
   options: { allowMixed: Severity.ALLOW },
-  schemaOptions: { collection: 'schemas', minimize: false, timestamps: true },
+  schemaOptions: { collection: 'schemas', timestamps: true },
 })
 @plugin(duplicateKeyErrorPlugin)
 @plugin(unsetPlugin)

@@ -26,7 +26,7 @@ import { GameServerStatus, GameServerStatusDocument, GameServerStatusSchema } fr
 @index({ queueId: 1 })
 @modelOptions({
   options: { allowMixed: Severity.ALLOW },
-  schemaOptions: { collection: 'game-servers', minimize: false, timestamps: true },
+  schemaOptions: { collection: 'game-servers', timestamps: true },
 })
 @plugin(unsetPlugin)
 export class GameServerSchema {

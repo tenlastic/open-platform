@@ -52,9 +52,7 @@ export enum AuthorizationRole {
 )
 @index({ namespaceId: 1, userId: 1 }, { partialFilterExpression: { apiKey: null }, unique: true })
 @index({ roles: 1 })
-@modelOptions({
-  schemaOptions: { collection: 'authorizations', minimize: false, timestamps: true },
-})
+@modelOptions({ schemaOptions: { collection: 'authorizations', timestamps: true } })
 @plugin(duplicateKeyErrorPlugin)
 @plugin(unsetPlugin)
 @pre('validate', function (this: AuthorizationDocument) {

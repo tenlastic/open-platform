@@ -16,9 +16,7 @@ import { GroupDocument } from '../group';
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 @index({ fromUserId: 1 })
 @index({ groupId: 1, toUserId: 1 }, { unique: true })
-@modelOptions({
-  schemaOptions: { collection: 'group-invitations', minimize: false, timestamps: true },
-})
+@modelOptions({ schemaOptions: { collection: 'group-invitations', timestamps: true } })
 @plugin(duplicateKeyErrorPlugin)
 @plugin(unsetPlugin)
 @pre('validate', function (this: GroupInvitationDocument) {

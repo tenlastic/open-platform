@@ -96,7 +96,7 @@
 
     <app-toggle-section title="Queue Metadata"
                         [isVisible]="false">
-      <app-metadata-fields [formArray]="form['controls'].metadata"></app-metadata-fields>
+      <app-metadata-fields [formArray]="form.get('metadata')"></app-metadata-fields>
     </app-toggle-section>
 
     <app-toggle-section formGroupName="gameServerTemplate"
@@ -147,7 +147,7 @@
     <app-toggle-section formGroupName="gameServerTemplate"
                         title="Game Server Metadata"
                         [isVisible]="false">
-      <app-metadata-fields [formArray]="form['controls'].gameServerTemplate['controls'].metadata"></app-metadata-fields>
+      <app-metadata-fields [formArray]="form.get('gameServerTemplate').get('metadata')"></app-metadata-fields>
     </app-toggle-section>
 
     <app-toggle-section *ngIf="data._id"
@@ -157,10 +157,10 @@
           <mat-label>Phase</mat-label>
           <input matInput
                  disabled
-                 [value]="data.status?.phase || 'Pending'" />
+                 [value]="data.status.phase" />
         </mat-form-field>
 
-        <mat-form-field *ngIf="data.status?.message"
+        <mat-form-field *ngIf="data.status.message"
                         floatLabel="always"
                         [matTooltip]="data.status.message.length >= 30 ? data.status.message : null"
                         matTooltipPosition="right">
@@ -174,7 +174,7 @@
       <h4>Components</h4>
 
       <div class="row">
-        <mat-form-field *ngFor="let component of data.status?.components"
+        <mat-form-field *ngFor="let component of data.status.components"
                         floatLabel="always">
           <mat-label>{{ component.name }}</mat-label>
           <input matInput
