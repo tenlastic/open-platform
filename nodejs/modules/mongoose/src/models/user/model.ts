@@ -16,15 +16,16 @@ import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 import { alphanumericValidator, emailValidator, stringLengthValidator } from '../../validators';
 import { AuthorizationDocument } from '../authorization/model';
 
-@index({ email: 1 }, { partialFilterExpression: { email: { $type: 'string' } }, unique: true })
-@index({ username: 1 }, { collation: { locale: 'en_US', strength: 1 }, unique: true })
-@modelOptions({
-  schemaOptions: {
+@index(
+  { email: 1 },
+  {
     collation: { locale: 'en_US', strength: 1 },
-    collection: 'users',
-    timestamps: true,
+    partialFilterExpression: { email: { $exists: true } },
+    unique: true,
   },
-})
+)
+@index({ username: 1 }, { collation: { locale: 'en_US', strength: 1 }, unique: true })
+@modelOptions({ schemaOptions: { collection: 'users', timestamps: true } })
 @plugin(duplicateKeyErrorPlugin)
 @plugin(unsetPlugin)
 @pre('save', async function (this: UserDocument) {

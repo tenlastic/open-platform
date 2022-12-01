@@ -16,7 +16,7 @@ import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 import { AuthorizationDocument } from '../authorization';
 
 @index({ namespaceId: 1 }, { unique: true })
-@index({ subtitle: 1, title: 1 }, { unique: true })
+@index({ subtitle: 1, title: 1 }, { collation: { locale: 'en_US', strength: 1 }, unique: true })
 @modelOptions({
   options: { allowMixed: Severity.ALLOW },
   schemaOptions: { collection: 'storefronts', timestamps: true },

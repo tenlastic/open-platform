@@ -16,18 +16,12 @@ import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
   { name: 1 },
   {
     collation: { locale: 'en_US', strength: 1 },
-    partialFilterExpression: { name: { $type: 'string' } },
+    partialFilterExpression: { name: { $exists: true } },
     unique: true,
   },
 )
 @index({ userIds: 1 }, { unique: true })
-@modelOptions({
-  schemaOptions: {
-    collation: { locale: 'en_US', strength: 1 },
-    collection: 'groups',
-    timestamps: true,
-  },
-})
+@modelOptions({ schemaOptions: { collection: 'groups', timestamps: true } })
 @plugin(duplicateKeyErrorPlugin)
 @plugin(unsetPlugin)
 export class GroupSchema {

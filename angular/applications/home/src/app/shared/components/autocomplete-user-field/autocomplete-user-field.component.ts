@@ -54,9 +54,7 @@ export class AutocompleteUserFieldComponent implements OnInit {
     this.$users = this.userQuery.selectAll({ filterBy: (u) => u.username.startsWith(username) });
     await this.userService.find({
       sort: 'username',
-      where: {
-        username: { $regex: `^${username}`, $options: 'i' },
-      },
+      where: { username: { $regex: `^${username}`, $options: 'i' } },
     });
 
     this.isLoading = false;

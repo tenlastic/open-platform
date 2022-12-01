@@ -26,7 +26,7 @@ export class NamespaceLimitError extends Error {
   }
 }
 
-@index({ name: 1 }, { unique: true })
+@index({ name: 1 }, { collation: { locale: 'en_US', strength: 1 }, unique: true })
 @modelOptions({ schemaOptions: { collection: 'namespaces', timestamps: true } })
 @plugin(duplicateKeyErrorPlugin)
 @plugin(unsetPlugin)
