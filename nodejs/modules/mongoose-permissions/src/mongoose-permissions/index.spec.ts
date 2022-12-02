@@ -143,7 +143,7 @@ describe('mongoose-permissions', function () {
       it('returns the user', async function () {
         const results = await Permissions.delete({ user: admin }, record);
 
-        expect(results._id.toString()).to.eql(record._id.toString());
+        expect(results._id).to.eql(record._id);
         expect(results.name).to.eql(record.name);
       });
     });
@@ -254,7 +254,7 @@ describe('mongoose-permissions', function () {
 
         record = await Permissions.update({ user: admin }, {}, params, record);
 
-        expect(record._id.toString()).to.eql(record._id.toString());
+        expect(record._id).to.eql(record._id);
         expect(record.jsonSchema.properties.age).to.eql(params.jsonSchema.properties.age);
         expect(record.jsonSchema.properties.fruits).to.to.eql(params.jsonSchema.properties.fruits);
         expect(record.jsonSchema.properties.name).to.not.exist;

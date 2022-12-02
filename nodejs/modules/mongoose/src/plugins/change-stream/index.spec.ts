@@ -40,8 +40,8 @@ describe('plugins/change-stream', function () {
       await Model.findOneAndDelete({ _id: record._id });
 
       const args: IDatabasePayload<Document> = spy.getCall(0).args[0];
-      expect(args.documentKey._id.toString()).to.eql(record._id.toString());
-      expect(args.fullDocument._id.toString()).to.eql(record._id.toString());
+      expect(args.documentKey._id).to.eql(record._id);
+      expect(args.fullDocument._id).to.eql(record._id);
       expect(args.ns).to.eql({ coll: Model.collection.name, db: Model.db.db.databaseName });
       expect(args.operationType).to.eql('delete');
     });
@@ -66,7 +66,7 @@ describe('plugins/change-stream', function () {
       );
 
       const args: IDatabasePayload<Document> = spy.getCall(0).args[0];
-      expect(args.documentKey._id.toString()).to.eql(record._id.toString());
+      expect(args.documentKey._id).to.eql(record._id);
       expect(args.fullDocument.toObject()).to.eql({ ...record.toObject(), name });
       expect(args.ns).to.eql({ coll: Model.collection.name, db: Model.db.db.databaseName });
       expect(args.operationType).to.eql('update');
@@ -84,7 +84,7 @@ describe('plugins/change-stream', function () {
       const record = await Model.findOne();
 
       expect(record['_original']).to.exist;
-      expect(record['_original']._id.toString()).to.eql(record._id.toString());
+      expect(record['_original']._id).to.eql(record._id);
     });
   });
 
@@ -102,8 +102,8 @@ describe('plugins/change-stream', function () {
       await record.remove();
 
       const args: IDatabasePayload<Document> = spy.getCall(0).args[0];
-      expect(args.documentKey._id.toString()).to.eql(record._id.toString());
-      expect(args.fullDocument._id.toString()).to.eql(record._id.toString());
+      expect(args.documentKey._id).to.eql(record._id);
+      expect(args.fullDocument._id).to.eql(record._id);
       expect(args.ns).to.eql({ coll: Model.collection.name, db: Model.db.db.databaseName });
       expect(args.operationType).to.eql('delete');
     });
@@ -118,7 +118,7 @@ describe('plugins/change-stream', function () {
         const record = await Model.create({ name: chance.hash() });
 
         const args: IDatabasePayload<Document> = spy.getCall(0).args[0];
-        expect(args.documentKey._id.toString()).to.eql(record._id.toString());
+        expect(args.documentKey._id).to.eql(record._id);
         expect(args.fullDocument.toObject()).to.eql(record.toObject());
         expect(args.ns).to.eql({ coll: Model.collection.name, db: Model.db.db.databaseName });
         expect(args.operationType).to.eql('insert');
@@ -142,7 +142,7 @@ describe('plugins/change-stream', function () {
         await record.save();
 
         const args: IDatabasePayload<Document> = spy.getCall(0).args[0];
-        expect(args.documentKey._id.toString()).to.eql(record._id.toString());
+        expect(args.documentKey._id).to.eql(record._id);
         expect(args.fullDocument.toObject()).to.eql({
           ...initialRecord.toObject(),
           ...record.toObject(),
