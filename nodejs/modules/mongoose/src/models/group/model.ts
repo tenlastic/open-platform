@@ -31,7 +31,7 @@ export class GroupSchema {
   @prop({ type: Boolean })
   public isOpen: boolean;
 
-  @prop({ maxlength: 32, trim: true, type: String })
+  @prop({ maxlength: 24, trim: true, type: String })
   public name: string;
 
   public updatedAt: Date;

@@ -39,7 +39,7 @@ export class UserSchema {
   public updatedAt: Date;
 
   @prop({
-    maxlength: 32,
+    maxlength: 24,
     required: true,
     trim: true,
     type: String,

@@ -1,9 +1,10 @@
 <form [formGroup]="form">
   <mat-form-field floatLabel="always">
     <mat-label>Username</mat-label>
-    <input matInput
-           autofocus
-           formControlName="username" />
+    <input autofocus
+           formControlName="username"
+           matInput
+           maxlength="24" />
     <mat-error>Enter a valid username.</mat-error>
   </mat-form-field>
 
