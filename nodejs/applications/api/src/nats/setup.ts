@@ -1,10 +1,10 @@
 import {
-  Authorization,
-  AuthorizationRequest,
-  Login,
-  Namespace,
-  PasswordReset,
-  User,
+  AuthorizationModel,
+  AuthorizationRequestModel,
+  LoginModel,
+  NamespaceModel,
+  PasswordResetModel,
+  UserModel,
 } from '@tenlastic/mongoose';
 import { subscribe } from '@tenlastic/mongoose-change-stream-nats';
 import * as nats from '@tenlastic/nats';
@@ -26,19 +26,19 @@ export async function setup(options: SetupOptions) {
   await nats.upsertStream(options.database);
 
   Promise.all([
-    subscribe(options.database, options.durable, Authorization, (payload) =>
+    subscribe(options.database, options.durable, AuthorizationModel, (payload) =>
       AuthorizationEvent.emit(payload),
     ),
-    subscribe(options.database, options.durable, AuthorizationRequest, (payload) =>
+    subscribe(options.database, options.durable, AuthorizationRequestModel, (payload) =>
       AuthorizationRequestEvent.emit(payload),
     ),
-    subscribe(options.database, options.durable, Login, (payload) => LoginEvent.emit(payload)),
-    subscribe(options.database, options.durable, Namespace, (payload) =>
+    subscribe(options.database, options.durable, LoginModel, (payload) => LoginEvent.emit(payload)),
+    subscribe(options.database, options.durable, NamespaceModel, (payload) =>
       NamespaceEvent.emit(payload),
     ),
-    subscribe(options.database, options.durable, PasswordReset, (payload) =>
+    subscribe(options.database, options.durable, PasswordResetModel, (payload) =>
       PasswordResetEvent.emit(payload),
     ),
-    subscribe(options.database, options.durable, User, (payload) => UserEvent.emit(payload)),
+    subscribe(options.database, options.durable, UserModel, (payload) => UserEvent.emit(payload)),
   ]).catch((err) => console.error(err));
 }

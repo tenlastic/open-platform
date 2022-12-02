@@ -1,10 +1,4 @@
-import {
-  DocumentType,
-  ReturnModelType,
-  getModelForClass,
-  modelOptions,
-  prop,
-} from '@typegoose/typegoose';
+import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
 import { Chance } from 'chance';
 
 import { QueueStatusComponentName, QueueStatusPhase } from '../model';
@@ -27,7 +21,7 @@ export class QueueStatusComponentSchema {
    * Creates a record with randomized required parameters if not specified.
    */
   public static mock(
-    this: QueueStatusComponentModel,
+    this: typeof QueueStatusComponentModel,
     values: Partial<QueueStatusComponentSchema> = {},
   ) {
     const chance = new Chance();
@@ -43,5 +37,4 @@ export class QueueStatusComponentSchema {
 }
 
 export type QueueStatusComponentDocument = DocumentType<QueueStatusComponentSchema>;
-export type QueueStatusComponentModel = ReturnModelType<typeof QueueStatusComponentSchema>;
-export const QueueStatusComponent = getModelForClass(QueueStatusComponentSchema);
+export const QueueStatusComponentModel = getModelForClass(QueueStatusComponentSchema);

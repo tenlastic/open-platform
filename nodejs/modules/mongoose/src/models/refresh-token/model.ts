@@ -5,7 +5,6 @@ import {
   modelOptions,
   plugin,
   prop,
-  ReturnModelType,
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 import { unsetPlugin } from '../../plugins';
@@ -29,7 +28,7 @@ export class RefreshTokenSchema {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: RefreshTokenModel, values: Partial<RefreshTokenSchema> = {}) {
+  public static mock(this: typeof RefreshTokenModel, values: Partial<RefreshTokenSchema> = {}) {
     const defaults = { expiresAt: new Date(), userId: new mongoose.Types.ObjectId() };
 
     return new this({ ...defaults, ...values });
@@ -37,5 +36,4 @@ export class RefreshTokenSchema {
 }
 
 export type RefreshTokenDocument = DocumentType<RefreshTokenSchema>;
-export type RefreshTokenModel = ReturnModelType<typeof RefreshTokenSchema>;
-export const RefreshToken = getModelForClass(RefreshTokenSchema);
+export const RefreshTokenModel = getModelForClass(RefreshTokenSchema);

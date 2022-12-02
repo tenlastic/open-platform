@@ -1,4 +1,4 @@
-import { GameServerPermissions, Namespace } from '@tenlastic/mongoose';
+import { GameServerPermissions, NamespaceModel } from '@tenlastic/mongoose';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
 export async function handler(ctx: Context) {
@@ -10,7 +10,7 @@ export async function handler(ctx: Context) {
 
   const { cpu, memory, preemptible } = ctx.request.body;
   if (cpu || memory) {
-    const namespace = await Namespace.findOne({ _id: ctx.params.namespaceId });
+    const namespace = await NamespaceModel.findOne({ _id: ctx.params.namespaceId });
     namespace.checkCpuLimit(cpu, existing.cpu);
     namespace.checkMemoryLimit(memory, existing.memory);
     namespace.checkNonPreemptibleLimit(preemptible ?? existing.preemptible);

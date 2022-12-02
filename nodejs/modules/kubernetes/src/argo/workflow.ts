@@ -9,7 +9,7 @@ export interface V1Workflow {
     uid?: string;
   };
   spec: any;
-  status: { nodes: any[] };
+  status?: { nodes: any[] };
 }
 
 export class WorkflowApiV1 extends CustomObjectBaseApiV1<V1Workflow> {

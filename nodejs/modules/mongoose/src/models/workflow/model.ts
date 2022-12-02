@@ -1,6 +1,5 @@
 import {
   DocumentType,
-  ReturnModelType,
   getModelForClass,
   index,
   modelOptions,
@@ -12,8 +11,8 @@ import * as mongoose from 'mongoose';
 
 import { unsetPlugin } from '../../plugins';
 import { AuthorizationDocument } from '../authorization';
-import { WorkflowSpec, WorkflowSpecDocument, WorkflowSpecSchema } from './spec';
-import { WorkflowStatus, WorkflowStatusDocument, WorkflowStatusSchema } from './status';
+import { WorkflowSpecDocument, WorkflowSpecModel, WorkflowSpecSchema } from './spec';
+import { WorkflowStatusDocument, WorkflowStatusModel, WorkflowStatusSchema } from './status';
 
 @index({ namespaceId: 1 })
 @modelOptions({ schemaOptions: { collection: 'workflows', minimize: false, timestamps: true } })
@@ -41,7 +40,7 @@ export class WorkflowSchema {
   @prop({ required: true, type: WorkflowSpecSchema })
   public spec: WorkflowSpecDocument;
 
-  @prop({ default: () => new WorkflowStatus(), merge: true, type: WorkflowStatusSchema })
+  @prop({ default: () => new WorkflowStatusModel(), merge: true, type: WorkflowStatusSchema })
   public status: WorkflowStatusDocument;
 
   @prop({ min: 0, required: true, type: Number })
@@ -55,14 +54,14 @@ export class WorkflowSchema {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: WorkflowModel, values: Partial<WorkflowSchema> = {}) {
+  public static mock(this: typeof WorkflowModel, values: Partial<WorkflowSchema> = {}) {
     const chance = new Chance();
     const defaults = {
       cpu: chance.pickone([1, 3, 5]),
       memory: chance.pickone([1, 3, 5]),
       name: chance.hash(),
       namespaceId: new mongoose.Types.ObjectId(),
-      spec: WorkflowSpec.mock(),
+      spec: WorkflowSpecModel.mock(),
       storage: chance.pickone([1, 3, 5]),
     };
 
@@ -71,5 +70,4 @@ export class WorkflowSchema {
 }
 
 export type WorkflowDocument = DocumentType<WorkflowSchema>;
-export type WorkflowModel = ReturnModelType<typeof WorkflowSchema>;
-export const Workflow = getModelForClass(WorkflowSchema);
+export const WorkflowModel = getModelForClass(WorkflowSchema);

@@ -1,4 +1,9 @@
-import { EventEmitter, IDatabasePayload, WebSocket, WebSocketDocument } from '@tenlastic/mongoose';
+import {
+  EventEmitter,
+  IDatabasePayload,
+  WebSocketDocument,
+  WebSocketModel,
+} from '@tenlastic/mongoose';
 
 import { UserEvent } from './user';
 
@@ -8,6 +13,6 @@ export const WebSocketEvent = new EventEmitter<IDatabasePayload<WebSocketDocumen
 UserEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
-      return WebSocket.deleteMany({ userId: payload.fullDocument._id });
+      return WebSocketModel.deleteMany({ userId: payload.fullDocument._id });
   }
 });

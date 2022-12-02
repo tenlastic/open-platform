@@ -1,10 +1,4 @@
-import {
-  DocumentType,
-  ReturnModelType,
-  getModelForClass,
-  modelOptions,
-  prop,
-} from '@typegoose/typegoose';
+import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
 import { Chance } from 'chance';
 
 import { NamespaceStatusComponentName, NamespaceStatusPhase } from '../model';
@@ -27,7 +21,7 @@ export class NamespaceStatusNodeSchema {
    * Creates a record with randomized required parameters if not specified.
    */
   public static mock(
-    this: NamespaceStatusNodeModel,
+    this: typeof NamespaceStatusNodeModel,
     values: Partial<NamespaceStatusNodeSchema> = {},
   ) {
     const chance = new Chance();
@@ -43,5 +37,4 @@ export class NamespaceStatusNodeSchema {
 }
 
 export type NamespaceStatusNodeDocument = DocumentType<NamespaceStatusNodeSchema>;
-export type NamespaceStatusNodeModel = ReturnModelType<typeof NamespaceStatusNodeSchema>;
-export const NamespaceStatusNode = getModelForClass(NamespaceStatusNodeSchema);
+export const NamespaceStatusNodeModel = getModelForClass(NamespaceStatusNodeSchema);

@@ -7,7 +7,6 @@ import {
   pre,
   prop,
   PropType,
-  ReturnModelType,
 } from '@typegoose/typegoose';
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
@@ -62,7 +61,7 @@ export class MessageSchema {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: MessageModel, values: Partial<MessageSchema> = {}) {
+  public static mock(this: typeof MessageModel, values: Partial<MessageSchema> = {}) {
     const chance = new Chance();
     const defaults = {
       body: chance.hash(),
@@ -75,5 +74,4 @@ export class MessageSchema {
 }
 
 export type MessageDocument = DocumentType<MessageSchema>;
-export type MessageModel = ReturnModelType<typeof MessageSchema>;
-export const Message = getModelForClass(MessageSchema);
+export const MessageModel = getModelForClass(MessageSchema);

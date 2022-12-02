@@ -1,9 +1,9 @@
 import {
-  PasswordReset,
   PasswordResetDocument,
-  RefreshToken,
-  User,
+  PasswordResetModel,
+  RefreshTokenModel,
   UserDocument,
+  UserModel,
 } from '@tenlastic/mongoose';
 import { Context, ContextMock, RequiredFieldError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
@@ -20,8 +20,8 @@ describe('web-server/password-resets/delete', function () {
   let user: UserDocument;
 
   beforeEach(async function () {
-    user = await User.mock().save();
-    record = await PasswordReset.mock({ userId: user._id }).save();
+    user = await UserModel.mock().save();
+    record = await PasswordResetModel.mock({ userId: user._id }).save();
   });
 
   context('when password is not provided', function () {
@@ -81,7 +81,7 @@ describe('web-server/password-resets/delete', function () {
         }) as any;
         previousPassword = user.password;
 
-        await RefreshToken.mock({ userId: user._id }).save();
+        await RefreshTokenModel.mock({ userId: user._id }).save();
 
         await handler(ctx);
       });
@@ -91,12 +91,12 @@ describe('web-server/password-resets/delete', function () {
       });
 
       it(`updates the User's password`, async function () {
-        const updatedUser = await User.findOne({ _id: user._id });
+        const updatedUser = await UserModel.findOne({ _id: user._id });
         expect(updatedUser.password).to.not.eql(previousPassword);
       });
 
       it(`removes all the User's RefreshTokens`, async function () {
-        const count = await RefreshToken.countDocuments({ userId: user._id });
+        const count = await RefreshTokenModel.countDocuments({ userId: user._id });
         expect(count).to.eql(0);
       });
     });

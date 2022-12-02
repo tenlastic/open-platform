@@ -1,12 +1,15 @@
 import {
-  Collection,
   CollectionDocument,
-  CollectionModelPermissions,
-  Namespace,
+  CollectionJsonSchemaPropertiesModel,
+  CollectionJsonSchemaType,
+  CollectionJsonSchemaModel,
+  CollectionModel,
+  CollectionPermissionsModel,
   NamespaceDocument,
+  NamespaceModel,
   RecordSchema,
-  User,
   UserDocument,
+  UserModel,
 } from '@tenlastic/mongoose';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
@@ -19,17 +22,23 @@ describe('web-server/records/find', function () {
   let user: UserDocument;
 
   beforeEach(async function () {
-    user = await User.mock().save();
-    namespace = await Namespace.mock().save();
-    collection = await Collection.mock({
-      jsonSchema: {
-        properties: {
-          insertedAt: { format: 'date-time', type: 'string' },
-        },
-        type: 'object',
-      },
+    user = await UserModel.mock().save();
+    namespace = await NamespaceModel.mock().save();
+    collection = await CollectionModel.mock({
+      jsonSchema: CollectionJsonSchemaModel.mock({
+        properties: new Map([
+          [
+            'insertedAt',
+            CollectionJsonSchemaPropertiesModel.mock({
+              format: 'date-time',
+              type: CollectionJsonSchemaType.String,
+            }),
+          ],
+        ]),
+        type: CollectionJsonSchemaType.Object,
+      }),
       namespaceId: namespace._id,
-      permissions: CollectionModelPermissions.mock({
+      permissions: CollectionPermissionsModel.mock({
         create: new Map(Object.entries({ public: ['properties'] })),
         find: new Map(Object.entries({ public: {} })),
         read: new Map(Object.entries({ public: ['_id', 'createdAt', 'properties', 'updatedAt'] })),

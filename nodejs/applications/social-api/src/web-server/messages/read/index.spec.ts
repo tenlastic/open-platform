@@ -1,4 +1,4 @@
-import { Message, MessageDocument, User, UserDocument } from '@tenlastic/mongoose';
+import { MessageDocument, MessageModel, UserDocument, UserModel } from '@tenlastic/mongoose';
 import { ContextMock, RecordNotFoundError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
@@ -13,16 +13,16 @@ describe('web-server/message/read', function () {
   let user: UserDocument;
 
   beforeEach(async function () {
-    firstUser = await User.mock().save();
-    secondUser = await User.mock().save();
-    user = await User.mock().save();
+    firstUser = await UserModel.mock().save();
+    secondUser = await UserModel.mock().save();
+    user = await UserModel.mock().save();
   });
 
   context('when permission is granted', function () {
     let record: MessageDocument;
 
     beforeEach(async function () {
-      record = await Message.mock({ fromUserId: user._id, toUserId: firstUser._id }).save();
+      record = await MessageModel.mock({ fromUserId: user._id, toUserId: firstUser._id }).save();
     });
 
     it('returns the record', async function () {
@@ -42,7 +42,7 @@ describe('web-server/message/read', function () {
     let record: MessageDocument;
 
     beforeEach(async function () {
-      record = await Message.mock({ fromUserId: user._id, toUserId: firstUser._id }).save();
+      record = await MessageModel.mock({ fromUserId: user._id, toUserId: firstUser._id }).save();
     });
 
     it('throws an error', async function () {

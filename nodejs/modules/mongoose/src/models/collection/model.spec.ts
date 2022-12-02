@@ -3,11 +3,11 @@ import * as chaiAsPromised from 'chai-as-promised';
 import * as mongoose from 'mongoose';
 import * as sinon from 'sinon';
 
-import { CollectionIndex } from './index';
-import { CollectionIndexOptions } from './index/options';
-import { CollectionJsonSchema, CollectionJsonSchemaType } from './json-schema';
-import { CollectionJsonSchemaProperties } from './json-schema/properties';
-import { Collection } from './model';
+import { CollectionIndexModel } from './index';
+import { CollectionIndexOptionsModel } from './index/options';
+import { CollectionJsonSchemaModel, CollectionJsonSchemaType } from './json-schema';
+import { CollectionJsonSchemaPropertiesModel } from './json-schema/properties';
+import { CollectionModel } from './model';
 
 use(chaiAsPromised);
 
@@ -24,12 +24,12 @@ describe('models/collection', function () {
 
   describe(`pre('save')`, function () {
     it('creates an index on the collection within MongoDB', async () => {
-      const index = await CollectionIndex.mock({
+      const index = await CollectionIndexModel.mock({
         _id: new mongoose.Types.ObjectId(),
         key: new Map([['properties', 1]]),
-        options: CollectionIndexOptions.mock({ unique: true }),
+        options: CollectionIndexOptionsModel.mock({ unique: true }),
       }).save();
-      const collection = await Collection.mock({ indexes: [index] }).save();
+      const collection = await CollectionModel.mock({ indexes: [index] }).save();
 
       const indexes = await mongoose.connection.db.collection(collection.mongoName).indexes();
 
@@ -39,12 +39,12 @@ describe('models/collection', function () {
     });
 
     it('deletes the index on the collection within MongoDB', async function () {
-      const index = await CollectionIndex.mock({
+      const index = await CollectionIndexModel.mock({
         _id: new mongoose.Types.ObjectId(),
         key: new Map([['properties', 1]]),
-        options: CollectionIndexOptions.mock({ unique: true }),
+        options: CollectionIndexOptionsModel.mock({ unique: true }),
       }).save();
-      const collection = await Collection.mock({ indexes: [index] }).save();
+      const collection = await CollectionModel.mock({ indexes: [index] }).save();
 
       collection.indexes = [];
       await collection.save();
@@ -58,13 +58,13 @@ describe('models/collection', function () {
 
   describe('jsonSchema', function () {
     it('does not return an error', async function () {
-      const record = await Collection.mock({
-        jsonSchema: CollectionJsonSchema.mock({
+      const record = await CollectionModel.mock({
+        jsonSchema: CollectionJsonSchemaModel.mock({
           additionalProperties: false,
           properties: new Map([
             [
               'name',
-              CollectionJsonSchemaProperties.mock({ type: CollectionJsonSchemaType.String }),
+              CollectionJsonSchemaPropertiesModel.mock({ type: CollectionJsonSchemaType.String }),
             ],
           ]),
           required: ['name'],
@@ -78,13 +78,13 @@ describe('models/collection', function () {
 
   describe('setValidator()', function () {
     it('sets the validator on the collection within MongoDB', async function () {
-      const collection = await Collection.mock({
-        jsonSchema: CollectionJsonSchema.mock({
+      const collection = await CollectionModel.mock({
+        jsonSchema: CollectionJsonSchemaModel.mock({
           additionalProperties: false,
           properties: new Map([
             [
               'name',
-              CollectionJsonSchemaProperties.mock({ type: CollectionJsonSchemaType.String }),
+              CollectionJsonSchemaPropertiesModel.mock({ type: CollectionJsonSchemaType.String }),
             ],
           ]),
           required: ['name'],

@@ -4,7 +4,6 @@ import {
   modelOptions,
   prop,
   PropType,
-  ReturnModelType,
   Severity,
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
@@ -18,7 +17,7 @@ const validate = [alphabeticalKeysValidator, excludeKeysValidator(keys)];
   options: { allowMixed: Severity.ALLOW },
   schemaOptions: { _id: false, toJSON: { getters: true }, toObject: { getters: true } },
 })
-export class CollectionModelPermissionsSchema {
+export class CollectionPermissionsSchema {
   @prop({ type: [String], validate }, PropType.MAP)
   public create: Map<string, string[]>;
 
@@ -41,8 +40,8 @@ export class CollectionModelPermissionsSchema {
    * Creates a record with randomized required parameters if not specified.
    */
   public static mock(
-    this: CollectionModelPermissionsModel,
-    values: Partial<CollectionModelPermissionsSchema> = {},
+    this: typeof CollectionPermissionsModel,
+    values: Partial<CollectionPermissionsSchema> = {},
   ) {
     const defaults = {};
 
@@ -52,7 +51,7 @@ export class CollectionModelPermissionsSchema {
   /**
    * Converts find and roles values from Strings to Objects.
    */
-  public getter(this: CollectionModelPermissionsDocument) {
+  public getter(this: CollectionPermissionsDocument) {
     if (this.find) {
       this.find = this.getObjectValues(this.find);
     }
@@ -67,7 +66,7 @@ export class CollectionModelPermissionsSchema {
   /**
    * Converts find and roles values from Objects to String.
    */
-  public setter(this: CollectionModelPermissionsDocument) {
+  public setter(this: CollectionPermissionsDocument) {
     if (this.find) {
       this.find = this.getStringValues(this.find);
     }
@@ -104,8 +103,5 @@ export class CollectionModelPermissionsSchema {
   }
 }
 
-export type CollectionModelPermissionsDocument = DocumentType<CollectionModelPermissionsSchema>;
-export type CollectionModelPermissionsModel = ReturnModelType<
-  typeof CollectionModelPermissionsSchema
->;
-export const CollectionModelPermissions = getModelForClass(CollectionModelPermissionsSchema);
+export type CollectionPermissionsDocument = DocumentType<CollectionPermissionsSchema>;
+export const CollectionPermissionsModel = getModelForClass(CollectionPermissionsSchema);

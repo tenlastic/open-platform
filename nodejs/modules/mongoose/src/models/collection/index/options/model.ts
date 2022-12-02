@@ -1,11 +1,4 @@
-import {
-  DocumentType,
-  getModelForClass,
-  modelOptions,
-  prop,
-  ReturnModelType,
-  Severity,
-} from '@typegoose/typegoose';
+import { DocumentType, getModelForClass, modelOptions, prop, Severity } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
 @modelOptions({ options: { allowMixed: Severity.ALLOW }, schemaOptions: { _id: false } })
@@ -25,7 +18,7 @@ export class CollectionIndexOptionsSchema {
    * Creates a record with randomized required parameters if not specified.
    */
   public static mock(
-    this: CollectionIndexOptionsModel,
+    this: typeof CollectionIndexOptionsModel,
     values: Partial<CollectionIndexOptionsSchema> = {},
   ) {
     const defaults = {};
@@ -35,5 +28,4 @@ export class CollectionIndexOptionsSchema {
 }
 
 export type CollectionIndexOptionsDocument = DocumentType<CollectionIndexOptionsSchema>;
-export type CollectionIndexOptionsModel = ReturnModelType<typeof CollectionIndexOptionsSchema>;
-export const CollectionIndexOptions = getModelForClass(CollectionIndexOptionsSchema);
+export const CollectionIndexOptionsModel = getModelForClass(CollectionIndexOptionsSchema);

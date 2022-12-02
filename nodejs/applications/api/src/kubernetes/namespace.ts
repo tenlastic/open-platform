@@ -22,7 +22,7 @@ import {
 } from '@tenlastic/kubernetes';
 import * as minio from '@tenlastic/minio';
 import {
-  Authorization,
+  AuthorizationModel,
   AuthorizationDocument,
   AuthorizationRole,
   createConnection,
@@ -743,12 +743,12 @@ async function upsertAuthorization(
   const apiKey = chance.hash({ length: 64 });
 
   try {
-    return await Authorization.create({ apiKey, name, namespaceId, roles, system: true });
+    return await AuthorizationModel.create({ apiKey, name, namespaceId, roles, system: true });
   } catch (e) {
     if (e.name !== 'DuplicateKeyError') {
       throw e;
     }
 
-    return await Authorization.findOne({ name, namespaceId });
+    return await AuthorizationModel.findOne({ name, namespaceId });
   }
 }

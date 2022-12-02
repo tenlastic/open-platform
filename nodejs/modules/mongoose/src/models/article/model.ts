@@ -5,7 +5,6 @@ import {
   modelOptions,
   plugin,
   prop,
-  ReturnModelType,
 } from '@typegoose/typegoose';
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
@@ -54,7 +53,7 @@ export class ArticleSchema {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: ArticleModel, values: Partial<ArticleSchema> = {}) {
+  public static mock(this: typeof ArticleModel, values: Partial<ArticleSchema> = {}) {
     const chance = new Chance();
     const defaults = {
       body: chance.hash(),
@@ -68,5 +67,4 @@ export class ArticleSchema {
 }
 
 export type ArticleDocument = DocumentType<ArticleSchema>;
-export type ArticleModel = ReturnModelType<typeof ArticleSchema>;
-export const Article = getModelForClass(ArticleSchema);
+export const ArticleModel = getModelForClass(ArticleSchema);

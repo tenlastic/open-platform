@@ -1,12 +1,12 @@
 import {
-  Authorization,
+  AuthorizationModel,
   AuthorizationRole,
-  Namespace,
   NamespaceDocument,
+  NamespaceModel,
   NamespaceLimitError,
-  NamespaceLimits,
-  User,
+  NamespaceLimitsModel,
   UserDocument,
+  UserModel,
 } from '@tenlastic/mongoose';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { ContextMock } from '@tenlastic/web-server';
@@ -23,7 +23,7 @@ describe('web-server/workflows/create', function () {
   let user: UserDocument;
 
   beforeEach(async function () {
-    user = await User.mock().save();
+    user = await UserModel.mock().save();
   });
 
   context('when permission is granted', function () {
@@ -31,10 +31,10 @@ describe('web-server/workflows/create', function () {
     let namespace: NamespaceDocument;
 
     beforeEach(async function () {
-      namespace = await Namespace.mock({
-        limits: NamespaceLimits.mock({ cpu: 1, memory: 1 * 1000 * 1000 * 1000 }),
+      namespace = await NamespaceModel.mock({
+        limits: NamespaceLimitsModel.mock({ cpu: 1, memory: 1 * 1000 * 1000 * 1000 }),
       }).save();
-      await Authorization.mock({
+      await AuthorizationModel.mock({
         namespaceId: namespace._id,
         roles: [AuthorizationRole.WorkflowsReadWrite],
         userId: user._id,
@@ -57,7 +57,7 @@ describe('web-server/workflows/create', function () {
 
     context('when a Namespace Limit is exceeded', function () {
       it('throws an error', async function () {
-        namespace.limits = NamespaceLimits.mock({ cpu: 0.5 });
+        namespace.limits = NamespaceLimitsModel.mock({ cpu: 0.5 });
         await namespace.save();
 
         const promise = handler(ctx as any);
@@ -77,8 +77,8 @@ describe('web-server/workflows/create', function () {
 
   context('when permission is denied', function () {
     it('throws an error', async function () {
-      const namespace = await Namespace.mock({
-        limits: NamespaceLimits.mock({ cpu: 1, memory: 1 * 1000 * 1000 * 1000 }),
+      const namespace = await NamespaceModel.mock({
+        limits: NamespaceLimitsModel.mock({ cpu: 1, memory: 1 * 1000 * 1000 * 1000 }),
       }).save();
 
       const ctx = new ContextMock({

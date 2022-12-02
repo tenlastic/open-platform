@@ -21,7 +21,7 @@ describe('/angular/authentication/logins', () => {
     await page.goto('http://www.local.tenlastic.com', { waitUntil: 'networkidle0' });
 
     // Generate a username for the test User.
-    username = chance.hash({ length: 20 });
+    username = chance.hash({ length: 24 });
   });
 
   after(async function () {

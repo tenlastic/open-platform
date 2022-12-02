@@ -1,11 +1,4 @@
-import {
-  DocumentType,
-  getModelForClass,
-  modelOptions,
-  prop,
-  PropType,
-  ReturnModelType,
-} from '@typegoose/typegoose';
+import { DocumentType, getModelForClass, modelOptions, prop, PropType } from '@typegoose/typegoose';
 
 import { WorkflowStatusNodeDocument, WorkflowStatusNodeSchema } from './node';
 
@@ -40,7 +33,7 @@ export class WorkflowStatusSchema {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: WorkflowStatusModel, values: Partial<WorkflowStatusSchema> = {}) {
+  public static mock(this: typeof WorkflowStatusModel, values: Partial<WorkflowStatusSchema> = {}) {
     const defaults = {};
 
     return new this({ ...defaults, ...values });
@@ -48,5 +41,4 @@ export class WorkflowStatusSchema {
 }
 
 export type WorkflowStatusDocument = DocumentType<WorkflowStatusSchema>;
-export type WorkflowStatusModel = ReturnModelType<typeof WorkflowStatusSchema>;
-export const WorkflowStatus = getModelForClass(WorkflowStatusSchema);
+export const WorkflowStatusModel = getModelForClass(WorkflowStatusSchema);

@@ -16,7 +16,7 @@ describe('/nodejs/authentication/logins', function () {
 
   beforeEach(async function () {
     password = chance.hash();
-    username = chance.hash({ length: 20 });
+    username = chance.hash({ length: 24 });
 
     user = await dependencies.userService.create({ password, username });
   });

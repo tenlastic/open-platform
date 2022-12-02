@@ -1,4 +1,4 @@
-import { EventEmitter, IDatabasePayload, Login, LoginDocument } from '@tenlastic/mongoose';
+import { EventEmitter, IDatabasePayload, LoginDocument, LoginModel } from '@tenlastic/mongoose';
 
 import { UserEvent } from './user';
 
@@ -8,6 +8,6 @@ export const LoginEvent = new EventEmitter<IDatabasePayload<LoginDocument>>();
 UserEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
-      return Login.deleteMany({ userId: payload.fullDocument._id });
+      return LoginModel.deleteMany({ userId: payload.fullDocument._id });
   }
 });

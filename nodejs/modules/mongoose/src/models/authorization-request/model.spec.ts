@@ -1,15 +1,15 @@
 import { expect } from 'chai';
 
-import { Authorization, AuthorizationRole } from '../authorization';
-import { AuthorizationRequest } from './model';
+import { AuthorizationModel, AuthorizationRole } from '../authorization';
+import { AuthorizationRequestModel } from './model';
 
 describe('models/authorization-request', function () {
   describe('mergeRoles()', function () {
     it('adds a new role', function () {
-      const authorization = new Authorization({
+      const authorization = new AuthorizationModel({
         roles: [AuthorizationRole.AuthorizationsReadWrite],
       });
-      const authorizationRequest = new AuthorizationRequest({
+      const authorizationRequest = new AuthorizationRequestModel({
         roles: [AuthorizationRole.NamespacesReadWrite],
       });
 
@@ -22,10 +22,10 @@ describe('models/authorization-request', function () {
     });
 
     it('replaces an existing role with lower priority', function () {
-      const authorization = new Authorization({
+      const authorization = new AuthorizationModel({
         roles: [AuthorizationRole.NamespacesRead],
       });
-      const authorizationRequest = new AuthorizationRequest({
+      const authorizationRequest = new AuthorizationRequestModel({
         roles: [AuthorizationRole.NamespacesReadWrite],
       });
 
@@ -35,10 +35,10 @@ describe('models/authorization-request', function () {
     });
 
     it('does not replace an existing role with higher priority', function () {
-      const authorization = new Authorization({
+      const authorization = new AuthorizationModel({
         roles: [AuthorizationRole.NamespacesReadWrite],
       });
-      const authorizationRequest = new AuthorizationRequest({
+      const authorizationRequest = new AuthorizationRequestModel({
         roles: [AuthorizationRole.NamespacesRead],
       });
 

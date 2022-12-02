@@ -1,11 +1,4 @@
-import {
-  DocumentType,
-  getModelForClass,
-  modelOptions,
-  prop,
-  PropType,
-  ReturnModelType,
-} from '@typegoose/typegoose';
+import { DocumentType, getModelForClass, modelOptions, prop, PropType } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
 @modelOptions({ schemaOptions: { _id: false } })
@@ -19,7 +12,7 @@ export class BuildReferenceSchema {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: BuildReferenceModel, values: Partial<BuildReferenceSchema> = {}) {
+  public static mock(this: typeof BuildReferenceModel, values: Partial<BuildReferenceSchema> = {}) {
     const defaults = { _id: new mongoose.Types.ObjectId() };
 
     return new this({ ...defaults, ...values });
@@ -27,5 +20,4 @@ export class BuildReferenceSchema {
 }
 
 export type BuildReferenceDocument = DocumentType<BuildReferenceSchema>;
-export type BuildReferenceModel = ReturnModelType<typeof BuildReferenceSchema>;
-export const BuildReference = getModelForClass(BuildReferenceSchema);
+export const BuildReferenceModel = getModelForClass(BuildReferenceSchema);

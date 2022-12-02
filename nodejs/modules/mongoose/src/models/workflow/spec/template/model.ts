@@ -1,11 +1,4 @@
-import {
-  DocumentType,
-  getModelForClass,
-  modelOptions,
-  prop,
-  PropType,
-  ReturnModelType,
-} from '@typegoose/typegoose';
+import { DocumentType, getModelForClass, modelOptions, prop, PropType } from '@typegoose/typegoose';
 import { Chance } from 'chance';
 
 import { WorkflowSpecTemplateDagDocument, WorkflowSpecTemplateDagSchema } from './dag';
@@ -41,7 +34,7 @@ export class WorkflowSpecTemplateSchema {
    * Creates a record with randomized required parameters if not specified.
    */
   public static mock(
-    this: WorkflowSpecTemplateModel,
+    this: typeof WorkflowSpecTemplateModel,
     values: Partial<WorkflowSpecTemplateSchema> = {},
   ) {
     const chance = new Chance();
@@ -52,5 +45,4 @@ export class WorkflowSpecTemplateSchema {
 }
 
 export type WorkflowSpecTemplateDocument = DocumentType<WorkflowSpecTemplateSchema>;
-export type WorkflowSpecTemplateModel = ReturnModelType<typeof WorkflowSpecTemplateSchema>;
-export const WorkflowSpecTemplate = getModelForClass(WorkflowSpecTemplateSchema);
+export const WorkflowSpecTemplateModel = getModelForClass(WorkflowSpecTemplateSchema);

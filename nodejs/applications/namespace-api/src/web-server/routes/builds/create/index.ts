@@ -1,5 +1,10 @@
 import * as minio from '@tenlastic/minio';
-import { Build, BuildPermissions, Namespace, NamespaceLimitError } from '@tenlastic/mongoose';
+import {
+  BuildModel,
+  BuildPermissions,
+  NamespaceModel,
+  NamespaceLimitError,
+} from '@tenlastic/mongoose';
 import { Context } from '@tenlastic/web-server';
 import * as Busboy from 'busboy';
 
@@ -7,13 +12,13 @@ import { MinioBuild } from '../../../../minio';
 import { NamespaceStorageLimitEvent } from '../../../../nats';
 
 export async function handler(ctx: Context) {
-  const namespace = await Namespace.findOne({ _id: ctx.params.namespaceId });
+  const namespace = await NamespaceModel.findOne({ _id: ctx.params.namespaceId });
   namespace.checkCpuLimit(0.1);
   namespace.checkMemoryLimit(100 * 1000 * 1000);
   namespace.checkStorageLimit(0);
   const limit = namespace.limits.storage - namespace.status.limits.storage;
 
-  const build = new Build();
+  const build = new BuildModel();
   await new Promise((resolve, reject) => {
     const busboy = Busboy({ headers: ctx.request.headers, limits: { files: 1, fileSize: limit } });
     let promise = Promise.resolve('');

@@ -1,10 +1,4 @@
-import {
-  DocumentType,
-  ReturnModelType,
-  getModelForClass,
-  modelOptions,
-  prop,
-} from '@typegoose/typegoose';
+import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class NamespaceStatusLimitsSchema {
@@ -24,7 +18,7 @@ export class NamespaceStatusLimitsSchema {
    * Creates a record with randomized required parameters if not specified.
    */
   public static mock(
-    this: NamespaceStatusLimitsModel,
+    this: typeof NamespaceStatusLimitsModel,
     values: Partial<NamespaceStatusLimitsSchema> = {},
   ) {
     const defaults = {};
@@ -34,5 +28,4 @@ export class NamespaceStatusLimitsSchema {
 }
 
 export type NamespaceStatusLimitsDocument = DocumentType<NamespaceStatusLimitsSchema>;
-export type NamespaceStatusLimitsModel = ReturnModelType<typeof NamespaceStatusLimitsSchema>;
-export const NamespaceStatusLimits = getModelForClass(NamespaceStatusLimitsSchema);
+export const NamespaceStatusLimitsModel = getModelForClass(NamespaceStatusLimitsSchema);

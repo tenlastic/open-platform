@@ -6,7 +6,6 @@ import {
   plugin,
   prop,
   pre,
-  ReturnModelType,
 } from '@typegoose/typegoose';
 import * as bcrypt from 'bcryptjs';
 import { Chance } from 'chance';
@@ -23,7 +22,7 @@ import { AuthorizationDocument } from '../authorization/model';
 @plugin(unsetPlugin)
 @pre('save', async function (this: UserDocument) {
   if (this.isModified('password')) {
-    this.password = await User.hashPassword(this.password);
+    this.password = await UserModel.hashPassword(this.password);
   }
 })
 export class UserSchema {
@@ -59,7 +58,7 @@ export class UserSchema {
   /**
    * Hashes a plaintext password.
    */
-  public static async hashPassword(this: UserModel, plaintext: string) {
+  public static async hashPassword(this: typeof UserModel, plaintext: string) {
     const salt = await bcrypt.genSalt(8);
     return bcrypt.hash(plaintext, salt);
   }
@@ -67,7 +66,7 @@ export class UserSchema {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: UserModel, values: Partial<UserSchema> = {}) {
+  public static mock(this: typeof UserModel, values: Partial<UserSchema> = {}) {
     const chance = new Chance();
     const defaults = {
       email: chance.email(),
@@ -87,5 +86,4 @@ export class UserSchema {
 }
 
 export type UserDocument = DocumentType<UserSchema>;
-export type UserModel = ReturnModelType<typeof UserSchema>;
-export const User = getModelForClass(UserSchema);
+export const UserModel = getModelForClass(UserSchema);

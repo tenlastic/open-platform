@@ -1,11 +1,4 @@
-import {
-  DocumentType,
-  getModelForClass,
-  modelOptions,
-  prop,
-  ReturnModelType,
-  Severity,
-} from '@typegoose/typegoose';
+import { DocumentType, getModelForClass, modelOptions, prop, Severity } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
 import {
@@ -18,6 +11,9 @@ import {
 export class CollectionJsonSchemaPropertiesSchema {
   @prop({ type: mongoose.Schema.Types.Mixed, unset: false })
   public default: any;
+
+  @prop({ type: String })
+  public format: string;
 
   @prop({ type: CollectionJsonSchemaArraySchema })
   public items: CollectionJsonSchemaArrayDocument;
@@ -39,7 +35,7 @@ export class CollectionJsonSchemaPropertiesSchema {
    * Creates a record with randomized required parameters if not specified.
    */
   public static mock(
-    this: CollectionJsonSchemaPropertiesModel,
+    this: typeof CollectionJsonSchemaPropertiesModel,
     values: Partial<CollectionJsonSchemaPropertiesSchema> = {},
   ) {
     const defaults = { type: CollectionJsonSchemaType.Boolean };
@@ -50,9 +46,6 @@ export class CollectionJsonSchemaPropertiesSchema {
 
 export type CollectionJsonSchemaPropertiesDocument =
   DocumentType<CollectionJsonSchemaPropertiesSchema>;
-export type CollectionJsonSchemaPropertiesModel = ReturnModelType<
-  typeof CollectionJsonSchemaPropertiesSchema
->;
-export const CollectionJsonSchemaProperties = getModelForClass(
+export const CollectionJsonSchemaPropertiesModel = getModelForClass(
   CollectionJsonSchemaPropertiesSchema,
 );

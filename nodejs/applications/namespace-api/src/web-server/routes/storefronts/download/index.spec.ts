@@ -1,5 +1,11 @@
 import * as minio from '@tenlastic/minio';
-import { Authorization, AuthorizationRole, Namespace, Storefront, User } from '@tenlastic/mongoose';
+import {
+  AuthorizationModel,
+  AuthorizationRole,
+  NamespaceModel,
+  StorefrontModel,
+  UserModel,
+} from '@tenlastic/mongoose';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
@@ -12,14 +18,14 @@ use(chaiAsPromised);
 
 describe('web-server/storefronts/download', function () {
   it('returns a stream with the requested file', async function () {
-    const user = await User.mock().save();
-    const namespace = await Namespace.mock().save();
-    await Authorization.mock({
+    const user = await UserModel.mock().save();
+    const namespace = await NamespaceModel.mock().save();
+    await AuthorizationModel.mock({
       namespaceId: namespace._id,
       roles: [AuthorizationRole.StorefrontsRead],
       userId: user._id,
     }).save();
-    const storefront = await Storefront.mock({ namespaceId: namespace._id }).save();
+    const storefront = await StorefrontModel.mock({ namespaceId: namespace._id }).save();
 
     // Upload test file to Minio.
     await minio.putObject(

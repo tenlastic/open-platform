@@ -1,29 +1,29 @@
 import 'source-map-support/register';
 
 import {
-  Article,
-  Authorization,
-  Build,
-  Collection,
+  ArticleModel,
+  AuthorizationModel,
+  BuildModel,
+  CollectionModel,
   connect,
   enablePrePostImages,
-  GameServer,
-  Group,
-  Namespace,
-  Queue,
-  QueueMember,
+  GameServerModel,
+  GroupModel,
+  NamespaceModel,
+  QueueModel,
+  QueueMemberModel,
   SchemaSchema,
-  Storefront,
+  StorefrontModel,
   syncIndexes,
-  User,
-  WebSocket,
-  Workflow,
+  UserModel,
+  WebSocketModel,
+  WorkflowModel,
 } from '@tenlastic/mongoose';
 import { getModelForClass } from '@typegoose/typegoose';
 
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
 const mongoDatabaseName = process.env.MONGO_DATABASE_NAME;
-const Schema = getModelForClass(SchemaSchema);
+const SchemaModel = getModelForClass(SchemaSchema);
 
 (async () => {
   try {
@@ -34,38 +34,38 @@ const Schema = getModelForClass(SchemaSchema);
 
     console.log('Syncing indexes...');
     await Promise.all([
-      syncIndexes(Article),
-      syncIndexes(Authorization),
-      syncIndexes(Build),
-      syncIndexes(Collection),
-      syncIndexes(GameServer),
-      syncIndexes(Group),
-      syncIndexes(Namespace),
-      syncIndexes(Queue),
-      syncIndexes(QueueMember),
-      syncIndexes(Schema),
-      syncIndexes(Storefront),
-      syncIndexes(User),
-      syncIndexes(WebSocket),
-      syncIndexes(Workflow),
+      syncIndexes(ArticleModel),
+      syncIndexes(AuthorizationModel),
+      syncIndexes(BuildModel),
+      syncIndexes(CollectionModel),
+      syncIndexes(GameServerModel),
+      syncIndexes(GroupModel),
+      syncIndexes(NamespaceModel),
+      syncIndexes(QueueModel),
+      syncIndexes(QueueMemberModel),
+      syncIndexes(SchemaModel),
+      syncIndexes(StorefrontModel),
+      syncIndexes(UserModel),
+      syncIndexes(WebSocketModel),
+      syncIndexes(WorkflowModel),
     ]);
     console.log('Indexes synced successfully!');
 
     console.log('Syncing schemas...');
     await Promise.all([
-      Schema.sync(Article),
-      Schema.sync(Authorization),
-      Schema.sync(Build),
-      Schema.sync(Collection),
-      Schema.sync(GameServer),
-      Schema.sync(Group),
-      Schema.sync(Namespace),
-      Schema.sync(Queue),
-      Schema.sync(QueueMember),
-      Schema.sync(Storefront),
-      Schema.sync(User),
-      Schema.sync(WebSocket),
-      Schema.sync(Workflow),
+      SchemaModel.sync(ArticleModel),
+      SchemaModel.sync(AuthorizationModel),
+      SchemaModel.sync(BuildModel),
+      SchemaModel.sync(CollectionModel),
+      SchemaModel.sync(GameServerModel),
+      SchemaModel.sync(GroupModel),
+      SchemaModel.sync(NamespaceModel),
+      SchemaModel.sync(QueueModel),
+      SchemaModel.sync(QueueMemberModel),
+      SchemaModel.sync(StorefrontModel),
+      SchemaModel.sync(UserModel),
+      SchemaModel.sync(WebSocketModel),
+      SchemaModel.sync(WorkflowModel),
     ]);
     console.log('Schemas synced successfully!');
 
@@ -75,19 +75,19 @@ const Schema = getModelForClass(SchemaSchema);
 
     console.log('Enabling Document Pre- and Post-Images...');
     await Promise.all([
-      enablePrePostImages(Article),
-      enablePrePostImages(Authorization),
-      enablePrePostImages(Build),
-      enablePrePostImages(Collection),
-      enablePrePostImages(GameServer),
-      enablePrePostImages(Group),
-      enablePrePostImages(Namespace),
-      enablePrePostImages(Queue),
-      enablePrePostImages(QueueMember),
-      enablePrePostImages(Storefront),
-      enablePrePostImages(User),
-      enablePrePostImages(WebSocket),
-      enablePrePostImages(Workflow),
+      enablePrePostImages(ArticleModel),
+      enablePrePostImages(AuthorizationModel),
+      enablePrePostImages(BuildModel),
+      enablePrePostImages(CollectionModel),
+      enablePrePostImages(GameServerModel),
+      enablePrePostImages(GroupModel),
+      enablePrePostImages(NamespaceModel),
+      enablePrePostImages(QueueModel),
+      enablePrePostImages(QueueMemberModel),
+      enablePrePostImages(StorefrontModel),
+      enablePrePostImages(UserModel),
+      enablePrePostImages(WebSocketModel),
+      enablePrePostImages(WorkflowModel),
     ]);
     console.log('Document Pre- and Post-Images enabled successfully!');
 

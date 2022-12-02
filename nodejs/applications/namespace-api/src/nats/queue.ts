@@ -1,4 +1,4 @@
-import { EventEmitter, IDatabasePayload, Queue, QueueDocument } from '@tenlastic/mongoose';
+import { EventEmitter, IDatabasePayload, QueueDocument, QueueModel } from '@tenlastic/mongoose';
 
 import { KubernetesQueue, KubernetesQueueSidecar } from '../kubernetes';
 import { NamespaceEvent } from './namespace';
@@ -9,7 +9,7 @@ export const QueueEvent = new EventEmitter<IDatabasePayload<QueueDocument>>();
 NamespaceEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
-      return Queue.deleteMany({ namespaceId: payload.fullDocument._id });
+      return QueueModel.deleteMany({ namespaceId: payload.fullDocument._id });
   }
 });
 
@@ -20,7 +20,7 @@ QueueEvent.async(async (payload) => {
     await KubernetesQueueSidecar.delete(payload.fullDocument);
   } else if (
     payload.operationType === 'insert' ||
-    Queue.isRestartRequired(Object.keys(payload.updateDescription.updatedFields))
+    QueueModel.isRestartRequired(Object.keys(payload.updateDescription.updatedFields))
   ) {
     await KubernetesQueue.upsert(payload.fullDocument);
     await KubernetesQueueSidecar.upsert(payload.fullDocument);

@@ -1,4 +1,4 @@
-import { Login, User } from '@tenlastic/mongoose';
+import { LoginModel, UserModel } from '@tenlastic/mongoose';
 import { Context, RequiredFieldError } from '@tenlastic/web-server';
 import * as jsonwebtoken from 'jsonwebtoken';
 
@@ -31,13 +31,16 @@ export async function handler(ctx: Context) {
     throw new RefreshTokenError();
   }
 
-  const user = await User.findOne({ _id: jwt.user._id });
+  const user = await UserModel.findOne({ _id: jwt.user._id });
   if (!user) {
     throw new RefreshTokenError();
   }
 
   try {
-    const { accessToken, refreshToken } = await Login.createAccessAndRefreshTokens(user, jwt.jti);
+    const { accessToken, refreshToken } = await LoginModel.createAccessAndRefreshTokens(
+      user,
+      jwt.jti,
+    );
     ctx.response.body = { accessToken, refreshToken };
   } catch (e) {
     throw new RefreshTokenError();

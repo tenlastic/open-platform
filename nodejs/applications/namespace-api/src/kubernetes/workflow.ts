@@ -2,7 +2,7 @@ import { networkPolicyApiV1, workflowApiV1 } from '@tenlastic/kubernetes';
 import {
   DatabaseOperationType,
   WorkflowDocument,
-  WorkflowSpecTemplate,
+  WorkflowSpecTemplateModel,
   WorkflowSpecTemplateSchema,
 } from '@tenlastic/mongoose';
 
@@ -138,7 +138,7 @@ export const KubernetesWorkflow = {
  * Gets the manifest for a template.
  */
 function getTemplateManifest(template: WorkflowSpecTemplateSchema, workflow: WorkflowDocument) {
-  const t: any = new WorkflowSpecTemplate(template).toObject();
+  const t: any = new WorkflowSpecTemplateModel(template).toObject();
   if (!t.script) {
     return t;
   }

@@ -1,11 +1,11 @@
 import {
-  Authorization,
-  Group,
-  Namespace,
-  QueueMember,
-  Storefront,
-  User,
-  WebSocket,
+  AuthorizationModel,
+  GroupModel,
+  NamespaceModel,
+  QueueMemberModel,
+  StorefrontModel,
+  UserModel,
+  WebSocketModel,
 } from '@tenlastic/mongoose';
 import { subscribe } from '@tenlastic/mongoose-change-stream-nats';
 import * as nats from '@tenlastic/nats';
@@ -28,21 +28,21 @@ export async function setup(options: SetupOptions) {
   await nats.upsertStream(options.database);
 
   Promise.all([
-    subscribe(options.database, options.durable, Authorization, (payload) =>
+    subscribe(options.database, options.durable, AuthorizationModel, (payload) =>
       AuthorizationEvent.emit(payload),
     ),
-    subscribe(options.database, options.durable, Group, (payload) => GroupEvent.emit(payload)),
-    subscribe(options.database, options.durable, Namespace, (payload) =>
+    subscribe(options.database, options.durable, GroupModel, (payload) => GroupEvent.emit(payload)),
+    subscribe(options.database, options.durable, NamespaceModel, (payload) =>
       NamespaceEvent.emit(payload),
     ),
-    subscribe(options.database, options.durable, QueueMember, (payload) =>
+    subscribe(options.database, options.durable, QueueMemberModel, (payload) =>
       QueueMemberEvent.emit(payload),
     ),
-    subscribe(options.database, options.durable, Storefront, (payload) =>
+    subscribe(options.database, options.durable, StorefrontModel, (payload) =>
       StorefrontEvent.emit(payload),
     ),
-    subscribe(options.database, options.durable, User, (payload) => UserEvent.emit(payload)),
-    subscribe(options.database, options.durable, WebSocket, (payload) =>
+    subscribe(options.database, options.durable, UserModel, (payload) => UserEvent.emit(payload)),
+    subscribe(options.database, options.durable, WebSocketModel, (payload) =>
       WebSocketEvent.emit(payload),
     ),
   ]).catch((err) => console.error(err));

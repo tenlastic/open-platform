@@ -1,15 +1,15 @@
 import * as minio from '@tenlastic/minio';
 import {
-  Authorization,
+  AuthorizationModel,
   AuthorizationRole,
-  Build,
   BuildDocument,
-  Namespace,
+  BuildModel,
   NamespaceDocument,
+  NamespaceModel,
   NamespaceLimitError,
-  NamespaceLimits,
-  User,
+  NamespaceLimitsModel,
   UserDocument,
+  UserModel,
 } from '@tenlastic/mongoose';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { ContextMock } from '@tenlastic/web-server';
@@ -29,14 +29,14 @@ describe('web-server/builds/create', function () {
   let user: UserDocument;
 
   beforeEach(async function () {
-    namespace = await Namespace.mock({
-      limits: NamespaceLimits.mock({
+    namespace = await NamespaceModel.mock({
+      limits: NamespaceLimitsModel.mock({
         cpu: 0.1,
         memory: 100 * 1000 * 1000,
         storage: 1 * 1000 * 1000 * 1000,
       }),
     }).save();
-    user = await User.mock().save();
+    user = await UserModel.mock().save();
   });
 
   context('when permission is granted', function () {
@@ -46,13 +46,13 @@ describe('web-server/builds/create', function () {
     let stream: NodeJS.ReadableStream;
 
     beforeEach(async function () {
-      await Authorization.mock({
+      await AuthorizationModel.mock({
         namespaceId: namespace._id,
         roles: [AuthorizationRole.BuildsReadWrite],
         userId: user._id,
       }).save();
 
-      build = Build.mock({ namespaceId: namespace._id });
+      build = BuildModel.mock({ namespaceId: namespace._id });
 
       const zip = new JSZip();
       zip.file('index.spec.ts', fs.createReadStream(__filename));
@@ -131,7 +131,7 @@ describe('web-server/builds/create', function () {
 
   context('when permission is denied', function () {
     it('throws an error', async function () {
-      const build = Build.mock({ namespaceId: namespace._id });
+      const build = BuildModel.mock({ namespaceId: namespace._id });
 
       const form = new FormData();
       form.append('record', JSON.stringify(build));

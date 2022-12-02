@@ -1,4 +1,4 @@
-import { QueueMember, QueueMemberPermissions } from '@tenlastic/mongoose';
+import { QueueMemberModel, QueueMemberPermissions } from '@tenlastic/mongoose';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { Context } from '@tenlastic/web-server';
 
@@ -9,7 +9,7 @@ export async function handler(ctx: Context) {
     throw new PermissionError();
   }
 
-  const result = await QueueMember.getUserIdCount($match);
+  const result = await QueueMemberModel.getUserIdCount($match);
 
   ctx.response.body = { count: result };
 }

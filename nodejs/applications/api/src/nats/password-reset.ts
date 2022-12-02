@@ -1,4 +1,9 @@
-import { EventEmitter, IDatabasePayload, PasswordResetDocument, User } from '@tenlastic/mongoose';
+import {
+  EventEmitter,
+  IDatabasePayload,
+  PasswordResetDocument,
+  UserModel,
+} from '@tenlastic/mongoose';
 
 import mailgun from '../mailgun';
 
@@ -9,7 +14,7 @@ PasswordResetEvent.async(async (payload) => {
   const { fullDocument } = payload;
 
   if (payload.operationType === 'insert') {
-    const user = await User.findOne({ _id: fullDocument.userId });
+    const user = await UserModel.findOne({ _id: fullDocument.userId });
     return mailgun.sendPasswordResetRequest({ email: user.email, hash: fullDocument.hash });
   }
 });

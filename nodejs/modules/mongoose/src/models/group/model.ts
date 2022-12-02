@@ -6,7 +6,6 @@ import {
   plugin,
   prop,
   PropType,
-  ReturnModelType,
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
@@ -42,7 +41,7 @@ export class GroupSchema {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: GroupModel, values: Partial<GroupSchema> = {}) {
+  public static mock(this: typeof GroupModel, values: Partial<GroupSchema> = {}) {
     const defaults = {};
 
     return new this({ ...defaults, ...values });
@@ -50,5 +49,4 @@ export class GroupSchema {
 }
 
 export type GroupDocument = DocumentType<GroupSchema>;
-export type GroupModel = ReturnModelType<typeof GroupSchema>;
-export const Group = getModelForClass(GroupSchema);
+export const GroupModel = getModelForClass(GroupSchema);

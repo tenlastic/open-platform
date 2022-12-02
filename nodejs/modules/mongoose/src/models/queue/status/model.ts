@@ -1,11 +1,4 @@
-import {
-  DocumentType,
-  getModelForClass,
-  modelOptions,
-  prop,
-  PropType,
-  ReturnModelType,
-} from '@typegoose/typegoose';
+import { DocumentType, getModelForClass, modelOptions, prop, PropType } from '@typegoose/typegoose';
 
 import { QueueStatusComponentDocument, QueueStatusComponentSchema } from './component';
 import { QueueStatusNodeDocument, QueueStatusNodeSchema } from './node';
@@ -43,7 +36,7 @@ export class QueueStatusSchema {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static create(this: QueueStatusModel, values: Partial<QueueStatusSchema> = {}) {
+  public static create(this: typeof QueueStatusModel, values: Partial<QueueStatusSchema> = {}) {
     const defaults = { phase: QueueStatusPhase.Running };
 
     return new this({ ...defaults, ...values });
@@ -51,5 +44,4 @@ export class QueueStatusSchema {
 }
 
 export type QueueStatusDocument = DocumentType<QueueStatusSchema>;
-export type QueueStatusModel = ReturnModelType<typeof QueueStatusSchema>;
-export const QueueStatus = getModelForClass(QueueStatusSchema);
+export const QueueStatusModel = getModelForClass(QueueStatusSchema);

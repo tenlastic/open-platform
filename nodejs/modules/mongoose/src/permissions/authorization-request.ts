@@ -1,10 +1,14 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { AuthorizationRequest, AuthorizationRequestDocument, AuthorizationRole } from '../models';
+import {
+  AuthorizationRequestDocument,
+  AuthorizationRequestModel,
+  AuthorizationRole,
+} from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
 export const AuthorizationRequestPermissions =
-  new MongoosePermissions<AuthorizationRequestDocument>(AuthorizationRequest, {
+  new MongoosePermissions<AuthorizationRequestDocument>(AuthorizationRequestModel, {
     create: {
       'namespace-write': ['deniedAt', 'grantedAt', 'namespaceId', 'roles', 'userId'],
       owner: ['namespaceId', 'roles', 'userId'],

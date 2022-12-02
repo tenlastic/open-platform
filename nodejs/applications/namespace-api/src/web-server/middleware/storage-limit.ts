@@ -1,4 +1,4 @@
-import { Namespace } from '@tenlastic/mongoose';
+import { NamespaceModel } from '@tenlastic/mongoose';
 import { Context } from '@tenlastic/web-server';
 import { Next } from 'koa';
 
@@ -9,7 +9,7 @@ export async function storageLimitMiddleware(ctx: Context, next: Next) {
     return;
   }
 
-  const namespace = await Namespace.findOne({ _id: ctx.params.namespaceId });
+  const namespace = await NamespaceModel.findOne({ _id: ctx.params.namespaceId });
   namespace.checkStorageLimit(0);
 
   await next();

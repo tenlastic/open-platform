@@ -24,8 +24,8 @@ describe('/angular/namespace/collections', () => {
     await page.goto('http://www.local.tenlastic.com', { waitUntil: 'networkidle0' });
 
     // Generate a name for the Namespace.
-    collection = chance.hash();
-    namespace = chance.hash();
+    collection = chance.hash({ length: 64 });
+    namespace = chance.hash({ length: 64 });
   });
 
   after(async function () {

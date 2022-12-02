@@ -7,7 +7,6 @@ import {
   pre,
   prop,
   PropType,
-  ReturnModelType,
 } from '@typegoose/typegoose';
 import * as jsonwebtoken from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
@@ -124,7 +123,7 @@ export class AuthorizationSchema {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: AuthorizationModel, values: Partial<AuthorizationSchema> = {}) {
+  public static mock(this: typeof AuthorizationModel, values: Partial<AuthorizationSchema> = {}) {
     const defaults = {};
 
     return new this({ ...defaults, ...values });
@@ -160,5 +159,4 @@ export class AuthorizationSchema {
 }
 
 export type AuthorizationDocument = DocumentType<AuthorizationSchema>;
-export type AuthorizationModel = ReturnModelType<typeof AuthorizationSchema>;
-export const Authorization = getModelForClass(AuthorizationSchema);
+export const AuthorizationModel = getModelForClass(AuthorizationSchema);

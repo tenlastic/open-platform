@@ -8,7 +8,6 @@ import {
   pre,
   prop,
   PropType,
-  ReturnModelType,
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
@@ -120,7 +119,7 @@ export class QueueMemberSchema {
   /**
    * Get the number of Users matching the criteria.
    */
-  public static async getUserIdCount(this: QueueMemberModel, $match: any = {}) {
+  public static async getUserIdCount(this: typeof QueueMemberModel, $match: any = {}) {
     const results = await this.aggregate([
       { $match: this.find().cast(this, $match) },
       { $unwind: '$userIds' },
@@ -133,7 +132,7 @@ export class QueueMemberSchema {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: QueueMemberModel, values: Partial<QueueMemberSchema> = {}) {
+  public static mock(this: typeof QueueMemberModel, values: Partial<QueueMemberSchema> = {}) {
     const defaults: Partial<QueueMemberDocument> = {
       namespaceId: new mongoose.Types.ObjectId(),
       queueId: new mongoose.Types.ObjectId(),
@@ -183,5 +182,4 @@ export class QueueMemberSchema {
 }
 
 export type QueueMemberDocument = mongoose.Document & DocumentType<QueueMemberSchema>;
-export type QueueMemberModel = ReturnModelType<typeof QueueMemberSchema>;
-export const QueueMember = getModelForClass(QueueMemberSchema);
+export const QueueMemberModel = getModelForClass(QueueMemberSchema);

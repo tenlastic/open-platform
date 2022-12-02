@@ -1,10 +1,4 @@
-import {
-  DocumentType,
-  getModelForClass,
-  modelOptions,
-  prop,
-  ReturnModelType,
-} from '@typegoose/typegoose';
+import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
 import { Chance } from 'chance';
 
 import { GameServerStatusComponentName, GameServerStatusPhase } from '../model';
@@ -27,7 +21,7 @@ export class GameServerStatusNodeSchema {
    * Creates a record with randomized required parameters if not specified.
    */
   public static mock(
-    this: GameServerStatusNodeModel,
+    this: typeof GameServerStatusNodeModel,
     values: Partial<GameServerStatusNodeSchema> = {},
   ) {
     const chance = new Chance();
@@ -43,5 +37,4 @@ export class GameServerStatusNodeSchema {
 }
 
 export type GameServerStatusNodeDocument = DocumentType<GameServerStatusNodeSchema>;
-export type GameServerStatusNodeModel = ReturnModelType<typeof GameServerStatusNodeSchema>;
-export const GameServerStatusNode = getModelForClass(GameServerStatusNodeSchema);
+export const GameServerStatusNodeModel = getModelForClass(GameServerStatusNodeSchema);

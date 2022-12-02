@@ -6,7 +6,6 @@ import {
   plugin,
   pre,
   prop,
-  ReturnModelType,
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
@@ -53,7 +52,10 @@ export class GroupInvitationSchema {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: GroupInvitationModel, values: Partial<GroupInvitationSchema> = {}) {
+  public static mock(
+    this: typeof GroupInvitationModel,
+    values: Partial<GroupInvitationSchema> = {},
+  ) {
     const defaults = {
       fromUserId: new mongoose.Types.ObjectId(),
       groupId: new mongoose.Types.ObjectId(),
@@ -65,5 +67,4 @@ export class GroupInvitationSchema {
 }
 
 export type GroupInvitationDocument = DocumentType<GroupInvitationSchema>;
-export type GroupInvitationModel = ReturnModelType<typeof GroupInvitationSchema>;
-export const GroupInvitation = getModelForClass(GroupInvitationSchema);
+export const GroupInvitationModel = getModelForClass(GroupInvitationSchema);

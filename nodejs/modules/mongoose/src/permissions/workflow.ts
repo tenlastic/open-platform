@@ -1,6 +1,6 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { AuthorizationRole, Workflow, WorkflowDocument } from '../models';
+import { AuthorizationRole, WorkflowDocument, WorkflowModel } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
 const administrator = {
@@ -37,7 +37,7 @@ const administrator = {
   ],
 };
 
-export const WorkflowPermissions = new MongoosePermissions<WorkflowDocument>(Workflow, {
+export const WorkflowPermissions = new MongoosePermissions<WorkflowDocument>(WorkflowModel, {
   create: {
     'namespace-write': administrator.create,
     'user-write': administrator.create,

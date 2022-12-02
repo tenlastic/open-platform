@@ -1,12 +1,12 @@
 import {
-  Collection,
   CollectionDocument,
-  CollectionModelPermissions,
-  Namespace,
+  CollectionModel,
+  CollectionPermissionsModel,
   NamespaceDocument,
+  NamespaceModel,
   RecordSchema,
-  User,
   UserDocument,
+  UserModel,
 } from '@tenlastic/mongoose';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
@@ -19,11 +19,11 @@ describe('web-server/records/find-one', function () {
   let user: UserDocument;
 
   beforeEach(async function () {
-    user = await User.mock().save();
-    namespace = await Namespace.mock().save();
-    collection = await Collection.mock({
+    user = await UserModel.mock().save();
+    namespace = await NamespaceModel.mock().save();
+    collection = await CollectionModel.mock({
       namespaceId: namespace._id,
-      permissions: CollectionModelPermissions.mock({
+      permissions: CollectionPermissionsModel.mock({
         create: new Map(Object.entries({ public: ['properties'] })),
         find: new Map(Object.entries({ public: {} })),
         read: new Map(Object.entries({ public: ['_id', 'createdAt', 'properties', 'updatedAt'] })),

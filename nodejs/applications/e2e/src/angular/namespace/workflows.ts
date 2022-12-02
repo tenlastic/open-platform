@@ -24,8 +24,8 @@ describe('/angular/namespace/workflows', () => {
     await page.goto('http://www.local.tenlastic.com', { waitUntil: 'networkidle0' });
 
     // Generate a name for the Namespace.
-    namespace = chance.hash();
-    workflow = chance.hash();
+    namespace = chance.hash({ length: 64 });
+    workflow = chance.hash({ length: 64 });
   });
 
   after(async function () {

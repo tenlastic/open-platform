@@ -1,4 +1,4 @@
-import { Namespace, QueuePermissions } from '@tenlastic/mongoose';
+import { NamespaceModel, QueuePermissions } from '@tenlastic/mongoose';
 import { Context, RequiredFieldError } from '@tenlastic/web-server';
 
 export async function handler(ctx: Context) {
@@ -7,7 +7,7 @@ export async function handler(ctx: Context) {
     throw new RequiredFieldError(['cpu', 'memory', 'replicas']);
   }
 
-  const namespace = await Namespace.findOne({ _id: ctx.params.namespaceId });
+  const namespace = await NamespaceModel.findOne({ _id: ctx.params.namespaceId });
   namespace.checkCpuLimit(cpu * replicas);
   namespace.checkMemoryLimit(memory * replicas);
   namespace.checkNonPreemptibleLimit(preemptible);

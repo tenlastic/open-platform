@@ -27,7 +27,7 @@ describe('/nodejs/namespace/collections', function () {
         memory: 1 * 1000 * 1000 * 1000,
         storage: 10 * 1000 * 1000 * 1000,
       },
-      name: chance.hash(),
+      name: chance.hash({ length: 64 }),
     });
     expect(namespace).to.exist;
   });
@@ -50,7 +50,7 @@ describe('/nodejs/namespace/collections', function () {
         required: ['email', 'name'],
         type: 'object',
       },
-      name: chance.hash(),
+      name: chance.hash({ length: 64 }),
       namespaceId: namespace._id,
       permissions: {
         create: { default: ['properties.*'] },

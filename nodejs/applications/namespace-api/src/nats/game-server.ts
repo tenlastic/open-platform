@@ -1,7 +1,7 @@
 import {
   EventEmitter,
-  GameServer,
   GameServerDocument,
+  GameServerModel,
   GameServerStatusComponentName,
   IDatabasePayload,
 } from '@tenlastic/mongoose';
@@ -33,7 +33,7 @@ GameServerEvent.async(async (payload) => {
     await KubernetesGameServerSidecar.delete(payload.fullDocument);
   } else if (
     payload.operationType === 'insert' ||
-    GameServer.isRestartRequired(Object.keys(payload.updateDescription.updatedFields))
+    GameServerModel.isRestartRequired(Object.keys(payload.updateDescription.updatedFields))
   ) {
     await KubernetesGameServer.upsert(payload.fullDocument);
     await KubernetesGameServerSidecar.upsert(payload.fullDocument);
@@ -44,7 +44,7 @@ GameServerEvent.async(async (payload) => {
 NamespaceEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
-      return GameServer.deleteMany({ namespaceId: payload.fullDocument._id });
+      return GameServerModel.deleteMany({ namespaceId: payload.fullDocument._id });
   }
 });
 
@@ -52,6 +52,6 @@ NamespaceEvent.async(async (payload) => {
 QueueEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
-      return GameServer.deleteMany({ queueId: payload.fullDocument._id });
+      return GameServerModel.deleteMany({ queueId: payload.fullDocument._id });
   }
 });

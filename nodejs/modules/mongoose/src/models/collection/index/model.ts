@@ -1,10 +1,4 @@
-import {
-  DocumentType,
-  getModelForClass,
-  prop,
-  PropType,
-  ReturnModelType,
-} from '@typegoose/typegoose';
+import { DocumentType, getModelForClass, prop, PropType } from '@typegoose/typegoose';
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
@@ -22,7 +16,10 @@ export class CollectionIndexSchema {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: CollectionIndexModel, values: Partial<CollectionIndexSchema> = {}) {
+  public static mock(
+    this: typeof CollectionIndexModel,
+    values: Partial<CollectionIndexSchema> = {},
+  ) {
     const chance = new Chance();
     const defaults = {
       collectionId: new mongoose.Types.ObjectId(),
@@ -34,5 +31,4 @@ export class CollectionIndexSchema {
 }
 
 export type CollectionIndexDocument = DocumentType<CollectionIndexSchema>;
-export type CollectionIndexModel = ReturnModelType<typeof CollectionIndexSchema>;
-export const CollectionIndex = getModelForClass(CollectionIndexSchema);
+export const CollectionIndexModel = getModelForClass(CollectionIndexSchema);

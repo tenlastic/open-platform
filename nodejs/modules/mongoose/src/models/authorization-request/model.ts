@@ -7,7 +7,6 @@ import {
   pre,
   prop,
   PropType,
-  ReturnModelType,
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
@@ -86,7 +85,7 @@ export class AuthorizationRequestSchema implements ModifiedPlugin {
    * Creates a record with randomized required parameters if not specified.
    */
   public static mock(
-    this: AuthorizationRequestModel,
+    this: typeof AuthorizationRequestModel,
     values: Partial<AuthorizationRequestSchema> = {},
   ) {
     const defaults = { userId: new mongoose.Types.ObjectId() };
@@ -175,5 +174,4 @@ export class AuthorizationRequestSchema implements ModifiedPlugin {
 }
 
 export type AuthorizationRequestDocument = DocumentType<AuthorizationRequestSchema>;
-export type AuthorizationRequestModel = ReturnModelType<typeof AuthorizationRequestSchema>;
-export const AuthorizationRequest = getModelForClass(AuthorizationRequestSchema);
+export const AuthorizationRequestModel = getModelForClass(AuthorizationRequestSchema);

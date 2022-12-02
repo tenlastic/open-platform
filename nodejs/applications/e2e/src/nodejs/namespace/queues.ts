@@ -40,7 +40,7 @@ describe('/nodejs/namespace/queues', function () {
         memory: 1 * 1000 * 1000 * 1000,
         storage: 10 * 1000 * 1000 * 1000,
       },
-      name: chance.hash(),
+      name: chance.hash({ length: 64 }),
     });
     expect(namespace).to.exist;
   });
@@ -71,7 +71,7 @@ describe('/nodejs/namespace/queues', function () {
       'record',
       JSON.stringify({
         entrypoint: 'Dockerfile',
-        name: chance.hash(),
+        name: chance.hash({ length: 64 }),
         namespaceId: namespace._id,
         platform: IBuild.Platform.Server64,
       } as BuildModel),
@@ -101,7 +101,7 @@ describe('/nodejs/namespace/queues', function () {
         preemptible: true,
       },
       memory: 100 * 1000 * 1000,
-      name: chance.hash(),
+      name: chance.hash({ length: 64 }),
       namespaceId: namespace._id,
       preemptible: true,
       replicas: 1,
@@ -203,7 +203,7 @@ async function createUser(namespaceId: string) {
   const password = chance.hash();
   const user = await dependencies.userService.create({
     password,
-    username: chance.hash({ length: 20 }),
+    username: chance.hash({ length: 24 }),
   });
 
   const credentials = await dependencies.loginService.createWithCredentials(

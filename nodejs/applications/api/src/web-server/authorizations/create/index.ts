@@ -1,4 +1,4 @@
-import { AuthorizationPermissions, Namespace } from '@tenlastic/mongoose';
+import { AuthorizationPermissions, NamespaceModel } from '@tenlastic/mongoose';
 import { Context } from '@tenlastic/web-server';
 
 export async function handler(ctx: Context) {
@@ -6,7 +6,7 @@ export async function handler(ctx: Context) {
   const { apiKey, userId } = ctx.request.body;
 
   if (namespaceId) {
-    const namespace = await Namespace.findOne({ _id: namespaceId });
+    const namespace = await NamespaceModel.findOne({ _id: namespaceId });
     namespace.checkDefaultAuthorizationLimit(!apiKey && !userId);
   }
 

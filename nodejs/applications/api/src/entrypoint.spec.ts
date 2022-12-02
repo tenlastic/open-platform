@@ -20,27 +20,27 @@ before(async function () {
     databaseName: 'api-test',
   });
   await Promise.all([
-    mongoose.Authorization.syncIndexes(),
-    mongoose.AuthorizationRequest.syncIndexes(),
-    mongoose.Login.syncIndexes(),
-    mongoose.Namespace.syncIndexes(),
-    mongoose.PasswordReset.syncIndexes(),
-    mongoose.RefreshToken.syncIndexes(),
-    mongoose.User.syncIndexes(),
-    mongoose.WebSocket.syncIndexes(),
+    mongoose.AuthorizationModel.syncIndexes(),
+    mongoose.AuthorizationRequestModel.syncIndexes(),
+    mongoose.LoginModel.syncIndexes(),
+    mongoose.NamespaceModel.syncIndexes(),
+    mongoose.PasswordResetModel.syncIndexes(),
+    mongoose.RefreshTokenModel.syncIndexes(),
+    mongoose.UserModel.syncIndexes(),
+    mongoose.WebSocketModel.syncIndexes(),
   ]);
 });
 
 beforeEach(async function () {
   // MongoDB.
   await Promise.all([
-    mongoose.Authorization.deleteMany({}),
-    mongoose.AuthorizationRequest.deleteMany({}),
-    mongoose.Login.deleteMany({}),
-    mongoose.Namespace.deleteMany({}),
-    mongoose.PasswordReset.deleteMany({}),
-    mongoose.RefreshToken.deleteMany({}),
-    mongoose.User.deleteMany({}),
-    mongoose.WebSocket.deleteMany({}),
+    mongoose.AuthorizationModel.deleteMany({}),
+    mongoose.AuthorizationRequestModel.deleteMany({}),
+    mongoose.LoginModel.deleteMany({}),
+    mongoose.NamespaceModel.deleteMany({}),
+    mongoose.PasswordResetModel.deleteMany({}),
+    mongoose.RefreshTokenModel.deleteMany({}),
+    mongoose.UserModel.deleteMany({}),
+    mongoose.WebSocketModel.deleteMany({}),
   ]);
 });

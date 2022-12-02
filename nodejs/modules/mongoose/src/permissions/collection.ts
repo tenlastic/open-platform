@@ -1,9 +1,9 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { AuthorizationRole, Collection, CollectionDocument } from '../models';
+import { AuthorizationRole, CollectionDocument, CollectionModel } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
-export const CollectionPermissions = new MongoosePermissions<CollectionDocument>(Collection, {
+export const CollectionPermissions = new MongoosePermissions<CollectionDocument>(CollectionModel, {
   create: {
     'namespace-write': ['indexes.*', 'jsonSchema.*', 'name', 'namespaceId', 'permissions.*'],
     'user-write': ['indexes.*', 'jsonSchema.*', 'name', 'namespaceId', 'permissions.*'],

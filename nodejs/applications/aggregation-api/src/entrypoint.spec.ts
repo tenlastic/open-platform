@@ -7,23 +7,23 @@ before(async function () {
     databaseName: `aggregation-api-test`,
   });
   await Promise.all([
-    mongoose.Authorization.syncIndexes(),
-    mongoose.Group.syncIndexes(),
-    mongoose.Namespace.syncIndexes(),
-    mongoose.QueueMember.syncIndexes(),
-    mongoose.Storefront.syncIndexes(),
-    mongoose.User.syncIndexes(),
+    mongoose.AuthorizationModel.syncIndexes(),
+    mongoose.GroupModel.syncIndexes(),
+    mongoose.NamespaceModel.syncIndexes(),
+    mongoose.QueueMemberModel.syncIndexes(),
+    mongoose.StorefrontModel.syncIndexes(),
+    mongoose.UserModel.syncIndexes(),
   ]);
 });
 
 beforeEach(async function () {
   // MongoDB.
   await Promise.all([
-    mongoose.Authorization.deleteMany({}),
-    mongoose.Group.deleteMany({}),
-    mongoose.Namespace.deleteMany({}),
-    mongoose.QueueMember.deleteMany({}),
-    mongoose.Storefront.deleteMany({}),
-    mongoose.User.deleteMany({}),
+    mongoose.AuthorizationModel.deleteMany({}),
+    mongoose.GroupModel.deleteMany({}),
+    mongoose.NamespaceModel.deleteMany({}),
+    mongoose.QueueMemberModel.deleteMany({}),
+    mongoose.StorefrontModel.deleteMany({}),
+    mongoose.UserModel.deleteMany({}),
   ]);
 });

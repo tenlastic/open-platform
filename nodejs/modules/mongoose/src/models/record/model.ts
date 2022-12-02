@@ -1,10 +1,10 @@
 import {
-  DocumentType,
-  ReturnModelType,
   buildSchema,
+  DocumentType,
   modelOptions,
   plugin,
   prop,
+  ReturnModelType,
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
@@ -49,6 +49,7 @@ export class RecordSchema {
    * Gets the Model defined by the Collection.
    */
   public static getModel(collection: CollectionDocument) {
+    const connection = collection.db;
     const { indexes, jsonSchema } = collection.toJSON();
     const schema = buildSchema(RecordSchema).clone();
 
@@ -61,12 +62,11 @@ export class RecordSchema {
 
     // Remove cached Model from Mongoose.
     try {
-      collection.db.deleteModel(collection.mongoName);
+      connection.deleteModel(collection.mongoName);
     } catch {}
 
-    return collection.db.model(collection.mongoName, schema) as RecordModel;
+    return connection.model(collection.mongoName, schema) as ReturnModelType<typeof RecordSchema>;
   }
 }
 
 export type RecordDocument = DocumentType<RecordSchema>;
-export type RecordModel = ReturnModelType<typeof RecordSchema>;

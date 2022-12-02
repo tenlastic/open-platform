@@ -3,19 +3,19 @@ import 'source-map-support/register';
 import {
   connect,
   enablePrePostImages,
-  Friend,
-  Group,
-  GroupInvitation,
-  Ignoration,
-  Message,
+  FriendModel,
+  GroupModel,
+  GroupInvitationModel,
+  IgnorationModel,
+  MessageModel,
   SchemaSchema,
   syncIndexes,
-  User,
+  UserModel,
 } from '@tenlastic/mongoose';
 import { getModelForClass } from '@typegoose/typegoose';
 
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
-const Schema = getModelForClass(SchemaSchema);
+const SchemaModel = getModelForClass(SchemaSchema);
 
 (async () => {
   try {
@@ -26,24 +26,24 @@ const Schema = getModelForClass(SchemaSchema);
 
     console.log('Syncing indexes...');
     await Promise.all([
-      syncIndexes(Friend),
-      syncIndexes(Group),
-      syncIndexes(GroupInvitation),
-      syncIndexes(Ignoration),
-      syncIndexes(Message),
-      syncIndexes(Schema),
-      syncIndexes(User),
+      syncIndexes(FriendModel),
+      syncIndexes(GroupModel),
+      syncIndexes(GroupInvitationModel),
+      syncIndexes(IgnorationModel),
+      syncIndexes(MessageModel),
+      syncIndexes(SchemaModel),
+      syncIndexes(UserModel),
     ]);
     console.log('Indexes synced successfully!');
 
     console.log('Syncing schemas...');
     await Promise.all([
-      Schema.sync(Friend),
-      Schema.sync(Group),
-      Schema.sync(GroupInvitation),
-      Schema.sync(Ignoration),
-      Schema.sync(Message),
-      Schema.sync(User),
+      SchemaModel.sync(FriendModel),
+      SchemaModel.sync(GroupModel),
+      SchemaModel.sync(GroupInvitationModel),
+      SchemaModel.sync(IgnorationModel),
+      SchemaModel.sync(MessageModel),
+      SchemaModel.sync(UserModel),
     ]);
     console.log('Schemas synced successfully!');
 
@@ -53,12 +53,12 @@ const Schema = getModelForClass(SchemaSchema);
 
     console.log('Enabling Document Pre- and Post-Images...');
     await Promise.all([
-      enablePrePostImages(Friend),
-      enablePrePostImages(Group),
-      enablePrePostImages(GroupInvitation),
-      enablePrePostImages(Ignoration),
-      enablePrePostImages(Message),
-      enablePrePostImages(User),
+      enablePrePostImages(FriendModel),
+      enablePrePostImages(GroupModel),
+      enablePrePostImages(GroupInvitationModel),
+      enablePrePostImages(IgnorationModel),
+      enablePrePostImages(MessageModel),
+      enablePrePostImages(UserModel),
     ]);
     console.log('Document Pre- and Post-Images enabled successfully!');
 

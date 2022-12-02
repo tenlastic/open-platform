@@ -1,12 +1,12 @@
 import {
-  Authorization,
+  AuthorizationModel,
   AuthorizationRole,
-  Namespace,
   NamespaceDocument,
-  NamespaceLimits,
+  NamespaceModel,
+  NamespaceLimitsModel,
   NamespaceLimitError,
-  User,
   UserDocument,
+  UserModel,
 } from '@tenlastic/mongoose';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { ContextMock } from '@tenlastic/web-server';
@@ -22,18 +22,18 @@ describe('web-server/authorizations/create', function () {
   let user: UserDocument;
 
   beforeEach(async function () {
-    otherUser = await User.mock().save();
-    user = await User.mock().save();
+    otherUser = await UserModel.mock().save();
+    user = await UserModel.mock().save();
   });
 
   context('when permission is granted', function () {
     let namespace: NamespaceDocument;
 
     beforeEach(async function () {
-      namespace = await Namespace.mock({
-        limits: NamespaceLimits.mock({ defaultAuthorization: true }),
+      namespace = await NamespaceModel.mock({
+        limits: NamespaceLimitsModel.mock({ defaultAuthorization: true }),
       }).save();
-      await Authorization.mock({
+      await AuthorizationModel.mock({
         namespaceId: namespace._id,
         roles: [AuthorizationRole.AuthorizationsReadWrite],
         userId: user._id,
@@ -42,7 +42,7 @@ describe('web-server/authorizations/create', function () {
 
     context('when a Namespace Limit is exceeded', function () {
       it('throws an error', async function () {
-        namespace.limits = NamespaceLimits.mock({ defaultAuthorization: false });
+        namespace.limits = NamespaceLimitsModel.mock({ defaultAuthorization: false });
         await namespace.save();
 
         const ctx = new ContextMock({
@@ -74,7 +74,7 @@ describe('web-server/authorizations/create', function () {
 
   context('when permission is denied', function () {
     it('throws an error', async function () {
-      const namespace = await Namespace.mock({ limits: NamespaceLimits.mock() }).save();
+      const namespace = await NamespaceModel.mock({ limits: NamespaceLimitsModel.mock() }).save();
 
       const ctx = new ContextMock({
         params: { namespaceId: namespace._id },

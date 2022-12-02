@@ -1,4 +1,4 @@
-import { Group, GroupPermissions } from '@tenlastic/mongoose';
+import { GroupModel, GroupPermissions } from '@tenlastic/mongoose';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
@@ -14,7 +14,7 @@ export async function handler(ctx: Context) {
     throw new PermissionError();
   }
 
-  const result = await Group.findOneAndUpdate(
+  const result = await GroupModel.findOneAndUpdate(
     { _id: ctx.params._id },
     { $pull: { userIds: ctx.params.userId } },
     { new: true },

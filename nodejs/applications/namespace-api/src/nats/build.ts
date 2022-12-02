@@ -1,5 +1,5 @@
 import * as minio from '@tenlastic/minio';
-import { Build, BuildDocument, EventEmitter, IDatabasePayload } from '@tenlastic/mongoose';
+import { BuildDocument, BuildModel, EventEmitter, IDatabasePayload } from '@tenlastic/mongoose';
 
 import { KubernetesBuild, KubernetesBuildSidecar } from '../kubernetes';
 import { MinioBuild } from '../minio';
@@ -39,13 +39,13 @@ BuildEvent.async(async (payload) => {
 NamespaceEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
-      return Build.deleteMany({ namespaceId: payload.fullDocument._id });
+      return BuildModel.deleteMany({ namespaceId: payload.fullDocument._id });
   }
 });
 
 // Terminate Builds if Namespace storage limit is reached.
 NamespaceStorageLimitEvent.async(async (namespace) => {
-  const builds = await Build.find({
+  const builds = await BuildModel.find({
     namespaceId: namespace._id,
     'status.finishedAt': { $exists: false },
   });

@@ -1,11 +1,4 @@
-import {
-  DocumentType,
-  ReturnModelType,
-  getModelForClass,
-  modelOptions,
-  prop,
-  Severity,
-} from '@typegoose/typegoose';
+import { DocumentType, getModelForClass, modelOptions, prop, Severity } from '@typegoose/typegoose';
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
@@ -44,7 +37,7 @@ export class QueueGameServerTemplateSchema {
    * Creates a record with randomized required parameters if not specified.
    */
   public static mock(
-    this: QueueGameServerTemplateModel,
+    this: typeof QueueGameServerTemplateModel,
     values: Partial<QueueGameServerTemplateSchema> = {},
   ) {
     const chance = new Chance();
@@ -60,5 +53,4 @@ export class QueueGameServerTemplateSchema {
 }
 
 export type QueueGameServerTemplateDocument = DocumentType<QueueGameServerTemplateSchema>;
-export type QueueGameServerTemplateModel = ReturnModelType<typeof QueueGameServerTemplateSchema>;
-export const QueueGameServerTemplate = getModelForClass(QueueGameServerTemplateSchema);
+export const QueueGameServerTemplateModel = getModelForClass(QueueGameServerTemplateSchema);

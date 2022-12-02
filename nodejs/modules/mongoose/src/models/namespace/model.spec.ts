@@ -1,16 +1,16 @@
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 
-import { NamespaceLimits } from './limits';
-import { Namespace, NamespaceLimitError } from './model';
+import { NamespaceLimitsModel } from './limits';
+import { NamespaceModel, NamespaceLimitError } from './model';
 
 use(chaiAsPromised);
 
 describe('models/namespace', function () {
   describe('checkCpuLimit()', function () {
     it('returns an error', async function () {
-      const namespace = await Namespace.mock({
-        limits: NamespaceLimits.mock({ cpu: 1 }),
+      const namespace = await NamespaceModel.mock({
+        limits: NamespaceLimitsModel.mock({ cpu: 1 }),
       }).save();
 
       const result = namespace.checkCpuLimit.bind(namespace, 2);
@@ -19,8 +19,8 @@ describe('models/namespace', function () {
     });
 
     it('returns nothing', async function () {
-      const namespace = await Namespace.mock({
-        limits: NamespaceLimits.mock({ cpu: 1 }),
+      const namespace = await NamespaceModel.mock({
+        limits: NamespaceLimitsModel.mock({ cpu: 1 }),
       }).save();
 
       const result = namespace.checkCpuLimit(1);
@@ -31,8 +31,8 @@ describe('models/namespace', function () {
 
   describe('checkDefaultAuthorizationLimit()', function () {
     it('returns an error', async function () {
-      const namespace = await Namespace.mock({
-        limits: NamespaceLimits.mock({ defaultAuthorization: false }),
+      const namespace = await NamespaceModel.mock({
+        limits: NamespaceLimitsModel.mock({ defaultAuthorization: false }),
       }).save();
 
       const result = namespace.checkDefaultAuthorizationLimit.bind(namespace, true);
@@ -41,7 +41,7 @@ describe('models/namespace', function () {
     });
 
     it('returns nothing', async function () {
-      const namespace = await Namespace.mock({ limits: NamespaceLimits.mock() }).save();
+      const namespace = await NamespaceModel.mock({ limits: NamespaceLimitsModel.mock() }).save();
 
       const result = namespace.checkDefaultAuthorizationLimit(false);
 
@@ -51,8 +51,8 @@ describe('models/namespace', function () {
 
   describe('checkMemoryLimit()', function () {
     it('returns an error', async function () {
-      const namespace = await Namespace.mock({
-        limits: NamespaceLimits.mock({ memory: 1 }),
+      const namespace = await NamespaceModel.mock({
+        limits: NamespaceLimitsModel.mock({ memory: 1 }),
       }).save();
 
       const result = namespace.checkMemoryLimit.bind(namespace, 2);
@@ -61,8 +61,8 @@ describe('models/namespace', function () {
     });
 
     it('returns nothing', async function () {
-      const namespace = await Namespace.mock({
-        limits: NamespaceLimits.mock({ memory: 1 }),
+      const namespace = await NamespaceModel.mock({
+        limits: NamespaceLimitsModel.mock({ memory: 1 }),
       }).save();
 
       const result = namespace.checkMemoryLimit(1);
@@ -73,8 +73,8 @@ describe('models/namespace', function () {
 
   describe('checkNonPreemptibleLimit()', function () {
     it('returns an error', async function () {
-      const namespace = await Namespace.mock({
-        limits: NamespaceLimits.mock({ nonPreemptible: false }),
+      const namespace = await NamespaceModel.mock({
+        limits: NamespaceLimitsModel.mock({ nonPreemptible: false }),
       }).save();
 
       const result = namespace.checkNonPreemptibleLimit.bind(namespace, false);
@@ -83,8 +83,8 @@ describe('models/namespace', function () {
     });
 
     it('returns nothing', async function () {
-      const namespace = await Namespace.mock({
-        limits: NamespaceLimits.mock({ nonPreemptible: false }),
+      const namespace = await NamespaceModel.mock({
+        limits: NamespaceLimitsModel.mock({ nonPreemptible: false }),
       }).save();
 
       const result = namespace.checkNonPreemptibleLimit(true);
@@ -95,8 +95,8 @@ describe('models/namespace', function () {
 
   describe('checkStorageLimit()', function () {
     it('returns an error', async function () {
-      const namespace = await Namespace.mock({
-        limits: NamespaceLimits.mock({ storage: 1 }),
+      const namespace = await NamespaceModel.mock({
+        limits: NamespaceLimitsModel.mock({ storage: 1 }),
       }).save();
 
       const result = namespace.checkStorageLimit.bind(namespace, 2);
@@ -105,8 +105,8 @@ describe('models/namespace', function () {
     });
 
     it('returns nothing', async function () {
-      const namespace = await Namespace.mock({
-        limits: NamespaceLimits.mock({ storage: 1 }),
+      const namespace = await NamespaceModel.mock({
+        limits: NamespaceLimitsModel.mock({ storage: 1 }),
       }).save();
 
       const result = namespace.checkStorageLimit(1);

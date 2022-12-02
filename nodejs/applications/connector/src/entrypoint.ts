@@ -33,10 +33,12 @@ const where = process.env.WHERE ? JSON.parse(process.env.WHERE) : {};
     await nats.upsertStream(mongoFromDatabaseName);
 
     // Sync schemas from MongoDB and NATS.
-    const Schema = getModelForClass(mongoose.SchemaSchema, { existingConnection: fromConnection });
+    const SchemaModel = getModelForClass(mongoose.SchemaSchema, {
+      existingConnection: fromConnection,
+    });
     const start = new Date();
     console.log(`Fetching schemas from MongoDB (${mongoFromDatabaseName}.schemas)...`);
-    await fetchSchemasFromMongo(Schema, toConnection);
+    await fetchSchemasFromMongo(SchemaModel, toConnection);
 
     console.log(`Watching NATS (${mongoFromDatabaseName}.schemas) for schema updates...`);
     fetchSchemasFromNats(mongoFromDatabaseName, fromConnection, start, toConnection).catch(

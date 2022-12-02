@@ -1,6 +1,6 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { Authorization, AuthorizationDocument, AuthorizationRole } from '../models';
+import { AuthorizationDocument, AuthorizationModel, AuthorizationRole } from '../models';
 
 export const AuthorizationPermissionsHelpers = {
   getFindQuery(roles: AuthorizationRole[], selector = 'namespaceId') {
@@ -103,7 +103,7 @@ export const AuthorizationPermissionsHelpers = {
 };
 
 export const AuthorizationPermissions = new MongoosePermissions<AuthorizationDocument>(
-  Authorization,
+  AuthorizationModel,
   {
     create: {
       'namespace-write': ['apiKey', 'bannedAt', 'name', 'roles', 'userId'],

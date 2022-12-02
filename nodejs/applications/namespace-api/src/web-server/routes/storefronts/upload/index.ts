@@ -1,8 +1,8 @@
 import * as minio from '@tenlastic/minio';
 import {
-  Namespace,
+  NamespaceModel,
   NamespaceLimitError,
-  Storefront,
+  StorefrontModel,
   StorefrontPermissions,
 } from '@tenlastic/mongoose';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
@@ -15,7 +15,7 @@ import { NamespaceStorageLimitEvent } from '../../../../nats';
 export async function handler(ctx: Context) {
   const { _id, field, namespaceId } = ctx.params;
 
-  const namespace = await Namespace.findOne({ _id: namespaceId });
+  const namespace = await NamespaceModel.findOne({ _id: namespaceId });
   namespace.checkStorageLimit(0);
   const limit = Math.min(
     25 * 1000 * 1000,
@@ -96,7 +96,7 @@ export async function handler(ctx: Context) {
   const urls = objectNames.map((on) =>
     MinioStorefront.getUrl(ctx.request.host, on, ctx.request.protocol),
   );
-  const result = await Storefront.findOneAndUpdate(
+  const result = await StorefrontModel.findOneAndUpdate(
     { _id: storefront._id },
     ['images', 'videos'].includes(field) ? { $addToSet: { [field]: urls } } : { [field]: urls[0] },
     { new: true },

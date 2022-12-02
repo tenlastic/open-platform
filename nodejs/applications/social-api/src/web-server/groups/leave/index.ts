@@ -1,4 +1,4 @@
-import { Group, GroupPermissions } from '@tenlastic/mongoose';
+import { GroupModel, GroupPermissions } from '@tenlastic/mongoose';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
 export async function handler(ctx: Context) {
@@ -8,7 +8,7 @@ export async function handler(ctx: Context) {
     throw new RecordNotFoundError();
   }
 
-  const result = await Group.findOneAndUpdate(
+  const result = await GroupModel.findOneAndUpdate(
     { _id: ctx.params._id },
     { $pull: { userIds: ctx.state.user._id } },
     { new: true },

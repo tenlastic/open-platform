@@ -34,7 +34,10 @@ export class SchemaSchema {
 
   public updatedAt: Date;
 
-  public static sync(this: SchemaModel, Model: mongoose.Model<mongoose.Document>) {
+  public static sync(
+    this: ReturnModelType<typeof SchemaSchema>,
+    Model: mongoose.Model<mongoose.Document>,
+  ) {
     return this.findOneAndUpdate(
       { name: Model.collection.name },
       { ...mongooseToJson(Model.schema), $inc: { __v: 1 } },
@@ -44,4 +47,3 @@ export class SchemaSchema {
 }
 
 export type SchemaDocument = DocumentType<SchemaSchema>;
-export type SchemaModel = ReturnModelType<typeof SchemaSchema>;

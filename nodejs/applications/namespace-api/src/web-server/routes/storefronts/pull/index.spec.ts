@@ -1,13 +1,13 @@
 import * as minio from '@tenlastic/minio';
 import {
-  Authorization,
+  AuthorizationModel,
   AuthorizationRole,
-  Namespace,
   NamespaceDocument,
-  Storefront,
+  NamespaceModel,
   StorefrontDocument,
-  User,
+  StorefrontModel,
   UserDocument,
+  UserModel,
 } from '@tenlastic/mongoose';
 import { ContextMock, RecordNotFoundError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
@@ -27,8 +27,8 @@ describe('web-server/storefronts/pull', function () {
 
   beforeEach(async function () {
     _id = new mongoose.Types.ObjectId().toString();
-    namespace = await Namespace.mock().save();
-    user = await User.mock().save();
+    namespace = await NamespaceModel.mock().save();
+    user = await UserModel.mock().save();
   });
 
   context('when permission is granted', function () {
@@ -36,12 +36,12 @@ describe('web-server/storefronts/pull', function () {
     let storefront: StorefrontDocument;
 
     beforeEach(async function () {
-      await Authorization.mock({
+      await AuthorizationModel.mock({
         namespaceId: namespace._id,
         roles: [AuthorizationRole.StorefrontsReadWrite],
         userId: user._id,
       }).save();
-      storefront = await Storefront.mock({ namespaceId: namespace._id }).save();
+      storefront = await StorefrontModel.mock({ namespaceId: namespace._id }).save();
 
       // Upload test file to Minio.
       const objectName = MinioStorefront.getObjectName(
@@ -91,7 +91,7 @@ describe('web-server/storefronts/pull', function () {
 
   context('when permission is denied', function () {
     it('throws an error', async function () {
-      const storefront = await Storefront.mock({ namespaceId: namespace._id }).save();
+      const storefront = await StorefrontModel.mock({ namespaceId: namespace._id }).save();
 
       const ctx = new ContextMock({
         params: {

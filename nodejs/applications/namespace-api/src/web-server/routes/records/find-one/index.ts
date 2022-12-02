@@ -1,10 +1,10 @@
-import { Collection, RecordPermissions, RecordSchema } from '@tenlastic/mongoose';
+import { CollectionModel, RecordPermissions, RecordSchema } from '@tenlastic/mongoose';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
 export async function handler(ctx: Context) {
   const { _id, collectionId } = ctx.params;
 
-  const collection = await Collection.findOne({ _id: collectionId });
+  const collection = await CollectionModel.findOne({ _id: collectionId });
   if (!collection) {
     throw new RecordNotFoundError('Collection');
   }

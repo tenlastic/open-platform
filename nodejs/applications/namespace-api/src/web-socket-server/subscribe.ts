@@ -1,26 +1,25 @@
 import {
-  Article,
+  ArticleModel,
   ArticlePermissions,
-  Authorization,
   AuthorizationDocument,
-  Build,
+  AuthorizationModel,
+  BuildModel,
   BuildPermissions,
-  Collection,
+  CollectionModel,
   CollectionPermissions,
-  GameServer,
+  GameServerModel,
   GameServerPermissions,
-  Queue,
-  QueueMember,
+  QueueModel,
+  QueueMemberModel,
   QueueMemberPermissions,
   QueuePermissions,
   RecordPermissions,
   RecordSchema,
-  RecordModel,
-  Storefront,
+  StorefrontModel,
   StorefrontPermissions,
-  WebSocket,
+  WebSocketModel,
   WebSocketPermissions,
-  Workflow,
+  WorkflowModel,
   WorkflowPermissions,
 } from '@tenlastic/mongoose';
 import { ICredentials } from '@tenlastic/mongoose-permissions';
@@ -33,11 +32,11 @@ export async function subscribe(
 ) {
   let authorization: AuthorizationDocument;
   if (auth.apiKey) {
-    authorization = await Authorization.findOne({ apiKey: auth.apiKey });
+    authorization = await AuthorizationModel.findOne({ apiKey: auth.apiKey });
   } else if (auth.jwt?.authorization) {
-    authorization = Authorization.hydrate(auth.jwt.authorization);
+    authorization = AuthorizationModel.hydrate(auth.jwt.authorization);
   } else if (auth.jwt?.user) {
-    authorization = await Authorization.findOne({
+    authorization = await AuthorizationModel.findOne({
       namespaceId: { $exists: false },
       userId: auth.jwt?.user?._id,
     });
@@ -50,39 +49,63 @@ export async function subscribe(
 
   switch (data.parameters.collection) {
     case 'articles':
-      return webSocketServer.subscribe(credentials, data, Article, ArticlePermissions, ws);
+      return webSocketServer.subscribe(credentials, data, ArticleModel, ArticlePermissions, ws);
 
     case 'builds':
-      return webSocketServer.subscribe(credentials, data, Build, BuildPermissions, ws);
+      return webSocketServer.subscribe(credentials, data, BuildModel, BuildPermissions, ws);
 
     case 'collections':
-      return webSocketServer.subscribe(credentials, data, Collection, CollectionPermissions, ws);
+      return webSocketServer.subscribe(
+        credentials,
+        data,
+        CollectionModel,
+        CollectionPermissions,
+        ws,
+      );
 
     case 'game-servers':
-      return webSocketServer.subscribe(credentials, data, GameServer, GameServerPermissions, ws);
+      return webSocketServer.subscribe(
+        credentials,
+        data,
+        GameServerModel,
+        GameServerPermissions,
+        ws,
+      );
 
     case 'queue-members':
-      return webSocketServer.subscribe(credentials, data, QueueMember, QueueMemberPermissions, ws);
+      return webSocketServer.subscribe(
+        credentials,
+        data,
+        QueueMemberModel,
+        QueueMemberPermissions,
+        ws,
+      );
 
     case 'queues':
-      return webSocketServer.subscribe(credentials, data, Queue, QueuePermissions, ws);
+      return webSocketServer.subscribe(credentials, data, QueueModel, QueuePermissions, ws);
 
     case 'records':
       const { where } = data.parameters;
       const collectionId = where.collectionId.$eq || where.collectionId;
-      const collection = await Collection.findOne({ _id: collectionId });
+      const collection = await CollectionModel.findOne({ _id: collectionId });
       const Model = RecordSchema.getModel(collection);
-      const Permissions = RecordPermissions(collection, Model as RecordModel);
+      const Permissions = RecordPermissions(collection, Model);
       return webSocketServer.subscribe(credentials, data, Model, Permissions, ws);
 
     case 'storefronts':
-      return webSocketServer.subscribe(credentials, data, Storefront, StorefrontPermissions, ws);
+      return webSocketServer.subscribe(
+        credentials,
+        data,
+        StorefrontModel,
+        StorefrontPermissions,
+        ws,
+      );
 
     case 'web-sockets':
-      return webSocketServer.subscribe(credentials, data, WebSocket, WebSocketPermissions, ws);
+      return webSocketServer.subscribe(credentials, data, WebSocketModel, WebSocketPermissions, ws);
 
     case 'workflows':
-      return webSocketServer.subscribe(credentials, data, Workflow, WorkflowPermissions, ws);
+      return webSocketServer.subscribe(credentials, data, WorkflowModel, WorkflowPermissions, ws);
   }
 
   throw new Error('Invalid arguments.');

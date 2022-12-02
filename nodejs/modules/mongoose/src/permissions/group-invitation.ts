@@ -1,9 +1,9 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { GroupInvitation, GroupInvitationDocument } from '../models';
+import { GroupInvitationDocument, GroupInvitationModel } from '../models';
 
 export const GroupInvitationPermissions = new MongoosePermissions<GroupInvitationDocument>(
-  GroupInvitation,
+  GroupInvitationModel,
   {
     create: {
       leader: ['fromUserId', 'groupId', 'toUserId'],
@@ -23,8 +23,8 @@ export const GroupInvitationPermissions = new MongoosePermissions<GroupInvitatio
       default: ['_id', 'createdAt', 'expiresAt', 'fromUserId', 'groupId', 'toUserId', 'updatedAt'],
     },
     roles: {
-    default: {},
-    leader: {
+      default: {},
+      leader: {
         'record.groupDocument.isOpen': false,
         'record.groupDocument.userIds.0': { $ref: 'user._id' },
       },

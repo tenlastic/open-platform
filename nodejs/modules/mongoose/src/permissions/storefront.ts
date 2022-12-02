@@ -1,6 +1,6 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { AuthorizationRole, Storefront, StorefrontDocument } from '../models';
+import { AuthorizationRole, StorefrontDocument, StorefrontModel } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
 const administrator = {
@@ -29,7 +29,7 @@ const administrator = {
   ],
 };
 
-export const StorefrontPermissions = new MongoosePermissions<StorefrontDocument>(Storefront, {
+export const StorefrontPermissions = new MongoosePermissions<StorefrontDocument>(StorefrontModel, {
   create: {
     'namespace-write': administrator.create,
     'user-write': administrator.create,

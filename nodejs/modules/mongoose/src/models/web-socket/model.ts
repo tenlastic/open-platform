@@ -5,7 +5,6 @@ import {
   modelOptions,
   plugin,
   prop,
-  ReturnModelType,
 } from '@typegoose/typegoose';
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
@@ -35,7 +34,7 @@ export class WebSocketSchema {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: WebSocketModel, values: Partial<WebSocketSchema> = {}) {
+  public static mock(this: typeof WebSocketModel, values: Partial<WebSocketSchema> = {}) {
     const chance = new Chance();
     const defaults = {
       nodeId: chance.hash(),
@@ -47,5 +46,4 @@ export class WebSocketSchema {
 }
 
 export type WebSocketDocument = DocumentType<WebSocketSchema>;
-export type WebSocketModel = ReturnModelType<typeof WebSocketSchema>;
-export const WebSocket = getModelForClass(WebSocketSchema);
+export const WebSocketModel = getModelForClass(WebSocketSchema);

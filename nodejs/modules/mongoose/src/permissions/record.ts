@@ -1,6 +1,7 @@
 import { IOptions, MongoosePermissions } from '@tenlastic/mongoose-permissions';
+import { ReturnModelType } from '@typegoose/typegoose';
 
-import { AuthorizationRole, CollectionDocument, RecordDocument, RecordModel } from '../models';
+import { AuthorizationRole, CollectionDocument, RecordDocument, RecordSchema } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
 const administrator = {
@@ -9,7 +10,10 @@ const administrator = {
   update: ['properties.*', 'userId'],
 };
 
-export function RecordPermissions(collection: CollectionDocument, Model: RecordModel) {
+export function RecordPermissions(
+  collection: CollectionDocument,
+  Model: ReturnModelType<typeof RecordSchema>,
+) {
   const permissions: IOptions = {
     create: {
       ...Object.fromEntries(collection.permissions?.create || []),

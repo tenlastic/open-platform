@@ -1,8 +1,8 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { Message, MessageDocument } from '../models';
+import { MessageDocument, MessageModel } from '../models';
 
-export const MessagePermissions = new MongoosePermissions<MessageDocument>(Message, {
+export const MessagePermissions = new MongoosePermissions<MessageDocument>(MessageModel, {
   create: {
     sender: ['body', 'fromUserId', 'toGroupId', 'toUserId'],
   },

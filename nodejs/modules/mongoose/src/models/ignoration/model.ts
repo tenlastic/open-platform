@@ -5,7 +5,6 @@ import {
   modelOptions,
   plugin,
   prop,
-  ReturnModelType,
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
@@ -30,7 +29,7 @@ export class IgnorationSchema {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: IgnorationModel, values: Partial<IgnorationSchema> = {}) {
+  public static mock(this: typeof IgnorationModel, values: Partial<IgnorationSchema> = {}) {
     const defaults = {
       fromUserId: new mongoose.Types.ObjectId(),
       toUserId: new mongoose.Types.ObjectId(),
@@ -41,5 +40,4 @@ export class IgnorationSchema {
 }
 
 export type IgnorationDocument = DocumentType<IgnorationSchema>;
-export type IgnorationModel = ReturnModelType<typeof IgnorationSchema>;
-export const Ignoration = getModelForClass(IgnorationSchema);
+export const IgnorationModel = getModelForClass(IgnorationSchema);

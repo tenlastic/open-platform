@@ -1,8 +1,8 @@
 import {
   EventEmitter,
   IDatabasePayload,
-  Storefront,
   StorefrontDocument,
+  StorefrontModel,
 } from '@tenlastic/mongoose';
 
 import { MinioStorefront } from '../minio';
@@ -14,7 +14,7 @@ export const StorefrontEvent = new EventEmitter<IDatabasePayload<StorefrontDocum
 NamespaceEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
-      return Storefront.deleteMany({ namespaceId: payload.fullDocument._id });
+      return StorefrontModel.deleteMany({ namespaceId: payload.fullDocument._id });
   }
 });
 

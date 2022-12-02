@@ -1,10 +1,4 @@
-import {
-  DocumentType,
-  ReturnModelType,
-  getModelForClass,
-  modelOptions,
-  prop,
-} from '@typegoose/typegoose';
+import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
 import { Chance } from 'chance';
 
 export enum WorkflowSpecTemplateRetryStrategyRetryPolicy {
@@ -24,7 +18,7 @@ export class WorkflowSpecTemplateRetryStrategySchema {
    * Creates a record with randomized required parameters if not specified.
    */
   public static mock(
-    this: WorkflowSpecTemplateRetryStrategyModel,
+    this: typeof WorkflowSpecTemplateRetryStrategyModel,
     values: Partial<WorkflowSpecTemplateRetryStrategySchema> = {},
   ) {
     const chance = new Chance();
@@ -39,9 +33,6 @@ export class WorkflowSpecTemplateRetryStrategySchema {
 
 export type WorkflowSpecTemplateRetryStrategyDocument =
   DocumentType<WorkflowSpecTemplateRetryStrategySchema>;
-export type WorkflowSpecTemplateRetryStrategyModel = ReturnModelType<
-  typeof WorkflowSpecTemplateRetryStrategySchema
->;
-export const WorkflowSpecTemplateRetryStrategy = getModelForClass(
+export const WorkflowSpecTemplateRetryStrategyModel = getModelForClass(
   WorkflowSpecTemplateRetryStrategySchema,
 );

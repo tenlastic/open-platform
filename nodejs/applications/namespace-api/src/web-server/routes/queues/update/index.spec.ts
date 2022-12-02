@@ -1,15 +1,15 @@
 import {
-  Authorization,
+  AuthorizationModel,
   AuthorizationRole,
-  Build,
-  Namespace,
+  BuildModel,
   NamespaceDocument,
+  NamespaceModel,
   NamespaceLimitError,
-  NamespaceLimits,
-  Queue,
-  QueueGameServerTemplate,
-  User,
+  NamespaceLimitsModel,
+  QueueModel,
+  QueueGameServerTemplateModel,
   UserDocument,
+  UserModel,
 } from '@tenlastic/mongoose';
 import { ContextMock, RecordNotFoundError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
@@ -25,7 +25,7 @@ describe('web-server/queues/update', function () {
   let user: UserDocument;
 
   beforeEach(async function () {
-    user = await User.mock().save();
+    user = await UserModel.mock().save();
   });
 
   context('when permission is granted', function () {
@@ -33,18 +33,18 @@ describe('web-server/queues/update', function () {
     let namespace: NamespaceDocument;
 
     beforeEach(async function () {
-      namespace = await Namespace.mock({
-        limits: NamespaceLimits.mock({ cpu: 1, memory: 1 * 1000 * 1000 * 1000 }),
+      namespace = await NamespaceModel.mock({
+        limits: NamespaceLimitsModel.mock({ cpu: 1, memory: 1 * 1000 * 1000 * 1000 }),
       }).save();
-      await Authorization.mock({
+      await AuthorizationModel.mock({
         namespaceId: namespace._id,
         roles: [AuthorizationRole.QueuesReadWrite],
         userId: user._id,
       }).save();
-      const build = await Build.mock({ namespaceId: namespace._id }).save();
-      const queue = await Queue.mock({
+      const build = await BuildModel.mock({ namespaceId: namespace._id }).save();
+      const queue = await QueueModel.mock({
         cpu: 0.5,
-        gameServerTemplate: QueueGameServerTemplate.mock({ buildId: build._id }),
+        gameServerTemplate: QueueGameServerTemplateModel.mock({ buildId: build._id }),
         memory: 0.5 * 1000 * 1000 * 1000,
         namespaceId: namespace._id,
         replicas: 1,
@@ -71,7 +71,7 @@ describe('web-server/queues/update', function () {
 
     context('when a Namespace Limit is exceeded', function () {
       it('throws an error', async function () {
-        namespace.limits = NamespaceLimits.mock({ cpu: 0.5 });
+        namespace.limits = NamespaceLimitsModel.mock({ cpu: 0.5 });
         await namespace.save();
 
         const promise = handler(ctx as any);
@@ -91,13 +91,13 @@ describe('web-server/queues/update', function () {
 
   context('when permission is denied', function () {
     it('throws an error', async function () {
-      const namespace = await Namespace.mock({
-        limits: NamespaceLimits.mock({ cpu: 1, memory: 1 * 1000 * 1000 * 1000 }),
+      const namespace = await NamespaceModel.mock({
+        limits: NamespaceLimitsModel.mock({ cpu: 1, memory: 1 * 1000 * 1000 * 1000 }),
       }).save();
-      const build = await Build.mock({ namespaceId: namespace._id }).save();
-      const queue = await Queue.mock({
+      const build = await BuildModel.mock({ namespaceId: namespace._id }).save();
+      const queue = await QueueModel.mock({
         cpu: 0.5,
-        gameServerTemplate: QueueGameServerTemplate.mock({ buildId: build._id }),
+        gameServerTemplate: QueueGameServerTemplateModel.mock({ buildId: build._id }),
         memory: 0.5 * 1000 * 1000 * 1000,
         namespaceId: namespace._id,
         replicas: 1,

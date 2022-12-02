@@ -5,15 +5,14 @@ import {
   modelOptions,
   plugin,
   prop,
-  ReturnModelType,
 } from '@typegoose/typegoose';
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
 import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 import { AuthorizationDocument } from '../authorization';
-import { NamespaceLimits, NamespaceLimitsDocument, NamespaceLimitsSchema } from './limits';
-import { NamespaceStatus, NamespaceStatusDocument, NamespaceStatusSchema } from './status';
+import { NamespaceLimitsDocument, NamespaceLimitsModel, NamespaceLimitsSchema } from './limits';
+import { NamespaceStatusDocument, NamespaceStatusModel, NamespaceStatusSchema } from './status';
 
 export class NamespaceLimitError extends Error {
   public path: string;
@@ -34,13 +33,13 @@ export class NamespaceSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ default: () => new NamespaceLimits(), type: NamespaceLimitsSchema, unset: false })
+  @prop({ default: () => new NamespaceLimitsModel(), type: NamespaceLimitsSchema, unset: false })
   public limits: NamespaceLimitsDocument;
 
   @prop({ maxlength: 64, required: true, trim: true, type: String })
   public name: string;
 
-  @prop({ default: () => new NamespaceStatus(), merge: true, type: NamespaceStatusSchema })
+  @prop({ default: () => new NamespaceStatusModel(), merge: true, type: NamespaceStatusSchema })
   public status: NamespaceStatusDocument;
 
   public updatedAt: Date;
@@ -51,7 +50,7 @@ export class NamespaceSchema {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: NamespaceModel, values: Partial<NamespaceSchema> = {}) {
+  public static mock(this: typeof NamespaceModel, values: Partial<NamespaceSchema> = {}) {
     const chance = new Chance();
     const defaults = { name: chance.hash() };
 
@@ -123,5 +122,4 @@ export class NamespaceSchema {
 }
 
 export type NamespaceDocument = DocumentType<NamespaceSchema>;
-export type NamespaceModel = ReturnModelType<typeof NamespaceSchema>;
-export const Namespace = getModelForClass(NamespaceSchema);
+export const NamespaceModel = getModelForClass(NamespaceSchema);

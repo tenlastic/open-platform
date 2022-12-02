@@ -1,6 +1,6 @@
 import {
-  Authorization,
   AuthorizationDocument,
+  AuthorizationModel,
   EventEmitter,
   IDatabasePayload,
 } from '@tenlastic/mongoose';
@@ -14,7 +14,7 @@ export const AuthorizationEvent = new EventEmitter<IDatabasePayload<Authorizatio
 NamespaceEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
-      return Authorization.deleteMany({ namespaceId: payload.fullDocument._id });
+      return AuthorizationModel.deleteMany({ namespaceId: payload.fullDocument._id });
   }
 });
 
@@ -22,6 +22,6 @@ NamespaceEvent.async(async (payload) => {
 UserEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
-      return Authorization.deleteMany({ userId: payload.fullDocument._id });
+      return AuthorizationModel.deleteMany({ userId: payload.fullDocument._id });
   }
 });

@@ -1,8 +1,8 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { Friend, FriendDocument } from '../models';
+import { FriendDocument, FriendModel } from '../models';
 
-export const FriendPermissions = new MongoosePermissions<FriendDocument>(Friend, {
+export const FriendPermissions = new MongoosePermissions<FriendDocument>(FriendModel, {
   create: {
     owner: ['fromUserId', 'toUserId'],
   },

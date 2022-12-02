@@ -6,7 +6,6 @@ import {
   plugin,
   prop,
   PropType,
-  ReturnModelType,
   Severity,
 } from '@typegoose/typegoose';
 import { Chance } from 'chance';
@@ -17,7 +16,7 @@ import { namespaceValidator } from '../../validators';
 import { AuthorizationDocument } from '../authorization';
 import { BuildDocument } from '../build';
 import { QueueDocument } from '../queue';
-import { GameServerStatus, GameServerStatusDocument, GameServerStatusSchema } from './status';
+import { GameServerStatusDocument, GameServerStatusModel, GameServerStatusSchema } from './status';
 
 @index({ authorizedUserIds: 1 })
 @index({ buildId: 1 })
@@ -82,7 +81,7 @@ export class GameServerSchema {
   @prop({ type: Date })
   public restartedAt: Date;
 
-  @prop({ default: () => new GameServerStatus(), merge: true, type: GameServerStatusSchema })
+  @prop({ default: () => new GameServerStatusModel(), merge: true, type: GameServerStatusSchema })
   public status: GameServerStatusDocument;
 
   public updatedAt: Date;
@@ -99,7 +98,7 @@ export class GameServerSchema {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: GameServerModel, values: Partial<GameServerSchema> = {}) {
+  public static mock(this: typeof GameServerModel, values: Partial<GameServerSchema> = {}) {
     const chance = new Chance();
     const defaults = {
       buildId: new mongoose.Types.ObjectId(),
@@ -122,5 +121,4 @@ export class GameServerSchema {
 }
 
 export type GameServerDocument = DocumentType<GameServerSchema>;
-export type GameServerModel = ReturnModelType<typeof GameServerSchema>;
-export const GameServer = getModelForClass(GameServerSchema);
+export const GameServerModel = getModelForClass(GameServerSchema);

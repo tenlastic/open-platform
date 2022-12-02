@@ -1,4 +1,9 @@
-import { EventEmitter, IDatabasePayload, Workflow, WorkflowDocument } from '@tenlastic/mongoose';
+import {
+  EventEmitter,
+  IDatabasePayload,
+  WorkflowDocument,
+  WorkflowModel,
+} from '@tenlastic/mongoose';
 
 import { KubernetesWorkflow, KubernetesWorkflowSidecar } from '../kubernetes';
 import { NamespaceEvent } from './namespace';
@@ -9,7 +14,7 @@ export const WorkflowEvent = new EventEmitter<IDatabasePayload<WorkflowDocument>
 NamespaceEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
-      return Workflow.deleteMany({ namespaceId: payload.fullDocument._id });
+      return WorkflowModel.deleteMany({ namespaceId: payload.fullDocument._id });
   }
 });
 

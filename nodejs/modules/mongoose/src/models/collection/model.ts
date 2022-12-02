@@ -8,7 +8,6 @@ import {
   pre,
   prop,
   PropType,
-  ReturnModelType,
 } from '@typegoose/typegoose';
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
@@ -21,14 +20,14 @@ import { RecordSchema } from '../record';
 import { SchemaSchema } from '../schema';
 import { CollectionIndexDocument, CollectionIndexSchema } from './index/index';
 import {
-  CollectionJsonSchema,
   CollectionJsonSchemaDocument,
+  CollectionJsonSchemaModel,
   CollectionJsonSchemaSchema,
 } from './json-schema';
 import {
-  CollectionModelPermissions,
-  CollectionModelPermissionsDocument,
-  CollectionModelPermissionsSchema,
+  CollectionPermissionsDocument,
+  CollectionPermissionsModel,
+  CollectionPermissionsSchema,
 } from './permissions';
 
 @index({ name: 1, namespaceId: 1 }, { unique: true })
@@ -43,11 +42,11 @@ import {
 @plugin(duplicateKeyErrorPlugin)
 @plugin(unsetPlugin)
 @pre('save', async function (this: CollectionDocument) {
-  const Record = RecordSchema.getModel(this);
-  await syncIndexes(Record);
+  const Model = RecordSchema.getModel(this);
+  await syncIndexes(Model);
 
-  const Schema = getModelForClass(SchemaSchema);
-  await Schema.sync(Record);
+  const SchemaModel = getModelForClass(SchemaSchema);
+  await SchemaModel.sync(Model);
 })
 @post('remove', async function (this: CollectionDocument) {
   try {
@@ -79,14 +78,9 @@ export class CollectionSchema {
   public namespaceId: mongoose.Types.ObjectId;
 
   @prop({
-    get: (value) => {
-      const record = new CollectionModelPermissions(value);
-      const result = record.getter();
-      console.log(result);
-      return result;
-    },
-    set(this: CollectionDocument, value: CollectionModelPermissionsDocument) {
-      const record = new CollectionModelPermissions(value);
+    get: (value) => new CollectionPermissionsModel(value).getter(),
+    set(this: CollectionDocument, value: CollectionPermissionsDocument) {
+      const record = new CollectionPermissionsModel(value);
 
       if (this instanceof mongoose.Document) {
         const error = record.validateSync();
@@ -98,9 +92,9 @@ export class CollectionSchema {
 
       return record.setter();
     },
-    type: CollectionModelPermissionsSchema,
+    type: CollectionPermissionsSchema,
   })
-  public permissions: CollectionModelPermissionsDocument;
+  public permissions: CollectionPermissionsDocument;
 
   public updatedAt: Date;
 
@@ -114,10 +108,10 @@ export class CollectionSchema {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: CollectionModel, values: Partial<CollectionSchema> = {}) {
+  public static mock(this: typeof CollectionModel, values: Partial<CollectionSchema> = {}) {
     const chance = new Chance();
     const defaults = {
-      jsonSchema: CollectionJsonSchema.mock(),
+      jsonSchema: CollectionJsonSchemaModel.mock(),
       name: chance.hash(),
       namespaceId: new mongoose.Types.ObjectId(),
     };
@@ -187,5 +181,4 @@ export class CollectionSchema {
 }
 
 export type CollectionDocument = DocumentType<CollectionSchema>;
-export type CollectionModel = ReturnModelType<typeof CollectionSchema>;
-export const Collection = getModelForClass(CollectionSchema);
+export const CollectionModel = getModelForClass(CollectionSchema);

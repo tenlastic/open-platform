@@ -26,7 +26,7 @@ describe('/nodejs/namespace/workflows', function () {
         memory: 1 * 1000 * 1000 * 1000,
         storage: 10 * 1000 * 1000 * 1000,
       },
-      name: chance.hash(),
+      name: chance.hash({ length: 64 }),
     });
     expect(namespace).to.exist;
   });
@@ -42,7 +42,7 @@ describe('/nodejs/namespace/workflows', function () {
     workflow = await dependencies.workflowService.create(namespace._id, {
       cpu: 0.1,
       memory: 100 * 1000 * 1000,
-      name: chance.hash(),
+      name: chance.hash({ length: 64 }),
       namespaceId: namespace._id,
       preemptible: true,
       spec: {

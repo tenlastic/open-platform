@@ -1,12 +1,12 @@
 import {
-  Authorization,
-  AuthorizationRequest,
+  AuthorizationModel,
   AuthorizationRequestDocument,
+  AuthorizationRequestModel,
   AuthorizationRole,
-  Namespace,
   NamespaceDocument,
-  User,
+  NamespaceModel,
   UserDocument,
+  UserModel,
 } from '@tenlastic/mongoose';
 import { ContextMock, RecordNotFoundError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
@@ -22,16 +22,16 @@ describe('web-server/authorization-requests/update', function () {
   let user: UserDocument;
 
   beforeEach(async function () {
-    namespace = await Namespace.mock().save();
-    otherUser = await User.mock().save();
-    user = await User.mock().save();
+    namespace = await NamespaceModel.mock().save();
+    otherUser = await UserModel.mock().save();
+    user = await UserModel.mock().save();
   });
 
   context('when permission is denied', function () {
     let record: AuthorizationRequestDocument;
 
     beforeEach(async function () {
-      record = await AuthorizationRequest.mock({
+      record = await AuthorizationRequestModel.mock({
         namespaceId: namespace._id,
         userId: user._id,
       }).save();
@@ -53,12 +53,12 @@ describe('web-server/authorization-requests/update', function () {
     let record: AuthorizationRequestDocument;
 
     beforeEach(async function () {
-      await Authorization.mock({
+      await AuthorizationModel.mock({
         namespaceId: namespace._id,
         roles: [AuthorizationRole.AuthorizationsReadWrite],
         userId: user._id,
       }).save();
-      record = await AuthorizationRequest.mock({
+      record = await AuthorizationRequestModel.mock({
         grantedAt: new Date(),
         namespaceId: namespace._id,
         roles: [AuthorizationRole.AuthorizationsReadWrite],
@@ -82,7 +82,7 @@ describe('web-server/authorization-requests/update', function () {
 
     context('when denied and the Authorization exists', function () {
       it('updates the Authorization', async function () {
-        await Authorization.mock({
+        await AuthorizationModel.mock({
           namespaceId: namespace._id,
           roles: [AuthorizationRole.AuthorizationsReadWrite],
           userId: otherUser._id,
@@ -95,7 +95,7 @@ describe('web-server/authorization-requests/update', function () {
 
         await handler(ctx as any);
 
-        const authorization = await Authorization.findOne({ userId: otherUser._id });
+        const authorization = await AuthorizationModel.findOne({ userId: otherUser._id });
         expect(authorization).to.exist;
         expect(authorization.roles).to.eql([]);
       });
@@ -104,7 +104,7 @@ describe('web-server/authorization-requests/update', function () {
     context('when granted', function () {
       context('when the Authorization exists', function () {
         it('updates the Authorization', async function () {
-          await Authorization.mock({
+          await AuthorizationModel.mock({
             namespaceId: namespace._id,
             roles: [AuthorizationRole.NamespacesReadWrite],
             userId: otherUser._id,
@@ -117,7 +117,7 @@ describe('web-server/authorization-requests/update', function () {
 
           await handler(ctx as any);
 
-          const authorization = await Authorization.findOne({ userId: otherUser._id });
+          const authorization = await AuthorizationModel.findOne({ userId: otherUser._id });
           expect(authorization).to.exist;
           expect(authorization.roles).to.eql([
             AuthorizationRole.AuthorizationsReadWrite,
@@ -136,7 +136,7 @@ describe('web-server/authorization-requests/update', function () {
 
           await handler(ctx as any);
 
-          const authorization = await Authorization.findOne({ userId: otherUser._id });
+          const authorization = await AuthorizationModel.findOne({ userId: otherUser._id });
           expect(authorization).to.exist;
           expect(authorization.roles).to.eql(record.roles);
         });

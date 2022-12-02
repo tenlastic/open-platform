@@ -1,26 +1,26 @@
 import 'source-map-support/register';
 
 import {
-  Authorization,
+  AuthorizationModel,
   connect,
   enablePrePostImages,
-  Friend,
-  GameServer,
-  Group,
-  GroupInvitation,
-  Ignoration,
-  Message,
-  Namespace,
-  QueueMember,
+  FriendModel,
+  GameServerModel,
+  GroupModel,
+  GroupInvitationModel,
+  IgnorationModel,
+  MessageModel,
+  NamespaceModel,
+  QueueMemberModel,
   SchemaSchema,
-  Storefront,
+  StorefrontModel,
   syncIndexes,
-  User,
+  UserModel,
 } from '@tenlastic/mongoose';
 import { getModelForClass } from '@typegoose/typegoose';
 
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
-const Schema = getModelForClass(SchemaSchema);
+const SchemaModel = getModelForClass(SchemaSchema);
 
 (async () => {
   try {
@@ -31,34 +31,34 @@ const Schema = getModelForClass(SchemaSchema);
 
     console.log('Syncing indexes...');
     await Promise.all([
-      syncIndexes(Authorization),
-      syncIndexes(Friend),
-      syncIndexes(GameServer),
-      syncIndexes(Group),
-      syncIndexes(GroupInvitation),
-      syncIndexes(Ignoration),
-      syncIndexes(Message),
-      syncIndexes(Namespace),
-      syncIndexes(QueueMember),
-      syncIndexes(Schema),
-      syncIndexes(Storefront),
-      syncIndexes(User),
+      syncIndexes(AuthorizationModel),
+      syncIndexes(FriendModel),
+      syncIndexes(GameServerModel),
+      syncIndexes(GroupModel),
+      syncIndexes(GroupInvitationModel),
+      syncIndexes(IgnorationModel),
+      syncIndexes(MessageModel),
+      syncIndexes(NamespaceModel),
+      syncIndexes(QueueMemberModel),
+      syncIndexes(SchemaModel),
+      syncIndexes(StorefrontModel),
+      syncIndexes(UserModel),
     ]);
     console.log('Indexes synced successfully!');
 
     console.log('Syncing schemas...');
     await Promise.all([
-      Schema.sync(Authorization),
-      Schema.sync(Friend),
-      Schema.sync(GameServer),
-      Schema.sync(Group),
-      Schema.sync(GroupInvitation),
-      Schema.sync(Ignoration),
-      Schema.sync(Message),
-      Schema.sync(Namespace),
-      Schema.sync(QueueMember),
-      Schema.sync(Storefront),
-      Schema.sync(User),
+      SchemaModel.sync(AuthorizationModel),
+      SchemaModel.sync(FriendModel),
+      SchemaModel.sync(GameServerModel),
+      SchemaModel.sync(GroupModel),
+      SchemaModel.sync(GroupInvitationModel),
+      SchemaModel.sync(IgnorationModel),
+      SchemaModel.sync(MessageModel),
+      SchemaModel.sync(NamespaceModel),
+      SchemaModel.sync(QueueMemberModel),
+      SchemaModel.sync(StorefrontModel),
+      SchemaModel.sync(UserModel),
     ]);
     console.log('Schemas synced successfully!');
 
@@ -68,17 +68,17 @@ const Schema = getModelForClass(SchemaSchema);
 
     console.log('Enabling Document Pre- and Post-Images...');
     await Promise.all([
-      enablePrePostImages(Authorization),
-      enablePrePostImages(Friend),
-      enablePrePostImages(GameServer),
-      enablePrePostImages(Group),
-      enablePrePostImages(GroupInvitation),
-      enablePrePostImages(Ignoration),
-      enablePrePostImages(Message),
-      enablePrePostImages(Namespace),
-      enablePrePostImages(QueueMember),
-      enablePrePostImages(Storefront),
-      enablePrePostImages(User),
+      enablePrePostImages(AuthorizationModel),
+      enablePrePostImages(FriendModel),
+      enablePrePostImages(GameServerModel),
+      enablePrePostImages(GroupModel),
+      enablePrePostImages(GroupInvitationModel),
+      enablePrePostImages(IgnorationModel),
+      enablePrePostImages(MessageModel),
+      enablePrePostImages(NamespaceModel),
+      enablePrePostImages(QueueMemberModel),
+      enablePrePostImages(StorefrontModel),
+      enablePrePostImages(UserModel),
     ]);
     console.log('Document Pre- and Post-Images enabled successfully!');
 

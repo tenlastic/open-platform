@@ -1,4 +1,4 @@
-import { Message, MessagePermissions } from '@tenlastic/mongoose';
+import { MessageModel, MessagePermissions } from '@tenlastic/mongoose';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
 export async function handler(ctx: Context) {
@@ -12,7 +12,7 @@ export async function handler(ctx: Context) {
     throw new RecordNotFoundError('Message');
   }
 
-  const result = await Message.findOneAndUpdate(
+  const result = await MessageModel.findOneAndUpdate(
     { _id: ctx.params._id },
     { $addToSet: { readByUserIds: ctx.state.user._id } },
     { new: true },

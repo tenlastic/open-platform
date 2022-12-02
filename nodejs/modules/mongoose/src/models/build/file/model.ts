@@ -1,10 +1,4 @@
-import {
-  DocumentType,
-  ReturnModelType,
-  getModelForClass,
-  modelOptions,
-  prop,
-} from '@typegoose/typegoose';
+import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
 import { Chance } from 'chance';
 
 @modelOptions({ schemaOptions: { _id: false } })
@@ -24,7 +18,7 @@ export class BuildFileSchema {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: BuildFileModel, values: Partial<BuildFileSchema> = {}) {
+  public static mock(this: typeof BuildFileModel, values: Partial<BuildFileSchema> = {}) {
     const chance = new Chance();
     const defaults = {
       compressedBytes: chance.integer(),
@@ -38,5 +32,4 @@ export class BuildFileSchema {
 }
 
 export type BuildFileDocument = DocumentType<BuildFileSchema>;
-export type BuildFileModel = ReturnModelType<typeof BuildFileSchema>;
-export const BuildFile = getModelForClass(BuildFileSchema);
+export const BuildFileModel = getModelForClass(BuildFileSchema);

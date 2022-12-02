@@ -6,14 +6,13 @@ import {
   plugin,
   prop,
   PropType,
-  ReturnModelType,
 } from '@typegoose/typegoose';
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
 import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 import { AuthorizationDocument } from '../authorization';
-import { WorkflowStatus, WorkflowStatusDocument, WorkflowStatusSchema } from '../workflow';
+import { WorkflowStatusDocument, WorkflowStatusModel, WorkflowStatusSchema } from '../workflow';
 import { BuildFileDocument, BuildFileSchema } from './file';
 import { BuildReferenceDocument, BuildReferenceSchema } from './reference';
 
@@ -51,7 +50,7 @@ export class BuildSchema {
   @prop({ type: BuildReferenceSchema })
   public reference: BuildReferenceDocument;
 
-  @prop({ default: () => new WorkflowStatus(), merge: true, type: WorkflowStatusSchema })
+  @prop({ default: () => new WorkflowStatusModel(), merge: true, type: WorkflowStatusSchema })
   public status: WorkflowStatusDocument;
 
   public updatedAt: Date;
@@ -62,7 +61,7 @@ export class BuildSchema {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: BuildModel, values: Partial<BuildSchema> = {}) {
+  public static mock(this: typeof BuildModel, values: Partial<BuildSchema> = {}) {
     const chance = new Chance();
     const defaults = {
       entrypoint: chance.hash(),
@@ -76,5 +75,4 @@ export class BuildSchema {
 }
 
 export type BuildDocument = DocumentType<BuildSchema>;
-export type BuildModel = ReturnModelType<typeof BuildSchema>;
-export const Build = getModelForClass(BuildSchema);
+export const BuildModel = getModelForClass(BuildSchema);

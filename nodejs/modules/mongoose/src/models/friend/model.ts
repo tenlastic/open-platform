@@ -5,7 +5,6 @@ import {
   modelOptions,
   plugin,
   prop,
-  ReturnModelType,
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
@@ -30,7 +29,7 @@ export class FriendSchema {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: FriendModel, values: Partial<FriendSchema> = {}) {
+  public static mock(this: typeof FriendModel, values: Partial<FriendSchema> = {}) {
     const defaults = {
       fromUserId: new mongoose.Types.ObjectId(),
       toUserId: new mongoose.Types.ObjectId(),
@@ -41,5 +40,4 @@ export class FriendSchema {
 }
 
 export type FriendDocument = DocumentType<FriendSchema>;
-export type FriendModel = ReturnModelType<typeof FriendSchema>;
-export const Friend = getModelForClass(FriendSchema);
+export const FriendModel = getModelForClass(FriendSchema);

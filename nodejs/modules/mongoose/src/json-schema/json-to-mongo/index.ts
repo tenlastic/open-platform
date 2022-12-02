@@ -61,7 +61,7 @@ function getObjectType(jsonSchema: any) {
     converted.additionalProperties = jsonSchema.additionalProperties;
   }
 
-  if ('required' in jsonSchema) {
+  if (jsonSchema.required?.length) {
     converted.required = jsonSchema.required;
   }
 

@@ -6,7 +6,6 @@ import {
   plugin,
   prop,
   PropType,
-  ReturnModelType,
   Severity,
 } from '@typegoose/typegoose';
 import { Chance } from 'chance';
@@ -66,11 +65,11 @@ export class StorefrontSchema {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: StorefrontModel, values: Partial<StorefrontSchema> = {}) {
+  public static mock(this: typeof StorefrontModel, values: Partial<StorefrontSchema> = {}) {
     const chance = new Chance();
     const defaults = {
       namespaceId: new mongoose.Types.ObjectId(),
-      title: chance.hash(),
+      title: chance.hash({ length: 32 }),
     };
 
     return new this({ ...defaults, ...values });
@@ -78,5 +77,4 @@ export class StorefrontSchema {
 }
 
 export type StorefrontDocument = DocumentType<StorefrontSchema>;
-export type StorefrontModel = ReturnModelType<typeof StorefrontSchema>;
-export const Storefront = getModelForClass(StorefrontSchema);
+export const StorefrontModel = getModelForClass(StorefrontSchema);

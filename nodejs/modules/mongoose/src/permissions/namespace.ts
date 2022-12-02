@@ -1,13 +1,13 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { AuthorizationRole, Namespace, NamespaceDocument } from '../models';
+import { AuthorizationRole, NamespaceDocument, NamespaceModel } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
 const administrator = {
   read: ['_id', 'createdAt', 'limits.*', 'logs', 'name', 'status.*', 'updatedAt'],
 };
 
-export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(Namespace, {
+export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(NamespaceModel, {
   create: {
     'user-write': ['limits.*', 'name'],
   },

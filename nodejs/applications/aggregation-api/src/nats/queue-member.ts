@@ -1,8 +1,8 @@
 import {
   EventEmitter,
   IDatabasePayload,
-  QueueMember,
   QueueMemberDocument,
+  QueueMemberModel,
 } from '@tenlastic/mongoose';
 
 import { NamespaceEvent } from './namespace';
@@ -13,6 +13,6 @@ export const QueueMemberEvent = new EventEmitter<IDatabasePayload<QueueMemberDoc
 NamespaceEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
-      return QueueMember.deleteMany({ namespaceId: payload.fullDocument._id });
+      return QueueMemberModel.deleteMany({ namespaceId: payload.fullDocument._id });
   }
 });

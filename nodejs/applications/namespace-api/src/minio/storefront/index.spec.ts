@@ -1,5 +1,5 @@
 import * as minio from '@tenlastic/minio';
-import { Storefront } from '@tenlastic/mongoose';
+import { StorefrontModel } from '@tenlastic/mongoose';
 import { expect } from 'chai';
 import * as fs from 'fs';
 
@@ -8,7 +8,7 @@ import { MinioStorefront } from './';
 describe('minio/storefront', function () {
   describe('removeObjects()', function () {
     it('removes all Minio objects', async function () {
-      const storefront = await Storefront.mock().save();
+      const storefront = await StorefrontModel.mock().save();
 
       // Upload background image.
       const backgroundStream = fs.createReadStream(__filename);

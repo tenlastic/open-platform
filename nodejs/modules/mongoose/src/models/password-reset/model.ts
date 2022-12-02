@@ -5,7 +5,6 @@ import {
   plugin,
   prop,
   modelOptions,
-  ReturnModelType,
 } from '@typegoose/typegoose';
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
@@ -36,7 +35,7 @@ export class PasswordResetSchema {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: PasswordResetModel, values: Partial<PasswordResetSchema> = {}) {
+  public static mock(this: typeof PasswordResetModel, values: Partial<PasswordResetSchema> = {}) {
     const chance = new Chance();
     const defaults = {
       expiresAt: new Date(new Date().getTime() + 24 * 60 * 60 * 1000),
@@ -49,5 +48,4 @@ export class PasswordResetSchema {
 }
 
 export type PasswordResetDocument = DocumentType<PasswordResetSchema>;
-export type PasswordResetModel = ReturnModelType<typeof PasswordResetSchema>;
-export const PasswordReset = getModelForClass(PasswordResetSchema);
+export const PasswordResetModel = getModelForClass(PasswordResetSchema);

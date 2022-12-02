@@ -1,4 +1,4 @@
-import { Namespace, QueuePermissions } from '@tenlastic/mongoose';
+import { NamespaceModel, QueuePermissions } from '@tenlastic/mongoose';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
 export async function handler(ctx: Context) {
@@ -10,7 +10,7 @@ export async function handler(ctx: Context) {
 
   const { cpu, memory, preemptible, replicas } = ctx.request.body;
   if (cpu || memory || replicas) {
-    const namespace = await Namespace.findOne({ _id: ctx.params.namespaceId });
+    const namespace = await NamespaceModel.findOne({ _id: ctx.params.namespaceId });
     namespace.checkCpuLimit(
       cpu * (replicas ?? existing.replicas),
       existing.cpu * existing.replicas,

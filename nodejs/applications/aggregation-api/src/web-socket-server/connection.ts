@@ -1,7 +1,7 @@
 import {
-  Authorization,
   AuthorizationDocument,
-  WebSocket,
+  AuthorizationModel,
+  WebSocketModel,
   WebSocketPermissions,
 } from '@tenlastic/mongoose';
 import { ICredentials } from '@tenlastic/mongoose-permissions';
@@ -16,14 +16,14 @@ export async function connection(auth: AuthenticationData, ws: WS) {
   }
 
   // Add the WebSocket to MongoDB.
-  const webSocket = await WebSocket.create({ nodeId: podName, userId: auth.jwt.user._id });
+  const webSocket = await WebSocketModel.create({ nodeId: podName, userId: auth.jwt.user._id });
 
   // Send the web socket ID to the client.
   let authorization: AuthorizationDocument;
   if (auth.jwt?.authorization) {
-    authorization = Authorization.hydrate(auth.jwt.authorization);
+    authorization = AuthorizationModel.hydrate(auth.jwt.authorization);
   } else if (auth.jwt?.user) {
-    authorization = await Authorization.findOne({
+    authorization = await AuthorizationModel.findOne({
       namespaceId: { $exists: false },
       userId: auth.jwt?.user?._id,
     });

@@ -1,6 +1,6 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { Article, ArticleDocument, AuthorizationRole } from '../models';
+import { ArticleDocument, ArticleModel, AuthorizationRole } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
 const administrator = {
@@ -8,7 +8,7 @@ const administrator = {
   update: ['body', 'namespaceId', 'publishedAt', 'subtitle', 'title', 'type'],
 };
 
-export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Article, {
+export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(ArticleModel, {
   create: {
     'namespace-write': administrator.create,
     'user-write': administrator.create,

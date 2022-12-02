@@ -1,16 +1,16 @@
 import {
-  Authorization,
+  AuthorizationModel,
   AuthorizationRole,
-  Build,
-  Group,
-  Namespace,
+  BuildModel,
+  GroupModel,
   NamespaceDocument,
-  Queue,
-  QueueGameServerTemplate,
-  QueueMember,
-  User,
+  NamespaceModel,
+  QueueModel,
+  QueueGameServerTemplateModel,
+  QueueMemberModel,
   UserDocument,
-  WebSocket,
+  UserModel,
+  WebSocketModel,
 } from '@tenlastic/mongoose';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
@@ -23,14 +23,14 @@ describe('web-server/queue-members/count', function () {
 
   beforeEach(async function () {
     users = await Promise.all([
-      User.mock().save(),
-      User.mock().save(),
-      User.mock().save(),
-      User.mock().save(),
+      UserModel.mock().save(),
+      UserModel.mock().save(),
+      UserModel.mock().save(),
+      UserModel.mock().save(),
     ]);
 
-    namespace = await Namespace.mock().save();
-    await Authorization.mock({
+    namespace = await NamespaceModel.mock().save();
+    await AuthorizationModel.mock({
       namespaceId: namespace._id,
       roles: [AuthorizationRole.QueuesRead],
       userId: users[0]._id,
@@ -38,25 +38,25 @@ describe('web-server/queue-members/count', function () {
   });
 
   it('returns the number of matching records', async function () {
-    const build = await Build.mock({ namespaceId: namespace._id }).save();
-    const group = await Group.mock({ userIds: [users[1]._id, users[2]._id] }).save();
-    const queue = await Queue.mock({
-      gameServerTemplate: QueueGameServerTemplate.mock({ buildId: build._id }),
+    const build = await BuildModel.mock({ namespaceId: namespace._id }).save();
+    const group = await GroupModel.mock({ userIds: [users[1]._id, users[2]._id] }).save();
+    const queue = await QueueModel.mock({
+      gameServerTemplate: QueueGameServerTemplateModel.mock({ buildId: build._id }),
       namespaceId: namespace._id,
       usersPerTeam: 2,
     }).save();
     const webSockets = await Promise.all([
-      WebSocket.mock({ userId: users[0]._id }).save(),
-      WebSocket.mock({ userId: users[1]._id }).save(),
+      WebSocketModel.mock({ userId: users[0]._id }).save(),
+      WebSocketModel.mock({ userId: users[1]._id }).save(),
     ]);
     await Promise.all([
-      QueueMember.mock({
+      QueueMemberModel.mock({
         namespaceId: namespace._id,
         queueId: queue._id,
         userId: users[0]._id,
         webSocketId: webSockets[0]._id,
       }).save(),
-      QueueMember.mock({
+      QueueMemberModel.mock({
         groupId: group._id,
         namespaceId: namespace._id,
         queueId: queue._id,

@@ -31,7 +31,7 @@ describe('/nodejs/namespace/builds', function () {
         memory: 1 * 1000 * 1000 * 1000,
         storage: 10 * 1000 * 1000 * 1000,
       },
-      name: chance.hash(),
+      name: chance.hash({ length: 64 }),
     });
     expect(namespace).to.exist;
   });
@@ -62,7 +62,7 @@ describe('/nodejs/namespace/builds', function () {
       'record',
       JSON.stringify({
         entrypoint: 'Dockerfile',
-        name: chance.hash(),
+        name: chance.hash({ length: 64 }),
         namespaceId: namespace._id,
         platform: IBuild.Platform.Server64,
       } as BuildModel),

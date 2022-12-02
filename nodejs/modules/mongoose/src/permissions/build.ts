@@ -1,6 +1,6 @@
 import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 
-import { AuthorizationRole, Build, BuildDocument } from '../models';
+import { AuthorizationRole, BuildDocument, BuildModel } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
 const administrator = {
@@ -21,7 +21,7 @@ const administrator = {
   ],
 };
 
-export const BuildPermissions = new MongoosePermissions<BuildDocument>(Build, {
+export const BuildPermissions = new MongoosePermissions<BuildDocument>(BuildModel, {
   create: {
     'namespace-write': administrator.create,
     'user-write': administrator.create,

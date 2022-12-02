@@ -1,8 +1,8 @@
 import {
   EventEmitter,
   IDatabasePayload,
-  QueueMember,
   QueueMemberDocument,
+  QueueMemberModel,
 } from '@tenlastic/mongoose';
 
 import { GroupEvent } from './group';
@@ -16,7 +16,7 @@ GroupEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
     case 'update':
-      return QueueMember.deleteMany({ groupId: payload.fullDocument._id });
+      return QueueMemberModel.deleteMany({ groupId: payload.fullDocument._id });
   }
 });
 
@@ -24,7 +24,7 @@ GroupEvent.async(async (payload) => {
 QueueEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
-      return QueueMember.deleteMany({ queueId: payload.fullDocument._id });
+      return QueueMemberModel.deleteMany({ queueId: payload.fullDocument._id });
   }
 });
 
@@ -32,6 +32,6 @@ QueueEvent.async(async (payload) => {
 WebSocketEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
-      return QueueMember.deleteMany({ webSocketId: payload.fullDocument._id });
+      return QueueMemberModel.deleteMany({ webSocketId: payload.fullDocument._id });
   }
 });

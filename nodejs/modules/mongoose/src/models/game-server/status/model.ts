@@ -1,15 +1,8 @@
-import {
-  DocumentType,
-  getModelForClass,
-  modelOptions,
-  prop,
-  PropType,
-  ReturnModelType,
-} from '@typegoose/typegoose';
+import { DocumentType, getModelForClass, modelOptions, prop, PropType } from '@typegoose/typegoose';
 
 import {
-  GameServerStatusComponent,
   GameServerStatusComponentDocument,
+  GameServerStatusComponentModel,
   GameServerStatusComponentSchema,
 } from './component';
 import { GameServerStatusEndpointsDocument, GameServerStatusEndpointsSchema } from './endpoints';
@@ -33,13 +26,13 @@ export class GameServerStatusSchema {
   @prop(
     {
       default: () => [
-        new GameServerStatusComponent({
+        new GameServerStatusComponentModel({
           current: 0,
           name: GameServerStatusComponentName.Application,
           phase: GameServerStatusPhase.Pending,
           total: 1,
         }),
-        new GameServerStatusComponent({
+        new GameServerStatusComponentModel({
           current: 0,
           name: GameServerStatusComponentName.Sidecar,
           phase: GameServerStatusPhase.Pending,
@@ -71,7 +64,10 @@ export class GameServerStatusSchema {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: GameServerStatusModel, values: Partial<GameServerStatusSchema> = {}) {
+  public static mock(
+    this: typeof GameServerStatusModel,
+    values: Partial<GameServerStatusSchema> = {},
+  ) {
     const defaults = { phase: GameServerStatusPhase.Running };
 
     return new this({ ...defaults, ...values });
@@ -79,5 +75,4 @@ export class GameServerStatusSchema {
 }
 
 export type GameServerStatusDocument = DocumentType<GameServerStatusSchema>;
-export type GameServerStatusModel = ReturnModelType<typeof GameServerStatusSchema>;
-export const GameServerStatus = getModelForClass(GameServerStatusSchema);
+export const GameServerStatusModel = getModelForClass(GameServerStatusSchema);

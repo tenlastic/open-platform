@@ -7,23 +7,23 @@ before(async function () {
     databaseName: 'social-api-test',
   });
   await Promise.all([
-    mongoose.Friend.syncIndexes(),
-    mongoose.Group.syncIndexes(),
-    mongoose.GroupInvitation.syncIndexes(),
-    mongoose.Ignoration.syncIndexes(),
-    mongoose.Message.syncIndexes(),
-    mongoose.User.syncIndexes(),
+    mongoose.FriendModel.syncIndexes(),
+    mongoose.GroupModel.syncIndexes(),
+    mongoose.GroupInvitationModel.syncIndexes(),
+    mongoose.IgnorationModel.syncIndexes(),
+    mongoose.MessageModel.syncIndexes(),
+    mongoose.UserModel.syncIndexes(),
   ]);
 });
 
 beforeEach(async function () {
   // MongoDB.
   await Promise.all([
-    mongoose.Friend.deleteMany({}),
-    mongoose.Group.deleteMany({}),
-    mongoose.GroupInvitation.deleteMany({}),
-    mongoose.Ignoration.deleteMany({}),
-    mongoose.Message.deleteMany({}),
-    mongoose.User.deleteMany({}),
+    mongoose.FriendModel.deleteMany({}),
+    mongoose.GroupModel.deleteMany({}),
+    mongoose.GroupInvitationModel.deleteMany({}),
+    mongoose.IgnorationModel.deleteMany({}),
+    mongoose.MessageModel.deleteMany({}),
+    mongoose.UserModel.deleteMany({}),
   ]);
 });

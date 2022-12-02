@@ -1,11 +1,11 @@
 import { podApiV1 } from '@tenlastic/kubernetes';
 import {
-  Authorization,
   AuthorizationDocument,
+  AuthorizationModel,
   BuildPermissions,
   GameServerPermissions,
   QueuePermissions,
-  User,
+  UserModel,
   WorkflowPermissions,
 } from '@tenlastic/mongoose';
 import { MongoosePermissions, PermissionError } from '@tenlastic/mongoose-permissions';
@@ -69,14 +69,14 @@ export async function logs(
   // Check if the user can access the record.
   let authorization: AuthorizationDocument;
   if (auth.jwt?.authorization) {
-    authorization = Authorization.hydrate(auth.jwt.authorization);
+    authorization = AuthorizationModel.hydrate(auth.jwt.authorization);
   } else if (auth.jwt?.user) {
-    authorization = await Authorization.findOne({
+    authorization = await AuthorizationModel.findOne({
       namespaceId: { $exists: false },
       userId: auth.jwt?.user?._id,
     });
   }
-  const user = auth.jwt?.user ? User.hydrate(auth.jwt.user) : null;
+  const user = auth.jwt?.user ? UserModel.hydrate(auth.jwt.user) : null;
 
   const credentials = { apiKey: auth.apiKey, authorization, user };
   const override = { where: { _id } };

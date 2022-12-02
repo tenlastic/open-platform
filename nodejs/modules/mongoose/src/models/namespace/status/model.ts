@@ -1,20 +1,13 @@
-import {
-  DocumentType,
-  getModelForClass,
-  modelOptions,
-  prop,
-  PropType,
-  ReturnModelType,
-} from '@typegoose/typegoose';
+import { DocumentType, getModelForClass, modelOptions, prop, PropType } from '@typegoose/typegoose';
 
 import {
-  NamespaceStatusComponent,
   NamespaceStatusComponentDocument,
+  NamespaceStatusComponentModel,
   NamespaceStatusComponentSchema,
 } from './component';
 import {
-  NamespaceStatusLimits,
   NamespaceStatusLimitsDocument,
+  NamespaceStatusLimitsModel,
   NamespaceStatusLimitsSchema,
 } from './limits';
 import { NamespaceStatusNodeDocument, NamespaceStatusNodeSchema } from './node';
@@ -40,31 +33,31 @@ export class NamespaceStatusSchema {
   @prop(
     {
       default: () => [
-        new NamespaceStatusComponent({
+        new NamespaceStatusComponentModel({
           current: 0,
           name: NamespaceStatusComponentName.API,
           phase: NamespaceStatusPhase.Pending,
           total: 1,
         }),
-        new NamespaceStatusComponent({
+        new NamespaceStatusComponentModel({
           current: 0,
           name: NamespaceStatusComponentName.CDC,
           phase: NamespaceStatusPhase.Pending,
           total: 1,
         }),
-        new NamespaceStatusComponent({
+        new NamespaceStatusComponentModel({
           current: 0,
           name: NamespaceStatusComponentName.Connector,
           phase: NamespaceStatusPhase.Pending,
           total: 1,
         }),
-        new NamespaceStatusComponent({
+        new NamespaceStatusComponentModel({
           current: 0,
           name: NamespaceStatusComponentName.Metrics,
           phase: NamespaceStatusPhase.Pending,
           total: 1,
         }),
-        new NamespaceStatusComponent({
+        new NamespaceStatusComponentModel({
           current: 0,
           name: NamespaceStatusComponentName.Sidecar,
           phase: NamespaceStatusPhase.Pending,
@@ -79,7 +72,7 @@ export class NamespaceStatusSchema {
   public components: NamespaceStatusComponentDocument[];
 
   @prop({
-    default: () => new NamespaceStatusLimits(),
+    default: () => new NamespaceStatusLimitsModel(),
     type: NamespaceStatusLimitsSchema,
     unset: false,
   })
@@ -97,7 +90,10 @@ export class NamespaceStatusSchema {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: NamespaceStatusModel, values: Partial<NamespaceStatusSchema> = {}) {
+  public static mock(
+    this: typeof NamespaceStatusModel,
+    values: Partial<NamespaceStatusSchema> = {},
+  ) {
     const defaults = { phase: NamespaceStatusPhase.Running };
 
     return new this({ ...defaults, ...values });
@@ -105,5 +101,4 @@ export class NamespaceStatusSchema {
 }
 
 export type NamespaceStatusDocument = DocumentType<NamespaceStatusSchema>;
-export type NamespaceStatusModel = ReturnModelType<typeof NamespaceStatusSchema>;
-export const NamespaceStatus = getModelForClass(NamespaceStatusSchema);
+export const NamespaceStatusModel = getModelForClass(NamespaceStatusSchema);

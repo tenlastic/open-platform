@@ -1,11 +1,4 @@
-import {
-  DocumentType,
-  ReturnModelType,
-  getModelForClass,
-  modelOptions,
-  prop,
-  PropType,
-} from '@typegoose/typegoose';
+import { DocumentType, getModelForClass, modelOptions, prop, PropType } from '@typegoose/typegoose';
 
 import { WorkflowSpecParameterDocument, WorkflowSpecParameterSchema } from '../parameter';
 
@@ -18,7 +11,7 @@ export class WorkflowSpecArgumentsSchema {
    * Creates a record with randomized required parameters if not specified.
    */
   public static mock(
-    this: WorkflowSpecArgumentsModel,
+    this: typeof WorkflowSpecArgumentsModel,
     values: Partial<WorkflowSpecArgumentsSchema> = {},
   ) {
     const defaults = {};
@@ -28,5 +21,4 @@ export class WorkflowSpecArgumentsSchema {
 }
 
 export type WorkflowSpecArgumentsDocument = DocumentType<WorkflowSpecArgumentsSchema>;
-export type WorkflowSpecArgumentsModel = ReturnModelType<typeof WorkflowSpecArgumentsSchema>;
-export const WorkflowSpecArguments = getModelForClass(WorkflowSpecArgumentsSchema);
+export const WorkflowSpecArgumentsModel = getModelForClass(WorkflowSpecArgumentsSchema);

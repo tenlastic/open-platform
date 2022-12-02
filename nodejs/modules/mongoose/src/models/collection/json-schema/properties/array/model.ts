@@ -1,10 +1,4 @@
-import {
-  DocumentType,
-  getModelForClass,
-  modelOptions,
-  prop,
-  ReturnModelType,
-} from '@typegoose/typegoose';
+import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
 
 export enum CollectionJsonSchemaType {
   Array = 'array',
@@ -18,6 +12,9 @@ export enum CollectionJsonSchemaType {
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class CollectionJsonSchemaArraySchema {
+  @prop({ type: String })
+  public format: string;
+
   @prop({
     enum: [
       CollectionJsonSchemaType.Boolean,
@@ -34,7 +31,7 @@ export class CollectionJsonSchemaArraySchema {
    * Creates a record with randomized required parameters if not specified.
    */
   public static mock(
-    this: CollectionJsonSchemaArrayModel,
+    this: typeof CollectionJsonSchemaArrayModel,
     values: Partial<CollectionJsonSchemaArraySchema> = {},
   ) {
     const defaults = { type: CollectionJsonSchemaType.Boolean };
@@ -44,7 +41,4 @@ export class CollectionJsonSchemaArraySchema {
 }
 
 export type CollectionJsonSchemaArrayDocument = DocumentType<CollectionJsonSchemaArraySchema>;
-export type CollectionJsonSchemaArrayModel = ReturnModelType<
-  typeof CollectionJsonSchemaArraySchema
->;
-export const CollectionJsonSchemaArray = getModelForClass(CollectionJsonSchemaArraySchema);
+export const CollectionJsonSchemaArrayModel = getModelForClass(CollectionJsonSchemaArraySchema);

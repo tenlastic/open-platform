@@ -1,13 +1,13 @@
 import * as minio from '@tenlastic/minio';
 import {
-  Authorization,
+  AuthorizationModel,
   AuthorizationRole,
-  Build,
   BuildDocument,
-  BuildFile,
-  Namespace,
-  User,
+  BuildModel,
+  BuildFileModel,
+  NamespaceModel,
   UserDocument,
+  UserModel,
 } from '@tenlastic/mongoose';
 import { ContextMock, RecordNotFoundError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
@@ -24,7 +24,7 @@ describe('web-server/files/download', function () {
   let user: UserDocument;
 
   beforeEach(async function () {
-    user = await User.mock();
+    user = await UserModel.mock();
   });
 
   context('when permission is granted', async function () {
@@ -32,15 +32,18 @@ describe('web-server/files/download', function () {
     let build: BuildDocument;
 
     beforeEach(async function () {
-      const namespace = await Namespace.mock().save();
-      await Authorization.mock({
+      const namespace = await NamespaceModel.mock().save();
+      await AuthorizationModel.mock({
         namespaceId: namespace._id,
         roles: [AuthorizationRole.BuildsRead],
         userId: user._id,
       }).save();
 
-      build = await Build.mock({
-        files: [BuildFile.mock({ path: 'index.ts' }), BuildFile.mock({ path: 'index.spec.ts' })],
+      build = await BuildModel.mock({
+        files: [
+          BuildFileModel.mock({ path: 'index.ts' }),
+          BuildFileModel.mock({ path: 'index.spec.ts' }),
+        ],
         namespaceId: namespace._id,
       }).save();
 
@@ -97,8 +100,8 @@ describe('web-server/files/download', function () {
 
   context('when permission is denied', function () {
     it('throws an error', async function () {
-      const namespace = await Namespace.mock().save();
-      const build = await Build.mock({ namespaceId: namespace._id }).save();
+      const namespace = await NamespaceModel.mock().save();
+      const build = await BuildModel.mock({ namespaceId: namespace._id }).save();
 
       const ctx = new ContextMock({
         params: {

@@ -1,4 +1,4 @@
-import { PasswordReset, User, UserDocument } from '@tenlastic/mongoose';
+import { PasswordResetModel, UserDocument, UserModel } from '@tenlastic/mongoose';
 import { Context, ContextMock, RequiredFieldError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
@@ -13,7 +13,7 @@ describe('web-server/password-resets/create', function () {
   let user: UserDocument;
 
   beforeEach(async function () {
-    user = await User.mock().save();
+    user = await UserModel.mock().save();
   });
 
   context('when email is not provided', function () {
@@ -54,7 +54,7 @@ describe('web-server/password-resets/create', function () {
       });
 
       it('creates a PasswordReset', async function () {
-        const passwordReset = await PasswordReset.findOne({ userId: user._id });
+        const passwordReset = await PasswordResetModel.findOne({ userId: user._id });
         expect(passwordReset).to.exist;
       });
     });

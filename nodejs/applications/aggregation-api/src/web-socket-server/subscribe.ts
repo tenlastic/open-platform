@@ -1,24 +1,24 @@
 import {
-  Authorization,
   AuthorizationDocument,
+  AuthorizationModel,
   AuthorizationPermissions,
-  AuthorizationRequest,
+  AuthorizationRequestModel,
   AuthorizationRequestPermissions,
-  Friend,
+  FriendModel,
   FriendPermissions,
-  Group,
+  GroupModel,
   GroupPermissions,
-  GroupInvitation,
+  GroupInvitationModel,
   GroupInvitationPermissions,
-  Ignoration,
+  IgnorationModel,
   IgnorationPermissions,
-  Message,
+  MessageModel,
   MessagePermissions,
-  Namespace,
+  NamespaceModel,
   NamespacePermissions,
-  User,
+  UserModel,
   UserPermissions,
-  WebSocket,
+  WebSocketModel,
   WebSocketPermissions,
 } from '@tenlastic/mongoose';
 import { ICredentials } from '@tenlastic/mongoose-permissions';
@@ -31,11 +31,11 @@ export async function subscribe(
 ) {
   let authorization: AuthorizationDocument;
   if (auth.apiKey) {
-    authorization = await Authorization.findOne({ apiKey: auth.apiKey });
+    authorization = await AuthorizationModel.findOne({ apiKey: auth.apiKey });
   } else if (auth.jwt?.authorization) {
-    authorization = Authorization.hydrate(auth.jwt.authorization);
+    authorization = AuthorizationModel.hydrate(auth.jwt.authorization);
   } else if (auth.jwt?.user) {
-    authorization = await Authorization.findOne({
+    authorization = await AuthorizationModel.findOne({
       namespaceId: { $exists: false },
       userId: auth.jwt?.user?._id,
     });
@@ -51,7 +51,7 @@ export async function subscribe(
       return webSocketServer.subscribe(
         credentials,
         data,
-        Authorization,
+        AuthorizationModel,
         AuthorizationPermissions,
         ws,
       );
@@ -60,40 +60,46 @@ export async function subscribe(
       return webSocketServer.subscribe(
         credentials,
         data,
-        AuthorizationRequest,
+        AuthorizationRequestModel,
         AuthorizationRequestPermissions,
         ws,
       );
 
     case 'friends':
-      return webSocketServer.subscribe(credentials, data, Friend, FriendPermissions, ws);
+      return webSocketServer.subscribe(credentials, data, FriendModel, FriendPermissions, ws);
 
     case 'groups':
-      return webSocketServer.subscribe(credentials, data, Group, GroupPermissions, ws);
+      return webSocketServer.subscribe(credentials, data, GroupModel, GroupPermissions, ws);
 
     case 'group-invitations':
       return webSocketServer.subscribe(
         credentials,
         data,
-        GroupInvitation,
+        GroupInvitationModel,
         GroupInvitationPermissions,
         ws,
       );
 
     case 'ignorations':
-      return webSocketServer.subscribe(credentials, data, Ignoration, IgnorationPermissions, ws);
+      return webSocketServer.subscribe(
+        credentials,
+        data,
+        IgnorationModel,
+        IgnorationPermissions,
+        ws,
+      );
 
     case 'messages':
-      return webSocketServer.subscribe(credentials, data, Message, MessagePermissions, ws);
+      return webSocketServer.subscribe(credentials, data, MessageModel, MessagePermissions, ws);
 
     case 'namespaces':
-      return webSocketServer.subscribe(credentials, data, Namespace, NamespacePermissions, ws);
+      return webSocketServer.subscribe(credentials, data, NamespaceModel, NamespacePermissions, ws);
 
     case 'users':
-      return webSocketServer.subscribe(credentials, data, User, UserPermissions, ws);
+      return webSocketServer.subscribe(credentials, data, UserModel, UserPermissions, ws);
 
     case 'web-sockets':
-      return webSocketServer.subscribe(credentials, data, WebSocket, WebSocketPermissions, ws);
+      return webSocketServer.subscribe(credentials, data, WebSocketModel, WebSocketPermissions, ws);
   }
 
   throw new Error('Invalid arguments.');

@@ -1,11 +1,4 @@
-import {
-  DocumentType,
-  getModelForClass,
-  modelOptions,
-  prop,
-  PropType,
-  ReturnModelType,
-} from '@typegoose/typegoose';
+import { DocumentType, getModelForClass, modelOptions, prop, PropType } from '@typegoose/typegoose';
 
 import { alphabeticalKeysValidator, keyLengthValidator } from '../../../validators';
 import {
@@ -39,7 +32,7 @@ export class CollectionJsonSchemaSchema {
    * Creates a record with randomized required parameters if not specified.
    */
   public static mock(
-    this: CollectionJsonSchemaModel,
+    this: typeof CollectionJsonSchemaModel,
     values: Partial<CollectionJsonSchemaSchema> = {},
   ) {
     const defaults = { properties: {}, type: CollectionJsonSchemaType.Object };
@@ -49,5 +42,4 @@ export class CollectionJsonSchemaSchema {
 }
 
 export type CollectionJsonSchemaDocument = DocumentType<CollectionJsonSchemaSchema>;
-export type CollectionJsonSchemaModel = ReturnModelType<typeof CollectionJsonSchemaSchema>;
-export const CollectionJsonSchema = getModelForClass(CollectionJsonSchemaSchema);
+export const CollectionJsonSchemaModel = getModelForClass(CollectionJsonSchemaSchema);

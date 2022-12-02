@@ -5,7 +5,6 @@ import {
   modelOptions,
   plugin,
   prop,
-  ReturnModelType,
   Severity,
 } from '@typegoose/typegoose';
 import { Chance } from 'chance';
@@ -15,13 +14,13 @@ import { unsetPlugin } from '../../plugins';
 import { enumValidator } from '../../validators';
 import { AuthorizationDocument } from '../authorization';
 import {
-  QueueGameServerTemplate,
   QueueGameServerTemplateDocument,
+  QueueGameServerTemplateModel,
   QueueGameServerTemplateSchema,
 } from './game-server-template';
 import {
-  QueueStatus,
-  QueueStatusComponent,
+  QueueStatusModel,
+  QueueStatusComponentModel,
   QueueStatusComponentName,
   QueueStatusDocument,
   QueueStatusPhase,
@@ -71,15 +70,15 @@ export class QueueSchema {
 
   @prop({
     default(this: QueueDocument) {
-      return new QueueStatus({
+      return new QueueStatusModel({
         component: [
-          new QueueStatusComponent({
+          new QueueStatusComponentModel({
             current: 0,
             name: QueueStatusComponentName.Application,
             phase: QueueStatusPhase.Pending,
             total: this.replicas,
           }),
-          new QueueStatusComponent({
+          new QueueStatusComponentModel({
             current: 0,
             name: QueueStatusComponentName.Sidecar,
             phase: QueueStatusPhase.Pending,
@@ -124,11 +123,11 @@ export class QueueSchema {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: QueueModel, values: Partial<QueueSchema> = {}) {
+  public static mock(this: typeof QueueModel, values: Partial<QueueSchema> = {}) {
     const chance = new Chance();
     const defaults = {
       cpu: chance.floating({ max: 1, min: 0.1 }),
-      gameServerTemplate: QueueGameServerTemplate.mock(),
+      gameServerTemplate: QueueGameServerTemplateModel.mock(),
       memory: chance.integer({ max: 1 * 1000 * 1000 * 1000, min: 100 * 1000 * 1000 }),
       name: chance.hash(),
       namespaceId: new mongoose.Types.ObjectId(),
@@ -142,5 +141,4 @@ export class QueueSchema {
 }
 
 export type QueueDocument = DocumentType<QueueSchema>;
-export type QueueModel = ReturnModelType<typeof QueueSchema>;
-export const Queue = getModelForClass(QueueSchema);
+export const QueueModel = getModelForClass(QueueSchema);

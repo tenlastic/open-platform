@@ -1,6 +1,6 @@
 import {
-  Collection,
   CollectionDocument,
+  CollectionModel,
   EventEmitter,
   IDatabasePayload,
 } from '@tenlastic/mongoose';
@@ -13,6 +13,6 @@ export const CollectionEvent = new EventEmitter<IDatabasePayload<CollectionDocum
 NamespaceEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
-      return Collection.deleteMany({ namespaceId: payload.fullDocument._id });
+      return CollectionModel.deleteMany({ namespaceId: payload.fullDocument._id });
   }
 });

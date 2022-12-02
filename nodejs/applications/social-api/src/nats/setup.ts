@@ -1,4 +1,11 @@
-import { Friend, GroupInvitation, Group, Ignoration, Message, User } from '@tenlastic/mongoose';
+import {
+  FriendModel,
+  GroupInvitationModel,
+  GroupModel,
+  IgnorationModel,
+  MessageModel,
+  UserModel,
+} from '@tenlastic/mongoose';
 import { subscribe } from '@tenlastic/mongoose-change-stream-nats';
 import * as nats from '@tenlastic/nats';
 
@@ -19,15 +26,19 @@ export async function setup(options: SetupOptions) {
   await nats.upsertStream(options.database);
 
   Promise.all([
-    subscribe(options.database, options.durable, Friend, (payload) => FriendEvent.emit(payload)),
-    subscribe(options.database, options.durable, GroupInvitation, (payload) =>
+    subscribe(options.database, options.durable, FriendModel, (payload) =>
+      FriendEvent.emit(payload),
+    ),
+    subscribe(options.database, options.durable, GroupInvitationModel, (payload) =>
       GroupInvitationEvent.emit(payload),
     ),
-    subscribe(options.database, options.durable, Group, (payload) => GroupEvent.emit(payload)),
-    subscribe(options.database, options.durable, Ignoration, (payload) =>
+    subscribe(options.database, options.durable, GroupModel, (payload) => GroupEvent.emit(payload)),
+    subscribe(options.database, options.durable, IgnorationModel, (payload) =>
       IgnorationEvent.emit(payload),
     ),
-    subscribe(options.database, options.durable, Message, (payload) => MessageEvent.emit(payload)),
-    subscribe(options.database, options.durable, User, (payload) => UserEvent.emit(payload)),
+    subscribe(options.database, options.durable, MessageModel, (payload) =>
+      MessageEvent.emit(payload),
+    ),
+    subscribe(options.database, options.durable, UserModel, (payload) => UserEvent.emit(payload)),
   ]).catch((err) => console.error(err));
 }

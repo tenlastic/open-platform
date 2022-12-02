@@ -5,7 +5,6 @@ import {
   modelOptions,
   plugin,
   prop,
-  ReturnModelType,
 } from '@typegoose/typegoose';
 import * as jsonwebtoken from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
@@ -84,7 +83,7 @@ export class LoginSchema {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: LoginModel, values: Partial<LoginSchema> = {}) {
+  public static mock(this: typeof LoginModel, values: Partial<LoginSchema> = {}) {
     const defaults = { userId: new mongoose.Types.ObjectId() };
 
     return new this({ ...defaults, ...values });
@@ -92,5 +91,4 @@ export class LoginSchema {
 }
 
 export type LoginDocument = DocumentType<LoginSchema>;
-export type LoginModel = ReturnModelType<typeof LoginSchema>;
-export const Login = getModelForClass(LoginSchema);
+export const LoginModel = getModelForClass(LoginSchema);

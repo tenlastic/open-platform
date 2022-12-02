@@ -1,15 +1,15 @@
 import * as minio from '@tenlastic/minio';
 import {
-  Authorization,
+  AuthorizationModel,
   AuthorizationRole,
-  Namespace,
   NamespaceDocument,
+  NamespaceModel,
   NamespaceLimitError,
-  NamespaceLimits,
-  Storefront,
+  NamespaceLimitsModel,
   StorefrontDocument,
-  User,
+  StorefrontModel,
   UserDocument,
+  UserModel,
 } from '@tenlastic/mongoose';
 import { ContextMock, RecordNotFoundError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
@@ -26,10 +26,10 @@ describe('web-server/storefronts/upload', function () {
   let user: UserDocument;
 
   beforeEach(async function () {
-    namespace = await Namespace.mock({
-      limits: NamespaceLimits.mock({ storage: 1 * 1000 * 1000 * 1000 }),
+    namespace = await NamespaceModel.mock({
+      limits: NamespaceLimitsModel.mock({ storage: 1 * 1000 * 1000 * 1000 }),
     }).save();
-    user = await User.mock().save();
+    user = await UserModel.mock().save();
   });
 
   context('when permission is granted', function () {
@@ -38,12 +38,12 @@ describe('web-server/storefronts/upload', function () {
     let storefront: StorefrontDocument;
 
     beforeEach(async function () {
-      await Authorization.mock({
+      await AuthorizationModel.mock({
         namespaceId: namespace._id,
         roles: [AuthorizationRole.StorefrontsReadWrite],
         userId: user._id,
       }).save();
-      storefront = await Storefront.mock({ namespaceId: namespace._id }).save();
+      storefront = await StorefrontModel.mock({ namespaceId: namespace._id }).save();
 
       form = new FormData();
 
@@ -112,7 +112,7 @@ describe('web-server/storefronts/upload', function () {
 
   context('when permission is denied', function () {
     it('throws an error', async function () {
-      const storefront = await Storefront.mock({ namespaceId: namespace._id }).save();
+      const storefront = await StorefrontModel.mock({ namespaceId: namespace._id }).save();
 
       const ctx = new ContextMock({
         params: { _id: storefront._id, field: 'background', namespaceId: namespace._id },

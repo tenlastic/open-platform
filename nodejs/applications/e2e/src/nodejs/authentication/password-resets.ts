@@ -26,7 +26,7 @@ describe('/nodejs/authentication/password-resets', function () {
 
   beforeEach(async function () {
     email = process.env.E2E_EMAIL_ADDRESS;
-    username = chance.hash({ length: 20 });
+    username = chance.hash({ length: 24 });
 
     const password = chance.hash();
 
