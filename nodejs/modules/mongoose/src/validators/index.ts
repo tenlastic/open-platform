@@ -4,5 +4,6 @@ export * from './decremental';
 export * from './email';
 export * from './enum';
 export * from './exclude-keys';
+export * from './key-length';
 export * from './namespace';
 export * from './string-length';

@@ -7,6 +7,7 @@ import {
   ReturnModelType,
 } from '@typegoose/typegoose';
 
+import { alphabeticalKeysValidator, keyLengthValidator } from '../../../validators';
 import {
   CollectionJsonSchemaPropertiesDocument,
   CollectionJsonSchemaPropertiesSchema,
@@ -18,7 +19,14 @@ export class CollectionJsonSchemaSchema {
   @prop()
   additionalProperties: boolean;
 
-  @prop({ required: true, type: () => CollectionJsonSchemaPropertiesSchema }, PropType.MAP)
+  @prop(
+    {
+      required: true,
+      type: () => CollectionJsonSchemaPropertiesSchema,
+      validate: [alphabeticalKeysValidator, keyLengthValidator(32)],
+    },
+    PropType.MAP,
+  )
   public properties: Map<string, CollectionJsonSchemaPropertiesDocument>;
 
   @prop({ maxlength: 128, trim: true, type: String }, PropType.ARRAY)

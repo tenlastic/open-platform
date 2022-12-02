@@ -1,5 +1,5 @@
 export const alphabeticalKeysValidator = {
-  msg: 'Value keys can contain only letters.',
+  msg: 'Keys can contain only letters.',
   validator: (value: any) => {
     const regex = /^[A-Za-z]+$/;
 
