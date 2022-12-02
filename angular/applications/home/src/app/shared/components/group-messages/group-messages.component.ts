@@ -99,7 +99,7 @@ export class GroupMessagesComponent implements OnChanges, OnDestroy {
       data: {
         error: 'Enter a valid name.',
         label: 'Name',
-        maxlength: 24,
+        maxlength: 32,
         title: 'Edit Group Name',
         width: 300,
       },

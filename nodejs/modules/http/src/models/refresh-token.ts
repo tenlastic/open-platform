@@ -1,7 +1,6 @@
 import { BaseModel } from './base';
 
 export class RefreshTokenModel extends BaseModel {
-  public description: string;
   public expiresAt: Date;
   public userId: string;
 

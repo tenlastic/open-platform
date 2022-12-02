@@ -13,17 +13,10 @@ import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
 import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
-import { alphanumericValidator, emailValidator, stringLengthValidator } from '../../validators';
+import { alphanumericValidator, emailValidator } from '../../validators';
 import { AuthorizationDocument } from '../authorization/model';
 
-@index(
-  { email: 1 },
-  {
-    collation: { locale: 'en_US', strength: 1 },
-    partialFilterExpression: { email: { $exists: true } },
-    unique: true,
-  },
-)
+@index({ email: 1 }, { partialFilterExpression: { email: { $exists: true } }, unique: true })
 @index({ username: 1 }, { collation: { locale: 'en_US', strength: 1 }, unique: true })
 @modelOptions({ schemaOptions: { collection: 'users', timestamps: true } })
 @plugin(duplicateKeyErrorPlugin)
@@ -37,12 +30,7 @@ export class UserSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({
-    lowercase: true,
-    trim: true,
-    type: String,
-    validate: [emailValidator],
-  })
+  @prop({ lowercase: true, maxlength: 256, trim: true, type: String, validate: [emailValidator] })
   public email: string;
 
   @prop({ required: true, type: String })
@@ -51,10 +39,11 @@ export class UserSchema {
   public updatedAt: Date;
 
   @prop({
+    maxlength: 32,
     required: true,
     trim: true,
     type: String,
-    validate: [alphanumericValidator, stringLengthValidator(0, 24)],
+    validate: alphanumericValidator,
   })
   public username: string;
 

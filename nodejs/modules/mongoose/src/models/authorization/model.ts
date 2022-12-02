@@ -93,7 +93,7 @@ export enum AuthorizationRole {
 export class AuthorizationSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @prop({ type: String })
+  @prop({ maxlength: 256, trim: true, type: String })
   public apiKey: string;
 
   @prop({ type: Date })
@@ -101,7 +101,7 @@ export class AuthorizationSchema {
 
   public createdAt: Date;
 
-  @prop({ type: String })
+  @prop({ maxlength: 64, trim: true, type: String })
   public name: string;
 
   @prop({ ref: 'NamespaceSchema', type: mongoose.Schema.Types.ObjectId })

@@ -25,7 +25,7 @@ export class QueueGameServerTemplateSchema {
   @prop({ min: 0.1, required: true, type: Number })
   public cpu: number;
 
-  @prop({ type: String })
+  @prop({ maxlength: 128, trim: true, type: String })
   public description: string;
 
   @prop({ min: 100 * 1000 * 1000, required: true, type: Number })

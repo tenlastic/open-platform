@@ -51,7 +51,7 @@ export class GameServerSchema {
   @prop({ ref: 'UserSchema', type: mongoose.Schema.Types.ObjectId }, PropType.ARRAY)
   public currentUserIds: mongoose.Types.ObjectId[];
 
-  @prop({ type: String })
+  @prop({ maxlength: 128, trim: true, type: String })
   public description: string;
 
   @prop({ min: 100 * 1000 * 1000, required: true, type: Number })
@@ -60,7 +60,7 @@ export class GameServerSchema {
   @prop({ type: mongoose.Schema.Types.Mixed, unset: false })
   public metadata: any;
 
-  @prop({ required: true, type: String })
+  @prop({ maxlength: 64, required: true, trim: true, type: String })
   public name: string;
 
   @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })

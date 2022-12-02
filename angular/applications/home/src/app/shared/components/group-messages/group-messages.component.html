@@ -80,8 +80,9 @@
   </div>
   <div class="input-container">
     <mat-form-field floatLabel="never">
-      <textarea matInput
-                cdkTextareaAutosize
+      <textarea cdkTextareaAutosize
+                matInput
+                maxlength="512"
                 placeholder="Type your message here..."
                 (keydown.enter)="sendMessage($event)"></textarea>
     </mat-form-field>

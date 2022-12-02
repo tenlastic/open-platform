@@ -25,7 +25,7 @@ export class PasswordResetSchema {
   @prop({ required: true, type: Date })
   public expiresAt: Date;
 
-  @prop({ required: true, type: String })
+  @prop({ maxlength: 128, required: true, trim: true, type: String })
   public hash: string;
 
   public updatedAt: Date;

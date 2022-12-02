@@ -30,13 +30,13 @@ export class BuildSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ required: true, type: String })
+  @prop({ maxlength: 256, required: true, trim: true, type: String })
   public entrypoint: string;
 
   @prop({ type: BuildFileSchema }, PropType.ARRAY)
   public files: BuildFileDocument[];
 
-  @prop({ required: true, type: String })
+  @prop({ maxlength: 64, required: true, trim: true, type: String })
   public name: string;
 
   @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })

@@ -10,9 +10,9 @@ export namespace IArticle {
 
 export class ArticleModel extends BaseModel {
   public body: string;
-  public caption: string;
   public namespaceId: string;
   public publishedAt: Date;
+  public subtitle: string;
   public title: string;
   public type: IArticle.Type;
 

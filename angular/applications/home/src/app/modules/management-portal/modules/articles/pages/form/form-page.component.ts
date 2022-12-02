@@ -85,8 +85,8 @@ export class ArticlesFormPageComponent implements OnInit {
     const values: Partial<ArticleModel> = {
       _id: this.data._id,
       body: this.form.get('body').value,
-      caption: this.form.get('caption').value,
       namespaceId: this.form.get('namespaceId').value,
+      subtitle: this.form.get('subtitle').value,
       title: this.form.get('title').value,
       type: this.form.get('type').value,
     };
@@ -103,8 +103,8 @@ export class ArticlesFormPageComponent implements OnInit {
 
     this.form = this.formBuilder.group({
       body: [this.data.body, Validators.required],
-      caption: [this.data.caption],
       namespaceId: [this.params.namespaceId, Validators.required],
+      subtitle: [this.data.subtitle],
       title: [this.data.title, Validators.required],
       type: [this.type || this.types[0].value, Validators.required],
     });

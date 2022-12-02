@@ -60,6 +60,7 @@
           <mat-label>{{ form.get('platform').value === 'server64' ? 'Dockerfile' : 'Entrypoint' }}</mat-label>
           <input formControlName="entrypoint"
                  matInput
+                 maxlength="256"
                  required />
           <mat-error>Enter a valid entrypoint.</mat-error>
         </mat-form-field>

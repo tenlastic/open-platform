@@ -29,7 +29,7 @@ export class WorkflowSchema {
   @prop({ min: 0, required: true, type: Number })
   public memory: number;
 
-  @prop({ required: true, type: String })
+  @prop({ maxlength: 64, required: true, trim: true, type: String })
   public name: string;
 
   @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })

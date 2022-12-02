@@ -32,8 +32,9 @@
       <ng-container *ngIf="type === AuthorizationType.ApiKey">
         <mat-form-field floatLabel="always">
           <mat-label>Name</mat-label>
-          <input matInput
-                 formControlName="name"
+          <input formControlName="name"
+                 matInput
+                 maxlength="64"
                  required />
           <mat-error>Enter a name.</mat-error>
         </mat-form-field>

@@ -13,7 +13,7 @@ export class BuildReferenceSchema {
   @prop({ ref: 'BuildSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public _id: mongoose.Types.ObjectId;
 
-  @prop({ type: String }, PropType.ARRAY)
+  @prop({ maxlength: 256, trim: true, type: String }, PropType.ARRAY)
   public files: string[];
 
   /**

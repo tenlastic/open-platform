@@ -72,9 +72,9 @@ export class ArticlesJsonPageComponent implements OnInit {
   }
 
   private setupForm(): void {
-    this.data ??= new ArticleModel({ body: '', caption: '', title: '', type: IArticle.Type.News });
+    this.data ??= new ArticleModel({ body: '', subtitle: '', title: '', type: IArticle.Type.News });
 
-    const keys = ['body', 'caption', 'title', 'type'];
+    const keys = ['body', 'subtitle', 'title', 'type'];
     const data = Object.keys(this.data)
       .filter((key) => keys.includes(key))
       .sort()

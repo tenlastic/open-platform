@@ -26,11 +26,8 @@ export enum ArticleType {
 export class ArticleSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @prop({ required: true, type: String })
+  @prop({ maxlength: 10240, required: true, trim: true, type: String })
   public body: string;
-
-  @prop({ type: String })
-  public caption: string;
 
   public createdAt: Date;
 
@@ -40,7 +37,10 @@ export class ArticleSchema {
   @prop({ type: Date })
   public publishedAt: Date;
 
-  @prop({ match: /^.{2,100}$/, required: true, type: String })
+  @prop({ maxlength: 96, trim: true, type: String })
+  public subtitle: string;
+
+  @prop({ maxlength: 96, required: true, trim: true, type: String })
   public title: string;
 
   @prop({ enum: ArticleType, required: true, type: String })

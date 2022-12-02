@@ -21,9 +21,10 @@
     <div class="row">
       <mat-form-field floatLabel="always">
         <mat-label>Name</mat-label>
-        <input matInput
-               appAutofocus
-               formControlName="name" />
+        <input appAutofocus
+               formControlName="name"
+               matInput
+               maxlength="64" />
         <mat-error>Enter a valid name.</mat-error>
       </mat-form-field>
     </div>

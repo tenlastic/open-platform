@@ -21,17 +21,19 @@
     <div class="row">
       <mat-form-field floatLabel="always">
         <mat-label>Name</mat-label>
-        <input matInput
-               appAutofocus
-               required
-               formControlName="name" />
+        <input appAutofocus
+               formControlName="name"
+               matInput
+               maxlength="64"
+               required />
         <mat-error>Enter a valid name.</mat-error>
       </mat-form-field>
 
       <mat-form-field floatLabel="always">
         <mat-label>Description</mat-label>
-        <input matInput
-               formControlName="description" />
+        <input formControlName="description"
+               matInput
+               maxlength="128" />
         <mat-error>Enter a valid description.</mat-error>
       </mat-form-field>
     </div>
@@ -100,8 +102,8 @@
     </app-toggle-section>
 
     <app-toggle-section formGroupName="gameServerTemplate"
-                        title="Game Server Template"
-                        [isVisible]="!data._id">
+                        [isVisible]="!data._id"
+                        title="Game Server Template">
       <div class="row">
         <mat-form-field floatLabel="always">
           <mat-label>Build</mat-label>

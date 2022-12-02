@@ -20,17 +20,19 @@
     <div class="row">
       <mat-form-field floatLabel="always">
         <mat-label>Title</mat-label>
-        <input matInput
-               appAutofocus
-               required
-               formControlName="title" />
+        <input appAutofocus
+               formControlName="title"
+               matInput
+               maxlength="32"
+               required />
         <mat-error>Enter a valid title.</mat-error>
       </mat-form-field>
 
       <mat-form-field floatLabel="always">
         <mat-label>Subtitle</mat-label>
-        <input matInput
-               formControlName="subtitle" />
+        <input formControlName="subtitle"
+               matInput
+               maxlength="32" />
         <mat-error>Enter a valid subtitle.</mat-error>
       </mat-form-field>
     </div>

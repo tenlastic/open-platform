@@ -37,7 +37,7 @@ export class NamespaceSchema {
   @prop({ default: () => new NamespaceLimits(), type: NamespaceLimitsSchema, unset: false })
   public limits: NamespaceLimitsDocument;
 
-  @prop({ required: true, type: String })
+  @prop({ maxlength: 64, required: true, trim: true, type: String })
   public name: string;
 
   @prop({ default: () => new NamespaceStatus(), merge: true, type: NamespaceStatusSchema })

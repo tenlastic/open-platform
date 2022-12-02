@@ -21,7 +21,7 @@ export class CollectionJsonSchemaSchema {
   @prop({ required: true, type: () => CollectionJsonSchemaPropertiesSchema }, PropType.MAP)
   public properties: Map<string, CollectionJsonSchemaPropertiesDocument>;
 
-  @prop({ type: String }, PropType.ARRAY)
+  @prop({ maxlength: 128, trim: true, type: String }, PropType.ARRAY)
   public required: string[];
 
   @prop({ enum: [CollectionJsonSchemaType.Object], required: true, type: String })

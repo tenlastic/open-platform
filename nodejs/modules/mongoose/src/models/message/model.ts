@@ -40,7 +40,7 @@ import { unsetPlugin } from '../../plugins';
 export class MessageSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @prop({ maxlength: 512, required: true, type: String })
+  @prop({ maxlength: 512, required: true, trim: true, type: String })
   public body: string;
 
   public createdAt: Date;

@@ -4,8 +4,8 @@ import { Article, ArticleDocument, AuthorizationRole } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
 const administrator = {
-  create: ['body', 'caption', 'namespaceId', 'publishedAt', 'title', 'type'],
-  update: ['body', 'caption', 'namespaceId', 'publishedAt', 'title', 'type'],
+  create: ['body', 'namespaceId', 'publishedAt', 'subtitle', 'title', 'type'],
+  update: ['body', 'namespaceId', 'publishedAt', 'subtitle', 'title', 'type'],
 };
 
 export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Article, {
@@ -40,10 +40,10 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
     default: [
       '_id',
       'body',
-      'caption',
       'createdAt',
       'namespaceId',
       'publishedAt',
+      'subtitle',
       'title',
       'type',
       'updatedAt',

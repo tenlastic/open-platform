@@ -12,10 +12,10 @@ export class BuildFileSchema {
   @prop({ required: true, type: Number })
   public compressedBytes: number;
 
-  @prop({ required: true, type: String })
+  @prop({ maxlength: 128, required: true, trim: true, type: String })
   public md5: string;
 
-  @prop({ required: true, type: String })
+  @prop({ maxlength: 256, required: true, trim: true, type: String })
   public path: string;
 
   @prop({ required: true, type: Number })

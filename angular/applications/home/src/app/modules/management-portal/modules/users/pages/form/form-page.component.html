@@ -21,10 +21,11 @@
     <div class="row">
       <mat-form-field floatLabel="always">
         <mat-label>Email Address</mat-label>
-        <input matInput
-               appAutofocus
-               type="email"
-               formControlName="email" />
+        <input appAutofocus
+               formControlName="email"
+               matInput
+               maxlength="256"
+               type="email" />
         <mat-error>Enter a valid email address.</mat-error>
       </mat-form-field>
     </div>
@@ -32,10 +33,10 @@
     <div class="row">
       <mat-form-field floatLabel="always">
         <mat-label>Username</mat-label>
-        <input matInput
-               required
-               formControlName="username"
-               maxlength="20" />
+        <input formControlName="username"
+               matInput
+               maxlength="32"
+               required />
         <mat-error>Enter a valid alphanumeric username.</mat-error>
       </mat-form-field>
     </div>

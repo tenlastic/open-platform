@@ -24,7 +24,7 @@ export class WebSocketSchema {
   @prop({ ref: 'NamespaceSchema', type: mongoose.Schema.Types.ObjectId })
   public namespaceId: mongoose.Types.ObjectId;
 
-  @prop({ required: true, type: String })
+  @prop({ maxlength: 256, trim: true, required: true, type: String })
   public nodeId: string;
 
   public updatedAt: Date;
