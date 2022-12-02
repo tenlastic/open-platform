@@ -29,9 +29,7 @@ describe('replicateFromNats()', function () {
         ns: { coll: chance.hash({ length: 16 }), db: chance.hash({ length: 16 }) },
         operationType: 'delete',
       };
-
-      const { coll, db } = payload.ns;
-      const subject = `${db}.${coll}`;
+      const subject = `${payload.ns.db}.${payload.ns.coll}`;
 
       await eachMessage(Model, { durable: chance.hash(), start: new Date(), subject }, payload);
 
@@ -45,89 +43,56 @@ describe('replicateFromNats()', function () {
       const _id = new mongoose.Types.ObjectId();
       const payload: IDatabasePayload<any> = {
         documentKey: { _id },
-        fullDocument: {
-          _id,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
+        fullDocument: { _id, createdAt: new Date(), updatedAt: new Date() },
         ns: { coll: chance.hash({ length: 16 }), db: chance.hash({ length: 16 }) },
         operationType: 'insert',
       };
-
-      const { coll, db } = payload.ns;
-      const subject = `${db}.${coll}`;
+      const subject = `${payload.ns.db}.${payload.ns.coll}`;
 
       await eachMessage(Model, { durable: chance.hash(), start: new Date(), subject }, payload);
 
-      const result = (await Model.findOne({ _id: payload.fullDocument._id })) as any;
-      expect(result._id.toString()).to.eql(payload.fullDocument._id.toString());
+      const result = await Model.findOne({ _id: payload.fullDocument._id });
       expect(result.createdAt).to.eql(payload.fullDocument.createdAt);
       expect(result.updatedAt).to.eql(payload.fullDocument.updatedAt);
     });
   });
 
   context('when the operationType is update', function () {
+    const _id = new mongoose.Types.ObjectId();
+    const payload: IDatabasePayload<any> = {
+      documentKey: { _id },
+      fullDocument: { _id, name: chance.hash(), updatedAt: new Date() },
+      ns: { coll: chance.hash({ length: 16 }), db: chance.hash({ length: 16 }) },
+      operationType: 'update',
+      updateDescription: { removedFields: ['createdAt'], updatedFields: { updatedAt: new Date() } },
+    };
+    let record: Document;
+    const subject = `${payload.ns.db}.${payload.ns.coll}`;
+
+    beforeEach(async function () {
+      record = await Model.create({ _id, createdAt: new Date(), updatedAt: new Date() });
+    });
+
     context('when useUpdateDescription is true', function () {
       it('updates the document within MongoDB', async function () {
-        const record = await Model.create({ _id: new mongoose.Types.ObjectId() });
-        const payload: IDatabasePayload<any> = {
-          documentKey: { _id: record._id },
-          fullDocument: {
-            _id: record._id,
-            createdAt: new Date(),
-            name: chance.hash(),
-            updatedAt: new Date(),
-          },
-          ns: { coll: chance.hash({ length: 16 }), db: chance.hash({ length: 16 }) },
-          operationType: 'update',
-          updateDescription: {
-            removedFields: ['createdAt'],
-            updatedFields: { updatedAt: new Date() },
-          },
-        };
-
-        const { coll, db } = payload.ns;
-        const subject = `${db}.${coll}`;
-
         await eachMessage(
           Model,
           { durable: chance.hash(), start: new Date(), subject, useUpdateDescription: true },
           payload,
         );
 
-        const result: any = await Model.findOne({ _id: record._id });
-        expect(result.createdAt).to.eql(record.createdAt);
+        const result = await Model.findOne({ _id: record._id });
+        expect(result.createdAt).to.not.exist;
         expect(result.updatedAt).to.eql(payload.updateDescription.updatedFields.updatedAt);
       });
     });
 
     context('when useUpdateDescription is false', function () {
       it('updates the document within MongoDB', async function () {
-        const record = await Model.create({ _id: new mongoose.Types.ObjectId() });
-        const payload: IDatabasePayload<any> = {
-          documentKey: { _id: record._id },
-          fullDocument: {
-            _id: record._id,
-            createdAt: new Date(),
-            name: chance.hash(),
-            updatedAt: new Date(),
-          },
-          ns: { coll: chance.hash({ length: 16 }), db: chance.hash({ length: 16 }) },
-          operationType: 'update',
-          updateDescription: {
-            removedFields: ['createdAt'],
-            updatedFields: { updatedAt: new Date() },
-          },
-        };
-
-        const { coll, db } = payload.ns;
-        const subject = `${db}.${coll}`;
-
         await eachMessage(Model, { durable: chance.hash(), start: new Date(), subject }, payload);
 
-        const result: any = await Model.findOne({ _id: record._id });
-        expect(result._id.toString()).to.eql(payload.fullDocument._id.toString());
-        expect(result.createdAt).to.eql(payload.fullDocument.createdAt);
+        const result = await Model.findOne({ _id: record._id });
+        expect(result.createdAt).to.not.exist;
         expect(result.name).to.eql(payload.fullDocument.name);
         expect(result.updatedAt).to.eql(payload.fullDocument.updatedAt);
       });

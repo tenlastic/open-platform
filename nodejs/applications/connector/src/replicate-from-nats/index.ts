@@ -65,27 +65,14 @@ export async function eachMessage(
     await Model.deleteOne(documentKey);
   } else if (operationType === 'insert') {
     await Model.create(payload.fullDocument);
-  } else if (options.useUpdateDescription) {
-    const { removedFields, updatedFields } = updateDescription;
-    const update: any = {};
-
-    if (removedFields && removedFields.length > 0) {
-      update.$unset = updateDescription.removedFields.reduce((agg: any, field: string) => {
-        agg[field] = '';
-        return agg;
-      }, {});
-    }
-
-    if (updatedFields && Object.keys(updatedFields).length > 0) {
-      update.$set = updateDescription.updatedFields;
-    }
-
-    if (update.$set || update.$unset) {
-      await Model.updateOne(documentKey, update, { upsert: true });
-    }
   } else if (operationType === 'replace') {
     await Model.replaceOne(documentKey, payload.fullDocument, { upsert: true });
   } else if (operationType === 'update') {
-    await Model.updateOne(documentKey, payload.fullDocument, { upsert: true });
+    const update = {
+      $set: options.useUpdateDescription ? updateDescription.updatedFields : payload.fullDocument,
+      $unset: updateDescription.removedFields.reduce((p, c) => ({ ...p, [c]: '' }), {}),
+    };
+
+    await Model.updateOne(documentKey, update, { upsert: true });
   }
 }

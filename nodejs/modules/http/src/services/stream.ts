@@ -1,3 +1,4 @@
+import { ID, IDS } from '@datorama/akita';
 import wait from '@tenlastic/wait';
 import WebSocket from 'isomorphic-ws';
 import TypedEmitter from 'typed-emitter';
@@ -28,8 +29,10 @@ interface Service {
 
 interface Store {
   add: (record: any) => void;
+  getValue: () => { ids?: ID[] };
+  idKey: string;
   remove: (_id: string) => void;
-  upsert: (unix: string, record: any) => void;
+  replace: (_ids: IDS, record: any) => void;
 }
 
 interface SubscribeParameters {
@@ -44,7 +47,7 @@ interface Subscription {
   _id: string;
   logs?: LogsParameters;
   method: 'logs' | 'subscribe';
-  Model: any;
+  model: any;
   service?: Service;
   store?: Store;
   subscribe?: SubscribeParameters;
@@ -117,9 +120,9 @@ export class StreamService {
         const subscribe = subscriptions.filter((s) => s.method === 'subscribe');
         this.subscriptions = this.subscriptions.filter((s) => s.url !== options.url);
 
-        await Promise.all(logs.map((l) => this.logs(l.Model, l.logs, l.store, l.url)));
+        await Promise.all(logs.map((l) => this.logs(l.model, l.logs, l.store, l.url)));
         await Promise.all(
-          subscribe.map((s) => this.subscribe(s.Model, s.subscribe, s.service, s.store, s.url)),
+          subscribe.map((s) => this.subscribe(s.model, s.subscribe, s.service, s.store, s.url)),
         );
 
         socket.removeEventListener('message', onMessage);
@@ -157,7 +160,7 @@ export class StreamService {
   }
 
   public async logs(
-    Model: new (parameters?: Partial<BaseModel>) => BaseModel,
+    model: new (parameters?: Partial<BaseModel>) => BaseModel,
     parameters: LogsParameters,
     store: Store,
     url: string,
@@ -168,7 +171,7 @@ export class StreamService {
     }
 
     // Cache the subscription to resubscribe when reconnected.
-    this.subscriptions.push({ _id, logs: parameters, method: 'logs', Model, store, url });
+    this.subscriptions.push({ _id, logs: parameters, method: 'logs', model, store, url });
 
     // Wait until web socket is connected to subscribe.
     if (!this.webSockets.has(url) || this.webSockets.get(url)?.readyState !== 1) {
@@ -190,8 +193,8 @@ export class StreamService {
         throw new Error(payload.error);
       }
 
-      const record = new Model({ ...payload.fullDocument, ...parameters }) as any;
-      store.upsert(record.unix, record);
+      const record = new model({ ...payload.fullDocument, ...parameters }) as any;
+      this.addOrReplace(record, store);
 
       const subscription = this.subscriptions.find((s) => s._id === _id);
       subscription.logs.since = new Date(record.unix);
@@ -201,7 +204,7 @@ export class StreamService {
   }
 
   public async subscribe(
-    Model: new (parameters?: Partial<BaseModel>) => BaseModel,
+    model: new (parameters?: Partial<BaseModel>) => BaseModel,
     parameters: SubscribeParameters,
     service: Service,
     store: Store,
@@ -216,7 +219,7 @@ export class StreamService {
     this.subscriptions.push({
       _id,
       method: 'subscribe',
-      Model,
+      model,
       service,
       store,
       subscribe: parameters,
@@ -253,7 +256,7 @@ export class StreamService {
         this.resumeTokens[parameters.collection] = payload.resumeToken;
       }
 
-      const record = new Model(payload.fullDocument);
+      const record = new model(payload.fullDocument);
       if (payload.operationType === 'delete') {
         service.emitter.emit('delete', record);
         store.remove(record._id);
@@ -262,7 +265,7 @@ export class StreamService {
         store.add(record);
       } else if (payload.operationType === 'replace' || payload.operationType === 'update') {
         service.emitter.emit('update', record);
-        store.upsert(record._id, record);
+        this.addOrReplace(record, store);
       }
     });
 
@@ -286,5 +289,15 @@ export class StreamService {
 
     const socket = this.webSockets.get(url);
     socket.send(JSON.stringify(data));
+  }
+
+  /**
+   * Adds a new entity to the store or replaces an existing entity within the store.
+   */
+  private addOrReplace(entity: BaseModel, store: Store) {
+    const id = entity[store.idKey];
+    const { ids } = store.getValue();
+
+    return ids.includes(id) ? store.replace(id, entity) : store.add(entity);
   }
 }

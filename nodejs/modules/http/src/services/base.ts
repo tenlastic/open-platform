@@ -78,7 +78,7 @@ export class BaseService<T extends BaseModel> {
 
     const record = new this.Model(response.data.record);
     this.emitter.emit('create', record);
-    this.store.add(record);
+    this.addOrReplace(record);
 
     return record;
   }
@@ -103,7 +103,7 @@ export class BaseService<T extends BaseModel> {
     const response = await this.apiService.request({ method: 'get', params: query, url });
 
     const records = response.data.records.map((r) => new this.Model(r));
-    this.store.upsertMany(records);
+    records.forEach((r) => this.addOrReplace(r));
 
     return records;
   }
@@ -115,7 +115,7 @@ export class BaseService<T extends BaseModel> {
     const response = await this.apiService.request({ method: 'get', url: `${url}/${_id}` });
 
     const record = new this.Model(response.data.record);
-    this.store.upsert(_id, record);
+    this.addOrReplace(record);
 
     return record;
   }
@@ -132,8 +132,18 @@ export class BaseService<T extends BaseModel> {
 
     const record = new this.Model(response.data.record);
     this.emitter.emit('update', record);
-    this.store.upsert(_id, record);
+    this.addOrReplace(record);
 
     return record;
+  }
+
+  /**
+   * Adds a new entity to the store or replaces an existing entity within the store.
+   */
+  private addOrReplace(entity: T) {
+    const id = entity[this.store.idKey];
+    const { ids } = this.store.getValue();
+
+    return ids.includes(id) ? this.store.replace(id, entity) : this.store.add(entity);
   }
 }
