@@ -38,16 +38,7 @@ export class QueueMemberDuplicateKeyError extends Error {
   await this.setUserIds();
   await this.checkPlayersPerTeam();
   this.checkUsers();
-})
-@pre('validate', async function (this: QueueMemberDocument) {
-  if (!this.populated('webSocketDocument')) {
-    await this.populate('webSocketDocument');
-  }
-
-  if (!this.userId?.equals(this.webSocketDocument?.userId)) {
-    const message = 'Web Socket does not belong to the same User.';
-    this.invalidate('webSocketId', message, this.webSocketId);
-  }
+  await this.checkWebSocket();
 })
 @post('findOneAndUpdate', function (err: any, doc: QueueMemberDocument, next) {
   if (err.code === 11000) {
@@ -162,6 +153,16 @@ export class QueueMemberSchema {
   private checkUsers(this: QueueMemberDocument) {
     if (!this.userIds.some((ui) => ui.equals(this.userId))) {
       throw new Error('User is not in the Group.');
+    }
+  }
+
+  private async checkWebSocket(this: QueueMemberDocument) {
+    if (!this.populated('webSocketDocument')) {
+      await this.populate('webSocketDocument');
+    }
+
+    if (!this.userId?.equals(this.webSocketDocument?.userId)) {
+      throw new Error('Web Socket does not belong to the same User.');
     }
   }
 

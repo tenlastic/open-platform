@@ -60,9 +60,6 @@ export class RecordSchema {
     // Register indexes with Mongoose.
     indexes.forEach((i) => {
       const key = i.keys.reduce((p, c) => ({ ...p, [c.field]: c.direction }), {});
-      console.log(
-        `Index: ${JSON.stringify(key)} - ${JSON.stringify({ ...i.options, name: `${i._id}` })}`,
-      );
       schema.index(key, { ...i.options, name: `${i._id}` });
     });
 

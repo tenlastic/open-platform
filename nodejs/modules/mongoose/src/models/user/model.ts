@@ -16,7 +16,7 @@ import { alphanumericValidator, emailValidator } from '../../validators';
 import { AuthorizationDocument } from '../authorization/model';
 
 @index({ email: 1 }, { partialFilterExpression: { email: { $exists: true } }, unique: true })
-@index({ username: 1 }, { collation: { locale: 'en_US', strength: 1 }, unique: true })
+@index({ username: 1 }, { collation: { locale: 'en', strength: 1 }, unique: true })
 @modelOptions({ schemaOptions: { collection: 'users', timestamps: true } })
 @plugin(duplicateKeyErrorPlugin)
 @plugin(unsetPlugin)

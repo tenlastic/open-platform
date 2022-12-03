@@ -14,7 +14,7 @@ import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 @index(
   { name: 1 },
   {
-    collation: { locale: 'en_US', strength: 1 },
+    collation: { locale: 'en', strength: 1 },
     partialFilterExpression: { name: { $exists: true } },
     unique: true,
   },

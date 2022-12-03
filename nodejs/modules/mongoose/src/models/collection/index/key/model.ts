@@ -8,7 +8,7 @@ export class CollectionIndexKeySchema {
   @prop({ default: 1, type: Number, validate: enumValidator([-1, 1]) })
   public direction: number;
 
-  @prop({ maxlength: 64, required: true, trim: true, type: String })
+  @prop({ match: /^[0-9A-Za-z.]+$/, maxlength: 64, required: true, trim: true, type: String })
   public field: string;
 
   /**
