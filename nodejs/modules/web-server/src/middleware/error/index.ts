@@ -13,6 +13,7 @@ export async function errorMiddleware(ctx: Context, next: Next) {
 
     switch (e.name) {
       case 'DuplicateKeyError':
+      case 'DuplicateKeyIndexError':
         ctx.response.status = status;
         ctx.response.body = getDuplicateKeyError(e);
         break;

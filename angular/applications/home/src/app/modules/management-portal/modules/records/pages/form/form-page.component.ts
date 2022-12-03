@@ -117,13 +117,13 @@ export class RecordsFormPageComponent implements OnInit {
       const camelCaseToTitleCasePipe = new CamelCaseToTitleCasePipe();
       const pathMap = Object.keys(this.collection.jsonSchema.properties).reduce(
         (previous, current) => {
-          previous[current] = camelCaseToTitleCasePipe.transform(current);
+          previous[`properties.${current}`] = camelCaseToTitleCasePipe.transform(current);
           return previous;
         },
         {},
       );
 
-      this.errors = this.formService.handleHttpError(e, pathMap);
+      this.errors = this.formService.handleHttpError(e, { ...pathMap, userId: 'User ID' });
     }
   }
 
