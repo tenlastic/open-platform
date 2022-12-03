@@ -109,7 +109,7 @@ export class RecordsFormPageComponent implements OnInit {
       {},
     );
 
-    const values = { properties };
+    const values = { _id: this.data._id, properties };
 
     try {
       await this.upsert(values);

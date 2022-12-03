@@ -42,12 +42,7 @@ injector.inject([
     ) => new GameServerService(apiService, environmentService, gameServerStore),
   },
   { provide: GameServerStore, useValue: new GameServerStore() },
-  {
-    deps: [EnvironmentService],
-    provide: StreamService,
-    useFactory: (environmentService: EnvironmentService) =>
-      new StreamService(environmentService, null),
-  },
+  { provide: StreamService, useFactory: () => new StreamService() },
 ]);
 
 export default {

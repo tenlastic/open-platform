@@ -72,12 +72,7 @@ injector.inject([
     ) => new QueueService(apiService, environmentService, queueStore),
   },
   { provide: QueueStore, useValue: new QueueStore() },
-  {
-    deps: [EnvironmentService],
-    provide: StreamService,
-    useFactory: (environmentService: EnvironmentService) =>
-      new StreamService(environmentService, null),
-  },
+  { provide: StreamService, useFactory: () => new StreamService() },
 ]);
 
 export default {

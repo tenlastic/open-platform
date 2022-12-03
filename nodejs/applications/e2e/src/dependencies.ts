@@ -158,12 +158,7 @@ const services: injector.Injection[] = [
       recordStore: RecordStore,
     ) => new RecordService(apiService, environmentService, recordStore),
   },
-  {
-    deps: [EnvironmentService, TokenService],
-    provide: StreamService,
-    useFactory: (environmentService: EnvironmentService, tokenService: TokenService) =>
-      new StreamService(environmentService, tokenService),
-  },
+  { provide: StreamService, useFactory: () => new StreamService() },
   {
     deps: [LoginService],
     provide: TokenService,

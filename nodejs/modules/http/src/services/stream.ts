@@ -5,8 +5,6 @@ import { v4 as uuid } from 'uuid';
 
 import { BaseModel } from '../models/base';
 import { Jwt } from '../models/jwt';
-import { EnvironmentService } from './environment';
-import { TokenService } from './token';
 
 type ConnectOptions = { url: string } & ({ accessToken: Jwt } | { apiKey: string });
 
@@ -59,8 +57,6 @@ export class StreamService {
 
   private resumeTokens: { [key: string]: string } = {};
   private subscriptions: Subscription[] = [];
-
-  constructor(private environmentService: EnvironmentService, private tokenService: TokenService) {}
 
   public close(url: string) {
     this.subscriptions = this.subscriptions.filter((s) => s.url !== url);

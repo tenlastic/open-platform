@@ -442,12 +442,7 @@ const services: Provider[] = [
       store: StorefrontStore,
     ) => new StorefrontService(apiService, environmentService, store),
   },
-  {
-    deps: [EnvironmentService, TokenService],
-    provide: StreamService,
-    useFactory: (environmentService: EnvironmentService, tokenService: TokenService) =>
-      new StreamService(environmentService, tokenService),
-  },
+  { provide: StreamService, useFactory: () => new StreamService() },
   {
     deps: [LoginService],
     provide: TokenService,

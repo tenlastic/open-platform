@@ -42,12 +42,7 @@ injector.inject([
   { provide: BuildStore, useValue: new BuildStore() },
   { provide: Axios, useValue: new Axios() },
   { provide: EnvironmentService, useValue: new EnvironmentService({ apiKey, apiUrl }) },
-  {
-    deps: [EnvironmentService],
-    provide: StreamService,
-    useFactory: (environmentService: EnvironmentService) =>
-      new StreamService(environmentService, null),
-  },
+  { provide: StreamService, useFactory: () => new StreamService() },
 ]);
 
 export default {
