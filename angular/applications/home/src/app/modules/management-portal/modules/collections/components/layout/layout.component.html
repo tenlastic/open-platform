@@ -1,30 +1,38 @@
 <app-sidenav>
-  <div *ngIf="($collection | async) as collection"
-       appNav
-       class="nav">
-    <app-button color="accent"
-                layout="vertical"
-                [ngClass]="{ active: isActive }"
-                [routerLink]="['./']"
-                text="left"
-                width="full">
-      <mat-icon>category</mat-icon>
-      <div>{{ collection.name }}</div>
-    </app-button>
+  <ng-container *ngIf="$namespace | async as namespace">
+    <div *ngIf="$collection | async as collection"
+         appNav
+         class="nav">
+      <app-button color="accent"
+                  [disabled]="namespace.status.phase !== 'Running'"
+                  layout="vertical"
+                  [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
+                  matTooltipPosition="right"
+                  [ngClass]="{ active: isActive }"
+                  [routerLink]="namespace.status.phase === 'Running' ? ['./'] : null"
+                  text="left"
+                  width="full">
+        <mat-icon>category</mat-icon>
+        <div>{{ collection.name }}</div>
+      </app-button>
 
-    <hr *ngIf="$hasRelated | async">
+      <hr *ngIf="$hasRelated | async">
 
-    <app-button *ngIf="$hasPermission(IAuthorization.collectionRoles) | async"
-                color="accent"
-                layout="vertical"
-                [routerLink]="['records']"
-                routerLinkActive="active"
-                text="left"
-                width="full">
-      <mat-icon>description</mat-icon>
-      <div>Records</div>
-    </app-button>
-  </div>
+      <app-button *ngIf="$hasPermission(IAuthorization.collectionRoles) | async"
+                  color="accent"
+                  [disabled]="namespace.status.phase !== 'Running'"
+                  layout="vertical"
+                  [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
+                  matTooltipPosition="right"
+                  [routerLink]="namespace.status.phase === 'Running' ? ['records'] : null"
+                  routerLinkActive="active"
+                  text="left"
+                  width="full">
+        <mat-icon>description</mat-icon>
+        <div>Records</div>
+      </app-button>
+    </div>
 
-  <router-outlet></router-outlet>
+    <router-outlet></router-outlet>
+  </ng-container>
 </app-sidenav>

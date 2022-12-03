@@ -6,6 +6,8 @@ import {
   CollectionQuery,
   CollectionService,
   IAuthorization,
+  NamespaceModel,
+  NamespaceQuery,
   RecordModel,
   RecordService,
   RecordStore,
@@ -34,6 +36,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
       this.authorizationQuery.selectHasRoles(this.params.namespaceId, roles, userId),
     ]).pipe(map(([a, b]) => a || b));
   }
+  public $namespace: Observable<NamespaceModel>;
   public IAuthorization = IAuthorization;
   public get isActive() {
     return (
@@ -61,6 +64,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
     private collectionQuery: CollectionQuery,
     private collectionService: CollectionService,
     private identityService: IdentityService,
+    private namespaceQuery: NamespaceQuery,
     private recordService: RecordService,
     private recordStore: RecordStore,
     private router: Router,
@@ -77,6 +81,8 @@ export class LayoutComponent implements OnDestroy, OnInit {
       }
 
       this.$collection = this.collectionQuery.selectEntity(params.collectionId);
+      this.$namespace = this.namespaceQuery.selectEntity(params.namespaceId);
+
       await this.collectionService.findOne(params.namespaceId, params.collectionId);
 
       const accessToken = await this.tokenService.getAccessToken();

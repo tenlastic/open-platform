@@ -3,6 +3,8 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
   AuthorizationQuery,
   IAuthorization,
+  NamespaceModel,
+  NamespaceQuery,
   QueueMemberModel,
   QueueMemberService,
   QueueMemberStore,
@@ -33,6 +35,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
       this.authorizationQuery.selectHasRoles(this.params.namespaceId, roles, userId),
     ]).pipe(map(([a, b]) => a || b));
   }
+  public $namespace: Observable<NamespaceModel>;
   public $queue: Observable<QueueModel>;
   public IAuthorization = IAuthorization;
   public get isActive() {
@@ -59,6 +62,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
     private activatedRoute: ActivatedRoute,
     private authorizationQuery: AuthorizationQuery,
     private identityService: IdentityService,
+    private namespaceQuery: NamespaceQuery,
     private queueMemberService: QueueMemberService,
     private queueMemberStore: QueueMemberStore,
     private queueQuery: QueueQuery,
@@ -76,8 +80,10 @@ export class LayoutComponent implements OnDestroy, OnInit {
         return;
       }
 
-      this.$queue = this.queueQuery.selectEntity(this.params.queueId);
-      await this.queueService.findOne(this.params.namespaceId, this.params.queueId);
+      this.$namespace = this.namespaceQuery.selectEntity(params.namespaceId);
+      this.$queue = this.queueQuery.selectEntity(params.queueId);
+
+      await this.queueService.findOne(params.namespaceId, params.queueId);
 
       const accessToken = await this.tokenService.getAccessToken();
       return Promise.all([

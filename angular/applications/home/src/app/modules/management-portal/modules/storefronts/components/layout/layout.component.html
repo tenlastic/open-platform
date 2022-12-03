@@ -1,62 +1,79 @@
 <app-sidenav>
-  <div *ngIf="($storefront | async) as storefront"
-       appNav
-       class="nav">
-    <app-button color="accent"
-                layout="vertical"
-                [ngClass]="{ active: isActive }"
-                [routerLink]="['./']"
-                text="left"
-                width="full">
-      <mat-icon>storefront</mat-icon>
-      <div>{{ storefront.title }}</div>
-    </app-button>
+  <ng-container *ngIf="$namespace | async as namespace">
+    <div *ngIf="$storefront | async as storefront"
+         appNav
+         class="nav">
+      <app-button color="accent"
+                  [disabled]="namespace.status.phase !== 'Running'"
+                  layout="vertical"
+                  [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
+                  matTooltipPosition="right"
+                  [ngClass]="{ active: isActive }"
+                  [routerLink]="namespace.status.phase === 'Running' ? ['./'] : null"
+                  text="left"
+                  width="full">
+        <mat-icon>storefront</mat-icon>
+        <div>{{ storefront.title }}</div>
+      </app-button>
 
-    <hr>
+      <hr>
 
-    <app-button color="accent"
-                layout="vertical"
-                [routerLink]="['multimedia']"
-                routerLinkActive="active"
-                text="left"
-                width="full">
-      <mat-icon>image</mat-icon>
-      <div>Images / Videos</div>
-    </app-button>
+      <app-button color="accent"
+                  [disabled]="namespace.status.phase !== 'Running'"
+                  layout="vertical"
+                  [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
+                  matTooltipPosition="right"
+                  [routerLink]="namespace.status.phase === 'Running' ? ['multimedia'] : null"
+                  routerLinkActive="active"
+                  text="left"
+                  width="full">
+        <mat-icon>image</mat-icon>
+        <div>Images / Videos</div>
+      </app-button>
 
-    <app-button *ngIf="$hasPermission(IAuthorization.articleRoles) | async"
-                color="accent"
-                layout="vertical"
-                [routerLink]="['guides']"
-                routerLinkActive="active"
-                text="left"
-                width="full">
-      <mat-icon>format_list_bulleted</mat-icon>
-      <div>Guides</div>
-    </app-button>
+      <app-button *ngIf="$hasPermission(IAuthorization.articleRoles) | async"
+                  color="accent"
+                  [disabled]="namespace.status.phase !== 'Running'"
+                  layout="vertical"
+                  [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
+                  matTooltipPosition="right"
+                  [routerLink]="namespace.status.phase === 'Running' ? ['guides'] : null"
+                  routerLinkActive="active"
+                  text="left"
+                  width="full">
+        <mat-icon>format_list_bulleted</mat-icon>
+        <div>Guides</div>
+      </app-button>
 
-    <app-button *ngIf="$hasPermission(IAuthorization.articleRoles) | async"
-                color="accent"
-                layout="vertical"
-                [routerLink]="['news']"
-                routerLinkActive="active"
-                text="left"
-                width="full">
-      <mat-icon>campaign</mat-icon>
-      <div>News</div>
-    </app-button>
+      <app-button *ngIf="$hasPermission(IAuthorization.articleRoles) | async"
+                  color="accent"
+                  [disabled]="namespace.status.phase !== 'Running'"
+                  layout="vertical"
+                  [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
+                  matTooltipPosition="right"
+                  [routerLink]="namespace.status.phase === 'Running' ? ['news'] : null"
+                  routerLinkActive="active"
+                  text="left"
+                  width="full">
+        <mat-icon>campaign</mat-icon>
+        <div>News</div>
+      </app-button>
 
-    <app-button *ngIf="$hasPermission(IAuthorization.articleRoles) | async"
-                color="accent"
-                layout="vertical"
-                [routerLink]="['patch-notes']"
-                routerLinkActive="active"
-                text="left"
-                width="full">
-      <mat-icon>healing</mat-icon>
-      <div>Patch Notes</div>
-    </app-button>
-  </div>
+      <app-button *ngIf="$hasPermission(IAuthorization.articleRoles) | async"
+                  color="accent"
+                  [disabled]="namespace.status.phase !== 'Running'"
+                  layout="vertical"
+                  [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
+                  matTooltipPosition="right"
+                  [routerLink]="namespace.status.phase === 'Running' ? ['patch-notes'] : null"
+                  routerLinkActive="active"
+                  text="left"
+                  width="full">
+        <mat-icon>healing</mat-icon>
+        <div>Patch Notes</div>
+      </app-button>
+    </div>
 
-  <router-outlet></router-outlet>
+    <router-outlet></router-outlet>
+  </ng-container>
 </app-sidenav>

@@ -1,5 +1,5 @@
 <app-sidenav>
-  <div *ngIf="($user | async) as user"
+  <div *ngIf="$user | async as user"
        appNav
        class="nav">
     <app-button color="accent"

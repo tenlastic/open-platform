@@ -6,6 +6,8 @@ import {
   ArticleStore,
   AuthorizationQuery,
   IAuthorization,
+  NamespaceModel,
+  NamespaceQuery,
   StorefrontModel,
   StorefrontQuery,
   StorefrontService,
@@ -24,6 +26,7 @@ import { IdentityService } from '../../../../../../core/services';
   styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent implements OnDestroy, OnInit {
+  public $namespace: Observable<NamespaceModel>;
   public $storefront: Observable<StorefrontModel>;
   public IAuthorization = IAuthorization;
   public get isActive() {
@@ -49,6 +52,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
     private articleStore: ArticleStore,
     private authorizationQuery: AuthorizationQuery,
     private identityService: IdentityService,
+    private namespaceQuery: NamespaceQuery,
     private router: Router,
     private storefrontQuery: StorefrontQuery,
     private storefrontService: StorefrontService,
@@ -60,6 +64,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
     this.activatedRoute.params.subscribe(async (params) => {
       this.params = params;
 
+      this.$namespace = this.namespaceQuery.selectEntity(params.namespaceId);
       this.$storefront = this.storefrontQuery
         .selectAll({ filterBy: (s) => s.namespaceId === params.namespaceId })
         .pipe(map((s) => s[0]));

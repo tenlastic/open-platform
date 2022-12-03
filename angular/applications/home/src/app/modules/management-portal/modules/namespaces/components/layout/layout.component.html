@@ -1,5 +1,5 @@
 <app-sidenav>
-  <div *ngIf="($namespace | async) as namespace"
+  <div *ngIf="$namespace | async as namespace"
        appNav
        class="nav">
     <app-button color="accent"
