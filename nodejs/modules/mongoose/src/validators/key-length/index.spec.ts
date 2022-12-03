@@ -66,7 +66,7 @@ describe('validators/key-length', function () {
 
     context('when the value is something else', function () {
       it('returns true', function () {
-        const value = 'string';
+        const value = 'key';
 
         const { validator } = keyLengthValidator(4);
         const result = validator(value);

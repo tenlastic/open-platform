@@ -1,14 +1,24 @@
-import { DocumentType, getModelForClass, prop, PropType } from '@typegoose/typegoose';
-import { Chance } from 'chance';
+import { DocumentType, getModelForClass, plugin, prop, PropType } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
+import { setPlugin } from '../../../plugins';
+import { arrayLengthValidator } from '../../../validators';
+import {
+  CollectionIndexKeyDocument,
+  CollectionIndexKeyModel,
+  CollectionIndexKeySchema,
+} from './key';
 import { CollectionIndexOptionsDocument, CollectionIndexOptionsSchema } from './options';
 
+@plugin(setPlugin)
 export class CollectionIndexSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @prop({ required: true, type: Number }, PropType.MAP)
-  public key: Map<string, number>;
+  @prop(
+    { required: true, type: CollectionIndexKeySchema, validate: arrayLengthValidator(5, 1) },
+    PropType.ARRAY,
+  )
+  public keys: CollectionIndexKeyDocument[];
 
   @prop({ type: CollectionIndexOptionsSchema })
   public options: CollectionIndexOptionsDocument;
@@ -20,10 +30,9 @@ export class CollectionIndexSchema {
     this: typeof CollectionIndexModel,
     values: Partial<CollectionIndexSchema> = {},
   ) {
-    const chance = new Chance();
     const defaults = {
       collectionId: new mongoose.Types.ObjectId(),
-      key: { [chance.hash()]: chance.integer({ max: 1, min: 0 }) },
+      keys: [CollectionIndexKeyModel.mock()],
     };
 
     return new this({ ...defaults, ...values });

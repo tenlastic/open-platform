@@ -13,8 +13,7 @@ import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
 import { jsonToMongo } from '../../json-schema';
-import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
-import { syncIndexes } from '../../sync-indexes';
+import { duplicateKeyErrorPlugin, minimizePlugin, setPlugin, unsetPlugin } from '../../plugins';
 import { AuthorizationDocument } from '../authorization';
 import { RecordSchema } from '../record';
 import { SchemaSchema } from '../schema';
@@ -32,18 +31,15 @@ import {
 
 @index({ name: 1, namespaceId: 1 }, { unique: true })
 @modelOptions({
-  schemaOptions: {
-    collection: 'collections',
-    timestamps: true,
-    toJSON: { getters: true },
-    toObject: { getters: true },
-  },
+  schemaOptions: { collection: 'collections', timestamps: true },
 })
 @plugin(duplicateKeyErrorPlugin)
+@plugin(minimizePlugin)
+@plugin(setPlugin)
 @plugin(unsetPlugin)
 @pre('save', async function (this: CollectionDocument) {
   const Model = RecordSchema.getModel(this);
-  await syncIndexes(Model);
+  await Model.syncIndexes();
 
   const SchemaModel = getModelForClass(SchemaSchema);
   await SchemaModel.sync(Model);
@@ -77,23 +73,7 @@ export class CollectionSchema {
   @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public namespaceId: mongoose.Types.ObjectId;
 
-  @prop({
-    get: (value) => new CollectionPermissionsModel(value).getter(),
-    set(this: CollectionDocument, value: CollectionPermissionsDocument) {
-      const record = new CollectionPermissionsModel(value);
-
-      if (this instanceof mongoose.Document) {
-        const error = record.validateSync();
-
-        for (const [k, v] of Object.entries(error?.errors ?? {})) {
-          this.invalidate(`permissions.${k}`, v.message, v.value, v.kind);
-        }
-      }
-
-      return record.setter();
-    },
-    type: CollectionPermissionsSchema,
-  })
+  @prop({ required: true, type: CollectionPermissionsSchema })
   public permissions: CollectionPermissionsDocument;
 
   public updatedAt: Date;
@@ -114,6 +94,7 @@ export class CollectionSchema {
       jsonSchema: CollectionJsonSchemaModel.mock(),
       name: chance.hash(),
       namespaceId: new mongoose.Types.ObjectId(),
+      permissions: CollectionPermissionsModel.mock(),
     };
 
     return new this({ ...defaults, ...values });

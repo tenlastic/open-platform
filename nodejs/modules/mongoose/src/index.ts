@@ -2,6 +2,7 @@ import * as mongoose from 'mongoose';
 
 mongoose.set('autoCreate', false);
 mongoose.set('autoIndex', false);
+mongoose.set('toJSON', { flattenMaps: true });
 mongoose.set('toObject', { flattenMaps: true });
 
 export * from './event-emitter';

@@ -1,14 +1,21 @@
 import { DocumentType, getModelForClass, modelOptions, prop, Severity } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
-@modelOptions({ options: { allowMixed: Severity.ALLOW }, schemaOptions: { _id: false } })
-export class CollectionIndexOptionsSchema {
-  public _id: mongoose.Types.ObjectId;
+import { parseValue, stringifyValue } from '../../../../transforms';
 
+@modelOptions({
+  options: { allowMixed: Severity.ALLOW },
+  schemaOptions: { _id: false, toJSON: { getters: true }, toObject: { getters: true } },
+})
+export class CollectionIndexOptionsSchema {
   @prop({ type: Number })
   public expireAfterSeconds: number;
 
-  @prop({ type: mongoose.Schema.Types.Mixed, unset: false })
+  @prop({
+    get: (value) => parseValue(value),
+    set: (value) => stringifyValue(value),
+    type: mongoose.Schema.Types.Mixed,
+  })
   public partialFilterExpression: any;
 
   @prop({ type: Boolean })

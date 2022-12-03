@@ -1,5 +1,6 @@
 export * from './alphabetical-keys';
 export * from './alphanumeric';
+export * from './array-length';
 export * from './decremental';
 export * from './email';
 export * from './enum';

@@ -2,8 +2,13 @@ import { BaseModel } from './base';
 
 export namespace ICollection {
   export interface Index {
-    key?: any;
+    keys?: IndexKey[];
     options?: IndexOptions;
+  }
+
+  export interface IndexKey {
+    direction?: number;
+    field?: string;
   }
 
   export interface IndexOptions {

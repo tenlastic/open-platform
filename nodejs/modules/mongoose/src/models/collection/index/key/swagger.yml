@@ -1,0 +1,12 @@
+components:
+  schemas:
+    CollectionIndexKey:
+      type: object
+      properties:
+        direction:
+          type: number
+          enum: [-1, 1]
+        field:
+          type: string
+      required:
+        - field

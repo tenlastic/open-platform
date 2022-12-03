@@ -3,11 +3,10 @@ components:
     CollectionIndex:
       type: object
       properties:
-        key:
-          type: object
-          additionalProperties:
-            enum: [-1, 1]
-            type: number
+        keys:
+          type: array
+          items:
+            $ref: '#/components/schemas/CollectionIndexKey'
         options:
           $ref: '#/components/schemas/CollectionIndexOptions'
       required:

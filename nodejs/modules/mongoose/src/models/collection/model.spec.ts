@@ -2,6 +2,7 @@ import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as mongoose from 'mongoose';
 import * as sinon from 'sinon';
+import { CollectionIndexKeyModel } from './index';
 
 import { CollectionIndexModel } from './index';
 import { CollectionIndexOptionsModel } from './index/options';
@@ -24,11 +25,10 @@ describe('models/collection', function () {
 
   describe(`pre('save')`, function () {
     it('creates an index on the collection within MongoDB', async () => {
-      const index = await CollectionIndexModel.mock({
-        _id: new mongoose.Types.ObjectId(),
-        key: new Map([['properties', 1]]),
+      const index = CollectionIndexModel.mock({
+        keys: [CollectionIndexKeyModel.mock({ field: 'properties' })],
         options: CollectionIndexOptionsModel.mock({ unique: true }),
-      }).save();
+      });
       const collection = await CollectionModel.mock({ indexes: [index] }).save();
 
       const indexes = await mongoose.connection.db.collection(collection.mongoName).indexes();
@@ -39,11 +39,9 @@ describe('models/collection', function () {
     });
 
     it('deletes the index on the collection within MongoDB', async function () {
-      const index = await CollectionIndexModel.mock({
-        _id: new mongoose.Types.ObjectId(),
-        key: new Map([['properties', 1]]),
+      const index = CollectionIndexModel.mock({
         options: CollectionIndexOptionsModel.mock({ unique: true }),
-      }).save();
+      });
       const collection = await CollectionModel.mock({ indexes: [index] }).save();
 
       collection.indexes = [];

@@ -9,9 +9,9 @@ const options = {
   number: { type: Number },
   string: { type: String },
 };
-const subDocumentSchema = new mongoose.Schema({ ...options, array: [], object: this });
+const subdocumentSchema = new mongoose.Schema({ ...options, array: [], object: this });
 const schema = new mongoose.Schema(
-  { ...options, array: { type: [subDocumentSchema] }, object: { type: subDocumentSchema } },
+  { ...options, array: { type: [subdocumentSchema] }, object: { type: subdocumentSchema } },
   { collection: 'unset-plugins' },
 );
 schema.plugin(unsetPlugin);

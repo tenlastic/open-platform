@@ -32,8 +32,8 @@ describe('validators/string-length', function () {
     });
 
     it('returns false', function () {
-      const { validator } = stringLengthValidator(5);
-      const result = validator('123456');
+      const { validator } = stringLengthValidator(3);
+      const result = validator('12345');
 
       expect(result).to.eql(false);
     });
