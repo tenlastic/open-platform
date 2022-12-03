@@ -3,6 +3,9 @@ import { Router, NavigationEnd } from '@angular/router';
 import {
   AuthorizationModel,
   AuthorizationQuery,
+  AuthorizationRequestModel,
+  AuthorizationRequestService,
+  AuthorizationRequestStore,
   AuthorizationService,
   AuthorizationStore,
   GroupInvitationModel,
@@ -20,6 +23,9 @@ import {
   NamespaceService,
   NamespaceStore,
   QueueMemberQuery,
+  StorefrontModel,
+  StorefrontService,
+  StorefrontStore,
   StreamService,
   TokenService,
   UserModel,
@@ -34,7 +40,7 @@ import {
 import { v4 as uuid } from 'uuid';
 
 import { environment } from '../environments/environment';
-import { ElectronService, IdentityService, ResetService } from './core/services';
+import { ElectronService, ResetService } from './core/services';
 
 @Component({
   selector: 'app-root',
@@ -52,6 +58,12 @@ export class AppComponent implements OnInit {
       parameters: { _id: uuid(), collection: 'authorizations' },
       service: this.authorizationService,
       store: this.authorizationStore,
+    },
+    {
+      Model: AuthorizationRequestModel,
+      parameters: { _id: uuid(), collection: 'authorization-requests' },
+      service: this.authorizationRequestService,
+      store: this.authorizationRequestStore,
     },
     {
       Model: GroupModel,
@@ -78,6 +90,12 @@ export class AppComponent implements OnInit {
       store: this.namespaceStore,
     },
     {
+      Model: StorefrontModel,
+      parameters: { _id: uuid(), collection: 'storefronts' },
+      service: this.storefrontService,
+      store: this.storefrontStore,
+    },
+    {
       Model: UserModel,
       parameters: { _id: uuid(), collection: 'users' },
       service: this.userService,
@@ -93,6 +111,8 @@ export class AppComponent implements OnInit {
 
   constructor(
     private authorizationQuery: AuthorizationQuery,
+    private authorizationRequestService: AuthorizationRequestService,
+    private authorizationRequestStore: AuthorizationRequestStore,
     private authorizationService: AuthorizationService,
     private authorizationStore: AuthorizationStore,
     private electronService: ElectronService,
@@ -108,6 +128,8 @@ export class AppComponent implements OnInit {
     private queueMemberQuery: QueueMemberQuery,
     private resetService: ResetService,
     private router: Router,
+    private storefrontService: StorefrontService,
+    private storefrontStore: StorefrontStore,
     private streamService: StreamService,
     private tokenService: TokenService,
     private userQuery: UserQuery,

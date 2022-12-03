@@ -1,5 +1,4 @@
 import { ID, IDS } from '@datorama/akita';
-import wait from '@tenlastic/wait';
 import WebSocket from 'isomorphic-ws';
 import TypedEmitter from 'typed-emitter';
 import { v4 as uuid } from 'uuid';
@@ -74,7 +73,7 @@ export class StreamService {
 
   public async connect(options: ConnectOptions) {
     if (this.webSockets.has(options.url)) {
-      return wait(100, 5 * 1000, () => this.webSockets.get(options.url));
+      return this.webSockets.get(options.url);
     }
 
     let connectionString = options.url;
@@ -174,7 +173,7 @@ export class StreamService {
     this.subscriptions.push({ _id, logs: parameters, method: 'logs', model, store, url });
 
     // Wait until web socket is connected to subscribe.
-    if (!this.webSockets.has(url) || this.webSockets.get(url)?.readyState !== 1) {
+    if (!this.webSockets.has(url) || this.webSockets.get(url).readyState !== 1) {
       return _id;
     }
 
@@ -227,7 +226,7 @@ export class StreamService {
     });
 
     // Wait until web socket is connected to subscribe.
-    if (!this.webSockets.has(url) || this.webSockets.get(url)?.readyState !== 1) {
+    if (!this.webSockets.has(url) || this.webSockets.get(url).readyState !== 1) {
       return _id;
     }
 
@@ -272,7 +271,7 @@ export class StreamService {
     return _id;
   }
 
-  public async unsubscribe(_id: string, url: string) {
+  public unsubscribe(_id: string, url: string) {
     if (!_id) {
       return;
     }

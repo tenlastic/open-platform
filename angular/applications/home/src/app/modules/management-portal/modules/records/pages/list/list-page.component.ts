@@ -13,12 +13,9 @@ import {
   RecordModel,
   RecordQuery,
   RecordService,
-  RecordStore,
-  StreamService,
 } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 
-import { environment } from '../../../../../../../environments/environment';
 import { PromptComponent } from '../../../../../../shared/components';
 import { IdentityService } from '../../../../../../core/services';
 
@@ -33,17 +30,13 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
 
   public collection: CollectionModel;
   public dataSource = new MatTableDataSource<RecordModel>();
-  public displayedColumns;
+  public displayedColumns: string[];
   public hasWriteAuthorization: boolean;
   public propertyColumns: string[];
 
   private $records: Observable<RecordModel[]>;
   private updateDataSource$ = new Subscription();
   private params: Params;
-  private subscription: string;
-  private get wssUrl() {
-    return `${environment.wssUrl}/namespaces/${this.params.namespaceId}`;
-  }
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -54,8 +47,6 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
     private matSnackBar: MatSnackBar,
     private recordQuery: RecordQuery,
     private recordService: RecordService,
-    private recordStore: RecordStore,
-    private streamService: StreamService,
   ) {}
 
   public async ngOnInit() {
@@ -79,21 +70,12 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
         .slice(0, 4);
       this.displayedColumns = this.propertyColumns.concat(['createdAt', 'updatedAt', 'actions']);
 
-      this.subscription = await this.streamService.subscribe(
-        RecordModel,
-        { collection: 'records', where: { collectionId: this.params.collectionId } },
-        this.recordService,
-        this.recordStore,
-        this.wssUrl,
-      );
-
       await this.fetchRecords(params);
     });
   }
 
   public ngOnDestroy() {
     this.updateDataSource$.unsubscribe();
-    this.streamService.unsubscribe(this.subscription, this.wssUrl);
   }
 
   public showDeletePrompt($event: Event, record: RecordModel) {

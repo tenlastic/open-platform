@@ -25,7 +25,6 @@ import {
   StorefrontModel,
   StorefrontQuery,
   StorefrontService,
-  StorefrontStore,
   StreamService,
   TokenService,
   WorkflowModel,
@@ -110,12 +109,6 @@ export class LayoutComponent implements OnDestroy, OnInit {
       store: this.queueStore,
     },
     {
-      Model: StorefrontModel,
-      parameters: { _id: uuid(), collection: 'storefronts' },
-      service: this.storefrontService,
-      store: this.storefrontStore,
-    },
-    {
       Model: WorkflowModel,
       parameters: { _id: uuid(), collection: 'workflows' },
       service: this.workflowService,
@@ -143,7 +136,6 @@ export class LayoutComponent implements OnDestroy, OnInit {
     private router: Router,
     private storefrontQuery: StorefrontQuery,
     private storefrontService: StorefrontService,
-    private storefrontStore: StorefrontStore,
     private streamService: StreamService,
     private tokenService: TokenService,
     private workflowService: WorkflowService,

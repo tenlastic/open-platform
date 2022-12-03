@@ -27,7 +27,6 @@ import {
   StorefrontModel,
   StorefrontQuery,
   StorefrontService,
-  StorefrontStore,
   StreamService,
   TokenService,
 } from '@tenlastic/http';
@@ -98,12 +97,6 @@ export class LayoutComponent implements OnDestroy, OnInit {
       service: this.queueService,
       store: this.queueStore,
     },
-    {
-      Model: StorefrontModel,
-      parameters: { _id: uuid(), collection: 'storefronts' },
-      service: this.storefrontService,
-      store: this.storefrontStore,
-    },
   ];
 
   constructor(
@@ -127,7 +120,6 @@ export class LayoutComponent implements OnDestroy, OnInit {
     private queueStore: QueueStore,
     private storefrontQuery: StorefrontQuery,
     private storefrontService: StorefrontService,
-    private storefrontStore: StorefrontStore,
     private streamService: StreamService,
     private tokenService: TokenService,
     private updateService: UpdateService,
@@ -186,7 +178,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
       // Close previous stream.
       this.streamService.close(this.streamServiceUrl);
 
-      // Subscribe to the new Namespace.
+      // Subscribe to the Namespace.
       const $namespace = this.namespaceQuery.selectEntity(this.namespaceId);
       this.subscribe$ = $namespace.subscribe(async (namespace) => {
         if (namespace.status.phase !== 'Running') {

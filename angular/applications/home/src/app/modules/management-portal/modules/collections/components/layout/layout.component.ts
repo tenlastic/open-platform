@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
   AuthorizationQuery,
@@ -6,17 +6,24 @@ import {
   CollectionQuery,
   CollectionService,
   IAuthorization,
+  RecordModel,
+  RecordService,
+  RecordStore,
+  StreamService,
+  TokenService,
 } from '@tenlastic/http';
 import { combineLatest, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { v4 as uuid } from 'uuid';
 
+import { environment } from '../../../../../../../environments/environment';
 import { IdentityService } from '../../../../../../core/services';
 
 @Component({
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
 })
-export class LayoutComponent implements OnInit {
+export class LayoutComponent implements OnDestroy, OnInit {
   public $collection: Observable<CollectionModel>;
   public get $hasRelated() {
     const roles = [...IAuthorization.collectionRoles];
@@ -36,6 +43,17 @@ export class LayoutComponent implements OnInit {
   }
 
   private params: Params;
+  private get streamServiceUrl() {
+    return `${environment.wssUrl}/namespaces/${this.params.namespaceId}`;
+  }
+  private subscriptions = [
+    {
+      Model: RecordModel,
+      parameters: { _id: uuid(), collection: 'records' },
+      service: this.recordService,
+      store: this.recordStore,
+    },
+  ];
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -43,11 +61,15 @@ export class LayoutComponent implements OnInit {
     private collectionQuery: CollectionQuery,
     private collectionService: CollectionService,
     private identityService: IdentityService,
+    private recordService: RecordService,
+    private recordStore: RecordStore,
     private router: Router,
+    private streamService: StreamService,
+    private tokenService: TokenService,
   ) {}
 
   public async ngOnInit() {
-    this.activatedRoute.params.subscribe((params) => {
+    this.activatedRoute.params.subscribe(async (params) => {
       this.params = params;
 
       if (params.collectionId === 'new') {
@@ -55,8 +77,18 @@ export class LayoutComponent implements OnInit {
       }
 
       this.$collection = this.collectionQuery.selectEntity(params.collectionId);
-      return this.collectionService.findOne(params.namespaceId, params.collectionId);
+      await this.collectionService.findOne(params.namespaceId, params.collectionId);
+
+      const accessToken = await this.tokenService.getAccessToken();
+      return Promise.all([
+        this.streamService.connect({ accessToken, url: this.streamServiceUrl }),
+        this.subscribe(),
+      ]);
     });
+  }
+
+  public ngOnDestroy() {
+    this.unsubscribe();
   }
 
   public $hasPermission(roles: IAuthorization.Role[]) {
@@ -66,5 +98,25 @@ export class LayoutComponent implements OnInit {
       this.authorizationQuery.selectHasRoles(null, roles, userId),
       this.authorizationQuery.selectHasRoles(this.params.namespaceId, roles, userId),
     ]).pipe(map(([a, b]) => a || b));
+  }
+
+  private async subscribe() {
+    const promises = this.subscriptions.map((s) =>
+      this.streamService.subscribe(
+        s.Model,
+        { ...s.parameters, where: { collectionId: this.params.collectionId } },
+        s.service,
+        s.store,
+        this.streamServiceUrl,
+      ),
+    );
+
+    return Promise.all(promises);
+  }
+
+  private unsubscribe() {
+    for (const subscription of this.subscriptions) {
+      this.streamService.unsubscribe(subscription.parameters._id, this.streamServiceUrl);
+    }
   }
 }

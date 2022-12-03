@@ -35,7 +35,7 @@ export class LayoutComponent implements OnInit {
   public async ngOnInit() {
     this.$storefronts = this.storefrontQuery.selectAll();
 
-    const [authorizations, storefronts] = await Promise.all([
+    const [, storefronts] = await Promise.all([
       this.authorizationService.findUserAuthorizations(null, this.identityService.user?._id),
       this.storefrontService.find(null, {}),
     ]);
