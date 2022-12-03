@@ -12,6 +12,7 @@ import {
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
+import { enablePrePostImages } from '../../enable-pre-post-images';
 import { jsonToMongo } from '../../json-schema';
 import { duplicateKeyErrorPlugin, minimizePlugin, setPlugin, unsetPlugin } from '../../plugins';
 import { AuthorizationDocument } from '../authorization';
@@ -43,6 +44,8 @@ import {
 
   const SchemaModel = getModelForClass(SchemaSchema);
   await SchemaModel.sync(Model);
+
+  await enablePrePostImages(Model);
 })
 @post('remove', async function (this: CollectionDocument) {
   try {

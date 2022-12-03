@@ -21,9 +21,9 @@
     <ng-container *ngFor="let key of form.controls | keys; let i = index">
       <app-toggle-section *ngIf="collection.jsonSchema.properties[key].type === 'array'"
                           [title]="key | camelCaseToTitleCase">
-        <div class="row"
-             [formArrayName]="key"
-             *ngFor="let item of form['controls'][key]['controls']; let i = index">
+        <div *ngFor="let item of form['controls'][key]['controls']; let i = index"
+             class="row"
+             [formArrayName]="key">
           <mat-form-field floatLabel="always">
             <mat-label>Element #{{ i + 1 }}</mat-label>
 
