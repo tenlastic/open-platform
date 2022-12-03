@@ -55,6 +55,7 @@ export class StreamService {
   public _ids = new Map<string, string>();
   public webSockets = new Map<string, WebSocket>();
 
+  private pendingWebSockets = new Map<string, WebSocket>();
   private resumeTokens: { [key: string]: string } = {};
   private subscriptions: Subscription[] = [];
 
@@ -64,6 +65,7 @@ export class StreamService {
     const socket = this.webSockets.get(url);
     socket?.close(1000);
 
+    this.pendingWebSockets.delete(url);
     this.webSockets.delete(url);
   }
 
@@ -82,6 +84,7 @@ export class StreamService {
     }
 
     const socket = new WebSocket(connectionString);
+    this.pendingWebSockets.set(options.url, socket);
     this.webSockets.set(options.url, socket);
 
     const data = { _id: uuid(), method: 'ping' };
@@ -91,6 +94,7 @@ export class StreamService {
       clearInterval(interval);
 
       this._ids.delete(options.url);
+      this.pendingWebSockets.delete(options.url);
       this.webSockets.delete(options.url);
 
       if (e.code !== 1000) {
@@ -108,6 +112,7 @@ export class StreamService {
 
         if (payload.fullDocument && payload.operationType === 'insert') {
           this._ids.set(options.url, payload.fullDocument._id);
+          this.pendingWebSockets.delete(options.url);
         }
 
         const subscriptions = this.subscriptions.filter((s) => s.url === options.url);
@@ -169,7 +174,7 @@ export class StreamService {
     this.subscriptions.push({ _id, logs: parameters, method: 'logs', model, store, url });
 
     // Wait until web socket is connected to subscribe.
-    if (!this.webSockets.has(url) || this.webSockets.get(url).readyState !== 1) {
+    if (this.pendingWebSockets.has(url) || !this.webSockets.has(url)) {
       return _id;
     }
 
@@ -179,6 +184,7 @@ export class StreamService {
     socket.send(JSON.stringify(data));
     socket.addEventListener('message', (msg) => {
       const payload = JSON.parse(msg.data);
+
       // If the response is for a different request, ignore it.
       if (payload._id !== _id || !payload.fullDocument) {
         return;
@@ -222,7 +228,7 @@ export class StreamService {
     });
 
     // Wait until web socket is connected to subscribe.
-    if (!this.webSockets.has(url) || this.webSockets.get(url).readyState !== 1) {
+    if (this.pendingWebSockets.has(url) || !this.webSockets.has(url)) {
       return _id;
     }
 
