@@ -43,14 +43,21 @@ export function inject(injections: Injection[]) {
 }
 
 function useFactory(injection: Injection, stack: Constructor[]) {
-  const deps = injection.deps?.map((d) => {
-    if (stack.includes(d)) {
-      throw new Error(`Circular dependency between ${d.name} and ${injection.provide.name}.`);
-    }
+  let value: Injection['useFactory'];
 
-    return get(d, [...stack, injection.provide]);
-  });
-  const value = injection.useFactory(...deps);
+  if (injection.deps) {
+    const deps = injection.deps?.map((d) => {
+      if (stack.includes(d)) {
+        throw new Error(`Circular dependency between ${d.name} and ${injection.provide.name}.`);
+      }
+
+      return get(d, [...stack, injection.provide]);
+    });
+
+    value = injection.useFactory(...deps);
+  } else {
+    value = injection.useFactory(...[]);
+  }
 
   _cache.set(injection.provide, value);
 }
