@@ -16,6 +16,7 @@ import { namespaceValidator } from '../../validators';
 import { AuthorizationDocument } from '../authorization';
 import { BuildDocument } from '../build';
 import { QueueDocument } from '../queue';
+import { GameServerProbesDocument, GameServerProbesSchema } from './probes';
 import { GameServerStatusDocument, GameServerStatusModel, GameServerStatusSchema } from './status';
 
 @index({ authorizedUserIds: 1 })
@@ -71,6 +72,9 @@ export class GameServerSchema {
   @prop({ type: Boolean })
   public preemptible: boolean;
 
+  @prop({ type: GameServerProbesSchema })
+  public probes: GameServerProbesDocument;
+
   @prop({
     ref: 'QueueSchema',
     type: mongoose.Schema.Types.ObjectId,
@@ -115,7 +119,7 @@ export class GameServerSchema {
    * Returns true if a restart is required on an update.
    */
   public static isRestartRequired(fields: string[]) {
-    const immutableFields = ['buildId', 'cpu', 'memory', 'preemptible', 'restartedAt'];
+    const immutableFields = ['buildId', 'cpu', 'memory', 'preemptible', 'probes', 'restartedAt'];
     return immutableFields.some((i) => fields.includes(i));
   }
 }

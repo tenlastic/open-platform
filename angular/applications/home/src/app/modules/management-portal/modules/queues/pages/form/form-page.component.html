@@ -64,22 +64,6 @@
 
     <div class="row">
       <mat-form-field floatLabel="always">
-        <mat-label>Preemptible</mat-label>
-        <mat-select formControlName="preemptible">
-          <mat-option [value]="true">Yes</mat-option>
-          <mat-option [value]="false">No</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field floatLabel="always">
-        <mat-label>Replicas</mat-label>
-        <mat-select formControlName="replicas">
-          <mat-option *ngFor="let replica of replicas"
-                      [value]="replica.value">{{ replica.label }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field floatLabel="always">
         <mat-label>CPU</mat-label>
         <mat-select formControlName="cpu">
           <mat-option *ngFor="let cpu of cpus"
@@ -92,6 +76,22 @@
         <mat-select formControlName="memory">
           <mat-option *ngFor="let memory of memories"
                       [value]="memory.value">{{ memory.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field floatLabel="always">
+        <mat-label>Preemptible</mat-label>
+        <mat-select formControlName="preemptible">
+          <mat-option [value]="true">Yes</mat-option>
+          <mat-option [value]="false">No</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field floatLabel="always">
+        <mat-label>Replicas</mat-label>
+        <mat-select formControlName="replicas">
+          <mat-option *ngFor="let replica of replicas"
+                      [value]="replica.value">{{ replica.label }}</mat-option>
         </mat-select>
       </mat-form-field>
     </div>
@@ -146,10 +146,22 @@
       </div>
     </app-toggle-section>
 
-    <app-toggle-section formGroupName="gameServerTemplate"
-                        title="Game Server Metadata"
-                        [isVisible]="false">
+    <app-toggle-section [isVisible]="false"
+                        title="Game Server Metadata">
       <app-metadata-fields [formArray]="form.get('gameServerTemplate').get('metadata')"></app-metadata-fields>
+    </app-toggle-section>
+
+    <app-toggle-section [isVisible]="false"
+                        title="Game Server Probes">
+      <h4>Liveness Probe</h4>
+      <div class="row">
+        <app-probe-field [form]="form.get('gameServerTemplate').get('probes').get('liveness')"></app-probe-field>
+      </div>
+
+      <h4>Readiness Probe</h4>
+      <div class="row">
+        <app-probe-field [form]="form.get('gameServerTemplate').get('probes').get('readiness')"></app-probe-field>
+      </div>
     </app-toggle-section>
 
     <app-toggle-section *ngIf="data._id"

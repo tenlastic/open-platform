@@ -4,7 +4,7 @@ import { BuildLogModel } from '../models/build-log';
 
 export interface BuildLogState extends EntityState<BuildLogModel> {}
 
-@StoreConfig({ idKey: 'unix', name: 'build-logs', resettable: true })
+@StoreConfig({ idKey: 'unix', deepFreezeFn: (o) => o, name: 'build-logs', resettable: true })
 export class BuildLogStore extends EntityStore<BuildLogState, BuildLogModel> {}
 
 export class BuildLogQuery extends QueryEntity<BuildLogState, BuildLogModel> {

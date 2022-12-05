@@ -4,7 +4,7 @@ import { RecordModel } from '../models/record';
 
 export interface RecordState extends EntityState<RecordModel> {}
 
-@StoreConfig({ idKey: '_id', name: 'records', resettable: true })
+@StoreConfig({ idKey: '_id', deepFreezeFn: (o) => o, name: 'records', resettable: true })
 export class RecordStore extends EntityStore<RecordState, RecordModel> {}
 
 export class RecordQuery extends QueryEntity<RecordState, RecordModel> {

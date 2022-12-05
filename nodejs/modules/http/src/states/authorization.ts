@@ -5,7 +5,7 @@ import { AuthorizationModel, IAuthorization } from '../models/authorization';
 
 export interface AuthorizationState extends EntityState<AuthorizationModel> {}
 
-@StoreConfig({ idKey: '_id', name: 'authorizations', resettable: true })
+@StoreConfig({ idKey: '_id', deepFreezeFn: (o) => o, name: 'authorizations', resettable: true })
 export class AuthorizationStore extends EntityStore<AuthorizationState, AuthorizationModel> {}
 
 export class AuthorizationQuery extends QueryEntity<AuthorizationState, AuthorizationModel> {

@@ -40,13 +40,21 @@
 
     <div class="row">
       <mat-form-field floatLabel="always">
-        <mat-label>Preemptible</mat-label>
-        <mat-select formControlName="preemptible">
-          <mat-option [value]="true">Yes</mat-option>
-          <mat-option [value]="false">No</mat-option>
+        <mat-label>Build</mat-label>
+        <mat-select formControlName="buildId"
+                    placeholder="No Builds Found"
+                    required>
+          <mat-option *ngFor="let build of builds"
+                      [value]="build._id">
+            {{ build.name }}
+            <ng-container *ngIf="!build.publishedAt">(Unpublished)</ng-container>
+          </mat-option>
         </mat-select>
+        <mat-error>Select a valid Build.</mat-error>
       </mat-form-field>
+    </div>
 
+    <div class="row">
       <mat-form-field floatLabel="always">
         <mat-label>CPU</mat-label>
         <mat-select formControlName="cpu">
@@ -62,27 +70,31 @@
                       [value]="memory.value">{{ memory.label }}</mat-option>
         </mat-select>
       </mat-form-field>
-    </div>
 
-    <div class="row">
       <mat-form-field floatLabel="always">
-        <mat-label>Build</mat-label>
-        <mat-select formControlName="buildId"
-                    placeholder="No Builds Found"
-                    required>
-          <mat-option *ngFor="let build of builds"
-                      [value]="build._id">
-            {{ build.name }}
-            <ng-container *ngIf="!build.publishedAt">(Unpublished)</ng-container>
-          </mat-option>
+        <mat-label>Preemptible</mat-label>
+        <mat-select formControlName="preemptible">
+          <mat-option [value]="true">Yes</mat-option>
+          <mat-option [value]="false">No</mat-option>
         </mat-select>
-        <mat-error>Select a valid Build.</mat-error>
       </mat-form-field>
     </div>
 
     <app-toggle-section *ngIf="!form.get('metadata').disabled || form.get('metadata').value.length"
                         title="Metadata">
       <app-metadata-fields [formArray]="form.get('metadata')"></app-metadata-fields>
+    </app-toggle-section>
+
+    <app-toggle-section title="Probes">
+      <h4>Liveness Probe</h4>
+      <div class="row">
+        <app-probe-field [form]="form.get('probes').get('liveness')"></app-probe-field>
+      </div>
+
+      <h4>Readiness Probe</h4>
+      <div class="row">
+        <app-probe-field [form]="form.get('probes').get('readiness')"></app-probe-field>
+      </div>
     </app-toggle-section>
 
     <app-toggle-section *ngIf="data._id"

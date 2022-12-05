@@ -4,7 +4,7 @@ import { QueueModel } from '../models/queue';
 
 export interface QueueState extends EntityState<QueueModel> {}
 
-@StoreConfig({ idKey: '_id', name: 'queues', resettable: true })
+@StoreConfig({ idKey: '_id', deepFreezeFn: (o) => o, name: 'queues', resettable: true })
 export class QueueStore extends EntityStore<QueueState, QueueModel> {}
 
 export class QueueQuery extends QueryEntity<QueueState, QueueModel> {

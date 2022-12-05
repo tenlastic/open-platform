@@ -18,6 +18,8 @@ components:
           type: object
         preemptible:
           type: boolean
+        probes:
+          $ref: '#/components/schemas/GameServerProbes'
       required:
         - buildId
         - cpu

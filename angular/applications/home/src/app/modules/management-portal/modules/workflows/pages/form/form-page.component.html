@@ -33,18 +33,18 @@
 
     <div class="row">
       <mat-form-field floatLabel="always">
-        <mat-label>Preemptible</mat-label>
-        <mat-select formControlName="preemptible">
-          <mat-option [value]="true">Yes</mat-option>
-          <mat-option [value]="false">No</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field floatLabel="always">
         <mat-label>Parallel Tasks</mat-label>
         <mat-select formControlName="parallelism">
           <mat-option *ngFor="let parallelism of parallelisms"
                       [value]="parallelism.value">{{ parallelism.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field floatLabel="always">
+        <mat-label>Preemptible</mat-label>
+        <mat-select formControlName="preemptible">
+          <mat-option [value]="true">Yes</mat-option>
+          <mat-option [value]="false">No</mat-option>
         </mat-select>
       </mat-form-field>
     </div>

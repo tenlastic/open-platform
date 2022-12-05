@@ -19,7 +19,18 @@ import {
 import { Subscription } from 'rxjs';
 
 import { FormService, IdentityService } from '../../../../../../core/services';
-import { PromptComponent } from '../../../../../../shared/components';
+import {
+  ProbeFieldComponent,
+  ProbeType,
+  PromptComponent,
+} from '../../../../../../shared/components';
+
+interface ProbeFormGroup {
+  command?: string;
+  path?: string;
+  port?: number;
+  type?: ProbeType;
+}
 
 interface PropertyFormGroup {
   key?: string;
@@ -42,10 +53,16 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
   public errors: string[] = [];
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
+  public get liveness() {
+    return this.form.get('probes').get('liveness') as FormGroup;
+  }
   public get memories() {
     return this.namespace.limits.memory
       ? IGameServer.Memory.filter((r) => r.value <= this.namespace.limits.memory)
       : IGameServer.Memory;
+  }
+  public get readiness() {
+    return this.form.get('probes').get('readiness') as FormGroup;
   }
 
   private updateGameServer$ = new Subscription();
@@ -124,6 +141,16 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
       preemptible: this.form.get('preemptible').value,
     };
 
+    const livenessProbe = ProbeFieldComponent.getJsonFromProbe(
+      this.form.get('probes').get('liveness').value,
+    );
+    const readinessProbe = ProbeFieldComponent.getJsonFromProbe(
+      this.form.get('probes').get('readiness').value,
+    );
+    if (livenessProbe || readinessProbe) {
+      values.probes = { liveness: livenessProbe, readiness: readinessProbe };
+    }
+
     const dirtyFields = this.getDirtyFields();
     if (this.data._id && GameServerModel.isRestartRequired(dirtyFields)) {
       const dialogRef = this.matDialog.open(PromptComponent, {
@@ -158,7 +185,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
     return Object.keys(this.form.controls).filter((key) => this.form.get(key).dirty);
   }
 
-  private getJsonFromProperty(property: PropertyFormGroup): any {
+  private getJsonFromProperty(property: PropertyFormGroup) {
     switch (property.type) {
       case 'boolean':
         return property.value || false;
@@ -203,6 +230,10 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
       namespaceId: [this.params.namespaceId, Validators.required],
       persistent: [this.data.persistent === false ? false : true],
       preemptible: [this.data.preemptible === false ? false : true],
+      probes: this.formBuilder.group({
+        liveness: ProbeFieldComponent.getFormGroupFromProbe(this.data.probes?.liveness),
+        readiness: ProbeFieldComponent.getFormGroupFromProbe(this.data.probes?.readiness),
+      }),
     });
 
     if (!this.hasWriteAuthorization) {

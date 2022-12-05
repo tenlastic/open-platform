@@ -93,6 +93,7 @@ export class GameServersJsonPageComponent implements OnInit {
       'metadata',
       'name',
       'preemptible',
+      'probes',
     ];
     const data = Object.keys(this.data)
       .filter((key) => keys.includes(key))

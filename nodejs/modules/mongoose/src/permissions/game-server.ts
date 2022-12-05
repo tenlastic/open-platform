@@ -16,6 +16,7 @@ const administrator = {
     'namespaceId',
     'persistent',
     'preemptible',
+    'probes.*',
     'queueId',
   ],
   read: [
@@ -33,6 +34,7 @@ const administrator = {
     'namespaceId',
     'persistent',
     'preemptible',
+    'probes.*',
     'restartedAt',
     'queueId',
     'status.*',
@@ -48,6 +50,7 @@ const administrator = {
     'metadata.*',
     'name',
     'preemptible',
+    'probes.*',
     'restartedAt',
   ],
 };
@@ -128,6 +131,7 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
       'metadata.*',
       'name',
       'preemptible',
+      'probes.*',
       'restartedAt',
       'status.*',
     ],

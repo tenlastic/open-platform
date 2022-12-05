@@ -76,13 +76,13 @@ export class LayoutComponent implements OnDestroy, OnInit {
     this.activatedRoute.params.subscribe(async (params) => {
       this.params = params;
 
+      this.$namespace = this.namespaceQuery.selectEntity(params.namespaceId);
+
       if (params.collectionId === 'new') {
         return;
       }
 
       this.$collection = this.collectionQuery.selectEntity(params.collectionId);
-      this.$namespace = this.namespaceQuery.selectEntity(params.namespaceId);
-
       await this.collectionService.findOne(params.namespaceId, params.collectionId);
 
       const accessToken = await this.tokenService.getAccessToken();

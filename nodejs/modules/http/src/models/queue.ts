@@ -1,4 +1,5 @@
 import { BaseModel } from './base';
+import { IGameServer } from './game-server';
 
 export namespace IQueue {
   export const Cpu = [
@@ -32,6 +33,7 @@ export namespace IQueue {
     memory: number;
     metadata?: any;
     preemptible: boolean;
+    probes?: IGameServer.Probes;
   }
 
   export interface Status {

@@ -10,7 +10,7 @@ export const arrayLengthValidator = (max: number, min?: number) => {
     validator: (value: any) => {
       return Array.isArray(value)
         ? (!max || value.length <= max) && (!min || value.length >= min)
-        : false;
+        : true;
     },
   };
 };

@@ -16,6 +16,10 @@ import {
   MessagePermissions,
   NamespaceModel,
   NamespacePermissions,
+  StorefrontModel,
+  StorefrontPermissions,
+  QueueMemberModel,
+  QueueMemberPermissions,
   UserModel,
   UserPermissions,
   WebSocketModel,
@@ -94,6 +98,24 @@ export async function subscribe(
 
     case 'namespaces':
       return webSocketServer.subscribe(credentials, data, NamespaceModel, NamespacePermissions, ws);
+
+    case 'storefronts':
+      return webSocketServer.subscribe(
+        credentials,
+        data,
+        StorefrontModel,
+        StorefrontPermissions,
+        ws,
+      );
+
+    case 'queue-members':
+      return webSocketServer.subscribe(
+        credentials,
+        data,
+        QueueMemberModel,
+        QueueMemberPermissions,
+        ws,
+      );
 
     case 'users':
       return webSocketServer.subscribe(credentials, data, UserModel, UserPermissions, ws);

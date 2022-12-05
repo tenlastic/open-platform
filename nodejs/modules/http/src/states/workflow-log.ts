@@ -4,7 +4,7 @@ import { WorkflowLogModel } from '../models/workflow-log';
 
 export interface WorkflowLogState extends EntityState<WorkflowLogModel> {}
 
-@StoreConfig({ idKey: 'unix', name: 'workflow-logs', resettable: true })
+@StoreConfig({ idKey: 'unix', deepFreezeFn: (o) => o, name: 'workflow-logs', resettable: true })
 export class WorkflowLogStore extends EntityStore<WorkflowLogState, WorkflowLogModel> {}
 
 export class WorkflowLogQuery extends QueryEntity<WorkflowLogState, WorkflowLogModel> {

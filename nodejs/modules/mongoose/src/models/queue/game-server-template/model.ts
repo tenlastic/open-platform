@@ -4,6 +4,7 @@ import * as mongoose from 'mongoose';
 
 import { namespaceValidator } from '../../../validators';
 import { BuildDocument } from '../../build';
+import { GameServerProbesDocument, GameServerProbesSchema } from '../../game-server';
 
 @modelOptions({ options: { allowMixed: Severity.ALLOW }, schemaOptions: { _id: false } })
 export class QueueGameServerTemplateSchema {
@@ -29,6 +30,9 @@ export class QueueGameServerTemplateSchema {
 
   @prop({ type: Boolean })
   public preemptible: boolean;
+
+  @prop({ type: GameServerProbesSchema })
+  public probes: GameServerProbesDocument;
 
   @prop({ foreignField: '_id', justOne: true, localField: 'buildId', ref: 'BuildSchema' })
   public buildDocument: BuildDocument;

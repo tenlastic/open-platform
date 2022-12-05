@@ -1,6 +1,10 @@
-import { V1PodTemplateSpec } from '@kubernetes/client-node';
+import { V1PodTemplateSpec, V1Probe } from '@kubernetes/client-node';
 import { deploymentApiV1, networkPolicyApiV1, podApiV1, serviceApiV1 } from '@tenlastic/kubernetes';
-import { GameServerDocument, GameServerStatusComponentName } from '@tenlastic/mongoose';
+import {
+  GameServerDocument,
+  GameServerProbesProbeDocument,
+  GameServerStatusComponentName,
+} from '@tenlastic/mongoose';
 import { URL } from 'url';
 
 import { KubernetesNamespace } from './namespace';
@@ -142,6 +146,16 @@ export const KubernetesGameServer = {
       },
     };
 
+    if (gameServer.probes) {
+      if (gameServer.probes.liveness) {
+        manifest.spec.containers[0].livenessProbe = getProbeManifest(gameServer.probes.liveness);
+      }
+
+      if (gameServer.probes.readiness) {
+        manifest.spec.containers[0].readinessProbe = getProbeManifest(gameServer.probes.readiness);
+      }
+    }
+
     if (gameServer.persistent) {
       await deploymentApiV1.delete(name, 'dynamic');
       await deploymentApiV1.createOrReplace('dynamic', {
@@ -188,3 +202,32 @@ export const KubernetesGameServer = {
     }
   },
 };
+
+function getProbeManifest(probe: GameServerProbesProbeDocument) {
+  const manifest: V1Probe = {
+    failureThreshold: probe.failureThreshold,
+    initialDelaySeconds: probe.initialDelaySeconds,
+    periodSeconds: probe.periodSeconds,
+    successThreshold: probe.successThreshold,
+    timeoutSeconds: probe.timeoutSeconds,
+  };
+
+  if (probe.exec) {
+    manifest.exec = probe.exec;
+  }
+
+  if (probe.http) {
+    manifest.httpGet = {
+      httpHeaders: probe.http.headers,
+      path: probe.http.path,
+      port: probe.http.port as any,
+      scheme: probe.http.scheme,
+    };
+  }
+
+  if (probe.tcp) {
+    manifest.tcpSocket = { port: probe.tcp.port as any };
+  }
+
+  return manifest;
+}

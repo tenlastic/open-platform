@@ -1,0 +1,18 @@
+components:
+  schemas:
+    GameServerProbesProbeHttp:
+      type: object
+      properties:
+        headers:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameServerProbesProbeHttpHeader'
+        path:
+          type: string
+        port:
+          type: number
+        schema:
+          type: string
+          enum: [http, https]
+      required:
+        - port

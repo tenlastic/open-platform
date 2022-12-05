@@ -20,7 +20,11 @@ import {
 import { Subscription } from 'rxjs';
 
 import { FormService, IdentityService } from '../../../../../../core/services';
-import { PromptComponent } from '../../../../../../shared/components';
+import {
+  ProbeFieldComponent,
+  ProbeType,
+  PromptComponent,
+} from '../../../../../../shared/components';
 
 interface PropertyFormGroup {
   key?: string;
@@ -154,6 +158,16 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       teams: this.form.get('teams').value,
     };
 
+    const livenessProbe = ProbeFieldComponent.getJsonFromProbe(
+      this.form.get('gameServerTemplate').get('probes').get('liveness').value,
+    );
+    const readinessProbe = ProbeFieldComponent.getJsonFromProbe(
+      this.form.get('gameServerTemplate').get('probes').get('readiness').value,
+    );
+    if (livenessProbe || readinessProbe) {
+      values.gameServerTemplate.probes = { liveness: livenessProbe, readiness: readinessProbe };
+    }
+
     const dirtyFields = this.getDirtyFields();
     if (this.data._id && QueueModel.isRestartRequired(dirtyFields)) {
       const dialogRef = this.matDialog.open(PromptComponent, {
@@ -226,6 +240,12 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       gameServerMetadata.push(...this.getMetadataFormGroups(this.data.gameServerTemplate.metadata));
     }
 
+    const { gameServerTemplate } = this.data;
+    const probesForm = this.formBuilder.group({
+      liveness: ProbeFieldComponent.getFormGroupFromProbe(gameServerTemplate?.probes?.liveness),
+      readiness: ProbeFieldComponent.getFormGroupFromProbe(gameServerTemplate?.probes?.readiness),
+    });
+
     let gameServerTemplateForm: FormGroup;
     if (this.data.gameServerTemplate) {
       gameServerTemplateForm = this.formBuilder.group({
@@ -234,6 +254,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
         memory: [this.data.gameServerTemplate.memory || this.memories[0].value],
         metadata: this.formBuilder.array(gameServerMetadata),
         preemptible: [this.data.gameServerTemplate.preemptible || false],
+        probes: probesForm,
       });
     } else {
       gameServerTemplateForm = this.formBuilder.group({
@@ -242,6 +263,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
         memory: [this.memories[0].value],
         metadata: this.formBuilder.array(gameServerMetadata),
         preemptible: [true],
+        probes: probesForm,
       });
     }
 

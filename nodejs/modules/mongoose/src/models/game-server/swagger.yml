@@ -41,6 +41,8 @@ components:
           type: boolean
         preemptible:
           type: boolean
+        probes:
+          $ref: '#/components/schemas/GameServerProbes'
         queueId:
           type: string
           format: ^[0-9a-f]{24}$

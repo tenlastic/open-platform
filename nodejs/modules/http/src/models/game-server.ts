@@ -16,6 +16,11 @@ export namespace IGameServer {
     { label: '5 GB', value: 5 * 1000 * 1000 * 1000 },
   ];
 
+  export enum HttpProbeScheme {
+    Http = 'Http',
+    Https = 'Https',
+  }
+
   export enum StatusComponentName {
     Application = 'Application',
     Sidecar = 'Sidecar',
@@ -25,6 +30,38 @@ export namespace IGameServer {
     tcp?: string;
     udp?: string;
     websocket?: string;
+  }
+
+  export interface ExecProbe {
+    command?: string[];
+  }
+
+  export interface HttpProbe {
+    headers?: HttpProbeHeader[];
+    path?: string;
+    port?: number;
+    scheme?: HttpProbeScheme;
+  }
+
+  export interface HttpProbeHeader {
+    name?: string;
+    value?: string;
+  }
+
+  export interface Probe {
+    exec?: ExecProbe;
+    failureThreshold?: number;
+    http?: HttpProbe;
+    initialDelaySeconds?: number;
+    periodSeconds?: number;
+    successThreshold?: number;
+    tcp?: TcpProbe;
+    timeoutSeconds?: number;
+  }
+
+  export interface Probes {
+    liveness?: Probe;
+    readiness?: Probe;
   }
 
   export interface Status {
@@ -49,6 +86,10 @@ export namespace IGameServer {
     phase: string;
     pod: string;
   }
+
+  export interface TcpProbe {
+    port?: number;
+  }
 }
 
 export class GameServerModel extends BaseModel {
@@ -63,6 +104,7 @@ export class GameServerModel extends BaseModel {
   public namespaceId: string;
   public persistent: boolean;
   public preemptible: boolean;
+  public probes: IGameServer.Probes;
   public queueId: string;
   public restartedAt: Date;
   public status: IGameServer.Status;
@@ -72,7 +114,7 @@ export class GameServerModel extends BaseModel {
   }
 
   public static isRestartRequired(fields: string[]) {
-    const immutableFields = ['buildId', 'cpu', 'memory', 'preemptible', 'restartedAt'];
+    const immutableFields = ['buildId', 'cpu', 'memory', 'preemptible', 'probes', 'restartedAt'];
 
     return immutableFields.some((i) => fields.includes(i));
   }
