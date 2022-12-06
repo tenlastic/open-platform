@@ -16,7 +16,7 @@ export class ApiError extends Error {
         this.errors = JSON.parse(err.response.data).errors;
       } catch {}
     }
-    this.messages = this.errors.map((e) => e.message);
+    this.messages = this.errors.map((e) => e?.message);
     this.method = err.config.method?.toUpperCase();
     this.status = err.response?.status;
     this.url = err.config?.url;

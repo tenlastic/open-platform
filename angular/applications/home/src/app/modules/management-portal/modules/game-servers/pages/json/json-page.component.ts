@@ -53,6 +53,8 @@ export class GameServersJsonPageComponent implements OnInit {
   }
 
   public async save() {
+    this.errors = [];
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;

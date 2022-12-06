@@ -60,6 +60,8 @@ export class AuthorizationRequestsFormPageComponent implements OnInit {
   }
 
   public async grant() {
+    this.errors = [];
+
     const { namespaceId } = this.params;
     const values: Partial<AuthorizationRequestModel> = { grantedAt: new Date() };
 
@@ -77,6 +79,8 @@ export class AuthorizationRequestsFormPageComponent implements OnInit {
   }
 
   public async deny() {
+    this.errors = [];
+
     const { namespaceId } = this.params;
     const values: Partial<AuthorizationRequestModel> = { deniedAt: new Date() };
 
