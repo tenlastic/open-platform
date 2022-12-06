@@ -53,6 +53,9 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       : IGameServer.Memory;
   }
   public hasWriteAuthorization: boolean;
+  public get isNew() {
+    return this.params.gameServerId === 'new';
+  }
   public get memories() {
     return this.namespace.limits.memory
       ? IQueue.Memory.filter((r) => r.value <= this.namespace.limits.memory)

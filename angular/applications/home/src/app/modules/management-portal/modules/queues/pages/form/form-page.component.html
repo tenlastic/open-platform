@@ -102,7 +102,7 @@
     </app-toggle-section>
 
     <app-toggle-section formGroupName="gameServerTemplate"
-                        [isVisible]="!data._id"
+                        [isVisible]="isNew"
                         title="Game Server Template">
       <div class="row">
         <mat-form-field floatLabel="always">
@@ -151,7 +151,7 @@
       <app-metadata-fields [formArray]="form.get('gameServerTemplate').get('metadata')"></app-metadata-fields>
     </app-toggle-section>
 
-    <app-toggle-section [isVisible]="!data._id"
+    <app-toggle-section [isVisible]="isNew"
                         title="Game Server Ports">
       <app-port-fields [form]="ports"></app-port-fields>
     </app-toggle-section>
@@ -169,7 +169,7 @@
       </div>
     </app-toggle-section>
 
-    <app-toggle-section *ngIf="data._id"
+    <app-toggle-section *ngIf="data.status"
                         title="Status">
       <div class="row">
         <mat-form-field floatLabel="always">

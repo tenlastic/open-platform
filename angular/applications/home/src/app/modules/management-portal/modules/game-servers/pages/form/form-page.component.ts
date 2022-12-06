@@ -42,6 +42,9 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
   public errors: string[] = [];
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
+  public get isNew() {
+    return this.params.gameServerId === 'new';
+  }
   public get liveness() {
     return this.form.get('probes').get('liveness') as FormGroup;
   }
