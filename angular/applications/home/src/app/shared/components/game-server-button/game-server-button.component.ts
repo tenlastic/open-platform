@@ -65,7 +65,7 @@ export class GameServerButtonComponent implements OnDestroy, OnInit {
 
     this.waitForGameServer$ = this.gameServerQuery.selectEntity(gameServer._id).subscribe((gs) => {
       // If the Game Server is not ready yet or does not have public endpoints yet, do nothing.
-      if (!gs?.status.endpoints || gs?.status.phase !== 'Running') {
+      if (gs?.status.endpoints.length === 0 || gs?.status.phase !== 'Running') {
         return;
       }
 

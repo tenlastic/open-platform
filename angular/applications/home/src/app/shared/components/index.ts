@@ -18,6 +18,7 @@ export * from './message-group/message-group.component';
 export * from './messages/messages.component';
 export * from './metadata-field/metadata-field.component';
 export * from './metadata-fields/metadata-fields.component';
+export * from './port-fields/port-fields.component';
 export * from './probe-field/probe-field.component';
 export * from './prompt/prompt.component';
 export * from './queue-member-button/queue-member-button.component';

@@ -7,3 +7,5 @@ components:
           $ref: '#/components/schemas/GameServerProbesProbe'
         readiness:
           $ref: '#/components/schemas/GameServerProbesProbe'
+      required:
+        - liveness

@@ -39,6 +39,10 @@ components:
           format: ^[0-9a-f]{24}$
         persistent:
           type: boolean
+        ports:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameServerPort'
         preemptible:
           type: boolean
         probes:

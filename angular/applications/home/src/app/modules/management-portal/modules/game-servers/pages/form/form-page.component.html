@@ -81,11 +81,18 @@
     </div>
 
     <app-toggle-section *ngIf="!form.get('metadata').disabled || form.get('metadata').value.length"
+                        [isVisible]="false"
                         title="Metadata">
       <app-metadata-fields [formArray]="form.get('metadata')"></app-metadata-fields>
     </app-toggle-section>
 
-    <app-toggle-section title="Probes">
+    <app-toggle-section [isVisible]="!data._id"
+                        title="Ports">
+      <app-port-fields [form]="ports"></app-port-fields>
+    </app-toggle-section>
+
+    <app-toggle-section [isVisible]="false"
+                        title="Probes">
       <h4>Liveness Probe</h4>
       <div class="row">
         <app-probe-field [form]="form.get('probes').get('liveness')"></app-probe-field>
@@ -130,30 +137,40 @@
         </mat-form-field>
       </div>
 
-      <h4>Endpoints</h4>
+      <ng-container *ngIf="data.status.endpoints.length > 0">
+        <h4>Endpoints</h4>
 
-      <div class="row">
-        <mat-form-field floatLabel="always">
-          <mat-label>TCP</mat-label>
-          <input disabled
-                 matInput
-                 [value]="data.status.endpoints?.tcp || 'Pending'" />
-        </mat-form-field>
+        <div *ngFor="let endpoint of data.status.endpoints"
+             class="row">
+          <mat-form-field floatLabel="always">
+            <mat-label>External IP</mat-label>
+            <input disabled
+                   matInput
+                   [value]="endpoint.externalIp" />
+          </mat-form-field>
 
-        <mat-form-field floatLabel="always">
-          <mat-label>UDP</mat-label>
-          <input disabled
-                 matInput
-                 [value]="data.status.endpoints?.udp || 'Pending'" />
-        </mat-form-field>
+          <mat-form-field floatLabel="always">
+            <mat-label>External Port</mat-label>
+            <input disabled
+                   matInput
+                   [value]="endpoint.externalPort" />
+          </mat-form-field>
 
-        <mat-form-field floatLabel="always">
-          <mat-label>Websocket</mat-label>
-          <input disabled
-                 matInput
-                 [value]="data.status.endpoints?.websocket || 'Pending'" />
-        </mat-form-field>
-      </div>
+          <mat-form-field floatLabel="always">
+            <mat-label>Internal Port</mat-label>
+            <input disabled
+                   matInput
+                   [value]="endpoint.internalPort" />
+          </mat-form-field>
+
+          <mat-form-field floatLabel="always">
+            <mat-label>Protocol</mat-label>
+            <input disabled
+                   matInput
+                   [value]="endpoint.protocol" />
+          </mat-form-field>
+        </div>
+      </ng-container>
     </app-toggle-section>
   </form>
 </div>

@@ -1,4 +1,4 @@
-import { BuildModel, GameServerModel, IBuild, NamespaceModel } from '@tenlastic/http';
+import { BuildModel, GameServerModel, IBuild, IGameServer, NamespaceModel } from '@tenlastic/http';
 import wait from '@tenlastic/wait';
 import axios from 'axios';
 import { expect, use } from 'chai';
@@ -91,6 +91,7 @@ describe('/nodejs/namespace/game-servers', function () {
       name: chance.hash({ length: 64 }),
       namespaceId: namespace._id,
       preemptible: true,
+      ports: [{ port: 7777, protocol: IGameServer.Protocol.Tcp }],
     });
 
     expect(gameServer).to.exist;
@@ -99,14 +100,14 @@ describe('/nodejs/namespace/game-servers', function () {
   step('runs the Game Server successfully', async function () {
     await wait(5 * 1000, 60 * 1000, async () => {
       gameServer = await dependencies.gameServerService.findOne(namespace._id, gameServer._id);
-      return gameServer.status.endpoints && gameServer.status.phase === 'Running';
+      return gameServer.status.endpoints.length > 0 && gameServer.status.phase === 'Running';
     });
   });
 
   step('allows connections', async function () {
-    const http = gameServer.status.endpoints.tcp.replace('tcp', 'http');
-    const url = new URL(http);
-    url.hostname = url.hostname === '127.0.0.1' ? 'kubernetes.local.tenlastic.com' : url.hostname;
+    const { externalIp, externalPort } = gameServer.status.endpoints[0];
+    const hostname = externalIp === '127.0.0.1' ? 'kubernetes.local.tenlastic.com' : externalIp;
+    const url = new URL(`http://${hostname}:${externalPort}`);
 
     const response = await axios({ method: 'get', url: url.href });
     expect(response.data).to.include('Welcome to echo-server!');

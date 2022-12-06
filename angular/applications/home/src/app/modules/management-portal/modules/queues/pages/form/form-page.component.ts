@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -20,11 +20,7 @@ import {
 import { Subscription } from 'rxjs';
 
 import { FormService, IdentityService } from '../../../../../../core/services';
-import {
-  ProbeFieldComponent,
-  ProbeType,
-  PromptComponent,
-} from '../../../../../../shared/components';
+import { ProbeFieldComponent, PromptComponent } from '../../../../../../shared/components';
 
 interface PropertyFormGroup {
   key?: string;
@@ -61,6 +57,9 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
     return this.namespace.limits.memory
       ? IQueue.Memory.filter((r) => r.value <= this.namespace.limits.memory)
       : IQueue.Memory;
+  }
+  public get ports() {
+    return this.form.get('gameServerTemplate').get('ports') as FormArray;
   }
   public get replicas() {
     return IQueue.Replicas;
@@ -146,6 +145,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
         cpu: this.form.get('gameServerTemplate').get('cpu').value,
         memory: this.form.get('gameServerTemplate').get('memory').value,
         metadata: gameServerMetadata,
+        ports: this.form.get('gameServerTemplate').get('ports').value,
         preemptible: this.form.get('gameServerTemplate').get('preemptible').value,
       },
       memory: this.form.get('memory').value,
@@ -235,35 +235,43 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
   private setupForm(): void {
     this.data = this.data || new QueueModel();
 
-    const gameServerMetadata = [];
-    if (this.data.gameServerTemplate && this.data.gameServerTemplate.metadata) {
-      gameServerMetadata.push(...this.getMetadataFormGroups(this.data.gameServerTemplate.metadata));
+    const { gameServerTemplate } = this.data;
+
+    const gameServerMetadataFormGroups = [];
+    if (gameServerTemplate?.metadata) {
+      gameServerMetadataFormGroups.push(...this.getMetadataFormGroups(gameServerTemplate.metadata));
     }
 
-    const { gameServerTemplate } = this.data;
-    const probesForm = this.formBuilder.group({
+    const ports = gameServerTemplate?.ports || [{ port: 7777, protocol: IGameServer.Protocol.Tcp }];
+    const portFormGroups = ports.map((p) =>
+      this.formBuilder.group({ port: [p.port, Validators.required], protocol: p.protocol }),
+    );
+
+    const probesFormGroup = this.formBuilder.group({
       liveness: ProbeFieldComponent.getFormGroupFromProbe(gameServerTemplate?.probes?.liveness),
       readiness: ProbeFieldComponent.getFormGroupFromProbe(gameServerTemplate?.probes?.readiness),
     });
 
     let gameServerTemplateForm: FormGroup;
-    if (this.data.gameServerTemplate) {
+    if (gameServerTemplate) {
       gameServerTemplateForm = this.formBuilder.group({
-        buildId: [this.data.gameServerTemplate.buildId, Validators.required],
-        cpu: [this.data.gameServerTemplate.cpu || this.cpus[0].value],
-        memory: [this.data.gameServerTemplate.memory || this.memories[0].value],
-        metadata: this.formBuilder.array(gameServerMetadata),
-        preemptible: [this.data.gameServerTemplate.preemptible || false],
-        probes: probesForm,
+        buildId: [gameServerTemplate.buildId, Validators.required],
+        cpu: [gameServerTemplate.cpu || this.cpus[0].value],
+        memory: [gameServerTemplate.memory || this.memories[0].value],
+        metadata: this.formBuilder.array(gameServerMetadataFormGroups),
+        ports: this.formBuilder.array(portFormGroups),
+        preemptible: [gameServerTemplate.preemptible || false],
+        probes: probesFormGroup,
       });
     } else {
       gameServerTemplateForm = this.formBuilder.group({
         buildId: [this.builds.length > 0 ? this.builds[0]._id : null, Validators.required],
         cpu: [this.cpus[0].value],
         memory: [this.memories[0].value],
-        metadata: this.formBuilder.array(gameServerMetadata),
+        metadata: this.formBuilder.array(gameServerMetadataFormGroups),
+        ports: this.formBuilder.array(portFormGroups),
         preemptible: [true],
-        probes: probesForm,
+        probes: probesFormGroup,
       });
     }
 

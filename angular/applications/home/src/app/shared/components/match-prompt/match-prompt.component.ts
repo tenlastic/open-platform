@@ -64,12 +64,12 @@ export class MatchPromptComponent implements OnDestroy, OnInit {
       .selectEntity(this.data.gameServer._id)
       .subscribe((gameServer) => {
         // If the Game Server is not ready yet, do nothing.
-        if (!gameServer.status || gameServer.status.phase !== 'Running') {
+        if (gameServer?.status.phase !== 'Running') {
           return;
         }
 
         // If the Game Server does not have public endpoints yet, do nothing.
-        if (!gameServer.status.endpoints) {
+        if (gameServer?.status.endpoints.length === 0) {
           return;
         }
 

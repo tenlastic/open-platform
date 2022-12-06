@@ -11,6 +11,8 @@ components:
           type: string
         port:
           type: number
+          maximum: 65535
+          minimum: 1
         schema:
           type: string
           enum: [http, https]

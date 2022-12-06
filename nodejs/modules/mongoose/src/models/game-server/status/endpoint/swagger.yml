@@ -1,0 +1,22 @@
+components:
+  schemas:
+    GameServerStatusEndpoint:
+      type: object
+      properties:
+        externalIp:
+          type: string
+        externalPort:
+          type: number
+        internalIp:
+          type: string
+        internalPort:
+          type: number
+        protocol:
+          type: string
+          enum: [TCP, UDP]
+      required:
+        - externalIp
+        - externalPort
+        - internalIp
+        - internalPort
+        - protocol

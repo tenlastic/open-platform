@@ -1,0 +1,12 @@
+components:
+  schemas:
+    GameServerPort:
+      type: object
+      properties:
+        port:
+          type: number
+          maximum: 65535
+          minimum: 1
+        protocol:
+      required:
+        - port

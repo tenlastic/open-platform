@@ -1,10 +1,23 @@
-import { DocumentType, getModelForClass, modelOptions, prop, Severity } from '@typegoose/typegoose';
+import {
+  DocumentType,
+  getModelForClass,
+  modelOptions,
+  prop,
+  PropType,
+  Severity,
+} from '@typegoose/typegoose';
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
-import { namespaceValidator } from '../../../validators';
+import { arrayLengthValidator, duplicateValidator, namespaceValidator } from '../../../validators';
 import { BuildDocument } from '../../build';
-import { GameServerProbesDocument, GameServerProbesSchema } from '../../game-server';
+import {
+  GameServerPortDocument,
+  GameServerPortModel,
+  GameServerPortSchema,
+  GameServerProbesDocument,
+  GameServerProbesSchema,
+} from '../../game-server';
 
 @modelOptions({ options: { allowMixed: Severity.ALLOW }, schemaOptions: { _id: false } })
 export class QueueGameServerTemplateSchema {
@@ -28,6 +41,16 @@ export class QueueGameServerTemplateSchema {
   @prop({ type: mongoose.Schema.Types.Mixed, unset: false })
   public metadata: any;
 
+  @prop(
+    {
+      required: true,
+      type: GameServerPortSchema,
+      validate: [arrayLengthValidator(5, 1), duplicateValidator],
+    },
+    PropType.ARRAY,
+  )
+  public ports: GameServerPortDocument[];
+
   @prop({ type: Boolean })
   public preemptible: boolean;
 
@@ -50,6 +73,7 @@ export class QueueGameServerTemplateSchema {
       cpu: chance.floating({ max: 1, min: 0.1 }),
       memory: chance.integer({ max: 1 * 1000 * 1000 * 1000, min: 250 * 1000 * 1000 }),
       name: chance.hash(),
+      ports: [GameServerPortModel.mock()],
     };
 
     return new this({ ...defaults, ...values });

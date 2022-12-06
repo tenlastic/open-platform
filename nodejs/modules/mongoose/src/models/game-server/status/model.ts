@@ -5,7 +5,7 @@ import {
   GameServerStatusComponentModel,
   GameServerStatusComponentSchema,
 } from './component';
-import { GameServerStatusEndpointsDocument, GameServerStatusEndpointsSchema } from './endpoints';
+import { GameServerStatusEndpointDocument, GameServerStatusEndpointSchema } from './endpoint';
 import { GameServerStatusNodeDocument, GameServerStatusNodeSchema } from './node';
 
 export enum GameServerStatusComponentName {
@@ -46,8 +46,8 @@ export class GameServerStatusSchema {
   )
   public components: GameServerStatusComponentDocument[];
 
-  @prop({ type: GameServerStatusEndpointsSchema })
-  public endpoints: GameServerStatusEndpointsDocument;
+  @prop({ type: GameServerStatusEndpointSchema }, PropType.ARRAY)
+  public endpoints: GameServerStatusEndpointDocument[];
 
   @prop({ type: String })
   public message: string;

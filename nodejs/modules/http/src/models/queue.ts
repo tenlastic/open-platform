@@ -32,6 +32,7 @@ export namespace IQueue {
     cpu: number;
     memory: number;
     metadata?: any;
+    ports?: IGameServer.Port[];
     preemptible: boolean;
     probes?: IGameServer.Probes;
   }

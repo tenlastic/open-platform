@@ -53,7 +53,9 @@ export async function createGameServer(queue: QueueModel): Promise<GameServerMod
     name: queue.name,
     namespaceId: queue.namespaceId,
     persistent: false,
+    ports: queue.gameServerTemplate.ports,
     preemptible: queue.gameServerTemplate.preemptible,
+    probes: queue.gameServerTemplate.probes,
     queueId: queue._id,
   });
 

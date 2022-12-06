@@ -1,5 +1,5 @@
 export * from './model';
 
 export * from './component';
-export * from './endpoints';
+export * from './endpoint';
 export * from './node';

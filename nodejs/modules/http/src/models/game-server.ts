@@ -16,6 +16,11 @@ export namespace IGameServer {
     { label: '5 GB', value: 5 * 1000 * 1000 * 1000 },
   ];
 
+  export enum Protocol {
+    Tcp = 'TCP',
+    Udp = 'UDP',
+  }
+
   export enum HttpProbeScheme {
     Http = 'Http',
     Https = 'Https',
@@ -24,12 +29,6 @@ export namespace IGameServer {
   export enum StatusComponentName {
     Application = 'Application',
     Sidecar = 'Sidecar',
-  }
-
-  export interface Endpoints {
-    tcp?: string;
-    udp?: string;
-    websocket?: string;
   }
 
   export interface ExecProbe {
@@ -46,6 +45,11 @@ export namespace IGameServer {
   export interface HttpProbeHeader {
     name?: string;
     value?: string;
+  }
+
+  export interface Port {
+    port?: number;
+    protocol?: Protocol;
   }
 
   export interface Probe {
@@ -66,7 +70,7 @@ export namespace IGameServer {
 
   export interface Status {
     components?: StatusComponent[];
-    endpoints?: Endpoints;
+    endpoints?: StatusEndpoint[];
     message?: string;
     nodes?: StatusNode[];
     phase: string;
@@ -78,6 +82,14 @@ export namespace IGameServer {
     name: StatusComponentName;
     phase: string;
     total: number;
+  }
+
+  export interface StatusEndpoint {
+    externalIp?: string;
+    externalPort?: number;
+    internalIp?: string;
+    internalPort?: number;
+    protocol?: Protocol;
   }
 
   export interface StatusNode {
@@ -103,6 +115,7 @@ export class GameServerModel extends BaseModel {
   public name: string;
   public namespaceId: string;
   public persistent: boolean;
+  public ports: IGameServer.Port[];
   public preemptible: boolean;
   public probes: IGameServer.Probes;
   public queueId: string;
@@ -114,7 +127,15 @@ export class GameServerModel extends BaseModel {
   }
 
   public static isRestartRequired(fields: string[]) {
-    const immutableFields = ['buildId', 'cpu', 'memory', 'preemptible', 'probes', 'restartedAt'];
+    const immutableFields = [
+      'buildId',
+      'cpu',
+      'memory',
+      'ports',
+      'preemptible',
+      'probes',
+      'restartedAt',
+    ];
 
     return immutableFields.some((i) => fields.includes(i));
   }

@@ -12,10 +12,11 @@ import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
 import { unsetPlugin } from '../../plugins';
-import { namespaceValidator } from '../../validators';
+import { arrayLengthValidator, duplicateValidator, namespaceValidator } from '../../validators';
 import { AuthorizationDocument } from '../authorization';
 import { BuildDocument } from '../build';
 import { QueueDocument } from '../queue';
+import { GameServerPortDocument, GameServerPortModel, GameServerPortSchema } from './port';
 import { GameServerProbesDocument, GameServerProbesSchema } from './probes';
 import { GameServerStatusDocument, GameServerStatusModel, GameServerStatusSchema } from './status';
 
@@ -69,6 +70,16 @@ export class GameServerSchema {
   @prop({ type: Boolean })
   public persistent: boolean;
 
+  @prop(
+    {
+      required: true,
+      type: GameServerPortSchema,
+      validate: [arrayLengthValidator(5, 1), duplicateValidator],
+    },
+    PropType.ARRAY,
+  )
+  public ports: GameServerPortDocument[];
+
   @prop({ type: Boolean })
   public preemptible: boolean;
 
@@ -110,6 +121,7 @@ export class GameServerSchema {
       memory: chance.integer({ max: 1 * 1000 * 1000 * 1000, min: 100 * 1000 * 1000 }),
       name: chance.hash(),
       namespaceId: new mongoose.Types.ObjectId(),
+      ports: [GameServerPortModel.mock()],
     };
 
     return new this({ ...defaults, ...values });
@@ -119,7 +131,16 @@ export class GameServerSchema {
    * Returns true if a restart is required on an update.
    */
   public static isRestartRequired(fields: string[]) {
-    const immutableFields = ['buildId', 'cpu', 'memory', 'preemptible', 'probes', 'restartedAt'];
+    const immutableFields = [
+      'buildId',
+      'cpu',
+      'memory',
+      'ports',
+      'preemptible',
+      'probes',
+      'restartedAt',
+    ];
+
     return immutableFields.some((i) => fields.includes(i));
   }
 }

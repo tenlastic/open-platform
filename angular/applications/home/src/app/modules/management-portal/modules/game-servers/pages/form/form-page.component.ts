@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -19,18 +19,7 @@ import {
 import { Subscription } from 'rxjs';
 
 import { FormService, IdentityService } from '../../../../../../core/services';
-import {
-  ProbeFieldComponent,
-  ProbeType,
-  PromptComponent,
-} from '../../../../../../shared/components';
-
-interface ProbeFormGroup {
-  command?: string;
-  path?: string;
-  port?: number;
-  type?: ProbeType;
-}
+import { ProbeFieldComponent, PromptComponent } from '../../../../../../shared/components';
 
 interface PropertyFormGroup {
   key?: string;
@@ -60,6 +49,9 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
     return this.namespace.limits.memory
       ? IGameServer.Memory.filter((r) => r.value <= this.namespace.limits.memory)
       : IGameServer.Memory;
+  }
+  public get ports() {
+    return this.form.get('ports') as FormArray;
   }
   public get readiness() {
     return this.form.get('probes').get('readiness') as FormGroup;
@@ -138,6 +130,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
       name: this.form.get('name').value,
       namespaceId: this.form.get('namespaceId').value,
       persistent: this.form.get('persistent').value,
+      ports: this.form.get('ports').value,
       preemptible: this.form.get('preemptible').value,
     };
 
@@ -198,10 +191,10 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
     }
   }
 
-  private setupForm(): void {
+  private setupForm() {
     this.data = this.data || new GameServerModel();
 
-    const metadata = [];
+    const metadataFormGroups = [];
     if (this.data.metadata) {
       Object.entries(this.data.metadata).forEach(([key, property]) => {
         let type = 'boolean';
@@ -216,18 +209,24 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
           value: [property, Validators.required],
           type,
         });
-        metadata.push(formGroup);
+        metadataFormGroups.push(formGroup);
       });
     }
+
+    const ports = this.data.ports || [{ port: 7777, protocol: IGameServer.Protocol.Tcp }];
+    const portFormGroups = ports.map((p) =>
+      this.formBuilder.group({ port: [p.port, Validators.required], protocol: p.protocol }),
+    );
 
     this.form = this.formBuilder.group({
       buildId: [this.data.buildId || (this.builds[0] && this.builds[0]._id), Validators.required],
       cpu: [this.data.cpu || this.cpus[0].value, Validators.required],
       description: [this.data.description],
       memory: [this.data.memory || this.memories[0].value, Validators.required],
-      metadata: this.formBuilder.array(metadata),
+      metadata: this.formBuilder.array(metadataFormGroups),
       name: [this.data.name, Validators.required],
       namespaceId: [this.params.namespaceId, Validators.required],
+      ports: this.formBuilder.array(portFormGroups, Validators.required),
       persistent: [this.data.persistent === false ? false : true],
       preemptible: [this.data.preemptible === false ? false : true],
       probes: this.formBuilder.group({

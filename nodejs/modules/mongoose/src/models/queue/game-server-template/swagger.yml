@@ -16,6 +16,10 @@ components:
           minimum: 100000000
         metadata:
           type: object
+        ports:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameServerPort'
         preemptible:
           type: boolean
         probes:

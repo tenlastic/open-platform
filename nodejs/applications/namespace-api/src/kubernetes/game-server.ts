@@ -22,13 +22,6 @@ export const KubernetesGameServer = {
 
     /**
      * =======================
-     * SERVICE
-     * =======================
-     */
-    await serviceApiV1.delete(name, 'dynamic');
-
-    /**
-     * =======================
      * DEPLOYMENT OR POD
      * =======================
      */
@@ -74,16 +67,6 @@ export const KubernetesGameServer = {
 
     /**
      * =======================
-     * SERVICE
-     * =======================
-     */
-    await serviceApiV1.createOrReplace('dynamic', {
-      metadata: { labels: { ...labels }, name },
-      spec: { ports: [{ name: 'tcp', port: 7777 }], selector: { ...labels } },
-    });
-
-    /**
-     * =======================
      * DEPLOYMENT OR POD
      * =======================
      */
@@ -108,10 +91,9 @@ export const KubernetesGameServer = {
         },
       },
     };
-
-    const max = 32767;
-    const min = 30000;
-    const hostPort = Math.round(Math.random() * (max - min) + min);
+    const ports = gameServer.ports.map((p) => {
+      return { containerPort: p.port, hostPort: getHostPort(), protocol: p.protocol };
+    });
 
     const manifest: V1PodTemplateSpec = {
       metadata: {
@@ -129,10 +111,7 @@ export const KubernetesGameServer = {
             ],
             image,
             name: 'main',
-            ports: [
-              { containerPort: 7777, hostPort, protocol: 'TCP' },
-              { containerPort: 7777, hostPort, protocol: 'UDP' },
-            ],
+            ports,
             resources: {
               limits: { cpu: `${gameServer.cpu}`, memory: `${gameServer.memory}` },
               requests: { cpu: `${gameServer.cpu}`, memory: `${gameServer.memory}` },
@@ -191,10 +170,14 @@ export const KubernetesGameServer = {
           name: `${name}-node-port`,
         },
         spec: {
-          ports: [
-            { name: 'tcp', nodePort: hostPort, port: 7777, protocol: 'TCP' },
-            { name: 'udp', nodePort: hostPort, port: 7777, protocol: 'UDP' },
-          ],
+          ports: ports.map((p) => {
+            return {
+              name: `${p.containerPort}-${p.protocol.toLowerCase()}`,
+              nodePort: p.hostPort,
+              port: p.containerPort,
+              protocol: p.protocol,
+            };
+          }),
           selector: { ...labels, 'tenlastic.com/role': GameServerStatusComponentName.Application },
           type: 'NodePort',
         },
@@ -202,6 +185,13 @@ export const KubernetesGameServer = {
     }
   },
 };
+
+function getHostPort() {
+  const maximum = 32767;
+  const minimum = 30000;
+
+  return Math.round(Math.random() * (maximum - minimum) + minimum);
+}
 
 function getProbeManifest(probe: GameServerProbesProbeDocument) {
   const manifest: V1Probe = {

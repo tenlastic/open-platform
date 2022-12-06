@@ -151,6 +151,11 @@
       <app-metadata-fields [formArray]="form.get('gameServerTemplate').get('metadata')"></app-metadata-fields>
     </app-toggle-section>
 
+    <app-toggle-section [isVisible]="!data._id"
+                        title="Game Server Ports">
+      <app-port-fields [form]="ports"></app-port-fields>
+    </app-toggle-section>
+
     <app-toggle-section [isVisible]="false"
                         title="Game Server Probes">
       <h4>Liveness Probe</h4>

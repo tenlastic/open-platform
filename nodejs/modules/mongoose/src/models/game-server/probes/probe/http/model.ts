@@ -28,7 +28,7 @@ export class GameServerProbesProbeHttpSchema {
   @prop({ default: '/', maxlength: 128, trim: true, type: String })
   public path: string;
 
-  @prop({ required: true, type: Number })
+  @prop({ max: 65535, min: 1, required: true, type: Number })
   public port: number;
 
   @prop({
@@ -46,7 +46,7 @@ export class GameServerProbesProbeHttpSchema {
     values: Partial<GameServerProbesProbeHttpSchema> = {},
   ) {
     const chance = new Chance();
-    const defaults = { path: chance.hash(), port: chance.integer({ max: 65535, min: 80 }) };
+    const defaults = { path: chance.hash(), port: chance.integer({ max: 65535, min: 1 }) };
 
     return new this({ ...defaults, ...values });
   }
