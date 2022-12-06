@@ -1,0 +1,52 @@
+<div *ngFor="let threshold of formArray.controls; let i = index"
+     class="row"
+     [formGroup]="formArray.at(i)">
+  <mat-form-field floatLabel="always">
+    <mat-label>Seconds</mat-label>
+    <input formControlName="seconds"
+           matInput
+           min="1"
+           type="number" />
+    <mat-error>Enter a valid number of seconds.</mat-error>
+  </mat-form-field>
+
+  <mat-form-field floatLabel="always">
+    <mat-label>Teams</mat-label>
+    <input formControlName="teams"
+           matInput
+           min="1"
+           required
+           step="1"
+           type="number" />
+    <mat-error>Enter a valid amount of teams.</mat-error>
+  </mat-form-field>
+
+  <mat-form-field floatLabel="always">
+    <mat-label>Players Per Team</mat-label>
+    <input formControlName="usersPerTeam"
+           matInput
+           min="1"
+           required
+           step="1"
+           type="number" />
+    <mat-error>Enter a valid amount of players per team.</mat-error>
+  </mat-form-field>
+
+  <app-button *ngIf="!formArray?.disabled"
+              color="accent"
+              layout="left"
+              (OnClick)="removeAt(i)">
+    <mat-icon>close</mat-icon>
+    <div>Remove</div>
+  </app-button>
+</div>
+
+<div *ngIf="!formArray?.disabled"
+     class="row">
+  <app-button color="accent"
+              layout="left"
+              (OnClick)="push()">
+    <mat-icon>add</mat-icon>
+    <div>Add Threshold</div>
+  </app-button>
+</div>

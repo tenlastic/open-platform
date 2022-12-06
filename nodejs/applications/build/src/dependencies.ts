@@ -6,7 +6,6 @@ import {
   BuildService,
   BuildStore,
   EnvironmentService,
-  StreamService,
 } from '@tenlastic/http';
 import { Axios } from 'axios';
 
@@ -42,7 +41,6 @@ injector.inject([
   { provide: BuildStore, useValue: new BuildStore() },
   { provide: Axios, useValue: new Axios() },
   { provide: EnvironmentService, useValue: new EnvironmentService({ apiKey, apiUrl }) },
-  { provide: StreamService, useFactory: () => new StreamService() },
 ]);
 
 export default {
@@ -52,5 +50,4 @@ export default {
   buildStore: injector.get(BuildStore),
   axios: injector.get(Axios),
   environmentService: injector.get(EnvironmentService),
-  streamService: injector.get(StreamService),
 };

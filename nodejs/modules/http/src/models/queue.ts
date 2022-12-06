@@ -58,6 +58,12 @@ export namespace IQueue {
     phase: string;
     pod: string;
   }
+
+  export interface Threshold {
+    seconds?: number;
+    teams?: number;
+    usersPerTeam?: number;
+  }
 }
 
 export class QueueModel extends BaseModel {
@@ -73,6 +79,7 @@ export class QueueModel extends BaseModel {
   public restartedAt: Date;
   public status: IQueue.Status;
   public teams: number;
+  public thresholds: IQueue.Threshold[];
   public usersPerTeam: number;
 
   constructor(parameters?: Partial<QueueModel>) {

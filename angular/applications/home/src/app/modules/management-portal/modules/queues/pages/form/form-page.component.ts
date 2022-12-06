@@ -54,7 +54,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
   }
   public hasWriteAuthorization: boolean;
   public get isNew() {
-    return this.params.gameServerId === 'new';
+    return this.params.queueId === 'new';
   }
   public get memories() {
     return this.namespace.limits.memory
@@ -159,6 +159,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       namespaceId: this.form.get('namespaceId').value,
       preemptible: this.form.get('preemptible').value,
       replicas: this.form.get('replicas').value,
+      thresholds: this.form.get('thresholds').value,
       usersPerTeam: this.form.get('usersPerTeam').value,
       teams: this.form.get('teams').value,
     };
@@ -237,6 +238,16 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
     });
   }
 
+  private getThresholdFormGroups(thresholds: IQueue.Threshold[]) {
+    return thresholds.map((t) => {
+      return this.formBuilder.group({
+        seconds: [t.seconds, Validators.required],
+        teams: [t.teams, Validators.required],
+        usersPerTeam: [t.usersPerTeam, Validators.required],
+      });
+    });
+  }
+
   private setupForm(): void {
     this.data = this.data || new QueueModel();
 
@@ -280,9 +291,14 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       });
     }
 
-    const metadata = [];
-    if (this.data && this.data.metadata) {
-      metadata.push(...this.getMetadataFormGroups(this.data.metadata));
+    const metadataFormGroups = [];
+    if (this.data?.metadata) {
+      metadataFormGroups.push(...this.getMetadataFormGroups(this.data.metadata));
+    }
+
+    const thresholdFormGroups = [];
+    if (this.data?.thresholds?.length > 0) {
+      thresholdFormGroups.push(...this.getThresholdFormGroups(this.data.thresholds));
     }
 
     this.form = this.formBuilder.group({
@@ -290,11 +306,12 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       description: [this.data.description],
       gameServerTemplate: gameServerTemplateForm,
       memory: [this.data.memory || this.memories[0].value, Validators.required],
-      metadata: this.formBuilder.array(metadata),
+      metadata: this.formBuilder.array(metadataFormGroups),
       name: [this.data.name, Validators.required],
       namespaceId: [this.params.namespaceId],
       preemptible: [this.data.preemptible === false ? false : true],
       replicas: [this.data.replicas || this.replicas[0].value, Validators.required],
+      thresholds: this.formBuilder.array(thresholdFormGroups),
       usersPerTeam: [this.data.usersPerTeam || 1, Validators.required],
       teams: [this.data.teams || 2, Validators.required],
     });

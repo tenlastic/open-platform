@@ -6,7 +6,6 @@ import {
   GameServerQuery,
   GameServerService,
   GameServerStore,
-  StreamService,
 } from '@tenlastic/http';
 import { Axios } from 'axios';
 
@@ -42,7 +41,6 @@ injector.inject([
     ) => new GameServerService(apiService, environmentService, gameServerStore),
   },
   { provide: GameServerStore, useValue: new GameServerStore() },
-  { provide: StreamService, useFactory: () => new StreamService() },
 ]);
 
 export default {
@@ -52,5 +50,4 @@ export default {
   gameServerQuery: injector.get(GameServerQuery),
   gameServerService: injector.get(GameServerService),
   gameServerStore: injector.get(GameServerStore),
-  streamService: injector.get(StreamService),
 };

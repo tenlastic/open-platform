@@ -5,13 +5,14 @@ import {
   modelOptions,
   plugin,
   prop,
+  PropType,
   Severity,
 } from '@typegoose/typegoose';
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 import { unsetPlugin } from '../../plugins';
 
-import { enumValidator } from '../../validators';
+import { duplicateValidator, enumValidator } from '../../validators';
 import { AuthorizationDocument } from '../authorization';
 import {
   QueueGameServerTemplateDocument,
@@ -26,6 +27,7 @@ import {
   QueueStatusPhase,
   QueueStatusSchema,
 } from './status';
+import { QueueThresholdDocument, QueueThresholdSchema } from './threshold';
 
 @index({ namespaceId: 1 })
 @modelOptions({
@@ -94,6 +96,9 @@ export class QueueSchema {
 
   @prop({ min: 1, required: true, type: Number })
   public teams: number;
+
+  @prop({ type: QueueThresholdSchema, validate: duplicateValidator }, PropType.ARRAY)
+  public thresholds: QueueThresholdDocument[];
 
   public updatedAt: Date;
 

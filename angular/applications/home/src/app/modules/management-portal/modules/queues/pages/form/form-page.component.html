@@ -101,8 +101,12 @@
       <app-metadata-fields [formArray]="form.get('metadata')"></app-metadata-fields>
     </app-toggle-section>
 
+    <app-toggle-section title="Queue Thresholds"
+                        [isVisible]="false">
+      <app-threshold-fields [formArray]="form.get('thresholds')"></app-threshold-fields>
+    </app-toggle-section>
+
     <app-toggle-section formGroupName="gameServerTemplate"
-                        [isVisible]="isNew"
                         title="Game Server Template">
       <div class="row">
         <mat-form-field floatLabel="always">

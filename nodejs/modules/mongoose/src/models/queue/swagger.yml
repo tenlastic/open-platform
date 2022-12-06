@@ -35,6 +35,10 @@ components:
           $ref: '#/components/schemas/QueueStatus'
         teams:
           type: integer
+        thresholds:
+          type: array
+          items:
+            $ref: '$/components/schemas/QueueThreshold'
         updatedAt:
           type: string
           format: date-time
