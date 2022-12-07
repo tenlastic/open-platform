@@ -113,6 +113,7 @@ export class AuthorizationRequestsFormPageComponent implements OnInit {
         builds: this.data.roles?.find((r) => r.startsWith('Builds')),
         collections: this.data.roles?.find((r) => r.startsWith('Collections')),
         gameServers: this.data.roles?.find((r) => r.startsWith('GameServers')),
+        matches: this.data.roles?.find((r) => r.startsWith('Matches')),
         namespaces: this.data.roles?.find((r) => r.startsWith('Namespaces')),
         queues: this.data.roles?.find((r) => r.startsWith('Queues')),
         records: this.data.roles?.find((r) => r.startsWith('Records')),

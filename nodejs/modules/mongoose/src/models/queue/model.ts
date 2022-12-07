@@ -4,6 +4,7 @@ import {
   index,
   modelOptions,
   plugin,
+  pre,
   prop,
   PropType,
   Severity,
@@ -35,6 +36,10 @@ import { QueueThresholdDocument, QueueThresholdSchema } from './threshold';
   schemaOptions: { collection: 'queues', timestamps: true },
 })
 @plugin(unsetPlugin)
+@pre('save', function (this: QueueDocument) {
+  this.gameServerTemplate.description ||= this.description;
+  this.gameServerTemplate.name ||= this.name;
+})
 export class QueueSchema {
   public _id: mongoose.Types.ObjectId;
 
@@ -73,7 +78,7 @@ export class QueueSchema {
   @prop({
     default(this: QueueDocument) {
       return new QueueStatusModel({
-        component: [
+        components: [
           new QueueStatusComponentModel({
             current: 0,
             name: QueueStatusComponentName.Application,

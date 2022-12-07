@@ -159,9 +159,9 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       namespaceId: this.form.get('namespaceId').value,
       preemptible: this.form.get('preemptible').value,
       replicas: this.form.get('replicas').value,
+      teams: this.form.get('teams').value,
       thresholds: this.form.get('thresholds').value,
       usersPerTeam: this.form.get('usersPerTeam').value,
-      teams: this.form.get('teams').value,
     };
 
     const livenessProbe = ProbeFieldComponent.getJsonFromProbe(
@@ -311,9 +311,9 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       namespaceId: [this.params.namespaceId],
       preemptible: [this.data.preemptible === false ? false : true],
       replicas: [this.data.replicas || this.replicas[0].value, Validators.required],
+      teams: [this.data.teams || 2, Validators.required],
       thresholds: this.formBuilder.array(thresholdFormGroups),
       usersPerTeam: [this.data.usersPerTeam || 1, Validators.required],
-      teams: [this.data.teams || 2, Validators.required],
     });
 
     if (!this.hasWriteAuthorization) {

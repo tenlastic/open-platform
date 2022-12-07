@@ -4,6 +4,7 @@ import {
   GameServerDocument,
   GameServerProbesProbeDocument,
   GameServerStatusComponentName,
+  MatchModel,
 } from '@tenlastic/mongoose';
 import { URL } from 'url';
 

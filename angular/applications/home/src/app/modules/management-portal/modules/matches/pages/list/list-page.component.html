@@ -1,0 +1,81 @@
+<div class="page">
+  <app-title>Matches</app-title>
+
+  <div class="row">
+    <div class="col-sm-3">
+      <app-data-source-filter [dataSource]="dataSource">Filter Matches</app-data-source-filter>
+    </div>
+
+    <div *ngIf="hasWriteAuthorization"
+         class="offset-sm-6 col-sm-3">
+      <app-button color="accent"
+                  [routerLink]="['new']">
+        <mat-icon>add</mat-icon>
+        <div>New Match</div>
+      </app-button>
+    </div>
+  </div>
+
+  <table mat-table
+         [dataSource]="dataSource"
+         matSort
+         matSortActive="queue"
+         matSortDirection="asc">
+    <ng-container matColumnDef="queue">
+      <th mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header>Queue</th>
+      <td mat-cell
+          *matCellDef="let element">{{ getQueue(element.queueId)?.name }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="users">
+      <th mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header>Users</th>
+      <td mat-cell
+          *matCellDef="let element">{{ getUsers(element).length }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="createdAt">
+      <th mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header>Created At</th>
+      <td mat-cell
+          *matCellDef="let element">{{ element.createdAt | date }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="updatedAt">
+      <th mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header>Updated At</th>
+      <td mat-cell
+          *matCellDef="let element">{{ element.updatedAt | date }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell
+          *matHeaderCellDef></th>
+      <td mat-cell
+          *matCellDef="let element">
+        <app-button *ngIf="hasWriteAuthorization"
+                    appHighlight
+                    color="accent"
+                    matTooltip="Delete"
+                    (OnClick)="showDeletePrompt($event, element)">
+          <mat-icon>delete</mat-icon>
+        </app-button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row
+        *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row
+        *matRowDef="let row; columns: displayedColumns"
+        appHighlight
+        [routerLink]="[row._id]"></tr>
+  </table>
+
+  <mat-paginator [pageSizeOptions]="[10, 25, 100]"
+                 showFirstLastButtons></mat-paginator>
+</div>

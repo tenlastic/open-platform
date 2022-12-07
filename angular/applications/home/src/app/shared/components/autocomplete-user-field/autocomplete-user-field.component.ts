@@ -14,14 +14,6 @@ export class AutocompleteUserFieldComponent implements OnInit {
 
   public $users = new Observable<UserModel[]>();
   public isLoading = false;
-  public get isRequired() {
-    if (!this.control.validator) {
-      return false;
-    }
-
-    const validator = this.control.validator({} as AbstractControl);
-    return validator?.required;
-  }
 
   private subject = new Subject<string>();
 

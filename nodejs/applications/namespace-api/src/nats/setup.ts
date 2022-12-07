@@ -5,6 +5,7 @@ import {
   CollectionModel,
   GameServerModel,
   GroupModel,
+  MatchModel,
   NamespaceModel,
   QueueMemberModel,
   QueueModel,
@@ -22,6 +23,7 @@ import { BuildEvent } from './build';
 import { CollectionEvent } from './collection';
 import { GameServerEvent } from './game-server';
 import { GroupEvent } from './group';
+import { MatchEvent } from './match';
 import { GlobalNamespaceEvent, NamespaceEvent } from './namespace';
 import { QueueEvent } from './queue';
 import { QueueMemberEvent } from './queue-member';
@@ -55,6 +57,7 @@ export async function setup(options: SetupOptions) {
       GameServerEvent.emit(payload),
     ),
     subscribe(options.database, options.durable, GroupModel, (payload) => GroupEvent.emit(payload)),
+    subscribe(options.database, options.durable, MatchModel, (payload) => MatchEvent.emit(payload)),
     subscribe(options.database, options.durable, NamespaceModel, (payload) =>
       NamespaceEvent.emit(payload),
     ),

@@ -1,0 +1,82 @@
+<div *ngIf="form"
+     class="page">
+  <div class="row">
+    <div class="col-sm-6">
+      <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Match</app-title>
+      <app-title *ngIf="!hasWriteAuthorization">View Match</app-title>
+    </div>
+
+    <div *ngIf="hasWriteAuthorization && isNew"
+         class="col-sm-6 align-right">
+      <app-button color="accent"
+                  (OnClick)="navigateToJson()">
+        <mat-icon>code</mat-icon>
+        <div>{{ data?._id ? 'Edit' : 'Create' }} as JSON</div>
+      </app-button>
+    </div>
+  </div>
+
+  <form [formGroup]="form"
+        autocomplete="off">
+    <div class="row">
+      <mat-form-field floatLabel="always">
+        <mat-label>Queue</mat-label>
+        <mat-select formControlName="queueId"
+                    placeholder="No Queues Found"
+                    required>
+          <mat-option *ngFor="let queue of queues"
+                      [value]="queue._id">
+            {{ queue.name }}
+          </mat-option>
+        </mat-select>
+        <mat-error>Select a valid Queue.</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="row">
+      <mat-form-field floatLabel="always">
+        <mat-label>Teams</mat-label>
+        <input matInput
+               required
+               formControlName="teams"
+               min="1"
+               step="1"
+               type="number" />
+        <mat-error>Enter a valid amount of teams.</mat-error>
+      </mat-form-field>
+
+      <mat-form-field floatLabel="always">
+        <mat-label>Players Per Team</mat-label>
+        <input matInput
+               required
+               formControlName="usersPerTeam"
+               min="1"
+               step="1"
+               type="number" />
+        <mat-error>Enter a valid amount of players per team.</mat-error>
+      </mat-form-field>
+    </div>
+
+    <app-toggle-section title="Users">
+      <div *ngFor="let user of users.controls; let i = index"
+           class="row">
+        <app-autocomplete-user-field [control]="users.at(i)"></app-autocomplete-user-field>
+      </div>
+    </app-toggle-section>
+  </form>
+</div>
+
+<div *ngIf="form && !form.disabled"
+     class="page-actions">
+  <div *ngFor="let error of errors"
+       class="form-error">
+    {{ error }}
+  </div>
+
+  <app-button color="primary"
+              size="large"
+              (OnClick)="save()">
+    <mat-icon>save</mat-icon>
+    <div>Save</div>
+  </app-button>
+</div>

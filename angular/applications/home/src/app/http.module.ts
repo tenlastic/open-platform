@@ -41,6 +41,9 @@ import {
   IgnorationStore,
   InvalidRefreshTokenInterceptor,
   LoginService,
+  MatchQuery,
+  MatchService,
+  MatchStore,
   MessageQuery,
   MessageService,
   MessageStore,
@@ -163,6 +166,11 @@ const queries: Provider[] = [
     provide: IgnorationQuery,
     useFactory: (store: IgnorationStore, userQuery: UserQuery) =>
       new IgnorationQuery(store, userQuery),
+  },
+  {
+    deps: [MatchStore],
+    provide: MatchQuery,
+    useFactory: (store: MatchStore) => new MatchQuery(store),
   },
   {
     deps: [MessageStore],
@@ -356,6 +364,15 @@ const services: Provider[] = [
       new LoginService(apiService, environmentService),
   },
   {
+    deps: [ApiService, EnvironmentService, MatchStore],
+    provide: MatchService,
+    useFactory: (
+      apiService: ApiService,
+      environmentService: EnvironmentService,
+      store: MatchStore,
+    ) => new MatchService(apiService, environmentService, store),
+  },
+  {
     deps: [ApiService, EnvironmentService, MessageStore],
     provide: MessageService,
     useFactory: (
@@ -498,6 +515,7 @@ const stores: Provider[] = [
   { provide: GroupInvitationStore, useValue: new GroupInvitationStore() },
   { provide: GroupStore, useValue: new GroupStore() },
   { provide: IgnorationStore, useValue: new IgnorationStore() },
+  { provide: MatchStore, useValue: new MatchStore() },
   { provide: MessageStore, useValue: new MessageStore() },
   { provide: NamespaceLogStore, useValue: new NamespaceLogStore() },
   { provide: NamespaceStore, useValue: new NamespaceStore() },

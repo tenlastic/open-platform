@@ -1,0 +1,39 @@
+components:
+  schemas:
+    Match:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ^[0-9a-f]{24}$
+        createdAt:
+          type: string
+          format: date-time
+        gameServerTemplate:
+          $ref: '#/components/schemas/QueueGameServerTemplate'
+        namespaceId:
+          type: string
+          format: ^[0-9a-f]{24}$
+        queueId:
+          type: string
+          format: ^[0-9a-f]{24}$
+        teams:
+          type: number
+          minimum: 1
+        updatedAt:
+          type: string
+          format: date-time
+        userIds:
+          type: array
+          items:
+            type: string
+            format: ^[0-9a-f]{24}$
+        usersPerTeam:
+          type: number
+          minimum: 1
+      required:
+        - namespaceId
+        - queueId
+        - teams
+        - userIds
+        - usersPerTeam

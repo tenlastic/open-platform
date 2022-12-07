@@ -27,6 +27,8 @@ export enum AuthorizationRole {
   GameServersRead = 'GameServers:Read',
   GameServersReadWrite = 'GameServers:ReadWrite',
   LoginsRead = 'Logins:Read',
+  MatchesRead = 'Matches:Read',
+  MatchesReadWrite = 'Matches:ReadWrite',
   NamespacesRead = 'Namespaces:Read',
   NamespacesReadWrite = 'Namespaces:ReadWrite',
   QueuesRead = 'Queues:Read',

@@ -41,6 +41,9 @@ export class QueueGameServerTemplateSchema {
   @prop({ type: mongoose.Schema.Types.Mixed, unset: false })
   public metadata: any;
 
+  @prop({ maxlength: 64, trim: true, type: String })
+  public name: string;
+
   @prop(
     {
       required: true,

@@ -12,6 +12,7 @@ export * from './group';
 export * from './group-invitation';
 export * from './ignoration';
 export * from './jwt';
+export * from './match';
 export * from './message';
 export * from './namespace';
 export * from './namespace-log';

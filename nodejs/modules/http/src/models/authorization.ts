@@ -15,6 +15,8 @@ export namespace IAuthorization {
     GameServersRead = 'GameServers:Read',
     GameServersReadWrite = 'GameServers:ReadWrite',
     LoginsRead = 'Logins:Read',
+    MatchesRead = 'Matches:Read',
+    MatchesReadWrite = 'Matches:ReadWrite',
     NamespacesRead = 'Namespaces:Read',
     NamespacesReadWrite = 'Namespaces:ReadWrite',
     QueuesRead = 'Queues:Read',
@@ -40,6 +42,7 @@ export namespace IAuthorization {
   export const buildRoles = [Role.BuildsReadPublished, Role.BuildsRead, Role.BuildsReadWrite];
   export const collectionRoles = [Role.CollectionsRead, Role.CollectionsReadWrite];
   export const gameServerRoles = [Role.GameServersRead, Role.GameServersReadWrite];
+  export const matchRoles = [Role.MatchesRead, Role.MatchesReadWrite];
   export const namespaceRoles = [Role.NamespacesRead, Role.NamespacesReadWrite];
   export const queueRoles = [Role.QueuesRead, Role.QueuesReadWrite];
   export const recordRoles = [Role.RecordsRead, Role.RecordsReadWrite];

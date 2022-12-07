@@ -55,6 +55,13 @@ export class GameServerSchema {
   @prop({ maxlength: 128, trim: true, type: String })
   public description: string;
 
+  @prop({
+    ref: 'MatchSchema',
+    type: mongoose.Schema.Types.ObjectId,
+    validate: namespaceValidator('matchDocument', 'matchId'),
+  })
+  public matchId: mongoose.Types.ObjectId;
+
   @prop({ min: 100 * 1000 * 1000, required: true, type: Number })
   public memory: number;
 

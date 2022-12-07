@@ -57,6 +57,10 @@ export const ROUTES: Routes = [
         title: FormResolver,
       },
       {
+        loadChildren: () => import('../matches/matches.module').then((m) => m.MatchModule),
+        path: 'matches',
+      },
+      {
         loadChildren: () => import('../queues/queues.module').then((m) => m.QueueModule),
         path: 'queues',
       },

@@ -28,6 +28,10 @@ export const ROUTES: Routes = [
         title: FormResolver,
       },
       {
+        loadChildren: () => import('../matches/matches.module').then((m) => m.MatchModule),
+        path: 'matches',
+      },
+      {
         loadChildren: () =>
           import('../queue-members/queue-members.module').then((m) => m.QueueMemberModule),
         path: 'queue-members',

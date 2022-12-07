@@ -103,6 +103,15 @@
         </mat-radio-group>
       </div>
 
+      <h4>Matches</h4>
+      <div class="row">
+        <mat-radio-group formControlName="matches">
+          <mat-radio-button>None</mat-radio-button>
+          <mat-radio-button [value]="AuthorizationRole.MatchesRead">Read</mat-radio-button>
+          <mat-radio-button [value]="AuthorizationRole.MatchesReadWrite">Read / Write</mat-radio-button>
+        </mat-radio-group>
+      </div>
+
       <h4>Namespaces</h4>
       <div class="row">
         <mat-radio-group formControlName="namespaces">

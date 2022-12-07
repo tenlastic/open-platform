@@ -32,6 +32,20 @@
         <div>Game Servers</div>
       </app-button>
 
+      <app-button *ngIf="$hasPermission(IAuthorization.matchRoles) | async"
+                  color="accent"
+                  [disabled]="namespace.status.phase !== 'Running'"
+                  layout="vertical"
+                  [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
+                  matTooltipPosition="right"
+                  [routerLink]="namespace.status.phase === 'Running' ? ['matches'] : null"
+                  routerLinkActive="active"
+                  text="left"
+                  width="full">
+        <mat-icon>join_inner</mat-icon>
+        <div>Matches</div>
+      </app-button>
+
       <app-button color="accent"
                   [disabled]="namespace.status.phase !== 'Running'"
                   layout="vertical"

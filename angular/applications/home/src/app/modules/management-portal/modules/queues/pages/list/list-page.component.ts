@@ -8,18 +8,18 @@ import { ActivatedRoute, Params } from '@angular/router';
 import { Order } from '@datorama/akita';
 import {
   AuthorizationQuery,
-  IAuthorization,
-  QueueModel,
-  QueueLogModel,
-  QueueLogQuery,
-  QueueLogStore,
-  QueueQuery,
-  QueueService,
-  QueueLogService,
-  StreamService,
   BuildQuery,
   BuildService,
+  IAuthorization,
   IQueue,
+  QueueLogModel,
+  QueueLogQuery,
+  QueueLogService,
+  QueueLogStore,
+  QueueModel,
+  QueueQuery,
+  QueueService,
+  StreamService,
 } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
