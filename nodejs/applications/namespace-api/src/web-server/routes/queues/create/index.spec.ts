@@ -8,6 +8,7 @@ import {
   NamespaceLimitsModel,
   UserDocument,
   UserModel,
+  GameServerPortModel,
 } from '@tenlastic/mongoose';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { ContextMock } from '@tenlastic/web-server';
@@ -51,12 +52,12 @@ describe('web-server/queues/create', function () {
               buildId: build._id,
               cpu: 1,
               memory: 1 * 1000 * 1000 * 1000,
+              ports: [GameServerPortModel.mock()],
             },
             memory: 1 * 1000 * 1000 * 1000,
             name: chance.hash(),
             replicas: 1,
-            teams: 2,
-            usersPerTeam: 1,
+            usersPerTeam: [1, 1],
           },
         },
         state: { user },

@@ -12,17 +12,15 @@ import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
 import { unsetPlugin } from '../../plugins';
-import { arrayLengthValidator, duplicateValidator, namespaceValidator } from '../../validators';
+import { arrayLengthValidator, duplicateValidator } from '../../validators';
 import { AuthorizationDocument } from '../authorization';
-import { BuildDocument } from '../build';
-import { QueueDocument } from '../queue';
 import { GameServerPortDocument, GameServerPortModel, GameServerPortSchema } from './port';
 import { GameServerProbesDocument, GameServerProbesSchema } from './probes';
 import { GameServerStatusDocument, GameServerStatusModel, GameServerStatusSchema } from './status';
 
-@index({ authorizedUserIds: 1 })
 @index({ buildId: 1 })
 @index({ currentUserIds: 1 })
+@index({ matchId: 1 })
 @index({ namespaceId: 1 })
 @index({ queueId: 1 })
 @modelOptions({
@@ -33,15 +31,7 @@ import { GameServerStatusDocument, GameServerStatusModel, GameServerStatusSchema
 export class GameServerSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @prop({ ref: 'UserSchema', type: mongoose.Schema.Types.ObjectId }, PropType.ARRAY)
-  public authorizedUserIds: mongoose.Types.ObjectId[];
-
-  @prop({
-    ref: 'BuildSchema',
-    required: true,
-    type: mongoose.Schema.Types.ObjectId,
-    validate: namespaceValidator('buildDocument', 'buildId'),
-  })
+  @prop({ ref: 'BuildSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public buildId: mongoose.Types.ObjectId;
 
   @prop({ min: 0.1, required: true, type: Number })
@@ -55,11 +45,7 @@ export class GameServerSchema {
   @prop({ maxlength: 128, trim: true, type: String })
   public description: string;
 
-  @prop({
-    ref: 'MatchSchema',
-    type: mongoose.Schema.Types.ObjectId,
-    validate: namespaceValidator('matchDocument', 'matchId'),
-  })
+  @prop({ ref: 'MatchSchema', type: mongoose.Schema.Types.ObjectId })
   public matchId: mongoose.Types.ObjectId;
 
   @prop({ min: 100 * 1000 * 1000, required: true, type: Number })
@@ -93,11 +79,7 @@ export class GameServerSchema {
   @prop({ type: GameServerProbesSchema })
   public probes: GameServerProbesDocument;
 
-  @prop({
-    ref: 'QueueSchema',
-    type: mongoose.Schema.Types.ObjectId,
-    validate: namespaceValidator('queueDocument', 'queueId'),
-  })
+  @prop({ ref: 'QueueSchema', type: mongoose.Schema.Types.ObjectId })
   public queueId: mongoose.Types.ObjectId;
 
   @prop({ type: Date })
@@ -110,12 +92,6 @@ export class GameServerSchema {
 
   @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
   public authorizationDocuments: AuthorizationDocument[];
-
-  @prop({ foreignField: '_id', justOne: true, localField: 'buildId', ref: 'BuildSchema' })
-  public buildDocument: BuildDocument;
-
-  @prop({ foreignField: '_id', justOne: true, localField: 'queueId', ref: 'QueueSchema' })
-  public queueDocument: QueueDocument;
 
   /**
    * Creates a record with randomized required parameters if not specified.

@@ -4,19 +4,9 @@ import { AuthorizationRole, MatchDocument, MatchModel } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
 const administrator = {
-  create: ['namespaceId', 'queueId', 'teams', 'userIds', 'usersPerTeam'],
-  read: [
-    '_id',
-    'createdAt',
-    'gameServerTemplate.*',
-    'namespaceId',
-    'queueId',
-    'teams',
-    'updatedAt',
-    'userIds',
-    'usersPerTeam',
-  ],
-  update: ['namespaceId', 'queueId', 'teams', 'userIds', 'usersPerTeam'],
+  create: ['namespaceId', 'queueId', 'teams.*'],
+  read: ['_id', 'createdAt', 'namespaceId', 'queueId', 'teams.*', 'updatedAt'],
+  update: ['namespaceId', 'queueId', 'teams.*'],
 };
 
 export const MatchPermissions = new MongoosePermissions<MatchDocument>(MatchModel, {
@@ -38,16 +28,7 @@ export const MatchPermissions = new MongoosePermissions<MatchDocument>(MatchMode
   },
   populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
   read: {
-    default: [
-      '_id',
-      'createdAt',
-      'namespaceId',
-      'queueId',
-      'teams',
-      'updatedAt',
-      'userIds',
-      'usersPerTeam',
-    ],
+    default: ['_id', 'createdAt', 'namespaceId', 'queueId', 'teams.*', 'updatedAt'],
     'namespace-read': administrator.read,
     'system-read': administrator.read,
     'user-read': administrator.read,
@@ -78,7 +59,7 @@ export const MatchPermissions = new MongoosePermissions<MatchDocument>(MatchMode
   },
   update: {
     'namespace-write': administrator.update,
-    'system-write': ['gameServerId', 'namespaceId', 'queueId', 'teams', 'userIds', 'usersPerTeam'],
+    'system-write': ['namespaceId', 'queueId', 'teams.*'],
     'user-write': administrator.update,
   },
 });

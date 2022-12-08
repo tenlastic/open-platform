@@ -9,8 +9,6 @@ components:
         createdAt:
           type: string
           format: date-time
-        gameServerTemplate:
-          $ref: '#/components/schemas/QueueGameServerTemplate'
         namespaceId:
           type: string
           format: ^[0-9a-f]{24}$
@@ -18,22 +16,15 @@ components:
           type: string
           format: ^[0-9a-f]{24}$
         teams:
-          type: number
-          minimum: 1
+          type: array
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/MatchTeam'
         updatedAt:
           type: string
           format: date-time
-        userIds:
-          type: array
-          items:
-            type: string
-            format: ^[0-9a-f]{24}$
-        usersPerTeam:
-          type: number
-          minimum: 1
       required:
         - namespaceId
         - queueId
         - teams
-        - userIds
-        - usersPerTeam

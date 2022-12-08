@@ -89,8 +89,7 @@ export class QueuesJsonPageComponent implements OnInit {
       name: '',
       preemptible: true,
       replicas: IQueue.Replicas[0].value,
-      teams: 2,
-      usersPerTeam: 1,
+      usersPerTeam: [1, 1],
     });
 
     const keys = [
@@ -103,7 +102,6 @@ export class QueuesJsonPageComponent implements OnInit {
       'name',
       'preemptible',
       'replicas',
-      'teams',
       'usersPerTeam',
     ];
     const data = Object.keys(this.data)

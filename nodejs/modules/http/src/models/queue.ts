@@ -61,8 +61,7 @@ export namespace IQueue {
 
   export interface Threshold {
     seconds?: number;
-    teams?: number;
-    usersPerTeam?: number;
+    usersPerTeam?: number[];
   }
 }
 
@@ -78,14 +77,16 @@ export class QueueModel extends BaseModel {
   public replicas: number;
   public restartedAt: Date;
   public status: IQueue.Status;
-  public teams: number;
   public thresholds: IQueue.Threshold[];
-  public usersPerTeam: number;
+  public usersPerTeam: number[];
 
   constructor(parameters?: Partial<QueueModel>) {
     super(parameters);
   }
 
+  /**
+   * Returns true if the Queue will be restarted on update.
+   */
   public static isRestartRequired(fields: string[]) {
     const immutableFields = [
       'cpu',
@@ -95,6 +96,39 @@ export class QueueModel extends BaseModel {
       'replicas',
       'restartedAt',
     ];
+
     return immutableFields.some((i) => fields.includes(i));
+  }
+
+  /**
+   * Returns the number of teams accounting for Thresholds.
+   */
+  public getTeams(date: Date) {
+    if (!date) {
+      return this.usersPerTeam.length;
+    }
+
+    const milliseconds = new Date().getTime() - date.getTime();
+    const seconds = milliseconds / 1000;
+
+    const threshold = this.thresholds?.find((t) => t.seconds >= seconds);
+
+    return threshold ? threshold.usersPerTeam.length : this.usersPerTeam.length;
+  }
+
+  /**
+   * Returns the number of Users per team at the specified index accounting for Thresholds.
+   */
+  public getUsersPerTeam(date: Date, i: number) {
+    if (!date) {
+      return this.usersPerTeam[i];
+    }
+
+    const milliseconds = new Date().getTime() - date.getTime();
+    const seconds = milliseconds / 1000;
+
+    const threshold = this.thresholds?.find((t) => t.seconds >= seconds);
+
+    return threshold ? threshold.usersPerTeam[i] : this.usersPerTeam[i];
   }
 }

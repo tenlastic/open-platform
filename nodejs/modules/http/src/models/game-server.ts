@@ -105,11 +105,11 @@ export namespace IGameServer {
 }
 
 export class GameServerModel extends BaseModel {
-  public authorizedUserIds: string[];
   public buildId: string;
   public cpu: number;
   public currentUserIds: string[];
   public description: string;
+  public matchId: string;
   public memory: number;
   public metadata: any;
   public name: string;

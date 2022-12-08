@@ -70,8 +70,9 @@ export const KubernetesQueue = {
         valueFrom: { secretKeyRef: { key: 'QUEUES', name: `${namespaceName}-api-keys` } },
       },
       { name: 'API_URL', value: `http://${namespaceName}-api.dynamic:3000` },
+      { name: 'NAMESPACE_ID', value: `${queue.namespaceId}` },
       { name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } },
-      { name: 'QUEUE_JSON', value: JSON.stringify(queue) },
+      { name: 'QUEUE_ID', value: `${queue._id}` },
       { name: 'WSS_URL', value: `ws://${namespaceName}-api.dynamic:3000` },
     ];
     const envFrom: V1EnvFromSource[] = [

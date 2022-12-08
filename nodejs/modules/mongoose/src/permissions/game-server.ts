@@ -5,12 +5,10 @@ import { AuthorizationPermissionsHelpers } from './authorization';
 
 const administrator = {
   create: [
-    'authorizedUserIds',
     'buildId',
     'cpu',
     'currentUserIds',
     'description',
-    'matchId',
     'memory',
     'metadata.*',
     'name',
@@ -19,11 +17,9 @@ const administrator = {
     'ports.*',
     'preemptible',
     'probes.*',
-    'queueId',
   ],
   read: [
     '_id',
-    'authorizedUserIds',
     'buildId',
     'cpu',
     'createdAt',
@@ -39,18 +35,16 @@ const administrator = {
     'ports.*',
     'preemptible',
     'probes.*',
-    'restartedAt',
     'queueId',
+    'restartedAt',
     'status.*',
     'updatedAt',
   ],
   update: [
-    'authorizedUserIds',
     'buildId',
     'cpu',
     'currentUserIds',
     'description',
-    'matchId',
     'memory',
     'metadata.*',
     'name',
@@ -83,7 +77,6 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
   read: {
     default: [
       '_id',
-      'authorizedUserIds',
       'createdAt',
       'currentUserIds',
       'description',
@@ -129,12 +122,10 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
   update: {
     'namespace-write': administrator.update,
     'system-write': [
-      'authorizedUserIds',
       'buildId',
       'cpu',
       'currentUserIds',
       'description',
-      'matchId',
       'memory',
       'metadata.*',
       'name',

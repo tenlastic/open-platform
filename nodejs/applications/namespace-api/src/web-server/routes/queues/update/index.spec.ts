@@ -10,6 +10,7 @@ import {
   QueueGameServerTemplateModel,
   UserDocument,
   UserModel,
+  GameServerPortModel,
 } from '@tenlastic/mongoose';
 import { ContextMock, RecordNotFoundError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
@@ -59,6 +60,7 @@ describe('web-server/queues/update', function () {
               buildId: build._id,
               cpu: 1,
               memory: 1 * 1000 * 1000 * 1000,
+              ports: [GameServerPortModel.mock()],
             },
             memory: 1 * 1000 * 1000 * 1000,
             name: chance.hash(),

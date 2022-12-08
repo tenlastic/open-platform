@@ -159,7 +159,6 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       namespaceId: this.form.get('namespaceId').value,
       preemptible: this.form.get('preemptible').value,
       replicas: this.form.get('replicas').value,
-      teams: this.form.get('teams').value,
       thresholds: this.form.get('thresholds').value,
       usersPerTeam: this.form.get('usersPerTeam').value,
     };
@@ -240,10 +239,13 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
 
   private getThresholdFormGroups(thresholds: IQueue.Threshold[]) {
     return thresholds.map((t) => {
+      const formControls = t.usersPerTeam.map((upt) =>
+        this.formBuilder.control(upt, Validators.required),
+      );
+
       return this.formBuilder.group({
         seconds: [t.seconds, Validators.required],
-        teams: [t.teams, Validators.required],
-        usersPerTeam: [t.usersPerTeam, Validators.required],
+        usersPerTeam: this.formBuilder.array(formControls),
       });
     });
   }
@@ -311,7 +313,6 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       namespaceId: [this.params.namespaceId],
       preemptible: [this.data.preemptible === false ? false : true],
       replicas: [this.data.replicas || this.replicas[0].value, Validators.required],
-      teams: [this.data.teams || 2, Validators.required],
       thresholds: this.formBuilder.array(thresholdFormGroups),
       usersPerTeam: [this.data.usersPerTeam || 1, Validators.required],
     });

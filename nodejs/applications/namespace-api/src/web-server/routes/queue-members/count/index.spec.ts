@@ -43,7 +43,7 @@ describe('web-server/queue-members/count', function () {
     const queue = await QueueModel.mock({
       gameServerTemplate: QueueGameServerTemplateModel.mock({ buildId: build._id }),
       namespaceId: namespace._id,
-      usersPerTeam: 2,
+      usersPerTeam: [1, 1],
     }).save();
     const webSockets = await Promise.all([
       WebSocketModel.mock({ userId: users[0]._id }).save(),

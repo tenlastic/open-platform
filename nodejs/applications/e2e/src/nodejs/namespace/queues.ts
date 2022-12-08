@@ -107,8 +107,7 @@ describe('/nodejs/namespace/queues', function () {
       namespaceId: namespace._id,
       preemptible: true,
       replicas: 1,
-      teams: 2,
-      usersPerTeam: 1,
+      usersPerTeam: [1, 1],
     });
 
     expect(queue).to.exist;
@@ -148,7 +147,7 @@ describe('/nodejs/namespace/queues', function () {
   });
 
   step('creates a Game Server', async function () {
-    queue = await dependencies.queueService.update(namespace._id, queue._id, { teams: 1 });
+    queue = await dependencies.queueService.update(namespace._id, queue._id, { usersPerTeam: [1] });
     const { user, webSocketId } = await createUser(namespace._id);
 
     // Add Queue Members.

@@ -13,7 +13,12 @@ import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 import { unsetPlugin } from '../../plugins';
 
-import { duplicateValidator, enumValidator } from '../../validators';
+import {
+  arrayLengthValidator,
+  arrayMaxMinValidator,
+  duplicateValidator,
+  enumValidator,
+} from '../../validators';
 import { AuthorizationDocument } from '../authorization';
 import {
   QueueGameServerTemplateDocument,
@@ -39,6 +44,7 @@ import { QueueThresholdDocument, QueueThresholdSchema } from './threshold';
 @pre('save', function (this: QueueDocument) {
   this.gameServerTemplate.description ||= this.description;
   this.gameServerTemplate.name ||= this.name;
+  this.thresholds.sort((a, b) => (a.seconds > b.seconds ? 1 : -1));
 })
 export class QueueSchema {
   public _id: mongoose.Types.ObjectId;
@@ -99,16 +105,20 @@ export class QueueSchema {
   })
   public status: QueueStatusDocument;
 
-  @prop({ min: 1, required: true, type: Number })
-  public teams: number;
-
   @prop({ type: QueueThresholdSchema, validate: duplicateValidator }, PropType.ARRAY)
   public thresholds: QueueThresholdDocument[];
 
   public updatedAt: Date;
 
-  @prop({ min: 1, required: true, type: Number })
-  public usersPerTeam: number;
+  @prop(
+    {
+      required: true,
+      type: Number,
+      validate: [arrayLengthValidator(Infinity, 1), arrayMaxMinValidator(Infinity, 1)],
+    },
+    PropType.ARRAY,
+  )
+  public usersPerTeam: number[];
 
   @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
   public authorizationDocuments: AuthorizationDocument[];
@@ -142,7 +152,6 @@ export class QueueSchema {
       name: chance.hash(),
       namespaceId: new mongoose.Types.ObjectId(),
       replicas: chance.pickone([1, 3, 5]),
-      teams: chance.integer({ min: 1 }),
       usersPerTeam: chance.integer({ min: 1 }),
     };
 

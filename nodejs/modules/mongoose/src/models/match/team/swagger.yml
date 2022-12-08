@@ -1,0 +1,12 @@
+components:
+  schemas:
+    MatchTeam:
+      type: object
+      properties:
+        userIds:
+          type: array
+          items:
+            type: string
+            format: ^[0-9a-f]{24}$
+      required:
+        - userIds

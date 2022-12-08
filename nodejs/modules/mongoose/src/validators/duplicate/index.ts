@@ -1,23 +1,24 @@
 export const duplicateValidator = {
   msg: 'Array cannot contain duplicate values.',
-  validator: (value: any) => {
-    if (!Array.isArray(value)) {
+  validator: (values: any) => {
+    if (!Array.isArray(values)) {
       return true;
     }
 
     const set = new Set();
 
-    return !value.some((v) => {
-      const alphabetized = alphabetizeKeys(v);
+    for (const value of values) {
+      const alphabetized = alphabetizeKeys(value);
       const json = JSON.stringify(alphabetized);
 
       if (set.has(json)) {
-        return true;
-      } else {
-        set.add(json);
         return false;
       }
-    });
+
+      set.add(json);
+    }
+
+    return true;
   },
 };
 

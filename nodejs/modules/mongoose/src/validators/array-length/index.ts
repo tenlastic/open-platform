@@ -1,5 +1,5 @@
 export const arrayLengthValidator = (max: number, min?: number) => {
-  const maxMsg = max ? ` more than ${max}` : '';
+  const maxMsg = max && max !== Infinity ? ` more than ${max}` : '';
   const minMsg = min ? ` less than ${min}` : '';
   const andMsg = maxMsg && minMsg ? ' and' : '';
 

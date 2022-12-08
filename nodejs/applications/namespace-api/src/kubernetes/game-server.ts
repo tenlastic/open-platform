@@ -4,7 +4,7 @@ import {
   GameServerDocument,
   GameServerProbesProbeDocument,
   GameServerStatusComponentName,
-  MatchModel,
+  MatchDocument,
 } from '@tenlastic/mongoose';
 import { URL } from 'url';
 
@@ -47,7 +47,7 @@ export const KubernetesGameServer = {
   getName: (gameServer: GameServerDocument) => {
     return `game-server-${gameServer._id}`;
   },
-  upsert: async (gameServer: GameServerDocument) => {
+  upsert: async (gameServer: GameServerDocument, match: MatchDocument) => {
     const labels = KubernetesGameServer.getLabels(gameServer);
     const name = KubernetesGameServer.getName(gameServer);
     const namespaceName = KubernetesNamespace.getName(gameServer.namespaceId);
@@ -134,6 +134,11 @@ export const KubernetesGameServer = {
       if (gameServer.probes.readiness) {
         manifest.spec.containers[0].readinessProbe = getProbeManifest(gameServer.probes.readiness);
       }
+    }
+
+    if (match) {
+      manifest.spec.containers[0].env.push({ name: 'MATCH_ID', value: `${match._id}` });
+      manifest.spec.containers[0].env.push({ name: 'MATCH_JSON', value: JSON.stringify(match) });
     }
 
     if (gameServer.persistent) {

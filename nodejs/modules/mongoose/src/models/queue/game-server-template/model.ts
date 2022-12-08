@@ -9,8 +9,7 @@ import {
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
-import { arrayLengthValidator, duplicateValidator, namespaceValidator } from '../../../validators';
-import { BuildDocument } from '../../build';
+import { arrayLengthValidator, duplicateValidator } from '../../../validators';
 import {
   GameServerPortDocument,
   GameServerPortModel,
@@ -21,12 +20,7 @@ import {
 
 @modelOptions({ options: { allowMixed: Severity.ALLOW }, schemaOptions: { _id: false } })
 export class QueueGameServerTemplateSchema {
-  @prop({
-    ref: 'BuildSchema',
-    required: true,
-    type: mongoose.Schema.Types.ObjectId,
-    validate: namespaceValidator('gameServerTemplate.buildDocument', 'gameServerTemplate.buildId'),
-  })
+  @prop({ ref: 'BuildSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public buildId: mongoose.Types.ObjectId;
 
   @prop({ min: 0.1, required: true, type: Number })
@@ -60,9 +54,6 @@ export class QueueGameServerTemplateSchema {
   @prop({ type: GameServerProbesSchema })
   public probes: GameServerProbesDocument;
 
-  @prop({ foreignField: '_id', justOne: true, localField: 'buildId', ref: 'BuildSchema' })
-  public buildDocument: BuildDocument;
-
   /**
    * Creates a record with randomized required parameters if not specified.
    */
@@ -75,7 +66,6 @@ export class QueueGameServerTemplateSchema {
       buildId: new mongoose.Types.ObjectId(),
       cpu: chance.floating({ max: 1, min: 0.1 }),
       memory: chance.integer({ max: 1 * 1000 * 1000 * 1000, min: 250 * 1000 * 1000 }),
-      name: chance.hash(),
       ports: [GameServerPortModel.mock()],
     };
 

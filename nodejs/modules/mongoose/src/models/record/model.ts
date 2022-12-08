@@ -10,7 +10,6 @@ import * as mongoose from 'mongoose';
 
 import { jsonToMongoose } from '../../json-schema';
 import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
-import { namespaceValidator } from '../../validators';
 import { CollectionDocument } from '../collection';
 import { AuthorizationDocument } from '../authorization';
 
@@ -20,12 +19,7 @@ import { AuthorizationDocument } from '../authorization';
 export class RecordSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @prop({
-    ref: 'CollectionSchema',
-    required: true,
-    type: mongoose.Schema.Types.ObjectId,
-    validate: namespaceValidator('collectionDocument', 'collectionId'),
-  })
+  @prop({ ref: 'CollectionSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public collectionId: mongoose.Types.ObjectId;
 
   public createdAt: Date;
@@ -41,9 +35,6 @@ export class RecordSchema {
 
   @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
   public authorizationDocuments: AuthorizationDocument[];
-
-  @prop({ foreignField: '_id', justOne: true, localField: 'collectionId', ref: 'CollectionSchema' })
-  public collectionDocument: CollectionDocument;
 
   /**
    * Gets the Model defined by the Collection.

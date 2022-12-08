@@ -6,13 +6,11 @@ components:
         seconds:
           type: number
           minimum: 1
-        teams:
-          type: number
-          minimum: 1
         usersPerTeam:
-          type: number
-          minimum: 1
+          type: array
+          items:
+            type: number
+            minimum: 1
       required:
         - seconds
-        - teams
         - usersPerTeam

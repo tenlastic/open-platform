@@ -1,16 +1,22 @@
-import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
+import { DocumentType, getModelForClass, modelOptions, prop, PropType } from '@typegoose/typegoose';
 import { Chance } from 'chance';
+
+import { arrayLengthValidator, arrayMaxMinValidator } from '../../../validators';
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class QueueThresholdSchema {
   @prop({ min: 1, required: true, type: Number })
   public seconds: number;
 
-  @prop({ min: 1, required: true, type: Number })
-  public teams: number;
-
-  @prop({ min: 1, required: true, type: Number })
-  public usersPerTeam: number;
+  @prop(
+    {
+      required: true,
+      type: Number,
+      validate: [arrayLengthValidator(Infinity, 1), arrayMaxMinValidator(Infinity, 1)],
+    },
+    PropType.ARRAY,
+  )
+  public usersPerTeam: number[];
 
   /**
    * Creates a record with randomized required parameters if not specified.
@@ -19,8 +25,7 @@ export class QueueThresholdSchema {
     const chance = new Chance();
     const defaults = {
       seconds: chance.integer({ max: 300, min: 1 }),
-      teams: chance.integer({ max: 10, min: 1 }),
-      usersPerTeam: chance.integer({ max: 10, min: 1 }),
+      usersPerTeam: [chance.integer({ max: 10, min: 1 }), chance.integer({ max: 10, min: 1 })],
     };
 
     return new this({ ...defaults, ...values });

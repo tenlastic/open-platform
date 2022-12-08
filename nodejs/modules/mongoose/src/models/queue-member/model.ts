@@ -12,7 +12,6 @@ import {
 import * as mongoose from 'mongoose';
 
 import { DuplicateKeyError, duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
-import { namespaceValidator } from '../../validators';
 import { AuthorizationDocument } from '../authorization';
 import { GroupDocument } from '../group';
 import { QueueDocument } from '../queue';
@@ -76,12 +75,7 @@ export class QueueMemberSchema {
   @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public namespaceId: mongoose.Types.ObjectId;
 
-  @prop({
-    ref: 'QueueSchema',
-    required: true,
-    type: mongoose.Schema.Types.ObjectId,
-    validate: namespaceValidator('queueDocument', 'queueId'),
-  })
+  @prop({ ref: 'QueueSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public queueId: mongoose.Types.ObjectId;
 
   public updatedAt: Date;
@@ -142,7 +136,7 @@ export class QueueMemberSchema {
       await this.populate('queueDocument');
     }
 
-    if (this.userIds.length > this.queueDocument.usersPerTeam) {
+    if (this.userIds.length > this.queueDocument.usersPerTeam.reduce((a, b) => a + b, 0)) {
       throw new Error('Group size is too large for this Queue.');
     }
   }

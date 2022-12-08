@@ -6,6 +6,7 @@ import {
 } from '@tenlastic/mongoose';
 
 import { GroupEvent } from './group';
+import { MatchEvent } from './match';
 import { QueueEvent } from './queue';
 import { WebSocketEvent } from './web-socket';
 
@@ -17,6 +18,14 @@ GroupEvent.async(async (payload) => {
     case 'delete':
     case 'update':
       return QueueMemberModel.deleteMany({ groupId: payload.fullDocument._id });
+  }
+});
+
+// Delete QueueMember when associated Match is created.
+MatchEvent.async(async (payload) => {
+  switch (payload.operationType) {
+    case 'delete':
+      return QueueMemberModel.deleteMany({ userIds: { $in: payload.fullDocument.userIds } });
   }
 });
 

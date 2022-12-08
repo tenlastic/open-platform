@@ -101,8 +101,6 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
       namespaceId: this.form.get('namespaceId').value,
       queueId: this.form.get('queueId').value,
       teams: this.form.get('teams').value,
-      userIds: this.form.get('users').value.map((u) => u?._id),
-      usersPerTeam: this.form.get('usersPerTeam').value,
     };
 
     try {
@@ -113,15 +111,15 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
   }
 
   private setupForm(): void {
-    this.data = this.data || new MatchModel();
+    this.data = this.data || new MatchModel({ teams: [] });
 
-    const teams = this.data.teams || 2;
-    const usersPerTeam = this.data.usersPerTeam || 1;
+    const teamFormGroups = this.data.teams.map((t) => {
+      const users = t.userIds.map((ui) => this.userQuery.getEntity(ui));
+      const formControls = users.map((u) => this.formBuilder.control(u, Validators.required));
+      const formArray = this.formBuilder.array(formControls);
 
-    let users = Array(teams * usersPerTeam).fill(null);
-    if (this.data.userIds) {
-      users = this.data.userIds.map((ui) => this.userQuery.getEntity(ui));
-    }
+      return this.formBuilder.group({ userIds: formArray });
+    });
 
     this.form = this.formBuilder.group({
       namespaceId: [this.params.namespaceId],
@@ -129,9 +127,7 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
         this.data.queueId || this.params.queueId || this.queues[0]?._id,
         Validators.required,
       ],
-      teams: [teams, Validators.required],
-      users: this.formBuilder.array(users),
-      usersPerTeam: [usersPerTeam, Validators.required],
+      teams: this.formBuilder.array(teamFormGroups),
     });
 
     this.form.valueChanges.subscribe((values) => this.syncUserIds(values));

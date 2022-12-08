@@ -1,13 +1,18 @@
 import { BaseModel } from './base';
-import { IQueue } from './queue';
+
+export namespace IMatch {
+  export interface Team {
+    userIds?: string[];
+  }
+}
 
 export class MatchModel extends BaseModel {
-  public gameServerTemplate: IQueue.GameServerTemplate;
   public namespaceId: string;
   public queueId: string;
-  public teams: number;
-  public userIds: string[];
-  public usersPerTeam: number;
+  public teams: IMatch.Team[];
+  public get userIds() {
+    return this.teams.reduce((previous, current) => [...previous, ...current.userIds], []);
+  }
 
   constructor(parameters?: Partial<MatchModel>) {
     super(parameters);

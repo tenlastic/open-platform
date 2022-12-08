@@ -6,6 +6,23 @@ import { v4 as uuid } from 'uuid';
 import { BaseModel } from '../models/base';
 import { Jwt } from '../models/jwt';
 
+export type DatabaseOperationType = 'delete' | 'insert' | 'replace' | 'update';
+
+export interface IPayload<T> {
+  _id: string;
+  documentKey: any;
+  error?: string;
+  fullDocument?: T;
+  ns: { coll: string; db: string };
+  operationType: DatabaseOperationType;
+  resumeToken?: string;
+  updateDescription?: {
+    removedFields: string[];
+    truncatedArrays?: Array<{ field: string; newSize: number }>;
+    updatedFields: { [key: string]: any };
+  };
+}
+
 type ConnectOptions = { url: string } & ({ accessToken: Jwt } | { apiKey: string });
 
 interface LogsParameters {
@@ -204,12 +221,13 @@ export class StreamService {
     return _id;
   }
 
-  public async subscribe(
+  public async subscribe<T = any>(
     model: new (parameters?: Partial<BaseModel>) => BaseModel,
     parameters: SubscribeParameters,
     service: Service,
     store: Store,
     url: string,
+    callback?: (payload: IPayload<T>) => any,
   ) {
     const _id = parameters._id || uuid();
     if (this.subscriptions.some((s) => s._id === _id)) {
@@ -241,7 +259,7 @@ export class StreamService {
 
     socket.send(JSON.stringify(data));
     socket.addEventListener('message', (msg) => {
-      const payload = JSON.parse(msg.data);
+      const payload = JSON.parse(msg.data) as IPayload<T>;
 
       // If the response is for a different request, ignore it.
       if (payload._id !== _id) {
@@ -263,11 +281,13 @@ export class StreamService {
         store.remove(record._id);
       } else if (payload.operationType === 'insert') {
         service.emitter.emit('create', record);
-        store.add(record);
+        this.addOrReplace(record, store);
       } else if (payload.operationType === 'replace' || payload.operationType === 'update') {
         service.emitter.emit('update', record);
         this.addOrReplace(record, store);
       }
+
+      return callback ? callback(payload) : null;
     });
 
     return _id;

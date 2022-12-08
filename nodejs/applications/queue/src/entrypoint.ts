@@ -1,15 +1,15 @@
 import 'source-map-support/register';
 
 import { QueueMemberModel, QueueModel } from '@tenlastic/http';
-import { WebServer } from '@tenlastic/web-server';
 
 import dependencies from './dependencies';
 
-import { createGameServer } from './create-game-server';
+import { createMatch } from './create-match';
 import * as redis from './redis';
 
+const namespaceId = process.env.NAMESPACE_ID;
 const podName = process.env.POD_NAME;
-const queue = JSON.parse(process.env.QUEUE_JSON);
+const queueId = process.env.QUEUE_ID;
 const wssUrl = process.env.WSS_URL;
 
 (async () => {
@@ -17,8 +17,8 @@ const wssUrl = process.env.WSS_URL;
     // Redis.
     await redis.start();
 
-    // Add initial Queue data.
-    await dependencies.queueService.findOne(queue.namespaceId, queue._id);
+    // Get initial Queue data.
+    await dependencies.queueService.findOne(namespaceId, queueId);
 
     // Log Queue Member changes.
     dependencies.queueMemberService.emitter.on('create', (record) =>
@@ -38,7 +38,7 @@ const wssUrl = process.env.WSS_URL;
       // Watch for updates to the Queue.
       dependencies.streamService.subscribe(
         QueueModel,
-        { collection: 'queues', resumeToken: podName, where: { _id: queue._id } },
+        { collection: 'queues', resumeToken: podName, where: { _id: queueId } },
         dependencies.queueService,
         dependencies.queueStore,
         wssUrl,
@@ -50,8 +50,8 @@ const wssUrl = process.env.WSS_URL;
         {
           collection: 'queue-members',
           operationType: ['insert'],
-          resumeToken: `queue-${queue._id}`,
-          where: { queueId: queue._id },
+          resumeToken: `queue-${queueId}`,
+          where: { queueId },
         },
         dependencies.queueMemberService,
         dependencies.queueMemberStore,
@@ -65,7 +65,7 @@ const wssUrl = process.env.WSS_URL;
           collection: 'queue-members',
           operationType: ['delete'],
           resumeToken: podName,
-          where: { queueId: queue._id },
+          where: { queueId },
         },
         dependencies.queueMemberService,
         dependencies.queueMemberStore,
@@ -73,12 +73,7 @@ const wssUrl = process.env.WSS_URL;
       ),
     ]);
 
-    // Web Server.
-    const webServer = new WebServer();
-    webServer.use((ctx) => (ctx.status = 200));
-    webServer.start();
-
-    // Wait for changes from web socket to catch up.
+    // Wait for changes to catch up before creating Matches.
     setTimeout(main, 15000);
   } catch (e) {
     console.error(e.message);
@@ -88,9 +83,10 @@ const wssUrl = process.env.WSS_URL;
 
 async function main() {
   try {
-    const q = dependencies.queueQuery.getEntity(queue._id);
-    const result = await createGameServer(q);
-    console.log(`GameServer created successfully: ${result._id}.`);
+    const queue = dependencies.queueQuery.getEntity(queueId);
+
+    const result = await createMatch(queue);
+    console.log(`Match created successfully: ${result._id}.`);
 
     return main();
   } catch (e) {
