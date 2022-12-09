@@ -34,32 +34,37 @@
     </div>
 
     <app-toggle-section title="Teams">
-      <div *ngFor="let team of teams.controls; let i = index"
-           class="row">
-        <ng-container *ngFor="let user of getTeamUsers(i).controls; let j = index">
-          <app-autocomplete-user-field [control]="user"
-                                       [removeButton]="getTeamUsers(i).length > 1"
-                                       removeButtonTooltip="Remove Player"
-                                       (OnRemove)="getTeamUsers(i).removeAt(j)"></app-autocomplete-user-field>
-        </ng-container>
+      <ng-container *ngFor="let team of teams.controls; let i = index">
+        <h4>Team {{ i + 1}}</h4>
 
-        <app-button color="accent"
-                    layout="left"
-                    (OnClick)="pushUserToTeam(getTeamUsers(i))">
-          <mat-icon>add</mat-icon>
-          <div>Add Player</div>
-        </app-button>
+        <div class="row">
+          <ng-container *ngFor="let user of getTeamUsers(i).controls; let j = index">
+            <app-autocomplete-user-field [control]="user"
+                                         [removeButton]="getTeamUsers(i).length > 1"
+                                         removeButtonTooltip="Remove Player"
+                                         (OnRemove)="getTeamUsers(i).removeAt(j)"></app-autocomplete-user-field>
+          </ng-container>
 
-        <app-button *ngIf="teams.length > 1"
-                    color="accent"
-                    layout="left"
-                    (OnClick)="teams.removeAt(i)">
-          <mat-icon>remove</mat-icon>
-          <div>Remove Team</div>
-        </app-button>
-      </div>
+          <app-button *ngIf="!form.disabled"
+                      color="accent"
+                      layout="left"
+                      (OnClick)="pushUserToTeam(getTeamUsers(i))">
+            <mat-icon>add</mat-icon>
+            <div>Add Player</div>
+          </app-button>
 
-      <app-button color="accent"
+          <app-button *ngIf="!form.disabled && teams.length > 1"
+                      color="accent"
+                      layout="left"
+                      (OnClick)="teams.removeAt(i)">
+            <mat-icon>remove</mat-icon>
+            <div>Remove Team</div>
+          </app-button>
+        </div>
+      </ng-container>
+
+      <app-button *ngIf="!form.disabled"
+                  color="accent"
                   layout="left"
                   (OnClick)="pushTeam()">
         <mat-icon>add</mat-icon>
