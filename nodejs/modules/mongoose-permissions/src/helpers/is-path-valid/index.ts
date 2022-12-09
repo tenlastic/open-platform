@@ -1,4 +1,4 @@
-export function isPathValid(permissions: string[], path: string[], key: string) {
+export function isPathValid(key: string, paths: string[], permissions: string[]) {
   const p = permissions.reduce((previous, current) => {
     if (current.includes('.*')) {
       previous.push(current.replace('.*', ''));
@@ -13,14 +13,14 @@ export function isPathValid(permissions: string[], path: string[], key: string) 
     return previous;
   }, []);
 
-  const absolutePath = path.concat(key).join('.');
+  const absolutePath = paths.concat(key).join('.');
   if (p.indexOf(absolutePath) >= 0) {
     return true;
   }
 
   let isFound = false;
-  for (let i = 0; i < path.length + 1; i++) {
-    const pathSlice = path.slice(0, i);
+  for (let i = 0; i < paths.length + 1; i++) {
+    const pathSlice = paths.slice(0, i);
     const wildcardPath = pathSlice.concat('*').join('.');
 
     if (p.indexOf(wildcardPath) >= 0) {

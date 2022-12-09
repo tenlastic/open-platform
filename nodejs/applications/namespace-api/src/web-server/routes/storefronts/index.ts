@@ -14,6 +14,7 @@ import { handler as uploadHandler } from './upload';
 const router = new Router();
 
 router.delete('/namespaces/:namespaceId/storefronts/:_id', deleteHandler);
+router.delete('/namespaces/:namespaceId/storefronts/:storefrontId/:field', pullHandler);
 router.delete('/namespaces/:namespaceId/storefronts/:storefrontId/:field/:_id', pullHandler);
 router.get('/namespaces/:namespaceId/storefronts', findHandler);
 router.get('/namespaces/:namespaceId/storefronts/count', countHandler);

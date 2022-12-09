@@ -47,7 +47,10 @@ export class MessageSchema {
   @prop({ ref: 'UserSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public fromUserId: mongoose.Types.ObjectId;
 
-  @prop({ ref: 'UserSchema', type: mongoose.Schema.Types.ObjectId }, PropType.ARRAY)
+  @prop(
+    { ref: 'UserSchema', type: mongoose.Schema.Types.ObjectId, writable: false },
+    PropType.ARRAY,
+  )
   public readByUserIds: mongoose.Types.ObjectId[];
 
   @prop({ ref: 'GroupSchema', type: mongoose.Schema.Types.ObjectId })

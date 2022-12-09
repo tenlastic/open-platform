@@ -39,7 +39,7 @@ export async function handler(ctx: Context) {
   const url = MinioStorefront.getUrl(ctx.request.host, objectName, ctx.request.protocol);
   const result = await StorefrontModel.findOneAndUpdate(
     { _id: storefront._id },
-    { $pull: { [field]: url } },
+    _id ? { $pull: { [field]: url } } : { $unset: { [field]: 1 } },
     { new: true },
   );
   const record = await StorefrontPermissions.read(credentials, result);

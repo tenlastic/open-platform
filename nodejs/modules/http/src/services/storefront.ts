@@ -66,9 +66,11 @@ export class StorefrontService {
   /**
    * Pulls an image or video from the Storefront.
    */
-  public async pull(namespaceId: string, storefrontId: string, field: string, _id: string) {
+  public async pull(namespaceId: string, storefrontId: string, field: string, _id?: string) {
     const url = this.getUrl(namespaceId);
-    return this.baseService.delete(_id, `${url}/${storefrontId}/${field}`);
+    return _id
+      ? this.baseService.delete(_id, `${url}/${storefrontId}/${field}`)
+      : this.baseService.delete(field, `${url}/${storefrontId}`);
   }
 
   /**

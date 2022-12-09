@@ -102,7 +102,7 @@ export class StorefrontsJsonPageComponent implements OnInit {
       : await this.storefrontService.create(this.params.namespaceId, values);
 
     this.matSnackBar.open(`Storefront saved successfully.`);
-    this.router.navigate(['../../', result._id], { relativeTo: this.activatedRoute });
+    this.router.navigate(['../'], { relativeTo: this.activatedRoute });
 
     return result;
   }

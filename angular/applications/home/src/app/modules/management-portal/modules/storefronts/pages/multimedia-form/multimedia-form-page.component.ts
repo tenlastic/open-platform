@@ -80,19 +80,14 @@ export class StorefrontsMultimediaFormPageComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
+        let _id: string;
         if (index >= 0) {
           const url = this.data[field][index];
-          this.data = await this.storefrontService.pull(
-            this.data.namespaceId,
-            this.data._id,
-            field,
-            url.substring(url.lastIndexOf('/') + 1),
-          );
-        } else {
-          this.data = await this.storefrontService.update(this.data.namespaceId, this.data._id, {
-            [field]: null,
-          });
+          _id = url.substring(url.lastIndexOf('/') + 1);
         }
+
+        const { namespaceId } = this.data;
+        this.data = await this.storefrontService.pull(namespaceId, this.data._id, field, _id);
 
         const fieldTitleCase =
           field.charAt(0).toUpperCase() +
