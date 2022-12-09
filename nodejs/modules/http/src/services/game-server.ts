@@ -75,8 +75,6 @@ export class GameServerService {
    * Returns the base URL for this Model.
    */
   private getUrl(namespaceId: string) {
-    return namespaceId
-      ? `${this.environmentService.apiUrl}/namespaces/${namespaceId}/game-servers`
-      : `${this.environmentService.apiUrl}/game-servers`;
+    return `${this.environmentService.apiUrl}/namespaces/${namespaceId}/game-servers`;
   }
 }

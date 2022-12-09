@@ -67,6 +67,9 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
   public get replicas() {
     return IQueue.Replicas;
   }
+  public get usersPerTeam() {
+    return this.form.get('usersPerTeam') as FormArray;
+  }
 
   private updateQueue$ = new Subscription();
   private namespace: NamespaceModel;
@@ -120,6 +123,11 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
     this.formService.navigateToJson(this.form);
   }
 
+  public pushUsersPerTeam(formArray: FormArray) {
+    const control = this.formBuilder.control(1, [Validators.min(1), Validators.required]);
+    formArray.push(control);
+  }
+
   public async save() {
     this.errors = [];
 
@@ -128,18 +136,13 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       return;
     }
 
-    const gameServerMetadata = this.form
+    const metadata = this.form
       .get('gameServerTemplate')
       .get('metadata')
       .value.reduce((accumulator, property) => {
         accumulator[property.key] = this.getJsonFromProperty(property);
         return accumulator;
       }, {});
-
-    const metadata = this.form.get('metadata').value.reduce((accumulator, property) => {
-      accumulator[property.key] = this.getJsonFromProperty(property);
-      return accumulator;
-    }, {});
 
     const values: Partial<QueueModel> = {
       _id: this.data._id,
@@ -149,12 +152,11 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
         buildId: this.form.get('gameServerTemplate').get('buildId').value,
         cpu: this.form.get('gameServerTemplate').get('cpu').value,
         memory: this.form.get('gameServerTemplate').get('memory').value,
-        metadata: gameServerMetadata,
+        metadata,
         ports: this.form.get('gameServerTemplate').get('ports').value,
         preemptible: this.form.get('gameServerTemplate').get('preemptible').value,
       },
       memory: this.form.get('memory').value,
-      metadata,
       name: this.form.get('name').value,
       namespaceId: this.form.get('namespaceId').value,
       preemptible: this.form.get('preemptible').value,
@@ -240,24 +242,24 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
   private getThresholdFormGroups(thresholds: IQueue.Threshold[]) {
     return thresholds.map((t) => {
       const formControls = t.usersPerTeam.map((upt) =>
-        this.formBuilder.control(upt, Validators.required),
+        this.formBuilder.control(upt, [Validators.min(1), Validators.required]),
       );
 
       return this.formBuilder.group({
-        seconds: [t.seconds, Validators.required],
+        seconds: [t.seconds, [Validators.min(1), Validators.required]],
         usersPerTeam: this.formBuilder.array(formControls),
       });
     });
   }
 
   private setupForm(): void {
-    this.data = this.data || new QueueModel();
+    this.data = this.data || new QueueModel({ usersPerTeam: [1, 1] });
 
     const { gameServerTemplate } = this.data;
 
-    const gameServerMetadataFormGroups = [];
+    const metadataFormGroups = [];
     if (gameServerTemplate?.metadata) {
-      gameServerMetadataFormGroups.push(...this.getMetadataFormGroups(gameServerTemplate.metadata));
+      metadataFormGroups.push(...this.getMetadataFormGroups(gameServerTemplate.metadata));
     }
 
     const ports = gameServerTemplate?.ports || [{ port: 7777, protocol: IGameServer.Protocol.Tcp }];
@@ -276,7 +278,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
         buildId: [gameServerTemplate.buildId, Validators.required],
         cpu: [gameServerTemplate.cpu || this.cpus[0].value],
         memory: [gameServerTemplate.memory || this.memories[0].value],
-        metadata: this.formBuilder.array(gameServerMetadataFormGroups),
+        metadata: this.formBuilder.array(metadataFormGroups),
         ports: this.formBuilder.array(portFormGroups),
         preemptible: [gameServerTemplate.preemptible || false],
         probes: probesFormGroup,
@@ -286,16 +288,11 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
         buildId: [this.builds.length > 0 ? this.builds[0]._id : null, Validators.required],
         cpu: [this.cpus[0].value],
         memory: [this.memories[0].value],
-        metadata: this.formBuilder.array(gameServerMetadataFormGroups),
+        metadata: this.formBuilder.array(metadataFormGroups),
         ports: this.formBuilder.array(portFormGroups),
         preemptible: [true],
         probes: probesFormGroup,
       });
-    }
-
-    const metadataFormGroups = [];
-    if (this.data?.metadata) {
-      metadataFormGroups.push(...this.getMetadataFormGroups(this.data.metadata));
     }
 
     const thresholdFormGroups = [];
@@ -303,18 +300,21 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       thresholdFormGroups.push(...this.getThresholdFormGroups(this.data.thresholds));
     }
 
+    const usersPerTeamFormControls = this.data.usersPerTeam.map((upt) =>
+      this.formBuilder.control(upt, [Validators.min(1), Validators.required]),
+    );
+
     this.form = this.formBuilder.group({
       cpu: [this.data.cpu || this.cpus[0].value, Validators.required],
       description: [this.data.description],
       gameServerTemplate: gameServerTemplateForm,
       memory: [this.data.memory || this.memories[0].value, Validators.required],
-      metadata: this.formBuilder.array(metadataFormGroups),
       name: [this.data.name, Validators.required],
       namespaceId: [this.params.namespaceId],
       preemptible: [this.data.preemptible === false ? false : true],
       replicas: [this.data.replicas || this.replicas[0].value, Validators.required],
       thresholds: this.formBuilder.array(thresholdFormGroups),
-      usersPerTeam: [this.data.usersPerTeam || 1, Validators.required],
+      usersPerTeam: this.formBuilder.array(usersPerTeamFormControls, Validators.required),
     });
 
     if (!this.hasWriteAuthorization) {

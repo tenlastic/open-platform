@@ -35,13 +35,6 @@ spec:
                 name: social-api
                 port:
                   number: 3000
-          - path: /game-servers
-            pathType: Prefix
-            backend:
-              service:
-                name: aggregation-api
-                port:
-                  number: 3000
           - path: /group-invitations
             pathType: Prefix
             backend:
@@ -61,6 +54,13 @@ spec:
             backend:
               service:
                 name: social-api
+                port:
+                  number: 3000
+          - path: /matches
+            pathType: Prefix
+            backend:
+              service:
+                name: aggregation-api
                 port:
                   number: 3000
           - path: /messages

@@ -1,6 +1,7 @@
 import {
   AuthorizationModel,
   GroupModel,
+  MatchModel,
   NamespaceModel,
   QueueMemberModel,
   StorefrontModel,
@@ -12,6 +13,7 @@ import * as nats from '@tenlastic/nats';
 
 import { AuthorizationEvent } from './authorization';
 import { GroupEvent } from './group';
+import { MatchEvent } from './match';
 import { NamespaceEvent } from './namespace';
 import { QueueMemberEvent } from './queue-member';
 import { StorefrontEvent } from './storefront';
@@ -32,6 +34,7 @@ export async function setup(options: SetupOptions) {
       AuthorizationEvent.emit(payload),
     ),
     subscribe(options.database, options.durable, GroupModel, (payload) => GroupEvent.emit(payload)),
+    subscribe(options.database, options.durable, MatchModel, (payload) => MatchEvent.emit(payload)),
     subscribe(options.database, options.durable, NamespaceModel, (payload) =>
       NamespaceEvent.emit(payload),
     ),

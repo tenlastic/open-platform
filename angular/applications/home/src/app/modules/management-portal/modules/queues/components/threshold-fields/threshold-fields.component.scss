@@ -1,5 +1,13 @@
-div.row {
+div.row:not(:last-of-type) {
   align-items: baseline;
+
+  > * {
+    margin-right: 16px;
+  }
+
+  > app-button {
+    margin-bottom: 16px;
+  }
 }
 
 mat-form-field.mat-form-field {

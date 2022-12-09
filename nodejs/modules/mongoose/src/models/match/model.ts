@@ -11,7 +11,7 @@ import * as mongoose from 'mongoose';
 
 import { unsetPlugin } from '../../plugins';
 import { AuthorizationDocument } from '../authorization';
-import { MatchTeamDocument, MatchTeamModel } from './team';
+import { MatchTeamDocument, MatchTeamModel, MatchTeamSchema } from './team';
 
 @index(
   { namespaceId: 1, 'teams.userIds': 1 },
@@ -33,7 +33,7 @@ export class MatchSchema {
   @prop({ ref: 'QueueSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public queueId: mongoose.Types.ObjectId;
 
-  @prop({ required: true, type: MatchTeamModel }, PropType.ARRAY)
+  @prop({ required: true, type: MatchTeamSchema }, PropType.ARRAY)
   public teams: MatchTeamDocument[];
 
   public updatedAt: Date;

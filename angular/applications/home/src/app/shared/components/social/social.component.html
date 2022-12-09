@@ -12,12 +12,12 @@
   <div *ngIf="isLoggedIn"
        class="nav">
     <ng-container *ngIf="isElectron">
-      <app-game-server-button *ngFor="let gameServer of $gameServers | async"
-                              [gameServer]="gameServer"></app-game-server-button>
-    </ng-container>
+      <app-match-button *ngFor="let match of $matches | async"
+                        [match]="match"></app-match-button>
 
-    <app-queue-member-button *ngFor="let queueMember of $queueMembers | async"
-                             [queueMember]="queueMember"></app-queue-member-button>
+      <app-queue-member-button *ngFor="let queueMember of $queueMembers | async"
+                               [queueMember]="queueMember"></app-queue-member-button>
+    </ng-container>
 
     <ng-container *ngIf="($group | async) === undefined">
       <app-group-invitation-button *ngFor="let groupInvitation of $groupInvitations | async"

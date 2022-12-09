@@ -10,6 +10,16 @@
   }
 }
 
+app-toggle-section {
+  div.row {
+    align-items: baseline;
+
+    > * {
+      margin-right: 16px;
+    }
+  }
+}
+
 mat-form-field.mat-form-field {
   margin-right: 16px;
 }

@@ -2,7 +2,7 @@ paths:
   /storefronts:
     get:
       summary: Find
-      tags: [Storefront]
+      tags: [Storefronts]
       description: Finds records matching the search criteria.
       security:
         - AccessToken: []

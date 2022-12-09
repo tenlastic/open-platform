@@ -1,10 +1,4 @@
-import {
-  V1Affinity,
-  V1EnvFromSource,
-  V1EnvVar,
-  V1PodTemplateSpec,
-  V1Probe,
-} from '@kubernetes/client-node';
+import { V1Affinity, V1EnvFromSource, V1EnvVar, V1PodTemplateSpec } from '@kubernetes/client-node';
 import { networkPolicyApiV1, statefulSetApiV1 } from '@tenlastic/kubernetes';
 import { QueueDocument, QueueStatusComponentName } from '@tenlastic/mongoose';
 
@@ -79,18 +73,6 @@ export const KubernetesQueue = {
       { secretRef: { name: 'nodejs' } },
       { secretRef: { name: namespaceName } },
     ];
-    const livenessProbe: V1Probe = {
-      failureThreshold: 3,
-      httpGet: { path: '/probes/liveness', port: 3000 as any },
-      initialDelaySeconds: 10,
-      periodSeconds: 10,
-    };
-    const readinessProbe: V1Probe = {
-      failureThreshold: 1,
-      httpGet: { path: '/probes/readiness', port: 3000 as any },
-      initialDelaySeconds: 5,
-      periodSeconds: 5,
-    };
     const resources = {
       limits: { cpu: `${queue.cpu}`, memory: `${queue.memory}` },
       requests: { cpu: `${queue.cpu}`, memory: `${queue.memory}` },
@@ -112,9 +94,7 @@ export const KubernetesQueue = {
               env,
               envFrom,
               image: `tenlastic/node-development:latest`,
-              livenessProbe: { ...livenessProbe, initialDelaySeconds: 30 },
               name: 'main',
-              readinessProbe,
               resources: { requests: resources.requests },
               volumeMounts: [{ mountPath: '/usr/src/', name: 'workspace' }],
               workingDir: '/usr/src/nodejs/applications/queue/',
@@ -139,9 +119,7 @@ export const KubernetesQueue = {
               env,
               envFrom,
               image: `tenlastic/queue:${version}`,
-              livenessProbe,
               name: 'main',
-              readinessProbe,
               resources,
             },
           ],

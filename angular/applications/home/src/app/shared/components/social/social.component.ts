@@ -28,6 +28,9 @@ import {
   UserService,
   UserStore,
   WebSocketService,
+  MatchModel,
+  MatchQuery,
+  MatchService,
 } from '@tenlastic/http';
 import { Observable, Subscription, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -49,7 +52,6 @@ export class SocialComponent implements OnDestroy, OnInit {
     return this.userQuery.selectActive() as Observable<UserModel>;
   }
   public $friends: Observable<FriendModel[]>;
-  public $gameServers: Observable<GameServerModel[]>;
   public $group: Observable<GroupModel>;
   public $groupInvitations: Observable<GroupInvitationModel[]>;
   public get $groupUsersWithoutCurrentUser() {
@@ -58,6 +60,7 @@ export class SocialComponent implements OnDestroy, OnInit {
     );
   }
   public $ignorations: Observable<IgnorationModel[]>;
+  public $matches: Observable<MatchModel[]>;
   public $messages: Observable<MessageModel[]>;
   public $otherConversations: Observable<string[]>;
   public $queueMembers: Observable<QueueMemberModel[]>;
@@ -71,14 +74,13 @@ export class SocialComponent implements OnDestroy, OnInit {
     return this.identityService.user;
   }
 
-  private onGameServerServiceCreate = this.newMatchNotification.bind(this);
+  private onMatchServiceCreate = this.newMatchNotification.bind(this);
   private onMessageServiceCreate = this.newMessageNotification.bind(this);
 
   constructor(
     private electronService: ElectronService,
     private friendQuery: FriendQuery,
     private friendService: FriendService,
-    private gameServerQuery: GameServerQuery,
     private gameServerService: GameServerService,
     private groupInvitationQuery: GroupInvitationQuery,
     private groupInvitationService: GroupInvitationService,
@@ -89,6 +91,8 @@ export class SocialComponent implements OnDestroy, OnInit {
     private ignorationQuery: IgnorationQuery,
     private ignorationService: IgnorationService,
     private matDialog: MatDialog,
+    private matchQuery: MatchQuery,
+    private matchService: MatchService,
     private messageQuery: MessageQuery,
     private messageService: MessageService,
     private queueMemberQuery: QueueMemberQuery,
@@ -106,9 +110,6 @@ export class SocialComponent implements OnDestroy, OnInit {
     const userId = this.identityService.user._id;
 
     this.$friends = this.friendQuery.selectAll();
-    this.$gameServers = this.gameServerQuery.selectAll({
-      filterBy: (gs) => gs.authorizedUserIds.includes(userId) && Boolean(gs.queueId),
-    });
     this.$group = this.groupQuery
       .selectAll({ filterBy: (g) => g.userIds.includes(userId) })
       .pipe(map((groups) => groups[0]));
@@ -117,6 +118,7 @@ export class SocialComponent implements OnDestroy, OnInit {
       sortBy: 'createdAt',
     });
     this.$ignorations = this.ignorationQuery.selectAll();
+    this.$matches = this.matchQuery.selectAll({ filterBy: (gs) => gs.userIds.includes(userId) });
     this.$messages = this.messageQuery.selectAll();
     this.$queueMembers = this.queueMemberQuery.selectAll({ filterBy: () => false });
 
@@ -138,18 +140,16 @@ export class SocialComponent implements OnDestroy, OnInit {
         });
       });
 
-      this.gameServerService.emitter.on('create', this.onGameServerServiceCreate);
+      this.matchService.emitter.on('create', this.onMatchServiceCreate);
       this.messageService.emitter.on('create', this.onMessageServiceCreate);
     }
 
     return Promise.all([
       this.friendService.find({ where: { fromUserId: userId } }),
-      this.gameServerService.find(null, {
-        where: { authorizedUserIds: userId, queueId: { $exists: true } },
-      }),
       this.groupInvitationService.find({ where: { toUserId: userId } }),
       this.groupService.find({ where: { userIds: userId } }),
       this.ignorationService.find({ where: { fromUserId: userId } }),
+      this.matchService.find(null, { where: { 'teams.userIds': userId } }),
       this.messageService.find({ sort: '-createdAt' }),
       this.userService.find({}),
       this.webSocketService.find(null, { sort: '-createdAt' }),
@@ -161,7 +161,7 @@ export class SocialComponent implements OnDestroy, OnInit {
     this.fetchQueueMembersQueues$.unsubscribe();
     this.updateQueueMembers$.unsubscribe();
 
-    this.gameServerService.emitter.off('create', this.onGameServerServiceCreate);
+    this.matchService.emitter.off('create', this.onMatchServiceCreate);
     this.messageService.emitter.off('create', this.onMessageServiceCreate);
   }
 
@@ -227,15 +227,12 @@ export class SocialComponent implements OnDestroy, OnInit {
     return users.map((u) => ({ label: u.username, value: u.username }));
   }
 
-  private async newMatchNotification(gameServer: GameServerModel) {
-    if (
-      !gameServer.authorizedUserIds.includes(this.identityService.user._id) ||
-      !gameServer.queueId
-    ) {
+  private async newMatchNotification(match: MatchModel) {
+    if (!match.userIds.includes(this.identityService.user._id)) {
       return;
     }
 
-    this.matDialog.open(MatchPromptComponent, { autoFocus: false, data: { gameServer } });
+    this.matDialog.open(MatchPromptComponent, { autoFocus: false, data: { match } });
 
     const window = this.electronService.remote.getCurrentWindow();
     window.flashFrame(true);

@@ -261,6 +261,14 @@ mat-form-field.mat-form-field {
     padding-bottom: 16px;
   }
 
+  div.mat-form-field-infix {
+    width: 180px;
+
+    &:not(:only-child) {
+      width: 148px;
+    }
+  }
+
   .mat-input-element:disabled {
     color: white;
   }

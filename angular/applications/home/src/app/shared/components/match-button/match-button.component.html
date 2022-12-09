@@ -1,11 +1,11 @@
 <div class="hover-off">
   <app-button color="accent"
               text="left">
-    <mat-icon>public</mat-icon>
+    <mat-icon>join_inner</mat-icon>
 
     <div>
-      <div>{{ getStorefront(gameServer.namespaceId)?.fullTitle }}</div>
-      <div>{{ getQueue(gameServer.queueId)?.name }}</div>
+      <div>{{ getStorefront(match.namespaceId)?.fullTitle }}</div>
+      <div>{{ getQueue(match.queueId)?.name }}</div>
     </div>
   </app-button>
 </div>
@@ -15,14 +15,14 @@
   <app-button *ngIf="isWaitingForGameServer"
               color="primary"
               [disabled]="true"
-              (OnClick)="join(gameServer)">
+              (OnClick)="join(match)">
     <mat-spinner diameter="20"></mat-spinner>
     <div>Joining Game Server...</div>
   </app-button>
 
   <app-button *ngIf="!isWaitingForGameServer"
               color="primary"
-              (OnClick)="join(gameServer)">
+              (OnClick)="join(match)">
     <div>Join Game Server</div>
   </app-button>
 </div>

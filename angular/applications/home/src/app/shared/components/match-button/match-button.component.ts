@@ -1,7 +1,7 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import {
-  GameServerModel,
   GameServerQuery,
+  MatchModel,
   QueueQuery,
   QueueService,
   StorefrontModel,
@@ -13,14 +13,14 @@ import { Subscription } from 'rxjs';
 import { ExecutableService, UpdateService } from '../../../core/services';
 
 @Component({
-  selector: 'app-game-server-button',
-  styleUrls: ['./game-server-button.component.scss'],
-  templateUrl: './game-server-button.component.html',
+  selector: 'app-match-button',
+  styleUrls: ['./match-button.component.scss'],
+  templateUrl: './match-button.component.html',
 })
-export class GameServerButtonComponent implements OnDestroy, OnInit {
-  @Input() public gameServer: GameServerModel;
+export class MatchButtonComponent implements OnDestroy, OnInit {
+  @Input() public match: MatchModel;
 
-  public waitForGameServer$ = new Subscription();
+  public waitForMatch$ = new Subscription();
   public isWaitingForGameServer = false;
 
   constructor(
@@ -34,10 +34,10 @@ export class GameServerButtonComponent implements OnDestroy, OnInit {
   ) {}
 
   public async ngOnInit() {
-    const { namespaceId } = this.gameServer;
+    const { namespaceId, queueId } = this.match;
 
-    if (!this.queueQuery.hasEntity(this.gameServer.queueId)) {
-      await this.queueService.find(namespaceId, { where: { _id: this.gameServer.queueId } });
+    if (!this.queueQuery.hasEntity(queueId)) {
+      await this.queueService.find(namespaceId, { where: { _id: queueId } });
     }
 
     if (!this.storefrontQuery.hasEntity((s: StorefrontModel) => s.namespaceId === namespaceId)) {
@@ -46,7 +46,7 @@ export class GameServerButtonComponent implements OnDestroy, OnInit {
   }
 
   public ngOnDestroy() {
-    this.waitForGameServer$.unsubscribe();
+    this.waitForMatch$.unsubscribe();
   }
 
   public getQueue(_id: string) {
@@ -60,19 +60,21 @@ export class GameServerButtonComponent implements OnDestroy, OnInit {
     return new StorefrontModel(storefront);
   }
 
-  public async join(gameServer: GameServerModel) {
+  public async join(match: MatchModel) {
     this.isWaitingForGameServer = true;
 
-    this.waitForGameServer$ = this.gameServerQuery.selectEntity(gameServer._id).subscribe((gs) => {
-      // If the Game Server is not ready yet or does not have public endpoints yet, do nothing.
-      if (gs?.status.endpoints.length === 0 || gs?.status.phase !== 'Running') {
-        return;
-      }
+    this.waitForMatch$ = this.gameServerQuery
+      .selectAll({ filterBy: (gs) => gs.matchId === match._id })
+      .subscribe(([gs]) => {
+        // If the Game Server is not ready yet or does not have public endpoints yet, do nothing.
+        if (gs?.status.endpoints.length === 0 || gs?.status.phase !== 'Running') {
+          return;
+        }
 
-      this.isWaitingForGameServer = false;
+        this.isWaitingForGameServer = false;
 
-      const { build } = this.updateService.getStatus(gs.namespaceId);
-      this.executableService.start(build.entrypoint, gs.namespaceId, { gameServer: gs });
-    });
+        const { build } = this.updateService.getStatus(gs.namespaceId);
+        this.executableService.start(build.entrypoint, gs.namespaceId, { gameServer: gs });
+      });
   }
 }

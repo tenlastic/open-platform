@@ -5,6 +5,7 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
   AuthorizationQuery,
   IAuthorization,
+  IMatch,
   MatchModel,
   MatchQuery,
   MatchService,
@@ -30,8 +31,8 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
     return this.params.matchId === 'new';
   }
   public queues: QueueModel[];
-  public get users() {
-    return this.form.get('users') as FormArray;
+  public get teams() {
+    return this.form.get('teams') as FormArray;
   }
 
   private updateMatch$ = new Subscription();
@@ -84,8 +85,24 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
     this.updateMatch$.unsubscribe();
   }
 
+  public getTeamUsers(index: number) {
+    return this.teams.at(index).get('users') as FormArray;
+  }
+
   public navigateToJson() {
     this.formService.navigateToJson(this.form);
+  }
+
+  public pushTeam() {
+    const formArray = this.formBuilder.array([]);
+    this.pushUserToTeam(formArray);
+
+    this.teams.push(this.formBuilder.group({ users: formArray }));
+  }
+
+  public pushUserToTeam(formArray: FormArray) {
+    const control = this.formBuilder.control(null, Validators.required);
+    formArray.push(control);
   }
 
   public async save() {
@@ -96,11 +113,15 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
       return;
     }
 
+    const teams: IMatch.Team[] = this.form.get('teams').value.map((t) => {
+      return { userIds: t.users.map((u) => u._id) };
+    });
+
     const values: Partial<MatchModel> = {
       _id: this.data._id,
       namespaceId: this.form.get('namespaceId').value,
       queueId: this.form.get('queueId').value,
-      teams: this.form.get('teams').value,
+      teams,
     };
 
     try {
@@ -111,14 +132,14 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
   }
 
   private setupForm(): void {
-    this.data = this.data || new MatchModel({ teams: [] });
+    this.data = this.data || new MatchModel({ teams: [{ userIds: [null] }, { userIds: [null] }] });
 
     const teamFormGroups = this.data.teams.map((t) => {
       const users = t.userIds.map((ui) => this.userQuery.getEntity(ui));
       const formControls = users.map((u) => this.formBuilder.control(u, Validators.required));
       const formArray = this.formBuilder.array(formControls);
 
-      return this.formBuilder.group({ userIds: formArray });
+      return this.formBuilder.group({ users: formArray });
     });
 
     this.form = this.formBuilder.group({
@@ -129,8 +150,6 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
       ],
       teams: this.formBuilder.array(teamFormGroups),
     });
-
-    this.form.valueChanges.subscribe((values) => this.syncUserIds(values));
 
     if (this.params.queueId) {
       this.form.get('queueId').disable({ emitEvent: false });
@@ -147,24 +166,6 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
         .selectAll({ filterBy: (q) => q._id === this.data._id })
         .subscribe((matches) => (this.data = matches[0]));
     }
-  }
-
-  private syncUserIds(values: any) {
-    if (!values.teams || !values.usersPerTeam) {
-      return;
-    }
-
-    const users = values.teams * values.usersPerTeam;
-
-    while (this.users.length > users) {
-      this.users.removeAt(this.users.length - 1, { emitEvent: false });
-    }
-
-    while (this.users.length < users) {
-      this.users.push(this.formBuilder.control(null), { emitEvent: false });
-    }
-
-    this.users.updateValueAndValidity({ emitEvent: false });
   }
 
   private async upsert(values: Partial<MatchModel>) {

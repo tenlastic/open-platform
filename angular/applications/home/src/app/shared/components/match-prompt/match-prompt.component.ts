@@ -1,8 +1,8 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import {
-  GameServerModel,
   GameServerQuery,
+  MatchModel,
   QueueModel,
   QueueQuery,
   StorefrontModel,
@@ -13,7 +13,7 @@ import { Subscription } from 'rxjs';
 import { ExecutableService, UpdateService } from '../../../core/services';
 
 export interface MatchPromptComponentData {
-  gameServer: GameServerModel;
+  match: MatchModel;
 }
 
 @Component({
@@ -44,9 +44,9 @@ export class MatchPromptComponent implements OnDestroy, OnInit {
     this.dialogRef.disableClose = true;
     this.timeout = setTimeout(() => this.dialogRef.close(), 30000);
 
-    const storefront = await this.storefrontService.find(this.data.gameServer.namespaceId, {});
+    const storefront = await this.storefrontService.find(this.data.match.namespaceId, {});
     this.storefront = storefront[0];
-    this.queue = new QueueModel(this.queueQuery.getEntity(this.data.gameServer.queueId));
+    this.queue = new QueueModel(this.queueQuery.getEntity(this.data.match.queueId));
   }
 
   public ngOnDestroy() {
@@ -61,20 +61,20 @@ export class MatchPromptComponent implements OnDestroy, OnInit {
     this.timeout = setTimeout(() => this.dialogRef.close(), 120 * 1000);
 
     this.waitForGameServer$ = this.gameServerQuery
-      .selectEntity(this.data.gameServer._id)
-      .subscribe((gameServer) => {
+      .selectAll({ filterBy: (gs) => gs.matchId === this.data.match._id })
+      .subscribe(([gs]) => {
         // If the Game Server is not ready yet, do nothing.
-        if (gameServer?.status.phase !== 'Running') {
+        if (gs?.status.phase !== 'Running') {
           return;
         }
 
         // If the Game Server does not have public endpoints yet, do nothing.
-        if (gameServer?.status.endpoints.length === 0) {
+        if (gs?.status.endpoints.length === 0) {
           return;
         }
 
-        const { entrypoint } = this.updateService.getStatus(gameServer.namespaceId).build;
-        this.executableService.start(entrypoint, gameServer.namespaceId, { gameServer });
+        const { entrypoint } = this.updateService.getStatus(gs.namespaceId).build;
+        this.executableService.start(entrypoint, gs.namespaceId, { gameServer: gs });
 
         this.dialogRef.close();
       });

@@ -137,7 +137,7 @@
         </app-button>
         <app-button color="accent"
                     (OnClick)="remove('images', i)">
-          <mat-icon>close</mat-icon>
+          <mat-icon>remove</mat-icon>
           <div>Remove</div>
         </app-button>
       </mat-grid-tile>
@@ -178,7 +178,7 @@
           <source [src]="video"
                   type="video/mp4" />
         </video>
-        
+
         <app-button color="accent"
                     (OnClick)="view(video, 'video')">
           <mat-icon>fullscreen</mat-icon>
@@ -187,7 +187,7 @@
 
         <app-button color="accent"
                     (OnClick)="remove('videos', i)">
-          <mat-icon>close</mat-icon>
+          <mat-icon>remove</mat-icon>
           <div>Remove</div>
         </app-button>
       </mat-grid-tile>

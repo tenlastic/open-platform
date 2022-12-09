@@ -11,20 +11,28 @@ export class ThresholdFieldsComponent {
 
   constructor(private formBuilder: FormBuilder) {}
 
+  public getUsersPerTeam(index: number) {
+    return this.formArray.at(index).get('usersPerTeam') as FormArray;
+  }
+
   public push() {
     const property = this.getDefaultFormGroup();
     this.formArray.push(property);
   }
 
-  public removeAt(index: number) {
-    this.formArray.removeAt(index);
+  public pushUsersPerTeam(formArray: FormArray) {
+    const control = this.formBuilder.control(1, [Validators.min(1), Validators.required]);
+    formArray.push(control);
   }
 
   private getDefaultFormGroup() {
+    const usersPerTeamFormArray = this.formBuilder.array([], Validators.required);
+    this.pushUsersPerTeam(usersPerTeamFormArray);
+    this.pushUsersPerTeam(usersPerTeamFormArray);
+
     return this.formBuilder.group({
-      seconds: [null, Validators.required],
-      teams: [null, Validators.required],
-      usersPerTeam: [null, Validators.required],
+      seconds: [null, [Validators.min(1), Validators.required]],
+      usersPerTeam: usersPerTeamFormArray,
     });
   }
 }

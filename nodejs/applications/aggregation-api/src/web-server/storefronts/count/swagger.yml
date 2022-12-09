@@ -2,7 +2,7 @@ paths:
   /storefronts/count:
     get:
       summary: Count
-      tags: [Storefront]
+      tags: [Storefronts]
       description: Returns the number of matching records for the query.
       security:
         - AccessToken: []

@@ -70,7 +70,6 @@ export class QueueModel extends BaseModel {
   public description: string;
   public gameServerTemplate: IQueue.GameServerTemplate;
   public memory: number;
-  public metadata: any;
   public name: string;
   public namespaceId: string;
   public preemptible: boolean;

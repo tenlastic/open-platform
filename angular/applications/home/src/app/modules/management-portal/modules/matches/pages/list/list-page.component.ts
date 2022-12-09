@@ -31,8 +31,8 @@ export class MatchesListPageComponent implements OnDestroy, OnInit {
   public dataSource = new MatTableDataSource<MatchModel>();
   public get displayedColumns() {
     return this.params.queueId
-      ? ['users', 'createdAt', 'updatedAt', 'actions']
-      : ['queue', 'users', 'createdAt', 'updatedAt', 'actions'];
+      ? ['teams', 'users', 'createdAt', 'updatedAt', 'actions']
+      : ['queue', 'teams', 'users', 'createdAt', 'updatedAt', 'actions'];
   }
   public hasWriteAuthorization: boolean;
 
@@ -75,8 +75,8 @@ export class MatchesListPageComponent implements OnDestroy, OnInit {
     return this.queueQuery.getEntity(_id);
   }
 
-  public getUsers(match: MatchModel) {
-    return match.userIds.filter((ui) => ui);
+  public getUserIds(match: MatchModel) {
+    return match.teams.reduce((previous, current) => [...previous, ...current.userIds], []);
   }
 
   public showDeletePrompt($event: Event, record: MatchModel) {
@@ -112,7 +112,7 @@ export class MatchesListPageComponent implements OnDestroy, OnInit {
       const queue = this.getQueue(data.queueId);
       const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
 
-      return filter === `${this.getUsers(data).length}` || regex.test(queue?.name);
+      return filter === `${this.getUserIds(data).length}` || regex.test(queue?.name);
     };
 
     this.dataSource.paginator = this.paginator;

@@ -33,35 +33,38 @@
       </mat-form-field>
     </div>
 
-    <div class="row">
-      <mat-form-field floatLabel="always">
-        <mat-label>Teams</mat-label>
-        <input matInput
-               required
-               formControlName="teams"
-               min="1"
-               step="1"
-               type="number" />
-        <mat-error>Enter a valid amount of teams.</mat-error>
-      </mat-form-field>
-
-      <mat-form-field floatLabel="always">
-        <mat-label>Players Per Team</mat-label>
-        <input matInput
-               required
-               formControlName="usersPerTeam"
-               min="1"
-               step="1"
-               type="number" />
-        <mat-error>Enter a valid amount of players per team.</mat-error>
-      </mat-form-field>
-    </div>
-
-    <app-toggle-section title="Users">
-      <div *ngFor="let user of users.controls; let i = index"
+    <app-toggle-section title="Teams">
+      <div *ngFor="let team of teams.controls; let i = index"
            class="row">
-        <app-autocomplete-user-field [control]="users.at(i)"></app-autocomplete-user-field>
+        <ng-container *ngFor="let user of getTeamUsers(i).controls; let j = index">
+          <app-autocomplete-user-field [control]="user"
+                                       [removeButton]="getTeamUsers(i).length > 1"
+                                       removeButtonTooltip="Remove Player"
+                                       (OnRemove)="getTeamUsers(i).removeAt(j)"></app-autocomplete-user-field>
+        </ng-container>
+
+        <app-button color="accent"
+                    layout="left"
+                    (OnClick)="pushUserToTeam(getTeamUsers(i))">
+          <mat-icon>add</mat-icon>
+          <div>Add Player</div>
+        </app-button>
+
+        <app-button *ngIf="teams.length > 1"
+                    color="accent"
+                    layout="left"
+                    (OnClick)="teams.removeAt(i)">
+          <mat-icon>remove</mat-icon>
+          <div>Remove Team</div>
+        </app-button>
       </div>
+
+      <app-button color="accent"
+                  layout="left"
+                  (OnClick)="pushTeam()">
+        <mat-icon>add</mat-icon>
+        <div>Add Team</div>
+      </app-button>
     </app-toggle-section>
   </form>
 </div>

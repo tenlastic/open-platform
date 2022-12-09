@@ -19,11 +19,11 @@
     </mat-select>
   </mat-form-field>
 
-  <app-button *ngIf="!form?.disabled && i > 0"
+  <app-button *ngIf="!form?.disabled && form.length > 1"
               color="accent"
               layout="left"
               (OnClick)="removeAt(i)">
-    <mat-icon>close</mat-icon>
+    <mat-icon>remove</mat-icon>
     <div>Remove</div>
   </app-button>
 </div>

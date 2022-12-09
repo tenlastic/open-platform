@@ -139,7 +139,8 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
   }
 
   public $isGroupSmallEnough(queue: QueueModel) {
-    return this.$group.pipe(map((group) => group && group.userIds.length <= queue.usersPerTeam));
+    const users = queue.usersPerTeam.reduce((a, b) => a + b, 0);
+    return this.$group.pipe(map((g) => g?.userIds.length <= users));
   }
 
   public async join(group: GroupModel, queue: QueueModel) {

@@ -71,6 +71,8 @@ export class MatchService {
    * Returns the base URL for this Model.
    */
   private getUrl(namespaceId: string) {
-    return `${this.environmentService.apiUrl}/namespaces/${namespaceId}/matches`;
+    return namespaceId
+      ? `${this.environmentService.apiUrl}/namespaces/${namespaceId}/matches`
+      : `${this.environmentService.apiUrl}/matches`;
   }
 }

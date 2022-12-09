@@ -2,7 +2,7 @@ paths:
   /storefronts/{_id}:
     get:
       summary: Find One
-      tags: [Storefront]
+      tags: [Storefronts]
       description: Finds a record by ID.
       security:
         - AccessToken: []

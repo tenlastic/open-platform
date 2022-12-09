@@ -1,13 +1,13 @@
+import { QueueModel } from '@tenlastic/http';
 import * as redis from '@tenlastic/redis';
 
 import dependencies from '../dependencies';
 
 const podName = process.env.POD_NAME;
-const queue = JSON.parse(process.env.QUEUE_JSON);
 const redisConnectionString = process.env.REDIS_CONNECTION_STRING;
 const redisPassword = process.env.REDIS_PASSWORD;
 
-export async function start() {
+export async function start(queue: QueueModel) {
   // Connect to Sentinel.
   const client = await redis.connect({
     connectionString: redisConnectionString,

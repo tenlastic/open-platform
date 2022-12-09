@@ -1,8 +1,8 @@
 paths:
-  /game-servers:
+  /matches:
     get:
       summary: Find
-      tags: [Game Servers]
+      tags: [Matches]
       description: Finds records matching the search criteria.
       security:
         - AccessToken: []
@@ -17,4 +17,4 @@ paths:
                   records:
                     type: array
                     items:
-                      $ref: '#/components/schemas/GameServer'
+                      $ref: '#/components/schemas/Match'

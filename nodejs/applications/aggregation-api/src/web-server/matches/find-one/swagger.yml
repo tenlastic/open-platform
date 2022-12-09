@@ -1,8 +1,8 @@
 paths:
-  /game-servers/{_id}:
+  /matches/{_id}:
     get:
       summary: Find One
-      tags: [Game Servers]
+      tags: [Matches]
       description: Finds a record by ID.
       security:
         - AccessToken: []
@@ -21,4 +21,4 @@ paths:
                 type: object
                 properties:
                   record:
-                    $ref: '#/components/schemas/GameServer'
+                    $ref: '#/components/schemas/Match'

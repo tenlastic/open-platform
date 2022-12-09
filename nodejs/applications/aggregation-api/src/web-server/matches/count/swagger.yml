@@ -1,8 +1,8 @@
 paths:
-  /game-servers/count:
+  /matches/count:
     get:
       summary: Count
-      tags: [Game Servers]
+      tags: [Matches]
       description: Returns the number of matching records for the query.
       security:
         - AccessToken: []

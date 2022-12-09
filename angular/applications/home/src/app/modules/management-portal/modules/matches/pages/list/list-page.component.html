@@ -29,12 +29,20 @@
           *matCellDef="let element">{{ getQueue(element.queueId)?.name }}</td>
     </ng-container>
 
+    <ng-container matColumnDef="teams">
+      <th mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header>Teams</th>
+      <td mat-cell
+          *matCellDef="let element">{{ element.teams.length }}</td>
+    </ng-container>
+
     <ng-container matColumnDef="users">
       <th mat-header-cell
           *matHeaderCellDef
           mat-sort-header>Users</th>
       <td mat-cell
-          *matCellDef="let element">{{ getUsers(element).length }}</td>
+          *matCellDef="let element">{{ getUserIds(element).length }}</td>
     </ng-container>
 
     <ng-container matColumnDef="createdAt">

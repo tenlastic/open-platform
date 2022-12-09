@@ -14,11 +14,11 @@ const wssUrl = process.env.WSS_URL;
 
 (async () => {
   try {
-    // Redis.
-    await redis.start();
-
     // Get initial Queue data.
-    await dependencies.queueService.findOne(namespaceId, queueId);
+    const queue = await dependencies.queueService.findOne(namespaceId, queueId);
+
+    // Redis.
+    await redis.start(queue);
 
     // Log Queue Member changes.
     dependencies.queueMemberService.emitter.on('create', (record) =>

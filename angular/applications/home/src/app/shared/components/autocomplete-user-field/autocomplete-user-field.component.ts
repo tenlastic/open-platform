@@ -1,5 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { AbstractControl, FormControl } from '@angular/forms';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { FormControl } from '@angular/forms';
 import { UserModel, UserQuery, UserService } from '@tenlastic/http';
 import { Observable, Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
@@ -11,6 +11,9 @@ import { debounceTime } from 'rxjs/operators';
 })
 export class AutocompleteUserFieldComponent implements OnInit {
   @Input() public control: FormControl;
+  @Input() public removeButton: boolean;
+  @Input() public removeButtonTooltip: string;
+  @Output() public OnRemove = new EventEmitter();
 
   public $users = new Observable<UserModel[]>();
   public isLoading = false;

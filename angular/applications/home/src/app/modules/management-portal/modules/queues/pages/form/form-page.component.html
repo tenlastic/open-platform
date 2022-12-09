@@ -40,30 +40,6 @@
 
     <div class="row">
       <mat-form-field floatLabel="always">
-        <mat-label>Teams</mat-label>
-        <input matInput
-               required
-               formControlName="teams"
-               min="1"
-               step="1"
-               type="number" />
-        <mat-error>Enter a valid amount of teams.</mat-error>
-      </mat-form-field>
-
-      <mat-form-field floatLabel="always">
-        <mat-label>Players Per Team</mat-label>
-        <input matInput
-               required
-               formControlName="usersPerTeam"
-               min="1"
-               step="1"
-               type="number" />
-        <mat-error>Enter a valid amount of players per team.</mat-error>
-      </mat-form-field>
-    </div>
-
-    <div class="row">
-      <mat-form-field floatLabel="always">
         <mat-label>CPU</mat-label>
         <mat-select formControlName="cpu">
           <mat-option *ngFor="let cpu of cpus"
@@ -96,13 +72,41 @@
       </mat-form-field>
     </div>
 
-    <app-toggle-section title="Queue Metadata"
-                        [isVisible]="false">
-      <app-metadata-fields [formArray]="form.get('metadata')"></app-metadata-fields>
+    <app-toggle-section formArrayName="usersPerTeam"
+                        [isVisible]="isNew"
+                        title="Players Per Team">
+      <mat-form-field *ngFor="let control of usersPerTeam.controls; let i = index"
+                      floatLabel="always">
+        <mat-label>Team {{ i + 1 }}</mat-label>
+
+        <input autocomplete="off"
+               [formControlName]="i"
+               matInput
+               min="1"
+               step="1"
+               type="number" />
+        <app-button *ngIf="usersPerTeam.length > 1"
+                    color="accent"
+                    mat-icon-button
+                    matSuffix
+                    matTooltip="Remove Team"
+                    (OnClick)="usersPerTeam.removeAt(i)">
+          <mat-icon>remove</mat-icon>
+        </app-button>
+
+        <mat-error>Enter a valid number of players.</mat-error>
+      </mat-form-field>
+
+      <app-button color="accent"
+                  layout="left"
+                  (OnClick)="pushUsersPerTeam(usersPerTeam)">
+        <mat-icon>add</mat-icon>
+        <div>Add Team</div>
+      </app-button>
     </app-toggle-section>
 
-    <app-toggle-section title="Queue Thresholds"
-                        [isVisible]="false">
+    <app-toggle-section [isVisible]="false"
+                        title="Players Per Team Thresholds">
       <app-threshold-fields [formArray]="form.get('thresholds')"></app-threshold-fields>
     </app-toggle-section>
 

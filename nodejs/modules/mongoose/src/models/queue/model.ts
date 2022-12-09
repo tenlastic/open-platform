@@ -7,7 +7,6 @@ import {
   pre,
   prop,
   PropType,
-  Severity,
 } from '@typegoose/typegoose';
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
@@ -36,10 +35,7 @@ import {
 import { QueueThresholdDocument, QueueThresholdSchema } from './threshold';
 
 @index({ namespaceId: 1 })
-@modelOptions({
-  options: { allowMixed: Severity.ALLOW },
-  schemaOptions: { collection: 'queues', timestamps: true },
-})
+@modelOptions({ schemaOptions: { collection: 'queues', timestamps: true } })
 @plugin(unsetPlugin)
 @pre('save', function (this: QueueDocument) {
   this.gameServerTemplate.description ||= this.description;
@@ -62,9 +58,6 @@ export class QueueSchema {
 
   @prop({ min: 100 * 1000 * 1000, required: true, type: Number })
   public memory: number;
-
-  @prop({ type: mongoose.Schema.Types.Mixed, unset: false })
-  public metadata: any;
 
   @prop({ maxlength: 64, required: true, trim: true, type: String })
   public name: string;

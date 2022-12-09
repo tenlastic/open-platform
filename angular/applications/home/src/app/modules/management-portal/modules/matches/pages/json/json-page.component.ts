@@ -65,7 +65,7 @@ export class MatchesJsonPageComponent implements OnInit {
 
     values._id = this.data._id;
     values.namespaceId = this.params.namespaceId;
-    values.queueId = this.params.queueId || this.form.get('queueId').value;
+    values.queueId = this.params.queueId || values.queueId;
 
     try {
       this.data = await this.upsert(values);
@@ -76,13 +76,11 @@ export class MatchesJsonPageComponent implements OnInit {
 
   private setupForm(): void {
     this.data ??= new MatchModel({
-      queueId: this.params.queueId,
+      queueId: this.params.queueId ?? null,
       teams: [{ userIds: [] }, { userIds: [] }],
     });
 
-    const keys = this.params.queueId
-      ? ['teams', 'userIds', 'usersPerTeam']
-      : ['queueId', 'teams', 'userIds', 'usersPerTeam'];
+    const keys = this.params.queueId ? ['teams'] : ['queueId', 'teams'];
 
     const data = Object.keys(this.data)
       .filter((key) => keys.includes(key))

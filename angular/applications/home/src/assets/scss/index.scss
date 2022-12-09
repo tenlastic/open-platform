@@ -59,6 +59,17 @@ hr {
   margin: 12px 0px;
 }
 
+input[type='number'] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+input::-webkit-inner-spin-button,
+input::-webkit-outer-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+
 [centered] {
   display: block;
   margin: 8px auto;

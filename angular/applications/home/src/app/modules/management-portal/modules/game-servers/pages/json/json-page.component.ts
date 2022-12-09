@@ -76,7 +76,6 @@ export class GameServersJsonPageComponent implements OnInit {
 
   private setupForm(): void {
     this.data ??= new GameServerModel({
-      authorizedUserIds: [],
       buildId: '',
       cpu: IGameServer.Cpu[0].value,
       description: '',
@@ -87,7 +86,6 @@ export class GameServersJsonPageComponent implements OnInit {
     });
 
     const keys = [
-      'authorizedUserIds',
       'buildId',
       'cpu',
       'description',
