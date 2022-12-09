@@ -110,7 +110,7 @@ export class QueueModel extends BaseModel {
     const milliseconds = new Date().getTime() - date.getTime();
     const seconds = milliseconds / 1000;
 
-    const threshold = this.thresholds?.find((t) => t.seconds >= seconds);
+    const threshold = this.thresholds?.find((t) => seconds >= t.seconds);
 
     return threshold ? threshold.usersPerTeam.length : this.usersPerTeam.length;
   }
@@ -126,7 +126,7 @@ export class QueueModel extends BaseModel {
     const milliseconds = new Date().getTime() - date.getTime();
     const seconds = milliseconds / 1000;
 
-    const threshold = this.thresholds?.find((t) => t.seconds >= seconds);
+    const threshold = this.thresholds?.find((t) => seconds >= t.seconds);
 
     return threshold ? threshold.usersPerTeam[i] : this.usersPerTeam[i];
   }

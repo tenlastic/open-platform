@@ -6,7 +6,7 @@ export abstract class BaseModel {
   constructor(parameters?: Partial<BaseModel>) {
     Object.assign(this, parameters);
 
-    this.createdAt = this.createdAt ? new Date(this.createdAt) : null;
-    this.updatedAt = this.updatedAt ? new Date(this.updatedAt) : null;
+    this.createdAt = parameters.createdAt ? new Date(parameters.createdAt) : null;
+    this.updatedAt = parameters.updatedAt ? new Date(parameters.updatedAt) : null;
   }
 }

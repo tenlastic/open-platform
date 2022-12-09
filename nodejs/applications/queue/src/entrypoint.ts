@@ -74,7 +74,7 @@ const wssUrl = process.env.WSS_URL;
     ]);
 
     // Wait for changes to catch up before creating Matches.
-    setTimeout(main, 15000);
+    setTimeout(main, 5000);
   } catch (e) {
     console.error(e.message);
     process.exit(1);
@@ -83,7 +83,7 @@ const wssUrl = process.env.WSS_URL;
 
 async function main() {
   try {
-    const queue = dependencies.queueQuery.getEntity(queueId);
+    const queue = new QueueModel(dependencies.queueQuery.getEntity(queueId));
 
     const result = await createMatch(queue);
     console.log(`Match created successfully: ${result._id}.`);

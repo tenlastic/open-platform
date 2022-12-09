@@ -61,7 +61,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
     return this.updateService.getStatus(this.namespaceId);
   }
 
-  private subscribe$: Subscription;
+  private subscribe$ = new Subscription();
   private params: Params;
   private get streamServiceUrl() {
     return `${environment.wssUrl}/namespaces/${this.namespaceId}`;

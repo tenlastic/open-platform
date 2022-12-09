@@ -24,7 +24,7 @@ GroupEvent.async(async (payload) => {
 // Delete QueueMember when associated Match is created.
 MatchEvent.async(async (payload) => {
   switch (payload.operationType) {
-    case 'delete':
+    case 'insert':
       return QueueMemberModel.deleteMany({ userIds: { $in: payload.fullDocument.userIds } });
   }
 });

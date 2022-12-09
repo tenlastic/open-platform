@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { StorefrontModel, StorefrontQuery, StorefrontService } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -33,6 +33,7 @@ export class StorefrontPageComponent implements OnDestroy, OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
+    private router: Router,
     private storefrontQuery: StorefrontQuery,
     private storefrontService: StorefrontService,
   ) {}
@@ -53,7 +54,11 @@ export class StorefrontPageComponent implements OnDestroy, OnInit {
         }
       });
 
-      await this.storefrontService.find(params.namespaceId, { limit: 1 });
+      try {
+        await this.storefrontService.find(params.namespaceId, { limit: 1 });
+      } catch (e) {
+        this.router.navigate(['../'], { relativeTo: this.activatedRoute });
+      }
 
       this.loadingMessage = null;
     });

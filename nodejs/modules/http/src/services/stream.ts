@@ -107,7 +107,7 @@ export class StreamService {
     const data = { _id: uuid(), method: 'ping' };
     const interval = setInterval(() => socket.send(JSON.stringify(data)), 5000);
 
-    socket.addEventListener('close', (e) => {
+    socket.addEventListener('close', async (e) => {
       clearInterval(interval);
 
       this._ids.delete(options.url);
@@ -115,7 +115,12 @@ export class StreamService {
       this.webSockets.delete(options.url);
 
       if (e.code !== 1000) {
-        setTimeout(() => this.connect(options), 5000);
+        try {
+          await new Promise((resolve) => setTimeout(resolve, 5000));
+          await this.connect(options);
+        } catch {
+          console.error(`Could not reconnect to web socket at ${options.url}.`);
+        }
       }
     });
     socket.addEventListener('error', () => socket.close());
@@ -127,9 +132,11 @@ export class StreamService {
           return;
         }
 
+        socket.removeEventListener('message', onMessage);
+        this.pendingWebSockets.delete(options.url);
+
         if (payload.fullDocument && payload.operationType === 'insert') {
           this._ids.set(options.url, payload.fullDocument._id);
-          this.pendingWebSockets.delete(options.url);
         }
 
         const subscriptions = this.subscriptions.filter((s) => s.url === options.url);
@@ -142,7 +149,6 @@ export class StreamService {
           subscribe.map((s) => this.subscribe(s.model, s.subscribe, s.service, s.store, s.url)),
         );
 
-        socket.removeEventListener('message', onMessage);
         return resolve(socket);
       };
 
