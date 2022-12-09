@@ -1,16 +1,5 @@
-import {
-  EventEmitter,
-  IDatabasePayload,
-  QueueMemberDocument,
-  QueueMemberModel,
-} from '@tenlastic/mongoose';
-
-import { GroupEvent } from './group';
-import { MatchEvent } from './match';
-import { QueueEvent } from './queue';
-import { WebSocketEvent } from './web-socket';
-
-export const QueueMemberEvent = new EventEmitter<IDatabasePayload<QueueMemberDocument>>();
+import { QueueMemberModel } from '@tenlastic/mongoose';
+import { GroupEvent, MatchEvent, QueueEvent, WebSocketEvent } from '@tenlastic/mongoose-nats';
 
 // Delete Queue Member when associated Group is deleted or its Users are updated.
 GroupEvent.async(async (payload) => {

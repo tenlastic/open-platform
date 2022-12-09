@@ -1,13 +1,5 @@
-import {
-  EventEmitter,
-  IDatabasePayload,
-  QueueMemberDocument,
-  QueueMemberModel,
-} from '@tenlastic/mongoose';
-
-import { NamespaceEvent } from './namespace';
-
-export const QueueMemberEvent = new EventEmitter<IDatabasePayload<QueueMemberDocument>>();
+import { QueueMemberModel } from '@tenlastic/mongoose';
+import { NamespaceEvent } from '@tenlastic/mongoose-nats';
 
 // Delete QueueMembers if associated Namespace is deleted.
 NamespaceEvent.async(async (payload) => {

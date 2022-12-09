@@ -1,19 +1,12 @@
 import {
-  EventEmitter,
-  GameServerDocument,
   GameServerModel,
   GameServerStatusComponentName,
-  IDatabasePayload,
   MatchModel,
   QueueModel,
 } from '@tenlastic/mongoose';
+import { GameServerEvent, MatchEvent, NamespaceEvent, QueueEvent } from '@tenlastic/mongoose-nats';
 
 import { KubernetesGameServer, KubernetesGameServerSidecar } from '../kubernetes';
-import { MatchEvent } from './match';
-import { NamespaceEvent } from './namespace';
-import { QueueEvent } from './queue';
-
-export const GameServerEvent = new EventEmitter<IDatabasePayload<GameServerDocument>>();
 
 // Delete Game Server if Failed or Succeeded.
 GameServerEvent.async(async (payload) => {

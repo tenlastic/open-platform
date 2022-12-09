@@ -1,6 +1,7 @@
 import { V1EnvFromSource, V1EnvVar } from '@kubernetes/client-node';
 import { networkPolicyApiV1, V1Workflow, workflowApiV1 } from '@tenlastic/kubernetes';
-import { BuildDocument, BuildPlatform, DatabaseOperationType } from '@tenlastic/mongoose';
+import { BuildDocument, BuildPlatform } from '@tenlastic/mongoose';
+import { DatabaseOperationType } from '@tenlastic/mongoose-nats';
 import { URL } from 'url';
 
 import { version } from '../../package.json';

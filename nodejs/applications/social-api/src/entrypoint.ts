@@ -2,8 +2,9 @@ import 'source-map-support/register';
 
 import '@tenlastic/logging';
 import * as mongoose from '@tenlastic/mongoose';
+import * as nats from '@tenlastic/mongoose-nats';
 
-import * as nats from './nats';
+import './nats';
 import * as webServer from './web-server';
 
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
@@ -15,11 +16,10 @@ const natsConnectionString = process.env.NATS_CONNECTION_STRING;
     await mongoose.connect({ connectionString: mongoConnectionString, databaseName: 'social-api' });
 
     // NATS.
-    await nats.setup({
-      connectionString: natsConnectionString,
-      database: 'social-api',
-      durable: 'social-api',
-    });
+    await nats.connect({ connectionString: natsConnectionString, database: 'social-api' });
+    nats
+      .subscribe({ database: 'social-api', durable: 'social-api' })
+      .catch((err) => console.error(err.message));
 
     // Web Server.
     webServer.setup();

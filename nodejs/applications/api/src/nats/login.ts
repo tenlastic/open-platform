@@ -1,8 +1,5 @@
-import { EventEmitter, IDatabasePayload, LoginDocument, LoginModel } from '@tenlastic/mongoose';
-
-import { UserEvent } from './user';
-
-export const LoginEvent = new EventEmitter<IDatabasePayload<LoginDocument>>();
+import { LoginModel } from '@tenlastic/mongoose';
+import { UserEvent } from '@tenlastic/mongoose-nats';
 
 // Delete Logins if associated User is deleted.
 UserEvent.async(async (payload) => {

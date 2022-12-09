@@ -1,4 +1,4 @@
-import { IDatabasePayload } from '@tenlastic/mongoose';
+import { DatabasePayload } from '@tenlastic/mongoose-nats';
 import * as nats from '@tenlastic/nats';
 import Redis from 'ioredis';
 import { ChangeStream } from 'mongodb';
@@ -37,7 +37,7 @@ export function watch(
         return;
       }
 
-      const message: IDatabasePayload<any> = {
+      const message: DatabasePayload<any> = {
         documentKey: change.documentKey,
         fullDocument: change.fullDocument ?? change.fullDocumentBeforeChange,
         ns: change.ns,

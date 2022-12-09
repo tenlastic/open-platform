@@ -2,9 +2,10 @@ import 'source-map-support/register';
 
 import '@tenlastic/logging';
 import * as mongoose from '@tenlastic/mongoose';
+import * as nats from '@tenlastic/mongoose-nats';
 
 import * as minio from './minio';
-import * as nats from './nats';
+import './nats';
 import * as webServer from './web-server';
 import * as webSocketServer from './web-socket-server';
 
@@ -27,12 +28,10 @@ const podName = process.env.POD_NAME;
     });
 
     // NATS.
-    await nats.setup({
-      connectionString: natsConnectionString,
-      database: mongoDatabaseName,
-      durable: mongoDatabaseName,
-      podName,
-    });
+    await nats.connect({ connectionString: natsConnectionString, database: mongoDatabaseName });
+    nats
+      .subscribe({ database: mongoDatabaseName, durable: mongoDatabaseName, podName })
+      .catch((err) => console.error(err.message));
 
     // Web Server.
     const { server } = webServer.setup();

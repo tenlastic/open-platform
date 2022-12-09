@@ -1,8 +1,6 @@
-import { EventEmitter, IDatabasePayload, UserDocument } from '@tenlastic/mongoose';
+import { UserEvent } from '@tenlastic/mongoose-nats';
 
 import mailgun from '../mailgun';
-
-export const UserEvent = new EventEmitter<IDatabasePayload<UserDocument>>();
 
 // Send a Password Reset Confirmation to the User's email address.
 UserEvent.async((payload) => {

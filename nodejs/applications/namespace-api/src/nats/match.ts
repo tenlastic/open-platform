@@ -1,8 +1,12 @@
-import { EventEmitter, IDatabasePayload, MatchDocument, MatchModel } from '@tenlastic/mongoose';
+import { MatchModel } from '@tenlastic/mongoose';
+import { GameServerEvent, NamespaceEvent } from '@tenlastic/mongoose-nats';
 
-import { NamespaceEvent } from './namespace';
-
-export const MatchEvent = new EventEmitter<IDatabasePayload<MatchDocument>>();
+// Delete Matches if associated Namespace is deleted.
+GameServerEvent.async(async (payload) => {
+  if (payload.operationType === 'delete' && payload.fullDocument.matchId) {
+    return MatchModel.updateOne({ _id: payload.fullDocument.matchId }, { finishedAt: new Date() });
+  }
+});
 
 // Delete Matches if associated Namespace is deleted.
 NamespaceEvent.async(async (payload) => {

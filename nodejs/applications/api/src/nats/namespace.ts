@@ -1,8 +1,6 @@
-import { EventEmitter, IDatabasePayload, NamespaceDocument } from '@tenlastic/mongoose';
+import { NamespaceEvent } from '@tenlastic/mongoose-nats';
 
 import { KubernetesNamespace, KubernetesNamespaceSidecar } from '../kubernetes';
-
-export const NamespaceEvent = new EventEmitter<IDatabasePayload<NamespaceDocument>>();
 
 // Update Kubernetes resources.
 NamespaceEvent.async(async (payload) => {

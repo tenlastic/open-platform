@@ -1,9 +1,5 @@
-import { EventEmitter, IDatabasePayload, MessageDocument, MessageModel } from '@tenlastic/mongoose';
-
-import { GroupEvent } from './group';
-import { UserEvent } from './user';
-
-export const MessageEvent = new EventEmitter<IDatabasePayload<MessageDocument>>();
+import { MessageModel } from '@tenlastic/mongoose';
+import { GroupEvent, UserEvent } from '@tenlastic/mongoose-nats';
 
 // Delete Messages if associated Group is deleted.
 GroupEvent.async(async (payload) => {

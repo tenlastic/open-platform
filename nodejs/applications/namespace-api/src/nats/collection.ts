@@ -1,13 +1,5 @@
-import {
-  CollectionDocument,
-  CollectionModel,
-  EventEmitter,
-  IDatabasePayload,
-} from '@tenlastic/mongoose';
-
-import { NamespaceEvent } from './namespace';
-
-export const CollectionEvent = new EventEmitter<IDatabasePayload<CollectionDocument>>();
+import { CollectionModel } from '@tenlastic/mongoose';
+import { NamespaceEvent } from '@tenlastic/mongoose-nats';
 
 // Delete Collections if associated Namespace is deleted.
 NamespaceEvent.async(async (payload) => {

@@ -1,16 +1,5 @@
-import {
-  AuthorizationRequestDocument,
-  AuthorizationRequestModel,
-  EventEmitter,
-  IDatabasePayload,
-} from '@tenlastic/mongoose';
-
-import { NamespaceEvent } from './namespace';
-import { UserEvent } from './user';
-
-export const AuthorizationRequestEvent = new EventEmitter<
-  IDatabasePayload<AuthorizationRequestDocument>
->();
+import { AuthorizationRequestModel } from '@tenlastic/mongoose';
+import { NamespaceEvent, UserEvent } from '@tenlastic/mongoose-nats';
 
 // Delete Authorization Requests if associated Namespace is deleted.
 NamespaceEvent.async(async (payload) => {

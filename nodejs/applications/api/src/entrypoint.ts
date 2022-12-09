@@ -3,10 +3,11 @@ import 'source-map-support/register';
 import '@tenlastic/logging';
 import * as minio from '@tenlastic/minio';
 import * as mongoose from '@tenlastic/mongoose';
+import * as nats from '@tenlastic/mongoose-nats';
 import { URL } from 'url';
 
 import mailgun from './mailgun';
-import * as nats from './nats';
+import './nats';
 import * as webServer from './web-server';
 
 const mailgunDomain = process.env.MAILGUN_DOMAIN;
@@ -36,7 +37,8 @@ const natsConnectionString = process.env.NATS_CONNECTION_STRING;
     await mongoose.connect({ connectionString: mongoConnectionString, databaseName: 'api' });
 
     // NATS.
-    await nats.setup({ connectionString: natsConnectionString, database: 'api', durable: 'api' });
+    await nats.connect({ connectionString: natsConnectionString, database: 'api' });
+    nats.subscribe({ database: 'api', durable: 'api' }).catch((err) => console.error(err.message));
 
     // Web Server.
     webServer.setup();

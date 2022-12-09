@@ -1,4 +1,4 @@
-import { IDatabasePayload, DatabaseOperationType } from '@tenlastic/mongoose';
+import { DatabasePayload, DatabaseOperationType } from '@tenlastic/mongoose-nats';
 import {
   filterObject,
   ICredentials,
@@ -63,7 +63,7 @@ export async function subscribe(
   for await (const message of subscription) {
     try {
       const decoding = new TextDecoder().decode(message.data);
-      const json = JSON.parse(decoding) as IDatabasePayload<any>;
+      const json = JSON.parse(decoding) as DatabasePayload<any>;
 
       // Filter by operation type.
       const { parameters } = data;

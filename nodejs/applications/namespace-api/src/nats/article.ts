@@ -1,8 +1,5 @@
-import { ArticleDocument, ArticleModel, EventEmitter, IDatabasePayload } from '@tenlastic/mongoose';
-
-import { NamespaceEvent } from './namespace';
-
-export const ArticleEvent = new EventEmitter<IDatabasePayload<ArticleDocument>>();
+import { ArticleModel } from '@tenlastic/mongoose';
+import { NamespaceEvent } from '@tenlastic/mongoose-nats';
 
 // Delete Articles if associated Namespace is deleted.
 NamespaceEvent.async(async (payload) => {

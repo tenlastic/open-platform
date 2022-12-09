@@ -5,7 +5,6 @@ mongoose.set('autoIndex', false);
 mongoose.set('toJSON', { flattenMaps: true });
 mongoose.set('toObject', { flattenMaps: true });
 
-export * from './event-emitter';
 export * from './json-schema';
 export * from './models';
 export * from './permissions';

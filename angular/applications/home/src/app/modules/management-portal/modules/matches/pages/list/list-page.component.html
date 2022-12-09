@@ -53,12 +53,12 @@
           *matCellDef="let element">{{ element.createdAt | date }}</td>
     </ng-container>
 
-    <ng-container matColumnDef="updatedAt">
+    <ng-container matColumnDef="finishedAt">
       <th mat-header-cell
           *matHeaderCellDef
-          mat-sort-header>Updated At</th>
+          mat-sort-header>Finished At</th>
       <td mat-cell
-          *matCellDef="let element">{{ element.updatedAt | date }}</td>
+          *matCellDef="let element">{{ element.finishedAt | date }}</td>
     </ng-container>
 
     <ng-container matColumnDef="actions">

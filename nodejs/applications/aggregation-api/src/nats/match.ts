@@ -1,8 +1,5 @@
-import { EventEmitter, IDatabasePayload, MatchDocument, MatchModel } from '@tenlastic/mongoose';
-
-import { NamespaceEvent } from './namespace';
-
-export const MatchEvent = new EventEmitter<IDatabasePayload<MatchDocument>>();
+import { MatchModel } from '@tenlastic/mongoose';
+import { NamespaceEvent } from '@tenlastic/mongoose-nats';
 
 // Delete Matches if associated Namespace is deleted.
 NamespaceEvent.async(async (payload) => {

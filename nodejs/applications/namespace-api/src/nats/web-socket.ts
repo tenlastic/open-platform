@@ -1,13 +1,5 @@
-import {
-  EventEmitter,
-  IDatabasePayload,
-  WebSocketDocument,
-  WebSocketModel,
-} from '@tenlastic/mongoose';
-
-import { UserEvent } from './user';
-
-export const WebSocketEvent = new EventEmitter<IDatabasePayload<WebSocketDocument>>();
+import { WebSocketModel } from '@tenlastic/mongoose';
+import { UserEvent } from '@tenlastic/mongoose-nats';
 
 // Delete Web Sockets if associated User is deleted.
 UserEvent.async(async (payload) => {

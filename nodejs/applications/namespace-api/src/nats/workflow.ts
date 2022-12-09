@@ -1,14 +1,7 @@
-import {
-  EventEmitter,
-  IDatabasePayload,
-  WorkflowDocument,
-  WorkflowModel,
-} from '@tenlastic/mongoose';
+import { WorkflowModel } from '@tenlastic/mongoose';
+import { NamespaceEvent, WorkflowEvent } from '@tenlastic/mongoose-nats';
 
 import { KubernetesWorkflow, KubernetesWorkflowSidecar } from '../kubernetes';
-import { NamespaceEvent } from './namespace';
-
-export const WorkflowEvent = new EventEmitter<IDatabasePayload<WorkflowDocument>>();
 
 // Delete Workflows if associated Namespace is deleted.
 NamespaceEvent.async(async (payload) => {

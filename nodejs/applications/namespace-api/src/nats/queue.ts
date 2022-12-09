@@ -1,9 +1,7 @@
-import { EventEmitter, IDatabasePayload, QueueDocument, QueueModel } from '@tenlastic/mongoose';
+import { QueueModel } from '@tenlastic/mongoose';
+import { NamespaceEvent, QueueEvent } from '@tenlastic/mongoose-nats';
 
 import { KubernetesQueue, KubernetesQueueSidecar } from '../kubernetes';
-import { NamespaceEvent } from './namespace';
-
-export const QueueEvent = new EventEmitter<IDatabasePayload<QueueDocument>>();
 
 // Delete Queues if associated Namespace is deleted.
 NamespaceEvent.async(async (payload) => {

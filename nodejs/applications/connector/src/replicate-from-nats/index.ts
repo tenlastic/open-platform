@@ -1,4 +1,4 @@
-import * as mongoose from '@tenlastic/mongoose';
+import { DatabasePayload } from '@tenlastic/mongoose-nats';
 import * as mongoosePermissions from '@tenlastic/mongoose-permissions';
 import * as nats from '@tenlastic/nats';
 import { Document as MongooseDocument, Model as MongooseModel, Query } from 'mongoose';
@@ -49,7 +49,7 @@ export async function replicateFromNats(
 export async function eachMessage(
   Model: MongooseModel<MongooseDocument>,
   options: ReplicateOptions,
-  payload: mongoose.IDatabasePayload<MongooseModel<MongooseDocument>>,
+  payload: DatabasePayload<MongooseModel<MongooseDocument>>,
   where?: any,
 ) {
   if (where) {

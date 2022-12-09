@@ -1,13 +1,5 @@
-import {
-  EventEmitter,
-  IDatabasePayload,
-  StorefrontDocument,
-  StorefrontModel,
-} from '@tenlastic/mongoose';
-
-import { NamespaceEvent } from './namespace';
-
-export const StorefrontEvent = new EventEmitter<IDatabasePayload<StorefrontDocument>>();
+import { StorefrontModel } from '@tenlastic/mongoose';
+import { NamespaceEvent } from '@tenlastic/mongoose-nats';
 
 // Delete Storefronts if associated Namespace is deleted.
 NamespaceEvent.async(async (payload) => {

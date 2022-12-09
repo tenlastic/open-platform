@@ -1,11 +1,9 @@
 import * as minio from '@tenlastic/minio';
-import { BuildDocument, BuildModel, EventEmitter, IDatabasePayload } from '@tenlastic/mongoose';
+import { BuildModel } from '@tenlastic/mongoose';
+import { BuildEvent, NamespaceEvent, NamespaceStorageLimitEvent } from '@tenlastic/mongoose-nats';
 
 import { KubernetesBuild, KubernetesBuildSidecar } from '../kubernetes';
 import { MinioBuild } from '../minio';
-import { NamespaceEvent, NamespaceStorageLimitEvent } from './namespace';
-
-export const BuildEvent = new EventEmitter<IDatabasePayload<BuildDocument>>();
 
 // Delete files from Minio if associated Build is deleted.
 // Delete zip file from Minio if associated Build is finished.

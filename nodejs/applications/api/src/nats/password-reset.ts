@@ -1,13 +1,7 @@
-import {
-  EventEmitter,
-  IDatabasePayload,
-  PasswordResetDocument,
-  UserModel,
-} from '@tenlastic/mongoose';
+import { UserModel } from '@tenlastic/mongoose';
+import { PasswordResetEvent } from '@tenlastic/mongoose-nats';
 
 import mailgun from '../mailgun';
-
-export const PasswordResetEvent = new EventEmitter<IDatabasePayload<PasswordResetDocument>>();
 
 // Send a Password Reset Request to the User's email address.
 PasswordResetEvent.async(async (payload) => {

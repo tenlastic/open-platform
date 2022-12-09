@@ -31,8 +31,8 @@ export class MatchesListPageComponent implements OnDestroy, OnInit {
   public dataSource = new MatTableDataSource<MatchModel>();
   public get displayedColumns() {
     return this.params.queueId
-      ? ['teams', 'users', 'createdAt', 'updatedAt', 'actions']
-      : ['queue', 'teams', 'users', 'createdAt', 'updatedAt', 'actions'];
+      ? ['teams', 'users', 'createdAt', 'finishedAt', 'actions']
+      : ['queue', 'teams', 'users', 'createdAt', 'finishedAt', 'actions'];
   }
   public hasWriteAuthorization: boolean;
 

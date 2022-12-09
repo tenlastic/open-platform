@@ -5,11 +5,11 @@ import {
   NamespaceModel,
   NamespaceLimitError,
 } from '@tenlastic/mongoose';
+import { NamespaceStorageLimitEvent } from '@tenlastic/mongoose-nats';
 import { Context } from '@tenlastic/web-server';
 import * as Busboy from 'busboy';
 
 import { MinioBuild } from '../../../../minio';
-import { NamespaceStorageLimitEvent } from '../../../../nats';
 
 export async function handler(ctx: Context) {
   const namespace = await NamespaceModel.findOne({ _id: ctx.params.namespaceId });

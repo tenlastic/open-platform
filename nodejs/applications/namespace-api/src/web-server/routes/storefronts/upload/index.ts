@@ -5,12 +5,12 @@ import {
   StorefrontModel,
   StorefrontPermissions,
 } from '@tenlastic/mongoose';
+import { NamespaceStorageLimitEvent } from '@tenlastic/mongoose-nats';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 import * as Busboy from 'busboy';
 
 import { MinioStorefront } from '../../../../minio';
-import { NamespaceStorageLimitEvent } from '../../../../nats';
 
 export async function handler(ctx: Context) {
   const { _id, field, namespaceId } = ctx.params;

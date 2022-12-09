@@ -1,4 +1,4 @@
-import { IDatabasePayload } from '@tenlastic/mongoose';
+import { DatabasePayload } from '@tenlastic/mongoose-nats';
 import { expect } from 'chai';
 import * as Chance from 'chance';
 import * as mongoose from 'mongoose';
@@ -24,7 +24,7 @@ describe('replicateFromNats()', function () {
   context('when the operationType is delete', function () {
     it('deletes the document from MongoDB', async function () {
       const record = await Model.create({ _id: new mongoose.Types.ObjectId() });
-      const payload: IDatabasePayload<any> = {
+      const payload: DatabasePayload<any> = {
         documentKey: { _id: record._id },
         ns: { coll: chance.hash({ length: 16 }), db: chance.hash({ length: 16 }) },
         operationType: 'delete',
@@ -41,7 +41,7 @@ describe('replicateFromNats()', function () {
   context('when the operationType is insert', function () {
     it('inserts the fullDocument into MongoDB', async function () {
       const _id = new mongoose.Types.ObjectId();
-      const payload: IDatabasePayload<any> = {
+      const payload: DatabasePayload<any> = {
         documentKey: { _id },
         fullDocument: { _id, createdAt: new Date(), updatedAt: new Date() },
         ns: { coll: chance.hash({ length: 16 }), db: chance.hash({ length: 16 }) },
@@ -59,7 +59,7 @@ describe('replicateFromNats()', function () {
 
   context('when the operationType is update', function () {
     const _id = new mongoose.Types.ObjectId();
-    const payload: IDatabasePayload<any> = {
+    const payload: DatabasePayload<any> = {
       documentKey: { _id },
       fullDocument: { _id, name: chance.hash(), updatedAt: new Date() },
       ns: { coll: chance.hash({ length: 16 }), db: chance.hash({ length: 16 }) },
