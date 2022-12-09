@@ -12,16 +12,22 @@ import { WebSocketEvent } from './web-socket';
 
 export const QueueMemberEvent = new EventEmitter<IDatabasePayload<QueueMemberDocument>>();
 
-// Delete QueueMember when associated Group is deleted or updated.
+// Delete Queue Member when associated Group is deleted or its Users are updated.
 GroupEvent.async(async (payload) => {
-  switch (payload.operationType) {
-    case 'delete':
-    case 'update':
-      return QueueMemberModel.deleteMany({ groupId: payload.fullDocument._id });
+  if (
+    payload.operationType === 'delete' ||
+    (payload.operationType === 'update' && payload.updateDescription.updatedFields.userIds)
+  ) {
+    return QueueMemberModel.deleteMany({
+      $or: [
+        { groupId: payload.fullDocument._id },
+        { userIds: { $in: payload.fullDocument.userIds } },
+      ],
+    });
   }
 });
 
-// Delete QueueMember when associated Match is created.
+// Delete Queue Member when associated Match is created.
 MatchEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'insert':
@@ -29,7 +35,7 @@ MatchEvent.async(async (payload) => {
   }
 });
 
-// Delete QueueMember when associated Queue is deleted.
+// Delete Queue Member when associated Queue is deleted.
 QueueEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
@@ -37,7 +43,7 @@ QueueEvent.async(async (payload) => {
   }
 });
 
-// Delete QueueMember when associated WebSocket is deleted.
+// Delete Queue Member when associated WebSocket is deleted.
 WebSocketEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':

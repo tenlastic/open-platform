@@ -27,11 +27,11 @@ export class GroupSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ type: Boolean })
-  public isOpen: boolean;
-
   @prop({ maxlength: 24, trim: true, type: String })
   public name: string;
+
+  @prop({ type: Boolean })
+  public open: boolean;
 
   public updatedAt: Date;
 

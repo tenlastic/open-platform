@@ -42,7 +42,7 @@ export class MessagesComponent implements OnChanges, OnDestroy {
         }
 
         return (
-          currentUserGroup.isOpen || currentUserGroup.userIds[0] === this.identityService.user._id
+          currentUserGroup.open || currentUserGroup.userIds[0] === this.identityService.user._id
         );
       }),
     );
@@ -202,7 +202,7 @@ export class MessagesComponent implements OnChanges, OnDestroy {
       this.user._id,
     );
     this.$showJoinGroupButton = combineLatest([this.$currentUserGroup, this.$group]).pipe(
-      map(([currentUserGroup, group]) => !currentUserGroup && group && group.isOpen),
+      map(([currentUserGroup, group]) => !currentUserGroup && group?.open),
     );
 
     this.loadingMessage = 'Loading conversation...';

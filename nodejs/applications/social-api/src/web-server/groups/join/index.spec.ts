@@ -18,7 +18,7 @@ describe('web-server/groups/join', function () {
     let record: GroupDocument;
 
     beforeEach(async function () {
-      record = await GroupModel.mock({ isOpen: true, userIds: [user._id] }).save();
+      record = await GroupModel.mock({ open: true, userIds: [user._id] }).save();
     });
 
     it('returns the record', async function () {
@@ -41,7 +41,7 @@ describe('web-server/groups/join', function () {
 
     beforeEach(async function () {
       otherUser = await UserModel.mock({}).save();
-      record = await GroupModel.mock({ isOpen: false, userIds: [user._id, otherUser._id] }).save();
+      record = await GroupModel.mock({ open: false, userIds: [user._id, otherUser._id] }).save();
     });
 
     it('throws an error', async function () {

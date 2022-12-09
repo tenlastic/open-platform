@@ -1,8 +1,8 @@
 import { BaseModel } from './base';
 
 export class GroupModel extends BaseModel {
-  public isOpen: boolean;
   public name: string;
+  public open: boolean;
   public userIds: string[];
 
   constructor(parameters?: Partial<GroupModel>) {

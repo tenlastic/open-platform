@@ -4,7 +4,7 @@ import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 export async function handler(ctx: Context) {
   const group = await GroupModel.findOne({ _id: ctx.params._id });
 
-  if (!group.isOpen) {
+  if (!group.open) {
     const where = { groupId: ctx.params._id, toUserId: ctx.state.user._id };
     const groupInvitation = await GroupInvitationModel.findOne(where);
     if (!groupInvitation) {

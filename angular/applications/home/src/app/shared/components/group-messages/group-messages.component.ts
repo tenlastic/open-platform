@@ -44,7 +44,7 @@ export class GroupMessagesComponent implements OnChanges, OnDestroy {
   public scrollToBottom$ = new Subscription();
   public setGroup$ = new Subscription();
   public get canInvite() {
-    return this.group.isOpen || this.group.userIds[0] === this.identityService.user._id;
+    return this.group.open || this.group.userIds[0] === this.identityService.user._id;
   }
   public get isLeader() {
     return this.group.userIds[0] === this.identityService.user._id;
@@ -191,7 +191,7 @@ export class GroupMessagesComponent implements OnChanges, OnDestroy {
   }
 
   public async toggleIsOpen() {
-    return this.groupService.update(this.group._id, { isOpen: !this.group.isOpen });
+    return this.groupService.update(this.group._id, { open: !this.group.open });
   }
 
   private async autocomplete(value: string) {

@@ -36,11 +36,11 @@
 
     <app-button *ngIf="isLeader"
                 color="accent"
-                [matTooltip]="group.isOpen ? 'Invitations: Open' : 'Invitations: Only Leader'"
+                [matTooltip]="group.open ? 'Invitations: Open' : 'Invitations: Only Leader'"
                 matTooltipPosition="below"
                 (OnClick)="toggleIsOpen()">
-      <mat-icon [ngClass]="{ grey: group.isOpen }">
-        {{ group.isOpen ? 'lock_open' : 'lock' }}
+      <mat-icon [ngClass]="{ grey: group.open }">
+        {{ group.open ? 'lock_open' : 'lock' }}
       </mat-icon>
     </app-button>
 

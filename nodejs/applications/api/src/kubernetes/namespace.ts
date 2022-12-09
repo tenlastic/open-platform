@@ -317,6 +317,7 @@ export const KubernetesNamespace = {
               containers: [
                 getAggregationApiConnectorContainerTemplate(namespace),
                 getApiConnectorContainerTemplate(namespace),
+                getSocialApiConnectorContainerTemplate(namespace),
               ],
               volumes: [
                 {
@@ -354,6 +355,7 @@ export const KubernetesNamespace = {
               containers: [
                 getAggregationApiConnectorContainerTemplate(namespace),
                 getApiConnectorContainerTemplate(namespace),
+                getSocialApiConnectorContainerTemplate(namespace),
               ],
             },
           },
@@ -474,7 +476,7 @@ function getAggregationApiConnectorContainerTemplate(namespace: NamespaceDocumen
 function getApiConnectorContainerTemplate(namespace: NamespaceDocument): V1Container {
   const name = KubernetesNamespace.getName(namespace._id);
 
-  const collectionNames = ['authorizations', 'groups', 'namespaces', 'users'];
+  const collectionNames = ['authorizations', 'namespaces', 'users'];
   const env: V1EnvVar[] = [
     { name: 'MONGO_COLLECTION_NAMES', value: collectionNames.join(',') },
     {
@@ -734,6 +736,57 @@ function getPath(namespace: NamespaceDocument, path: string) {
     path: prefix + path,
     pathType: 'Prefix',
   };
+}
+
+function getSocialApiConnectorContainerTemplate(namespace: NamespaceDocument): V1Container {
+  const name = KubernetesNamespace.getName(namespace._id);
+
+  const collectionNames = ['groups'];
+  const env: V1EnvVar[] = [
+    { name: 'MONGO_COLLECTION_NAMES', value: collectionNames.join(',') },
+    {
+      name: 'MONGO_FROM_CONNECTION_STRING',
+      valueFrom: { secretKeyRef: { key: 'MONGO_CONNECTION_STRING', name: 'nodejs' } },
+    },
+    {
+      name: 'MONGO_FROM_DATABASE_NAME',
+      value: 'social-api',
+    },
+    {
+      name: 'MONGO_TO_CONNECTION_STRING',
+      valueFrom: { secretKeyRef: { key: 'MONGO_CONNECTION_STRING', name: 'nodejs' } },
+    },
+    {
+      name: 'MONGO_TO_DATABASE_NAME',
+      valueFrom: { secretKeyRef: { key: 'MONGO_DATABASE_NAME', name } },
+    },
+    {
+      name: 'NATS_CONNECTION_STRING',
+      valueFrom: { secretKeyRef: { key: 'NATS_CONNECTION_STRING', name: 'nodejs' } },
+    },
+    { name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } },
+  ];
+  const resources = { requests: { cpu: '25m', memory: '75M' } };
+
+  const isDevelopment = process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/');
+  if (isDevelopment) {
+    return {
+      command: ['npm', 'run', 'start'],
+      env,
+      image: `tenlastic/node-development:latest`,
+      name: 'social-api',
+      resources: { limits: { cpu: '1000m' }, requests: resources.requests },
+      volumeMounts: [{ mountPath: '/usr/src/', name: 'workspace' }],
+      workingDir: `/usr/src/nodejs/applications/connector/`,
+    };
+  } else {
+    return {
+      env,
+      image: `tenlastic/connector:${version}`,
+      name: 'social-api',
+      resources,
+    };
+  }
 }
 
 async function upsertAuthorization(

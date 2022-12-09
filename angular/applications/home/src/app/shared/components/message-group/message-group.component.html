@@ -40,7 +40,7 @@
       <div class="status">
         <ng-container *ngIf="$getWebSocket(user._id) | async; else offline">
           <ng-container *ngIf="$getGroup(user._id) | async as group; else online">
-            {{ group.isOpen ? 'Open' : 'Closed' }} Group ({{ group.userIds.length }} Members)
+            {{ group.open ? 'Open' : 'Closed' }} Group ({{ group.userIds.length }} Members)
           </ng-container>
           <ng-template #online>Online</ng-template>
         </ng-container>

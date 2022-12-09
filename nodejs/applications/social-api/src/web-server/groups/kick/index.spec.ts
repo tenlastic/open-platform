@@ -11,10 +11,7 @@ describe('web-server/groups/kick', function () {
   it('returns the record', async function () {
     const otherUser = await UserModel.mock().save();
     const user = await UserModel.mock().save();
-    const record = await GroupModel.mock({
-      isOpen: true,
-      userIds: [user._id, otherUser._id],
-    }).save();
+    const record = await GroupModel.mock({ open: true, userIds: [user._id, otherUser._id] }).save();
 
     const ctx = new ContextMock({
       params: {

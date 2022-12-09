@@ -9,9 +9,9 @@ components:
         createdAt:
           type: string
           format: date-time
-        isOpen:
-          type: string
         name:
+          type: string
+        open:
           type: string
         updatedAt:
           type: string
