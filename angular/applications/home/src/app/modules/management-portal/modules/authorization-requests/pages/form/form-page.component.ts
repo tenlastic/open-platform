@@ -98,7 +98,7 @@ export class AuthorizationRequestsFormPageComponent implements OnInit {
   }
 
   private async setupForm() {
-    this.data = this.data || new AuthorizationRequestModel();
+    this.data ??= new AuthorizationRequestModel();
     this.form = null;
 
     let user: UserModel = null;

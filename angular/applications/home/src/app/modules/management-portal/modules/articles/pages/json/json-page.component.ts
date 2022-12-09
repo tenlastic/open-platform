@@ -54,7 +54,7 @@ export class ArticlesJsonPageComponent implements OnInit {
 
   public async save() {
     this.errors = [];
-    
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -73,7 +73,7 @@ export class ArticlesJsonPageComponent implements OnInit {
     }
   }
 
-  private setupForm(): void {
+  private setupForm() {
     this.data ??= new ArticleModel({ body: '', subtitle: '', title: '', type: IArticle.Type.News });
 
     const keys = ['body', 'subtitle', 'title', 'type'];

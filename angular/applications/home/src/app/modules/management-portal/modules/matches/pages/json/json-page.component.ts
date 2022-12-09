@@ -74,7 +74,7 @@ export class MatchesJsonPageComponent implements OnInit {
     }
   }
 
-  private setupForm(): void {
+  private setupForm() {
     this.data ??= new MatchModel({
       queueId: this.params.queueId ?? null,
       teams: [{ userIds: [] }, { userIds: [] }],

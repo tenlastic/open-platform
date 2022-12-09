@@ -70,8 +70,8 @@ export class UsersFormPageComponent implements OnInit {
     }
   }
 
-  private setupForm(): void {
-    this.data = this.data || new UserModel();
+  private setupForm() {
+    this.data ??= new UserModel();
 
     this.form = this.formBuilder.group({
       email: [this.data.email, Validators.email],

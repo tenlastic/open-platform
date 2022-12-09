@@ -50,7 +50,7 @@ export class TextAreaDialogComponent implements OnInit {
     this.dialogRef.close(this.form.get('input').value);
   }
 
-  private setupForm(): void {
+  private setupForm() {
     this.form = this.formBuilder.group({
       input: [this.data.value || '', this.data.validators || []],
     });

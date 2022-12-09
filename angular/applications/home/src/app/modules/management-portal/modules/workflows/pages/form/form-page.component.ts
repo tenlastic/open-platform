@@ -305,8 +305,8 @@ export class WorkflowsFormPageComponent implements OnInit {
     return this.formBuilder.array(groups);
   }
 
-  private setupForm(): void {
-    this.data = this.data || new WorkflowModel();
+  private setupForm() {
+    this.data ??= new WorkflowModel();
 
     this.form = this.formBuilder.group({
       cpu: [this.data.cpu || this.cpus[0].value],

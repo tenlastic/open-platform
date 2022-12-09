@@ -41,7 +41,7 @@ export class PasswordResetFormComponent implements OnInit {
     return form.get('confirmPassword').errors;
   }
 
-  private setupForm(): void {
+  private setupForm() {
     this.form = new FormGroup(
       {
         confirmPassword: new FormControl('', [Validators.required]),

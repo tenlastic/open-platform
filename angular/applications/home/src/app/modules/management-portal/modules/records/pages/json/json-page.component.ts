@@ -99,7 +99,7 @@ export class RecordsJsonPageComponent implements OnInit {
     }
   }
 
-  private setupForm(): void {
+  private setupForm() {
     const properties = {};
     if (this.collection.jsonSchema && this.collection.jsonSchema.properties) {
       Object.entries(this.collection.jsonSchema.properties).forEach(([key, property]) => {

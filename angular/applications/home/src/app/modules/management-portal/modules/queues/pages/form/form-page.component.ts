@@ -252,8 +252,8 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
     });
   }
 
-  private setupForm(): void {
-    this.data = this.data || new QueueModel({ usersPerTeam: [1, 1] });
+  private setupForm() {
+    this.data ??= new QueueModel({ usersPerTeam: [1, 1] });
 
     const { gameServerTemplate } = this.data;
 

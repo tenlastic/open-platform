@@ -70,7 +70,7 @@ export class NamespacesJsonPageComponent implements OnInit {
     }
   }
 
-  private setupForm(): void {
+  private setupForm() {
     this.data ??= new NamespaceModel({
       limits: {
         bandwidth: 0,

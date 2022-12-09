@@ -74,7 +74,7 @@ export class GameServersJsonPageComponent implements OnInit {
     }
   }
 
-  private setupForm(): void {
+  private setupForm() {
     this.data ??= new GameServerModel({
       buildId: '',
       cpu: IGameServer.Cpu[0].value,

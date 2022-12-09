@@ -100,8 +100,8 @@ export class ArticlesFormPageComponent implements OnInit {
     }
   }
 
-  private setupForm(): void {
-    this.data = this.data || new ArticleModel();
+  private setupForm() {
+    this.data ??= new ArticleModel();
 
     this.form = this.formBuilder.group({
       body: [this.data.body, Validators.required],

@@ -220,8 +220,8 @@ export class BuildsFormPageComponent implements OnInit {
     this.status = Status.Ready;
   }
 
-  private setupForm(): void {
-    this.data = this.data || new BuildModel();
+  private setupForm() {
+    this.data ??= new BuildModel();
 
     this.form = this.formBuilder.group({
       entrypoint: [this.data.entrypoint, Validators.required],

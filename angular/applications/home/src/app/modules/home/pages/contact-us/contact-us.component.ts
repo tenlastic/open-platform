@@ -27,7 +27,7 @@ export class ContactUsComponent implements OnInit {
     this.isSubmitted = true;
   }
 
-  private setupForm(): void {
+  private setupForm() {
     this.form = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
       message: [''],

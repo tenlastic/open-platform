@@ -131,8 +131,8 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
     }
   }
 
-  private setupForm(): void {
-    this.data = this.data || new MatchModel({ teams: [{ userIds: [null] }, { userIds: [null] }] });
+  private setupForm() {
+    this.data ??= new MatchModel({ teams: [{ userIds: [null] }, { userIds: [null] }] });
 
     const teamFormGroups = this.data.teams.map((t) => {
       const users = t.userIds.map((ui) => this.userQuery.getEntity(ui));

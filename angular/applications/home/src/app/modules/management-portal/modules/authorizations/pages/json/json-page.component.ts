@@ -75,7 +75,7 @@ export class AuthorizationsJsonPageComponent implements OnInit {
     }
   }
 
-  private setupForm(): void {
+  private setupForm() {
     this.data ??= new AuthorizationModel({ apiKey: '', name: '', roles: [], userId: '' });
 
     const keys = ['apiKey', 'name', 'roles', 'userId'];

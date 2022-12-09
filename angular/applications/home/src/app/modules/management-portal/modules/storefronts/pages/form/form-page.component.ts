@@ -126,8 +126,8 @@ export class StorefrontsFormPageComponent implements OnInit {
     }
   }
 
-  private setupForm(): void {
-    this.data = this.data || new StorefrontModel();
+  private setupForm() {
+    this.data ??= new StorefrontModel();
 
     const metadata = [];
     if (this.data.metadata) {

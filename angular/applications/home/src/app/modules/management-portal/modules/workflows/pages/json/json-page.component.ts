@@ -73,7 +73,7 @@ export class WorkflowsJsonPageComponent implements OnInit {
     }
   }
 
-  private setupForm(): void {
+  private setupForm() {
     this.data ??= new WorkflowModel({
       cpu: IWorkflow.Cpu[0].value,
       memory: IWorkflow.Memory[0].value,

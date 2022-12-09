@@ -145,8 +145,8 @@ export class RecordsFormPageComponent implements OnInit {
     }
   }
 
-  private setupForm(): void {
-    this.data = this.data || new RecordModel();
+  private setupForm() {
+    this.data ??= new RecordModel();
 
     const arrays = {};
     const options = {};

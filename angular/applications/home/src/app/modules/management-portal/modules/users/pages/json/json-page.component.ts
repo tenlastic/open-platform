@@ -68,7 +68,7 @@ export class UsersJsonPageComponent implements OnInit {
     }
   }
 
-  private setupForm(): void {
+  private setupForm() {
     this.data ??= new UserModel({ username: '' });
 
     const keys = ['email', 'roles', 'username'];

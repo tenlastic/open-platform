@@ -473,8 +473,8 @@ export class CollectionsFormPageComponent implements OnInit {
     return { [role.operator]: criteria };
   }
 
-  private setupForm(): void {
-    this.data = this.data || new CollectionModel();
+  private setupForm() {
+    this.data ??= new CollectionModel();
 
     const properties = [];
     if (this.data.jsonSchema && this.data.jsonSchema.properties) {

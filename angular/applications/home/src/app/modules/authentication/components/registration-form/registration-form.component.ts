@@ -51,7 +51,7 @@ export class RegistrationFormComponent implements OnInit {
     return form.get('confirmPassword').errors;
   }
 
-  private setupForm(): void {
+  private setupForm() {
     this.form = new FormGroup({
       email: new FormControl('', [Validators.email]),
       passwords: new FormGroup(

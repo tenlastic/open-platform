@@ -34,7 +34,7 @@ export class PasswordResetRequestFormComponent implements OnInit {
     this.passwordResetRequested.emit(values);
   }
 
-  private setupForm(): void {
+  private setupForm() {
     this.form = new FormGroup({
       email: new FormControl('', [Validators.required, Validators.email]),
     });

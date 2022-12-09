@@ -72,7 +72,7 @@ export class BuildsJsonPageComponent implements OnInit {
     }
   }
 
-  private setupForm(): void {
+  private setupForm() {
     this.data ??= new BuildModel({ name: '', platform: IBuild.Platform.Server64 });
 
     const keys = ['entrypoint', 'name', 'publishedAt'];

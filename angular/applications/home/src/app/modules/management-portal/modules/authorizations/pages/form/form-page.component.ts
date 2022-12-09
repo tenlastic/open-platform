@@ -129,7 +129,7 @@ export class AuthorizationsFormPageComponent implements OnInit {
   }
 
   private async setupForm() {
-    this.data = this.data || new AuthorizationModel();
+    this.data ??= new AuthorizationModel();
     this.form = null;
 
     let user: UserModel = null;

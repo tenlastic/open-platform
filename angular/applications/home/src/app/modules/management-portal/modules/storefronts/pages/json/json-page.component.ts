@@ -75,7 +75,7 @@ export class StorefrontsJsonPageComponent implements OnInit {
     }
   }
 
-  private setupForm(): void {
+  private setupForm() {
     this.data ??= new StorefrontModel({
       description: '',
       metadata: {},

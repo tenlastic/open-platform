@@ -73,7 +73,7 @@ export class CollectionsJsonPageComponent implements OnInit {
     }
   }
 
-  private setupForm(): void {
+  private setupForm() {
     this.data ??= new CollectionModel({
       jsonSchema: { properties: {}, type: 'object' },
       name: '',

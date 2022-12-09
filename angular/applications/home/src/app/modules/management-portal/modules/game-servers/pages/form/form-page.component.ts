@@ -197,7 +197,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
   }
 
   private setupForm() {
-    this.data = this.data || new GameServerModel();
+    this.data ??= new GameServerModel();
 
     const metadataFormGroups = [];
     if (this.data.metadata) {

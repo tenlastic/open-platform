@@ -73,7 +73,7 @@ export class QueuesJsonPageComponent implements OnInit {
     }
   }
 
-  private setupForm(): void {
+  private setupForm() {
     this.data ??= new QueueModel({
       cpu: IQueue.Cpu[0].value,
       description: '',
