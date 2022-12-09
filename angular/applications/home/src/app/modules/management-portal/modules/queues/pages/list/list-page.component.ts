@@ -47,6 +47,10 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
 
   private $queues: Observable<QueueModel[]>;
   private updateDataSource$ = new Subscription();
+  private params: Params;
+  private get streamServiceUrl() {
+    return `${environment.wssUrl}/namespaces/${this.params.namespaceId}`;
+  }
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -66,6 +70,8 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
 
   public ngOnInit() {
     this.activatedRoute.params.subscribe((params) => {
+      this.params = params;
+
       const roles = [IAuthorization.Role.QueuesReadWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
@@ -138,10 +144,10 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
           QueueLogModel,
           { container, pod, queueId: record._id, since: unix ? new Date(unix) : new Date() },
           this.queueLogStore,
-          environment.wssUrl,
+          this.streamServiceUrl,
         );
       },
-      wssUrl: `${environment.wssUrl}/namespaces/${record.namespaceId}`,
+      wssUrl: this.streamServiceUrl,
     } as LogsDialogComponentData;
 
     const dialogRef = this.matDialog.open(LogsDialogComponent, { autoFocus: false, data });

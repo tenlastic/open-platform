@@ -35,6 +35,10 @@ export class WorkflowStatusNodeComponent {
     Succeeded: 'check_circle',
   };
 
+  private get streamServiceUrl() {
+    return `${environment.wssUrl}/namespaces/${this.workflow.namespaceId}`;
+  }
+
   constructor(
     private matDialog: MatDialog,
     private streamService: StreamService,
@@ -79,10 +83,10 @@ export class WorkflowStatusNodeComponent {
             workflowId: this.workflow._id,
           },
           this.workflowLogStore,
-          `${environment.wssUrl}/namespaces/${this.workflow.namespaceId}`,
+          this.streamServiceUrl,
         );
       },
-      wssUrl: `${environment.wssUrl}/namespaces/${this.workflow.namespaceId}`,
+      wssUrl: this.streamServiceUrl,
     } as LogsDialogComponentData;
 
     const dialogRef = this.matDialog.open(LogsDialogComponent, { autoFocus: false, data });

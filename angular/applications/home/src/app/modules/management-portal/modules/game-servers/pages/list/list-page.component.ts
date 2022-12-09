@@ -51,6 +51,9 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
   private $gameServers: Observable<GameServerModel[]>;
   private updateDataSource$ = new Subscription();
   private params: Params;
+  private get streamServiceUrl() {
+    return `${environment.wssUrl}/namespaces/${this.params.namespaceId}`;
+  }
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -148,10 +151,10 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
           GameServerLogModel,
           { container, gameServerId: record._id, pod, since: unix ? new Date(unix) : new Date() },
           this.gameServerLogStore,
-          environment.wssUrl,
+          this.streamServiceUrl,
         );
       },
-      wssUrl: `${environment.wssUrl}/namespaces/${record.namespaceId}`,
+      wssUrl: this.streamServiceUrl,
     } as LogsDialogComponentData;
 
     const dialogRef = this.matDialog.open(LogsDialogComponent, { autoFocus: false, data });

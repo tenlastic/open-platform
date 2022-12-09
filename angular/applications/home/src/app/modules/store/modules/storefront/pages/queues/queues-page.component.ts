@@ -33,10 +33,10 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
 
   private getCurrentUsersInterval: any;
   private params: Params;
-  private subscription: string;
-  private get wssUrl() {
+  private get streamServiceUrl() {
     return `${environment.wssUrl}/namespaces/${this.params.namespaceId}`;
   }
+  private subscription: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -94,7 +94,7 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
     clearInterval(this.getCurrentUsersInterval);
 
     this.updateQueueMembers$.unsubscribe();
-    this.streamService.unsubscribe(this.subscription, this.wssUrl);
+    this.streamService.unsubscribe(this.subscription, this.streamServiceUrl);
   }
 
   public $getGroup(queue: QueueModel) {
@@ -150,7 +150,7 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
         namespaceId: queue.namespaceId,
         queueId: queue._id,
         userId: this.identityService.user._id,
-        webSocketId: this.streamService._ids.get(this.wssUrl),
+        webSocketId: this.streamService._ids.get(this.streamServiceUrl),
       });
     } catch (e) {
       if (e instanceof HttpErrorResponse) {

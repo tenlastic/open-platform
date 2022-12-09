@@ -7,6 +7,7 @@ export namespace IMatch {
 }
 
 export class MatchModel extends BaseModel {
+  public finishedAt: Date;
   public namespaceId: string;
   public queueId: string;
   public teams: IMatch.Team[];
@@ -16,5 +17,7 @@ export class MatchModel extends BaseModel {
 
   constructor(parameters?: Partial<MatchModel>) {
     super(parameters);
+
+    this.finishedAt = parameters?.finishedAt ? new Date(parameters.finishedAt) : null;
   }
 }

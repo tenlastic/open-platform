@@ -35,6 +35,10 @@ export class BuildStatusNodeComponent {
     Succeeded: 'check_circle',
   };
 
+  private get streamServiceUrl() {
+    return `${environment.wssUrl}/namespaces/${this.build.namespaceId}`;
+  }
+
   constructor(
     private buildLogQuery: BuildLogQuery,
     private buildLogService: BuildLogService,
@@ -79,10 +83,10 @@ export class BuildStatusNodeComponent {
             since: unix ? new Date(unix) : new Date(),
           },
           this.buildLogStore,
-          `${environment.wssUrl}/namespaces/${this.build.namespaceId}`,
+          this.streamServiceUrl,
         );
       },
-      wssUrl: `${environment.wssUrl}/namespaces/${this.build.namespaceId}`,
+      wssUrl: this.streamServiceUrl,
     } as LogsDialogComponentData;
 
     const dialogRef = this.matDialog.open(LogsDialogComponent, { autoFocus: false, data });

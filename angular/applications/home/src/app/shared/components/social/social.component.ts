@@ -5,9 +5,6 @@ import {
   FriendModel,
   FriendQuery,
   FriendService,
-  GameServerModel,
-  GameServerQuery,
-  GameServerService,
   GroupModel,
   GroupInvitationModel,
   GroupInvitationQuery,
@@ -81,7 +78,6 @@ export class SocialComponent implements OnDestroy, OnInit {
     private electronService: ElectronService,
     private friendQuery: FriendQuery,
     private friendService: FriendService,
-    private gameServerService: GameServerService,
     private groupInvitationQuery: GroupInvitationQuery,
     private groupInvitationService: GroupInvitationService,
     private groupService: GroupService,
@@ -118,7 +114,9 @@ export class SocialComponent implements OnDestroy, OnInit {
       sortBy: 'createdAt',
     });
     this.$ignorations = this.ignorationQuery.selectAll();
-    this.$matches = this.matchQuery.selectAll({ filterBy: (gs) => gs.userIds.includes(userId) });
+    this.$matches = this.matchQuery.selectAll({
+      filterBy: (m) => !m.finishedAt && m.userIds.includes(userId),
+    });
     this.$messages = this.messageQuery.selectAll();
     this.$queueMembers = this.queueMemberQuery.selectAll({ filterBy: () => false });
 
