@@ -9,6 +9,9 @@ components:
         createdAt:
           type: string
           format: date-time
+        finishedAt:
+          type: string
+          format: date-time
         namespaceId:
           type: string
           format: ^[0-9a-f]{24}$

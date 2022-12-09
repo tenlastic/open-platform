@@ -5,7 +5,7 @@ import { AuthorizationPermissionsHelpers } from './authorization';
 
 const administrator = {
   create: ['namespaceId', 'queueId', 'teams.*'],
-  read: ['_id', 'createdAt', 'namespaceId', 'queueId', 'teams.*', 'updatedAt'],
+  read: ['_id', 'createdAt', 'finishedAt', 'namespaceId', 'queueId', 'teams.*', 'updatedAt'],
   update: ['namespaceId', 'queueId', 'teams.*'],
 };
 
@@ -28,7 +28,7 @@ export const MatchPermissions = new MongoosePermissions<MatchDocument>(MatchMode
   },
   populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
   read: {
-    default: ['_id', 'createdAt', 'namespaceId', 'queueId', 'teams.*', 'updatedAt'],
+    default: ['_id', 'createdAt', 'finishedAt', 'namespaceId', 'queueId', 'teams.*', 'updatedAt'],
     'namespace-read': administrator.read,
     'system-read': administrator.read,
     'user-read': administrator.read,
