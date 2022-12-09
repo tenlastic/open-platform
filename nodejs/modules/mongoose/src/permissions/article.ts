@@ -5,7 +5,7 @@ import { AuthorizationPermissionsHelpers } from './authorization';
 
 const administrator = {
   create: ['body', 'namespaceId', 'publishedAt', 'subtitle', 'title', 'type'],
-  update: ['body', 'namespaceId', 'publishedAt', 'subtitle', 'title', 'type'],
+  update: ['body', 'publishedAt', 'subtitle', 'title', 'type'],
 };
 
 export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(ArticleModel, {

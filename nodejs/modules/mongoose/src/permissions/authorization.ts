@@ -106,8 +106,8 @@ export const AuthorizationPermissions = new MongoosePermissions<AuthorizationDoc
   AuthorizationModel,
   {
     create: {
-      'namespace-write': ['apiKey', 'bannedAt', 'name', 'roles', 'userId'],
-      'user-write': ['apiKey', 'bannedAt', 'name', 'roles', 'userId'],
+      'namespace-write': ['apiKey', 'bannedAt', 'name', 'namespaceId', 'roles', 'userId'],
+      'user-write': ['apiKey', 'bannedAt', 'name', 'namespaceId', 'roles', 'userId'],
     },
     delete: {
       'namespace-write': true,

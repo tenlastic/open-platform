@@ -59,7 +59,7 @@ export const MatchPermissions = new MongoosePermissions<MatchDocument>(MatchMode
   },
   update: {
     'namespace-write': administrator.update,
-    'system-write': ['namespaceId', 'queueId', 'teams.*'],
+    'system-write': ['queueId', 'teams.*'],
     'user-write': administrator.update,
   },
 });
