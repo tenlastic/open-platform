@@ -10,6 +10,7 @@ import {
 import * as mongoose from 'mongoose';
 
 import { unsetPlugin } from '../../plugins';
+import { arrayLengthValidator, arrayNullUndefinedValidator } from '../../validators';
 import { AuthorizationDocument } from '../authorization';
 import { MatchTeamDocument, MatchTeamModel, MatchTeamSchema } from './team';
 
@@ -33,7 +34,14 @@ export class MatchSchema {
   @prop({ ref: 'QueueSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public queueId: mongoose.Types.ObjectId;
 
-  @prop({ required: true, type: MatchTeamSchema }, PropType.ARRAY)
+  @prop(
+    {
+      required: true,
+      type: MatchTeamSchema,
+      validate: [arrayLengthValidator(Infinity, 1), arrayNullUndefinedValidator],
+    },
+    PropType.ARRAY,
+  )
   public teams: MatchTeamDocument[];
 
   public updatedAt: Date;

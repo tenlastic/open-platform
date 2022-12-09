@@ -1,7 +1,11 @@
 import { DocumentType, getModelForClass, modelOptions, prop, PropType } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
-import { duplicateValidator } from '../../../validators';
+import {
+  arrayLengthValidator,
+  arrayNullUndefinedValidator,
+  duplicateValidator,
+} from '../../../validators';
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class MatchTeamSchema {
@@ -10,7 +14,11 @@ export class MatchTeamSchema {
       ref: 'UserSchema',
       required: true,
       type: mongoose.Schema.Types.ObjectId,
-      validate: duplicateValidator,
+      validate: [
+        arrayLengthValidator(Infinity, 1),
+        arrayNullUndefinedValidator,
+        duplicateValidator,
+      ],
     },
     PropType.ARRAY,
   )
