@@ -1,7 +1,7 @@
 import { GroupEvent } from '@tenlastic/mongoose-nats';
 
 // Delete the group if empty.
-GroupEvent.async((payload) => {
+GroupEvent.async(async (payload) => {
   if (payload.operationType === 'delete') {
     return;
   }

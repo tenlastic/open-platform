@@ -21,10 +21,5 @@ export async function handler(ctx: Context) {
   const credentials = { ...ctx.state };
   const filteredRecord = await GroupPermissions.read(credentials, record);
 
-  const groupInvitations = await GroupInvitationModel.find({ toUserId: ctx.state.user._id });
-  for (const groupInvitation of groupInvitations) {
-    await groupInvitation.remove();
-  }
-
   ctx.response.body = { record: filteredRecord };
 }

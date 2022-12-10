@@ -1,4 +1,4 @@
-import { MessageModel, MessagePermissions } from '@tenlastic/mongoose';
+import { MessageModel, MessagePermissions, MessageReadReceiptModel } from '@tenlastic/mongoose';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 
 export async function handler(ctx: Context) {
@@ -12,12 +12,41 @@ export async function handler(ctx: Context) {
     throw new RecordNotFoundError('Message');
   }
 
+  const readReceipt = new MessageReadReceiptModel({
+    createdAt: new Date(),
+    userId: ctx.state.user._id,
+  });
   const result = await MessageModel.findOneAndUpdate(
-    { _id: ctx.params._id, 'readReceipts.userId': { $ne: ctx.state.user._id } },
-    { $push: { readReceipts: { userId: ctx.state.user._id } } },
+    { _id: ctx.params._id },
+    [
+      {
+        $set: {
+          readReceipts: {
+            $concatArrays: [
+              '$readReceipts',
+              {
+                $cond: {
+                  if: {
+                    $anyElementTrue: {
+                      $map: {
+                        input: '$readReceipts',
+                        as: 'readReceipt',
+                        in: { $eq: ['$$readReceipt.userId', readReceipt.userId] },
+                      },
+                    },
+                  },
+                  then: [],
+                  else: [readReceipt],
+                },
+              },
+            ],
+          },
+        },
+      },
+    ],
     { new: true },
   );
-  const record = await MessagePermissions.read(credentials, result ?? message);
+  const record = await MessagePermissions.read(credentials, result);
 
   ctx.response.body = { record };
 }

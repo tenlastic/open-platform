@@ -13,7 +13,7 @@ import { handler } from './';
 
 use(chaiAsPromised);
 
-describe('web-server/message/read', function () {
+describe('web-server/messages/read', function () {
   let firstUser: UserDocument;
   let secondUser: UserDocument;
   let user: UserDocument;
