@@ -50,7 +50,7 @@ export class MessageGroupComponent implements OnChanges, OnInit {
     await this.messageService.find({
       where: {
         fromUserId: { $in: this.userIds },
-        readByUserIds: { $ne: this.identityService.user._id },
+        'readReceipts.userId': { $ne: this.identityService.user._id },
         toGroupId: { $exists: false },
         toUserId: this.identityService.user._id,
       },

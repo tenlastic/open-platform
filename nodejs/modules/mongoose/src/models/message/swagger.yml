@@ -15,11 +15,10 @@ components:
         fromUserId:
           type: string
           format: ^[0-9a-f]{24}$
-        readByUserIds:
+        readReceipts:
           type: array
           items:
-            type: string
-            format: ^[0-9a-f]{24}$
+            $ref: '#/components/schema/MessageReadReceipt'
         toGroupId:
           type: string
           format: ^[0-9a-f]{24}$

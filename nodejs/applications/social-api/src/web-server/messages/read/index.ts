@@ -13,11 +13,11 @@ export async function handler(ctx: Context) {
   }
 
   const result = await MessageModel.findOneAndUpdate(
-    { _id: ctx.params._id },
-    { $addToSet: { readByUserIds: ctx.state.user._id } },
+    { _id: ctx.params._id, 'readReceipts.userId': { $ne: ctx.state.user._id } },
+    { $push: { readReceipts: { userId: ctx.state.user._id } } },
     { new: true },
   );
-  const record = await MessagePermissions.read(credentials, result);
+  const record = await MessagePermissions.read(credentials, result ?? message);
 
   ctx.response.body = { record };
 }

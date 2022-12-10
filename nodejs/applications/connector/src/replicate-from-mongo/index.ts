@@ -6,6 +6,7 @@ export async function replicateFromMongo(
   where: any = {},
 ) {
   let count = 0;
+
   for await (const record of FromModel.find(where)) {
     await ToModel.updateOne({ _id: record._id }, record, { upsert: true });
     count++;

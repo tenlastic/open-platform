@@ -3,8 +3,10 @@ import { GameServerEvent, NamespaceEvent } from '@tenlastic/mongoose-nats';
 
 // Delete Matches if associated Namespace is deleted.
 GameServerEvent.async(async (payload) => {
-  if (payload.operationType === 'delete' && payload.fullDocument.matchId) {
-    return MatchModel.updateOne({ _id: payload.fullDocument.matchId }, { finishedAt: new Date() });
+  const { matchId } = payload.fullDocument;
+
+  if (payload.operationType === 'delete' && matchId) {
+    return MatchModel.findOneAndUpdate({ _id: matchId }, { finishedAt: new Date() });
   }
 });
 

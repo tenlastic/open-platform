@@ -1,4 +1,10 @@
-import { MessageDocument, MessageModel, UserDocument, UserModel } from '@tenlastic/mongoose';
+import {
+  MessageDocument,
+  MessageModel,
+  MessageReadReceiptModel,
+  UserDocument,
+  UserModel,
+} from '@tenlastic/mongoose';
 import { ContextMock, RecordNotFoundError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
@@ -33,8 +39,30 @@ describe('web-server/message/read', function () {
 
       await handler(ctx as any);
 
-      const readByUserIds = ctx.response.body.record.readByUserIds.map((id) => id.toString());
-      expect(readByUserIds).to.include(firstUser._id.toString());
+      const readReceipts = ctx.response.body.record.readReceipts.filter((rr) =>
+        rr.userId.equals(firstUser._id),
+      );
+      expect(readReceipts.length).to.eql(1);
+    });
+
+    it('does not duplicate Users', async function () {
+      record.readReceipts = [
+        new MessageReadReceiptModel({ userId: user._id }),
+        new MessageReadReceiptModel({ userId: firstUser._id }),
+      ];
+      await record.save();
+
+      const ctx = new ContextMock({
+        params: { _id: record._id },
+        state: { user: firstUser.toObject() },
+      });
+
+      await handler(ctx as any);
+
+      const readReceipts = ctx.response.body.record.readReceipts.filter((rr) =>
+        rr.userId.equals(firstUser._id),
+      );
+      expect(readReceipts.length).to.eql(1);
     });
   });
 

@@ -27,7 +27,9 @@ export class MessageQuery extends QueryEntity<MessageState, MessageModel> {
   public selectAllUnreadFromUser(fromUserId: string, toUserId: string) {
     return this.selectAll({
       filterBy: (m) =>
-        m.fromUserId === fromUserId && !m.readByUserIds.includes(toUserId) && !m.toGroupId,
+        m.fromUserId === fromUserId &&
+        !m.readReceipts.some((rr) => rr.userId === toUserId) &&
+        !m.toGroupId,
       sortBy: 'createdAt',
     });
   }
@@ -35,14 +37,17 @@ export class MessageQuery extends QueryEntity<MessageState, MessageModel> {
   public selectAllUnreadFromUsers(fromUserIds: string[], toUserId: string) {
     return this.selectAll({
       filterBy: (m) =>
-        fromUserIds.includes(m.fromUserId) && !m.readByUserIds.includes(toUserId) && !m.toGroupId,
+        fromUserIds.includes(m.fromUserId) &&
+        !m.readReceipts.some((rr) => rr.userId === toUserId) &&
+        !m.toGroupId,
       sortBy: 'createdAt',
     });
   }
 
   public selectAllUnreadInGroup(groupId: string, userId) {
     return this.selectAll({
-      filterBy: (m) => m.toGroupId === groupId && !m.readByUserIds.includes(userId),
+      filterBy: (m) =>
+        m.toGroupId === groupId && !m.readReceipts.some((rr) => rr.userId === userId),
       sortBy: 'createdAt',
     });
   }

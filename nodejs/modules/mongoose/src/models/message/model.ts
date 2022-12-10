@@ -10,17 +10,20 @@ import {
 } from '@typegoose/typegoose';
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
+
 import { unsetPlugin } from '../../plugins';
+import {
+  MessageReadReceiptDocument,
+  MessageReadReceiptModel,
+  MessageReadReceiptSchema,
+} from './read-receipt';
 
 @index({ fromUserId: 1 })
-@index({ readByUserIds: 1 })
+@index({ 'readReceipts.userId': 1 })
 @index({ toGroupId: 1 })
 @index({ toUserId: 1 })
 @modelOptions({ schemaOptions: { collection: 'messages', timestamps: true } })
 @plugin(unsetPlugin)
-@pre('save', function (this: MessageDocument) {
-  this.readByUserIds = this.readByUserIds?.length ? this.readByUserIds : [this.fromUserId];
-})
 @pre('validate', function (this: MessageDocument) {
   if (this.fromUserId === this.toUserId) {
     const message = 'Messages must be sent between two different Users.';
@@ -48,10 +51,17 @@ export class MessageSchema {
   public fromUserId: mongoose.Types.ObjectId;
 
   @prop(
-    { ref: 'UserSchema', type: mongoose.Schema.Types.ObjectId, writable: false },
+    {
+      default(this: MessageDocument) {
+        const readReceipt = new MessageReadReceiptModel({ userId: this.fromUserId });
+        return [readReceipt];
+      },
+      type: MessageReadReceiptSchema,
+      writable: false,
+    },
     PropType.ARRAY,
   )
-  public readByUserIds: mongoose.Types.ObjectId[];
+  public readReceipts: MessageReadReceiptDocument[];
 
   @prop({ ref: 'GroupSchema', type: mongoose.Schema.Types.ObjectId })
   public toGroupId: mongoose.Types.ObjectId;

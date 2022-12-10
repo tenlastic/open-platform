@@ -37,7 +37,7 @@ export const MessagePermissions = new MongoosePermissions<MessageDocument>(Messa
       'body',
       'createdAt',
       'fromUserId',
-      'readByUserIds',
+      'readReceipts.*',
       'toGroupId',
       'toUserId',
       'updatedAt',

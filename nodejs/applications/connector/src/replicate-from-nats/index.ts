@@ -5,6 +5,8 @@ import { Document as MongooseDocument, Model as MongooseModel, Query } from 'mon
 import { AckPolicy, DeliverPolicy } from 'nats';
 import { TextDecoder } from 'util';
 
+import { getToModel } from '../schemas';
+
 export interface ReplicateOptions {
   durable: string;
   start?: Date;
@@ -16,7 +18,7 @@ export interface ReplicateOptions {
  * Applies all change events from the topic to the target collection.
  */
 export async function replicateFromNats(
-  Model: MongooseModel<MongooseDocument>,
+  collection: string,
   options: ReplicateOptions,
   where?: any,
 ) {
@@ -35,6 +37,7 @@ export async function replicateFromNats(
     const json = JSON.parse(data);
 
     try {
+      const Model = getToModel(collection);
       await eachMessage(Model, options, json, new Query().cast(Model, where));
       message.ack();
     } catch (e) {

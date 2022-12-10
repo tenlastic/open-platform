@@ -79,7 +79,7 @@ const where = process.env.WHERE ? JSON.parse(process.env.WHERE) : {};
 
       console.log(`Replicating from NATS (${from}) to MongoDB (${to})...`);
       replicateFromNats(
-        getToModel(collectionName),
+        collectionName,
         { durable: `${podName}-${collectionName}`, start: starts[collectionName], subject: from },
         where[collectionName],
       );
