@@ -4,9 +4,20 @@ import { AuthorizationRole, MatchDocument, MatchModel } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
 const administrator = {
-  create: ['namespaceId', 'queueId', 'teams.*'],
-  read: ['_id', 'createdAt', 'finishedAt', 'namespaceId', 'queueId', 'teams.*', 'updatedAt'],
-  update: ['namespaceId', 'queueId', 'teams.*'],
+  create: ['confirmationExpiresAt', 'namespaceId', 'queueId', 'teams.*'],
+  read: [
+    '_id',
+    'confirmationExpiresAt',
+    'confirmedUserIds',
+    'createdAt',
+    'finishedAt',
+    'namespaceId',
+    'queueId',
+    'startedAt',
+    'teams.*',
+    'updatedAt',
+  ],
+  update: ['queueId', 'teams.*'],
 };
 
 export const MatchPermissions = new MongoosePermissions<MatchDocument>(MatchModel, {
@@ -28,7 +39,18 @@ export const MatchPermissions = new MongoosePermissions<MatchDocument>(MatchMode
   },
   populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
   read: {
-    default: ['_id', 'createdAt', 'finishedAt', 'namespaceId', 'queueId', 'teams.*', 'updatedAt'],
+    default: [
+      '_id',
+      'confirmationExpiresAt',
+      'confirmedUserIds',
+      'createdAt',
+      'finishedAt',
+      'namespaceId',
+      'queueId',
+      'startedAt',
+      'teams.*',
+      'updatedAt',
+    ],
     'namespace-read': administrator.read,
     'system-read': administrator.read,
     'user-read': administrator.read,

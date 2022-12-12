@@ -6,6 +6,14 @@ components:
         _id:
           type: string
           format: ^[0-9a-f]{24}$
+        confirmationExpiresAt:
+          type: string
+          format: date-time
+        confirmedUserIds:
+          type: array
+          items:
+            type: string
+            format: ^[0-9a-f]{24}$
         createdAt:
           type: string
           format: date-time

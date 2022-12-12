@@ -10,6 +10,7 @@ export * from './group-invitation';
 export * from './ignoration';
 export * from './login';
 export * from './match';
+export * from './match-invitation';
 export * from './message';
 export * from './namespace';
 export * from './queue';

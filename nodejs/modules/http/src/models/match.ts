@@ -7,9 +7,12 @@ export namespace IMatch {
 }
 
 export class MatchModel extends BaseModel {
+  public confirmationExpiresAt: Date;
+  public confirmedUserIds: string;
   public finishedAt: Date;
   public namespaceId: string;
   public queueId: string;
+  public startedAt: Date;
   public teams: IMatch.Team[];
   public get userIds() {
     return this.teams.reduce((previous, current) => [...previous, ...current.userIds], []);
@@ -18,6 +21,10 @@ export class MatchModel extends BaseModel {
   constructor(parameters?: Partial<MatchModel>) {
     super(parameters);
 
+    this.confirmationExpiresAt = parameters?.confirmationExpiresAt
+      ? new Date(parameters.confirmationExpiresAt)
+      : null;
     this.finishedAt = parameters?.finishedAt ? new Date(parameters.finishedAt) : null;
+    this.startedAt = parameters?.startedAt ? new Date(parameters.startedAt) : null;
   }
 }

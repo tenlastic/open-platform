@@ -1,5 +1,10 @@
 import { MatchModel } from '@tenlastic/mongoose';
-import { GameServerEvent, NamespaceEvent } from '@tenlastic/mongoose-nats';
+import {
+  GameServerEvent,
+  MatchEvent,
+  MatchInvitationEvent,
+  NamespaceEvent,
+} from '@tenlastic/mongoose-nats';
 
 // Delete Matches if associated Namespace is deleted.
 GameServerEvent.async(async (payload) => {
@@ -7,6 +12,37 @@ GameServerEvent.async(async (payload) => {
 
   if (payload.operationType === 'delete' && matchId) {
     return MatchModel.findOneAndUpdate({ _id: matchId }, { finishedAt: new Date() });
+  }
+});
+
+// Starts a Match if all Match Invitations are accepted.
+MatchEvent.async(async (payload) => {
+  if (payload.operationType !== 'update') {
+    return;
+  }
+
+  const { confirmationExpiresAt, confirmedUserIds, userIds } = payload.fullDocument;
+  if (confirmationExpiresAt && confirmedUserIds.length && userIds.length) {
+    payload.fullDocument.startedAt = new Date();
+    return payload.fullDocument.save();
+  }
+});
+
+// Deletes a Match if a Match Invitation is deleted or expires.
+// Confirms the User if a Match Invitation is accepted.
+MatchInvitationEvent.async(async (payload) => {
+  const { matchId, userId } = payload.fullDocument;
+
+  if (payload.operationType === 'delete') {
+    return MatchModel.deleteOne({ _id: matchId });
+  } else if (
+    payload.operationType === 'update' &&
+    payload.updateDescription.updatedFields.acceptedAt
+  ) {
+    return MatchModel.findOneAndUpdate(
+      { _id: matchId },
+      { $addToSet: { confirmedUserIds: userId } },
+    );
   }
 });
 

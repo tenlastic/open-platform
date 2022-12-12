@@ -31,10 +31,19 @@ export async function createMatch(queue: QueueModel): Promise<MatchModel> {
   }
 
   // Create the Match.
-  const match = await dependencies.matchService.create(queue.namespaceId, {
-    queueId: queue._id,
-    teams,
-  });
+  let match: MatchModel;
+  if (queue.confirmationSeconds) {
+    match = await dependencies.matchService.create(queue.namespaceId, {
+      confirmationExpiresAt: new Date(Date.now() + queue.confirmationSeconds * 1000),
+      queueId: queue._id,
+      teams,
+    });
+  } else {
+    match = await dependencies.matchService.create(queue.namespaceId, {
+      queueId: queue._id,
+      teams,
+    });
+  }
 
   // Remove matched Queue Members from the store.
   for (const mqm of matchedQueueMembers) {

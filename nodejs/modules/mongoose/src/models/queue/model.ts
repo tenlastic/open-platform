@@ -45,6 +45,9 @@ import { QueueThresholdDocument, QueueThresholdSchema } from './threshold';
 export class QueueSchema {
   public _id: mongoose.Types.ObjectId;
 
+  @prop({ min: 0, type: Number })
+  public confirmationSeconds: number;
+
   @prop({ min: 0.1, required: true, type: Number })
   public cpu: number;
 

@@ -4,6 +4,7 @@ import {
   index,
   modelOptions,
   plugin,
+  pre,
   prop,
   PropType,
 } from '@typegoose/typegoose';
@@ -15,15 +16,30 @@ import { AuthorizationDocument } from '../authorization';
 import { MatchTeamDocument, MatchTeamModel, MatchTeamSchema } from './team';
 
 @index(
+  { confirmationExpiresAt: 1 },
+  { expireAfterSeconds: 0, partialFilterExpression: { startedAt: { $type: 'undefined' } } },
+)
+@index(
   { namespaceId: 1, 'teams.userIds': 1 },
   { partialFilterExpression: { finishedAt: { $type: 'undefined' } }, unique: true },
 )
 @index({ queueId: 1 })
 @modelOptions({ schemaOptions: { collection: 'matches', timestamps: true } })
 @plugin(unsetPlugin)
+@pre('save', function (this: MatchDocument) {
+  if (this.isNew && !this.confirmationExpiresAt) {
+    this.startedAt = this.createdAt;
+  }
+})
 export class MatchSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
+
+  @prop({ type: Date })
+  public confirmationExpiresAt: Date;
+
+  @prop({ ref: 'UserSchema', type: mongoose.Schema.Types.ObjectId }, PropType.ARRAY)
+  public confirmedUserIds: mongoose.Types.ObjectId[];
 
   @prop({ type: Date })
   public finishedAt: Date;
@@ -33,6 +49,9 @@ export class MatchSchema {
 
   @prop({ ref: 'QueueSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public queueId: mongoose.Types.ObjectId;
+
+  @prop({ type: Date })
+  public startedAt: Date;
 
   @prop(
     {

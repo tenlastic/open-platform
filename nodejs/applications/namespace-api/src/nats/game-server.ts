@@ -41,26 +41,32 @@ GameServerEvent.async(async (payload) => {
 });
 
 // Deletes a Game Server when its Match is deleted.
-// Creates a Game Server when a Match is inserted.
+// Creates a Game Server when a Match without confirmation is inserted.
+// Creates a Game Server when a Match with confirmation is started.
 MatchEvent.async(async (payload) => {
+  const { _id, confirmationExpiresAt, namespaceId, queueId, startedAt } = payload.fullDocument;
+
   if (payload.operationType === 'delete') {
-    await GameServerModel.deleteMany({ matchId: payload.fullDocument._id });
-  } else if (payload.operationType === 'insert') {
-    const queue = await QueueModel.findOne({ _id: payload.fullDocument.queueId });
+    await GameServerModel.deleteMany({ matchId: _id });
+  } else if (
+    (payload.operationType === 'insert' && !confirmationExpiresAt) ||
+    (payload.operationType === 'update' && confirmationExpiresAt && startedAt)
+  ) {
+    const queue = await QueueModel.findOne({ _id: queueId });
 
     await GameServerModel.create({
       buildId: queue.gameServerTemplate.buildId,
       cpu: queue.gameServerTemplate.cpu,
       description: queue.gameServerTemplate.description,
-      matchId: payload.fullDocument._id,
+      matchId: _id,
       memory: queue.gameServerTemplate.memory,
       metadata: queue.gameServerTemplate.metadata,
       name: queue.gameServerTemplate.name,
-      namespaceId: payload.fullDocument.namespaceId,
+      namespaceId,
       ports: queue.gameServerTemplate.ports,
       preemptible: queue.gameServerTemplate.preemptible,
       probes: queue.gameServerTemplate.probes,
-      queueId: payload.fullDocument.queueId,
+      queueId,
     });
   }
 });
