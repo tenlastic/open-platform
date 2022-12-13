@@ -1,5 +1,5 @@
 paths:
-  /namespaces/{namespaceId}/storefronts/{_id}/{field}:
+  /namespaces/{namespaceId}/storefronts/{storefrontId}/{field}:
     post:
       summary: Upload Image / Video
       tags: [Storefront]
@@ -8,17 +8,18 @@ paths:
         - AccessToken: []
       parameters:
         - in: path
-          name: _id
-          schema:
-            type: string
-          required: true
-        - in: path
           name: field
           schema:
             type: string
+            enum: [background, icon, images, logo, videos]
           required: true
         - in: path
           name: namespaceId
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: storefrontId
           schema:
             type: string
           required: true

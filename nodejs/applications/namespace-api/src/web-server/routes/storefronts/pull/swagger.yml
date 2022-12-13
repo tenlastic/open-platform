@@ -11,6 +11,7 @@ paths:
           name: field
           schema:
             type: string
+            enum: [background, icon, images, logo, videos]
           required: true
         - in: path
           name: namespaceId
@@ -49,6 +50,7 @@ paths:
           name: field
           schema:
             type: string
+            enum: [background, icon, images, logo, videos]
           required: true
         - in: path
           name: namespaceId

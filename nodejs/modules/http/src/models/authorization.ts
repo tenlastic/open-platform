@@ -16,7 +16,6 @@ export namespace IAuthorization {
     GameServersReadWrite = 'GameServers:ReadWrite',
     LoginsRead = 'Logins:Read',
     MatchesRead = 'Matches:Read',
-    MatchesReadStarted = 'Matches:ReadStarted',
     MatchesReadWrite = 'Matches:ReadWrite',
     NamespacesRead = 'Namespaces:Read',
     NamespacesReadWrite = 'Namespaces:ReadWrite',

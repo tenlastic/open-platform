@@ -16,7 +16,7 @@ interface Status {
   nodes: Node[];
 }
 
-export function logs<TDocument extends mongoose.Document & Record>(
+export function findLogs<TDocument extends mongoose.Document & Record>(
   Permissions: MongoosePermissions<TDocument>,
 ) {
   return async function (ctx: Context) {

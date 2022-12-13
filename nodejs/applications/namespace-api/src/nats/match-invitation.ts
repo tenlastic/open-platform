@@ -1,23 +1,27 @@
 import { MatchInvitationModel } from '@tenlastic/mongoose';
 import { MatchEvent, NamespaceEvent } from '@tenlastic/mongoose-nats';
 
+// Delete Match Invitations if associated Match is deleted.
 // Create Match Invitations if a Match with confirmation is created.
+// Delete Match Invitations if associated Match is started.
+// Delete Match Invitations if the recipient was removed from the Match.
 MatchEvent.async(async (payload) => {
   const match = payload.fullDocument;
 
-  if (match.confirmationExpiresAt && payload.operationType === 'insert') {
-    const expiresAt = match.confirmationExpiresAt;
-    return MatchInvitationModel.create(match.userIds.map((ui) => ({ expiresAt, userId: ui })));
-  }
-});
-
-// Delete Match Invitations if associated Match is deleted or is started.
-MatchEvent.async(async (payload) => {
-  if (
-    payload.operationType === 'delete' ||
-    (payload.operationType === 'update' && payload.updateDescription.updatedFields.startedAt)
+  if (payload.operationType === 'delete') {
+    return MatchInvitationModel.deleteMany({ matchId: match._id });
+  } else if (match.confirmationExpiresAt && payload.operationType === 'insert') {
+    const matchInvitations = match.userIds.map(
+      (ui) => new MatchInvitationModel({ expiresAt: match.confirmationExpiresAt, userId: ui }),
+    );
+    return MatchInvitationModel.create(matchInvitations);
+  } else if (
+    payload.operationType === 'update' &&
+    payload.updateDescription.updatedFields.startedAt
   ) {
-    return MatchInvitationModel.deleteMany({ matchId: payload.fullDocument._id });
+    return MatchInvitationModel.deleteMany({ matchId: match._id });
+  } else if (payload.operationType === 'update' && payload.updateDescription.updatedFields.teams) {
+    return MatchInvitationModel.deleteMany({ matchId: match._id, userId: { $nin: match.userIds } });
   }
 });
 

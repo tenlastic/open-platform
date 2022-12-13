@@ -7,7 +7,7 @@ import * as sinon from 'sinon';
 
 import { ContextMock } from '../../context';
 import { RecordNotFoundError } from '../../errors';
-import { logs } from './';
+import { findLogs } from './';
 
 const chance = new Chance();
 use(chaiAsPromised);
@@ -40,7 +40,7 @@ describe('handlers/logs', function () {
         getFieldPermissions: () => Promise.resolve(['logs']),
       };
 
-      const handler = logs(Permissions as any);
+      const handler = findLogs(Permissions as any);
       await handler(ctx as any);
 
       expect(ctx.response.body.records).to.exist;
@@ -58,7 +58,7 @@ describe('handlers/logs', function () {
           }),
       };
 
-      const handler = logs(Permissions as any);
+      const handler = findLogs(Permissions as any);
       const promise = handler(ctx as any);
 
       return expect(promise).to.be.rejectedWith(RecordNotFoundError);
@@ -78,7 +78,7 @@ describe('handlers/logs', function () {
         getFieldPermissions: () => Promise.resolve(['']),
       };
 
-      const handler = logs(Permissions as any);
+      const handler = findLogs(Permissions as any);
       const promise = handler(ctx as any);
 
       return expect(promise).to.be.rejectedWith(PermissionError);

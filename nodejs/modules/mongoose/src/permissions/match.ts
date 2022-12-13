@@ -37,10 +37,7 @@ export const MatchPermissions = new MongoosePermissions<MatchDocument>(MatchMode
           AuthorizationRole.MatchesRead,
           AuthorizationRole.MatchesReadWrite,
         ]),
-        {
-          ...AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.MatchesReadStarted]),
-          startedAt: { $exists: true },
-        },
+        { startedAt: { $exists: true }, 'teams.userIds': { $ref: 'user._id' } },
       ],
     },
     'user-read': {},

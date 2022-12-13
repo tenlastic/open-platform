@@ -21,7 +21,7 @@ export const MatchInvitationPermissions = new MongoosePermissions<MatchInvitatio
   {
     delete: {
       'namespace-write': true,
-      owner: true,
+      recipient: true,
       'system-write': true,
       'user-write': true,
     },
@@ -62,7 +62,7 @@ export const MatchInvitationPermissions = new MongoosePermissions<MatchInvitatio
       'namespace-write': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
         AuthorizationRole.MatchesReadWrite,
       ]),
-      owner: { 'record.userId': { $ref: 'user._id' } },
+      recipient: { 'record.userId': { $ref: 'user._id' } },
       'system-read': AuthorizationPermissionsHelpers.getSystemRoleQuery([
         AuthorizationRole.MatchesRead,
         AuthorizationRole.MatchesReadWrite,
@@ -79,7 +79,7 @@ export const MatchInvitationPermissions = new MongoosePermissions<MatchInvitatio
       ]),
     },
     update: {
-      owner: ['acceptedAt'],
+      recipient: ['acceptedAt'],
     },
   },
 );

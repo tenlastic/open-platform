@@ -17,24 +17,31 @@ GameServerEvent.async(async (payload) => {
 
 // Starts a Match if all Match Invitations are accepted.
 MatchEvent.async(async (payload) => {
-  if (payload.operationType !== 'update') {
-    return;
-  }
+  if (
+    !payload.fullDocument.startedAt &&
+    payload.operationType === 'update' &&
+    payload.updateDescription.updatedFields.confirmedUserIds
+  ) {
+    const { confirmationExpiresAt, confirmedUserIds, userIds } = payload.fullDocument;
 
-  const { confirmationExpiresAt, confirmedUserIds, userIds } = payload.fullDocument;
-  if (confirmationExpiresAt && confirmedUserIds.length && userIds.length) {
-    payload.fullDocument.startedAt = new Date();
-    return payload.fullDocument.save();
+    if (confirmationExpiresAt && confirmedUserIds.length === userIds.length) {
+      payload.fullDocument.startedAt = new Date();
+      return payload.fullDocument.save();
+    }
   }
 });
 
-// Deletes a Match if a Match Invitation is deleted or expires.
+// Deletes a Match if a Match Invitation is deleted or expires before confirmation.
 // Confirms the User if a Match Invitation is accepted.
 MatchInvitationEvent.async(async (payload) => {
   const { matchId, userId } = payload.fullDocument;
 
   if (payload.operationType === 'delete') {
-    return MatchModel.deleteOne({ _id: matchId });
+    return MatchModel.deleteOne({
+      _id: matchId,
+      confirmationExpiresAt: { $exists: true },
+      startedAt: { $exists: false },
+    });
   } else if (
     payload.operationType === 'update' &&
     payload.updateDescription.updatedFields.acceptedAt
