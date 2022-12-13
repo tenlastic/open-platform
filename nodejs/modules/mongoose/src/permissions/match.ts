@@ -31,10 +31,18 @@ export const MatchPermissions = new MongoosePermissions<MatchDocument>(MatchMode
     'user-write': true,
   },
   find: {
-    default: AuthorizationPermissionsHelpers.getFindQuery([
-      AuthorizationRole.MatchesRead,
-      AuthorizationRole.MatchesReadWrite,
-    ]),
+    default: {
+      $or: [
+        AuthorizationPermissionsHelpers.getFindQuery([
+          AuthorizationRole.MatchesRead,
+          AuthorizationRole.MatchesReadWrite,
+        ]),
+        {
+          ...AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.MatchesReadStarted]),
+          startedAt: { $exists: true },
+        },
+      ],
+    },
     'user-read': {},
   },
   populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],

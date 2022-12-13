@@ -44,13 +44,21 @@ components:
         - Collections:ReadWrite
         - GameServers:Read
         - GameServers:ReadWrite
-        - Games:Read
-        - Games:ReadWrite
+        - Logins:Read
+        - Matches:Read
+        - Matches:ReadStarted
+        - Matches:ReadWrite
         - Namespaces:Read
         - Namespaces:ReadWrite
         - Queues:Read
         - Queues:ReadWrite
+        - Records:Read
+        - Records:ReadWrite
+        - Storefronts:Read
+        - Storefronts:ReadWrite
         - Users:Read
         - Users:ReadWrite
+        - WebSockets:Read
+        - WebSockets:ReadWrite
         - Workflows:Read
         - Workflows:ReadWrite
