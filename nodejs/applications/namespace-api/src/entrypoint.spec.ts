@@ -39,18 +39,18 @@ before(async function () {
 beforeEach(async function () {
   // MongoDB.
   await Promise.all([
-    mongoose.ArticleModel.deleteMany({}),
-    mongoose.AuthorizationModel.deleteMany({}),
-    mongoose.BuildModel.deleteMany({}),
-    mongoose.CollectionModel.deleteMany({}),
-    mongoose.GameServerModel.deleteMany({}),
-    mongoose.GroupModel.deleteMany({}),
-    mongoose.NamespaceModel.deleteMany({}),
-    mongoose.QueueModel.deleteMany({}),
-    mongoose.QueueMemberModel.deleteMany({}),
-    mongoose.StorefrontModel.deleteMany({}),
-    mongoose.UserModel.deleteMany({}),
-    mongoose.WebSocketModel.deleteMany({}),
-    mongoose.WorkflowModel.deleteMany({}),
+    mongoose.ArticleModel.deleteMany(),
+    mongoose.AuthorizationModel.deleteMany(),
+    mongoose.BuildModel.deleteMany(),
+    mongoose.CollectionModel.deleteMany(),
+    mongoose.GameServerModel.deleteMany(),
+    mongoose.GroupModel.deleteMany(),
+    mongoose.NamespaceModel.deleteMany(),
+    mongoose.QueueModel.deleteMany(),
+    mongoose.QueueMemberModel.deleteMany(),
+    mongoose.StorefrontModel.deleteMany(),
+    mongoose.UserModel.deleteMany(),
+    mongoose.WebSocketModel.deleteMany(),
+    mongoose.WorkflowModel.deleteMany(),
   ]);
 });

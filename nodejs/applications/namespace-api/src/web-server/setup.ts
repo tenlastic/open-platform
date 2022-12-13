@@ -2,38 +2,38 @@ import { loggingMiddleware, WebServer } from '@tenlastic/web-server';
 import * as Router from 'koa-router';
 
 import {
-  articlesRoutes,
-  buildsRoutes,
-  collectionsRoutes,
-  gameServersRoutes,
-  matchesRoutes,
-  matchInvitationsRoutes,
-  probesRoutes,
-  queuesRoutes,
-  queueMembersRoutes,
-  recordsRoutes,
-  storefrontsRoutes,
-  webSocketsRoutes,
-  workflowsRoutes,
+  articleRoutes,
+  buildRoutes,
+  collectionRoutes,
+  gameServerRoutes,
+  matchRoutes,
+  matchInvitationRoutes,
+  probeRoutes,
+  queueRoutes,
+  queueMemberRoutes,
+  recordRoutes,
+  storefrontRoutes,
+  webSocketRoutes,
+  workflowRoutes,
 } from './routes';
 
 export function setup() {
   const webServer = new WebServer(loggingMiddleware);
 
   const router = new Router();
-  router.use(articlesRoutes);
-  router.use(buildsRoutes);
-  router.use(collectionsRoutes);
-  router.use(gameServersRoutes);
-  router.use(matchesRoutes);
-  router.use(matchInvitationsRoutes);
-  router.use(probesRoutes);
-  router.use(queuesRoutes);
-  router.use(queueMembersRoutes);
-  router.use(recordsRoutes);
-  router.use(storefrontsRoutes);
-  router.use(webSocketsRoutes);
-  router.use(workflowsRoutes);
+  router.use(articleRoutes);
+  router.use(buildRoutes);
+  router.use(collectionRoutes);
+  router.use(gameServerRoutes);
+  router.use(matchRoutes);
+  router.use(matchInvitationRoutes);
+  router.use(probeRoutes);
+  router.use(queueRoutes);
+  router.use(queueMemberRoutes);
+  router.use(recordRoutes);
+  router.use(storefrontRoutes);
+  router.use(webSocketRoutes);
+  router.use(workflowRoutes);
   webServer.use(router.routes());
 
   webServer.start();

@@ -12,6 +12,8 @@ import {
   GroupInvitationPermissions,
   IgnorationModel,
   IgnorationPermissions,
+  MatchInvitationModel,
+  MatchInvitationPermissions,
   MatchModel,
   MatchPermissions,
   MessageModel,
@@ -92,6 +94,15 @@ export async function subscribe(
         data,
         IgnorationModel,
         IgnorationPermissions,
+        ws,
+      );
+
+    case 'match-invitations':
+      return webSocketServer.subscribe(
+        credentials,
+        data,
+        MatchInvitationModel,
+        MatchInvitationPermissions,
         ws,
       );
 

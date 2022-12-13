@@ -18,7 +18,7 @@ const Model = mongoose.model('example', schema);
 
 describe('replicateFromNats()', function () {
   beforeEach(async function () {
-    await Model.deleteMany({});
+    await Model.deleteMany();
   });
 
   context('when the operationType is delete', function () {

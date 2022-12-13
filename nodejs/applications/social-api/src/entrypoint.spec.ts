@@ -19,11 +19,11 @@ before(async function () {
 beforeEach(async function () {
   // MongoDB.
   await Promise.all([
-    mongoose.FriendModel.deleteMany({}),
-    mongoose.GroupModel.deleteMany({}),
-    mongoose.GroupInvitationModel.deleteMany({}),
-    mongoose.IgnorationModel.deleteMany({}),
-    mongoose.MessageModel.deleteMany({}),
-    mongoose.UserModel.deleteMany({}),
+    mongoose.FriendModel.deleteMany(),
+    mongoose.GroupModel.deleteMany(),
+    mongoose.GroupInvitationModel.deleteMany(),
+    mongoose.IgnorationModel.deleteMany(),
+    mongoose.MessageModel.deleteMany(),
+    mongoose.UserModel.deleteMany(),
   ]);
 });

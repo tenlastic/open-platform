@@ -9,6 +9,8 @@ before(async function () {
   await Promise.all([
     mongoose.AuthorizationModel.syncIndexes(),
     mongoose.GroupModel.syncIndexes(),
+    mongoose.MatchInvitationModel.syncIndexes(),
+    mongoose.MatchModel.syncIndexes(),
     mongoose.NamespaceModel.syncIndexes(),
     mongoose.QueueMemberModel.syncIndexes(),
     mongoose.StorefrontModel.syncIndexes(),
@@ -19,11 +21,13 @@ before(async function () {
 beforeEach(async function () {
   // MongoDB.
   await Promise.all([
-    mongoose.AuthorizationModel.deleteMany({}),
-    mongoose.GroupModel.deleteMany({}),
-    mongoose.NamespaceModel.deleteMany({}),
-    mongoose.QueueMemberModel.deleteMany({}),
-    mongoose.StorefrontModel.deleteMany({}),
-    mongoose.UserModel.deleteMany({}),
+    mongoose.AuthorizationModel.deleteMany(),
+    mongoose.GroupModel.deleteMany(),
+    mongoose.MatchInvitationModel.deleteMany(),
+    mongoose.MatchModel.deleteMany(),
+    mongoose.NamespaceModel.deleteMany(),
+    mongoose.QueueMemberModel.deleteMany(),
+    mongoose.StorefrontModel.deleteMany(),
+    mongoose.UserModel.deleteMany(),
   ]);
 });

@@ -31,8 +31,8 @@ describe('replicateFromMongo()', function () {
   });
 
   beforeEach(async function () {
-    await FromModel.deleteMany({});
-    await ToModel.deleteMany({});
+    await FromModel.deleteMany();
+    await ToModel.deleteMany();
   });
 
   it('copies documents between collections', async function () {

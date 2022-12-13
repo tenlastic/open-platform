@@ -1,29 +1,29 @@
 import { loggingMiddleware, WebServer } from '@tenlastic/web-server';
 import * as Router from 'koa-router';
 
-import authorizationRequestsRoutes from './authorization-requests';
-import authorizationsRoutes from './authorizations';
-import loginsRoutes from './logins';
-import namespacesRoutes from './namespaces';
-import passwordResetsRoutes from './password-resets';
-import probesRoutes from './probes';
-import publicKeysRoutes from './public-keys';
-import refreshTokensRoutes from './refresh-tokens';
-import usersRoutes from './users';
+import authorizationRequestRoutes from './authorization-requests';
+import authorizationRoutes from './authorizations';
+import loginRoutes from './logins';
+import namespaceRoutes from './namespaces';
+import passwordResetRoutes from './password-resets';
+import probeRoutes from './probes';
+import publicKeyRoutes from './public-keys';
+import refreshTokenRoutes from './refresh-tokens';
+import userRoutes from './users';
 
 export function setup() {
   const webServer = new WebServer(loggingMiddleware);
 
   const router = new Router();
-  router.use(authorizationRequestsRoutes);
-  router.use(authorizationsRoutes);
-  router.use(loginsRoutes);
-  router.use(namespacesRoutes);
-  router.use(passwordResetsRoutes);
-  router.use(probesRoutes);
-  router.use(publicKeysRoutes);
-  router.use(refreshTokensRoutes);
-  router.use(usersRoutes);
+  router.use(authorizationRequestRoutes);
+  router.use(authorizationRoutes);
+  router.use(loginRoutes);
+  router.use(namespaceRoutes);
+  router.use(passwordResetRoutes);
+  router.use(probeRoutes);
+  router.use(publicKeyRoutes);
+  router.use(refreshTokenRoutes);
+  router.use(userRoutes);
   webServer.use(router.routes());
 
   webServer.start();

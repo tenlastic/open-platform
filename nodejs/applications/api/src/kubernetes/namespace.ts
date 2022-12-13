@@ -426,7 +426,7 @@ function getAffinity(namespace: NamespaceDocument, role: NamespaceStatusComponen
 function getAggregationApiConnectorContainerTemplate(namespace: NamespaceDocument): V1Container {
   const name = KubernetesNamespace.getName(namespace._id);
 
-  const collectionNames = ['matches', 'queue-members', 'storefronts'];
+  const collectionNames = ['match-invitations', 'matches', 'queue-members', 'storefronts'];
   const env: V1EnvVar[] = [
     { name: 'MONGO_COLLECTION_NAMES', value: collectionNames.join(',') },
     {
