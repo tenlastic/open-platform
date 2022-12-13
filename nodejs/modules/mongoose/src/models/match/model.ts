@@ -68,7 +68,7 @@ export class MatchSchema {
   @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
   public authorizationDocuments: AuthorizationDocument[];
 
-  public get userIds() {
+  public get userIds(): mongoose.Types.ObjectId[] {
     return this.teams.reduce((previous, current) => [...previous, ...current.userIds], []);
   }
 

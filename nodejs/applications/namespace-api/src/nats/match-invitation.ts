@@ -11,9 +11,16 @@ MatchEvent.async(async (payload) => {
   if (payload.operationType === 'delete') {
     return MatchInvitationModel.deleteMany({ matchId: match._id });
   } else if (match.confirmationExpiresAt && payload.operationType === 'insert') {
+    const values = {
+      expiresAt: match.confirmationExpiresAt,
+      matchId: match._id,
+      namespaceId: match.namespaceId,
+      queueId: match.queueId,
+    };
     const matchInvitations = match.userIds.map(
-      (ui) => new MatchInvitationModel({ expiresAt: match.confirmationExpiresAt, userId: ui }),
+      (ui) => new MatchInvitationModel({ ...values, userId: ui }),
     );
+
     return MatchInvitationModel.create(matchInvitations);
   } else if (
     payload.operationType === 'update' &&

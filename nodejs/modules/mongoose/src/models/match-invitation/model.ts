@@ -40,6 +40,9 @@ export class MatchInvitationSchema {
   @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public namespaceId: mongoose.Types.ObjectId;
 
+  @prop({ ref: 'QueueSchema', required: true, type: mongoose.Schema.Types.ObjectId })
+  public queueId: mongoose.Types.ObjectId;
+
   public updatedAt: Date;
 
   @prop({ ref: 'UserSchema', required: true, type: mongoose.Schema.Types.ObjectId })

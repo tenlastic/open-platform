@@ -43,6 +43,7 @@ components:
         - Collections:Read
         - Collections:ReadWrite
         - GameServers:Read
+        - GameServers:ReadAuthorized
         - GameServers:ReadWrite
         - Logins:Read
         - Matches:Read

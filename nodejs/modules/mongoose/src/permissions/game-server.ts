@@ -5,6 +5,7 @@ import { AuthorizationPermissionsHelpers } from './authorization';
 
 const administrator = {
   create: [
+    'authorizedUserIds',
     'buildId',
     'cpu',
     'currentUserIds',
@@ -20,6 +21,7 @@ const administrator = {
   ],
   read: [
     '_id',
+    'authorizedUserIds',
     'buildId',
     'cpu',
     'createdAt',
@@ -41,6 +43,7 @@ const administrator = {
     'updatedAt',
   ],
   update: [
+    'authorizedUserIds',
     'buildId',
     'cpu',
     'currentUserIds',
@@ -67,16 +70,27 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
     'user-write': true,
   },
   find: {
-    default: AuthorizationPermissionsHelpers.getFindQuery([
-      AuthorizationRole.GameServersRead,
-      AuthorizationRole.GameServersReadWrite,
-    ]),
+    default: {
+      $or: [
+        AuthorizationPermissionsHelpers.getFindQuery([
+          AuthorizationRole.GameServersRead,
+          AuthorizationRole.GameServersReadWrite,
+        ]),
+        {
+          ...AuthorizationPermissionsHelpers.getFindQuery([
+            AuthorizationRole.GameServersReadAuthorized,
+          ]),
+          $or: [{ authorizedUserIds: { $size: 0 } }, { authorizedUserIds: { $ref: 'user._id' } }],
+        },
+      ],
+    },
     'user-read': {},
   },
   populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
   read: {
     default: [
       '_id',
+      'authorizedUserIds',
       'createdAt',
       'currentUserIds',
       'description',
@@ -122,6 +136,7 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
   update: {
     'namespace-write': administrator.update,
     'system-write': [
+      'authorizedUserIds',
       'buildId',
       'cpu',
       'currentUserIds',

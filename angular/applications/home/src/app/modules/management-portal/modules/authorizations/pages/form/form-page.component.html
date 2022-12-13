@@ -98,6 +98,7 @@
       <div class="row">
         <mat-radio-group formControlName="gameServers">
           <mat-radio-button>None</mat-radio-button>
+          <mat-radio-button [value]="AuthorizationRole.GameServersReadAuthorized">Read (Authorized)</mat-radio-button>
           <mat-radio-button [value]="AuthorizationRole.GameServersRead">Read</mat-radio-button>
           <mat-radio-button [value]="AuthorizationRole.GameServersReadWrite">Read / Write</mat-radio-button>
         </mat-radio-group>

@@ -13,6 +13,7 @@ export namespace IAuthorization {
     CollectionsRead = 'Collections:Read',
     CollectionsReadWrite = 'Collections:ReadWrite',
     GameServersRead = 'GameServers:Read',
+    GameServersReadAuthorized = 'GameServers:ReadAuthorized',
     GameServersReadWrite = 'GameServers:ReadWrite',
     LoginsRead = 'Logins:Read',
     MatchesRead = 'Matches:Read',

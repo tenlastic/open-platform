@@ -14,7 +14,7 @@ export class MatchModel extends BaseModel {
   public queueId: string;
   public startedAt: Date;
   public teams: IMatch.Team[];
-  public get userIds() {
+  public get userIds(): string[] {
     return this.teams.reduce((previous, current) => [...previous, ...current.userIds], []);
   }
 

@@ -55,6 +55,7 @@ MatchEvent.async(async (payload) => {
     const queue = await QueueModel.findOne({ _id: queueId });
 
     await GameServerModel.create({
+      authorizedUserIds: payload.fullDocument.userIds,
       buildId: queue.gameServerTemplate.buildId,
       cpu: queue.gameServerTemplate.cpu,
       description: queue.gameServerTemplate.description,

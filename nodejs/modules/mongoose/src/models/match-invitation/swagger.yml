@@ -18,6 +18,12 @@ components:
         matchId:
           type: string
           format: ^[0-9a-f]{24}$
+        namespaceId:
+          type: string
+          format: ^[0-9a-f]{24}$
+        queueId:
+          type: string
+          format: ^[0-9a-f]{24}$
         updatedAt:
           type: string
           format: date-time

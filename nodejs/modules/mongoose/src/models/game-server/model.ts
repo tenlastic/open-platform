@@ -18,6 +18,7 @@ import { GameServerPortDocument, GameServerPortModel, GameServerPortSchema } fro
 import { GameServerProbesDocument, GameServerProbesSchema } from './probes';
 import { GameServerStatusDocument, GameServerStatusModel, GameServerStatusSchema } from './status';
 
+@index({ authorizedUserIds: 1 })
 @index({ buildId: 1 })
 @index({ currentUserIds: 1 })
 @index({ matchId: 1 })
@@ -30,6 +31,9 @@ import { GameServerStatusDocument, GameServerStatusModel, GameServerStatusSchema
 @plugin(unsetPlugin)
 export class GameServerSchema {
   public _id: mongoose.Types.ObjectId;
+
+  @prop({ ref: 'UserSchema', type: mongoose.Schema.Types.ObjectId }, PropType.ARRAY)
+  public authorizedUserIds: mongoose.Types.ObjectId[];
 
   @prop({ ref: 'BuildSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public buildId: mongoose.Types.ObjectId;
