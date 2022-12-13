@@ -23,9 +23,7 @@ resources:
   - ./static/docker-registry/docker-registry-image-pull-secret.sealedsecret.yaml
   - ./static/docker-registry/docker-registry.sealedsecret.yaml
   - ./static/flux/open-platform.kustomization.yaml
-  - ./static/ingress-nginx/basic-authentication.ingress.yaml
   - ./static/ingress-nginx/basic-authentication.sealedsecret.yaml
-  - ./static/ingress-nginx/default.ingress.yaml
   - ./static/minio/minio.sealedsecret.yaml
   - ./static/mongodb/mongodb.sealedsecret.yaml
   - ./static/mongodb/mongodb-gui.sealedsecret.yaml

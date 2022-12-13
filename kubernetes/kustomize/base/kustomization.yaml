@@ -39,6 +39,8 @@ resources:
   - ./static/flux/kubernetes-dashboard.helmrepository.yaml
   - ./static/flux/nats.helmrepository.yaml
   - ./static/flux/open-platform.gitrepository.yaml
+  - ./static/ingress-nginx/basic-authentication.ingress.yaml
+  - ./static/ingress-nginx/default.ingress.yaml
   - ./static/ingress-nginx/ingress-nginx.yaml
   - ./static/kubernetes-dashboard/kubernetes-dashboard.yaml
   - ./static/minio/minio.yaml

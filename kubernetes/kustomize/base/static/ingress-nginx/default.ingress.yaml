@@ -2,16 +2,24 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   annotations:
+    certmanager.k8s.io/cluster-issuer: letsencrypt-production
+    kubernetes.io/ingress.allow-http: "false"
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/proxy-body-size: 1G
+    kubernetes.io/tls-acme: "true"
+    nginx.ingress.kubernetes.io/configuration-snippet: proxy_set_header  X-Forwarded-Proto https;
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "1G"
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "3"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/server-snippet: rewrite /discord https://discord.gg/AXSfWq permanent;
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
   name: default
   namespace: static
 spec:
   rules:
-    - host: api.local.tenlastic.com
+    - host: api.tenlastic.com
       http:
         paths:
           - path: /friends
@@ -91,7 +99,7 @@ spec:
                 name: api
                 port:
                   number: 3000
-    - host: docker-registry.local.tenlastic.com
+    - host: docker-registry.tenlastic.com
       http:
         paths:
           - path: /v2/
@@ -101,7 +109,7 @@ spec:
                 name: docker-registry
                 port:
                   number: 5000
-    - host: minio.local.tenlastic.com
+    - host: minio.tenlastic.com
       http:
         paths:
           - path: /
@@ -111,7 +119,7 @@ spec:
                 name: minio
                 port:
                   number: 9000
-    - host: minio-console.local.tenlastic.com
+    - host: minio-console.tenlastic.com
       http:
         paths:
           - path: /
@@ -121,7 +129,7 @@ spec:
                 name: minio
                 port:
                   number: 9001
-    - host: verdaccio.local.tenlastic.com
+    - host: verdaccio.tenlastic.com
       http:
         paths:
           - path: /
@@ -131,7 +139,7 @@ spec:
                 name: verdaccio-internal
                 port:
                   number: 4873
-    - host: wss.local.tenlastic.com
+    - host: wss.tenlastic.com
       http:
         paths:
           - path: /
@@ -141,7 +149,7 @@ spec:
                 name: aggregation-api
                 port:
                   number: 3000
-    - host: www.local.tenlastic.com
+    - host: www.tenlastic.com
       http:
         paths:
           - path: /
@@ -151,3 +159,6 @@ spec:
                 name: home-ui
                 port:
                   number: 80
+  tls:
+    - hosts: ["*.tenlastic.com"]
+      secretName: default-tls

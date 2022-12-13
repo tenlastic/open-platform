@@ -17,6 +17,20 @@ patches:
       name: docker-registry
       namespace: static
       version: v1
+  - path: ./static/ingress-nginx/basic-authentication.ingress.json
+    target:
+      group: networking.k8s.io
+      kind: Ingress
+      name: basic-authentication
+      namespace: static
+      version: v1
+  - path: ./static/ingress-nginx/default.ingress.json
+    target:
+      group: networking.k8s.io
+      kind: Ingress
+      name: default
+      namespace: static
+      version: v1
 patchesStrategicMerge:
   - ./cluster/storage-classes/balanced-expandable.yaml
   - ./cluster/storage-classes/ssd-expandable.yaml
@@ -42,9 +56,6 @@ resources:
   - ./kube-system/metrics-server/metrics-server.yaml
   - ./static/docker-registry/docker-registry-image-pull-secret.secret.example.yaml
   - ./static/docker-registry/docker-registry.secret.example.yaml
-  - ./static/ingress-nginx/basic-authentication.ingress.yaml
-  - ./static/ingress-nginx/basic-authentication.secret.example.yaml
-  - ./static/ingress-nginx/default.ingress.yaml
   - ./static/minio/minio.secret.example.yaml
   - ./static/mongodb/mongodb.secret.example.yaml
   - ./static/mongodb/mongodb-gui.secret.example.yaml
