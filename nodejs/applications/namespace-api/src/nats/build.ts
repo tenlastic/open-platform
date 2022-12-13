@@ -19,7 +19,7 @@ BuildEvent.async(async (payload) => {
   }
 });
 
-// Delete Kubernetes resources.
+// Create, delete, and update Kubernetes resources.
 BuildEvent.async(async (payload) => {
   if (payload.operationType === 'delete') {
     await KubernetesBuild.delete(payload.fullDocument, payload.operationType);

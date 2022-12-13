@@ -11,7 +11,7 @@ NamespaceEvent.async(async (payload) => {
   }
 });
 
-// Delete Kubernetes resources.
+// Create, delete, and update Kubernetes resources.
 QueueEvent.async(async (payload) => {
   if (payload.operationType === 'delete') {
     await KubernetesQueue.delete(payload.fullDocument);

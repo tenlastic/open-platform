@@ -22,7 +22,7 @@ GameServerEvent.async(async (payload) => {
   }
 });
 
-// Delete Kubernetes resources.
+// Create, delete, and update Kubernetes resources.
 GameServerEvent.async(async (payload) => {
   if (payload.operationType === 'delete') {
     await KubernetesGameServer.delete(payload.fullDocument);
