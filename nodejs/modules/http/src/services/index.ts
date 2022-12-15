@@ -9,6 +9,7 @@ export * from './environment';
 export * from './friend';
 export * from './game-server';
 export * from './game-server-log';
+export * from './game-server-template';
 export * from './group';
 export * from './group-invitation';
 export * from './ignoration';

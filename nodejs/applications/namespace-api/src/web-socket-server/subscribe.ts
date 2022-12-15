@@ -9,6 +9,8 @@ import {
   CollectionPermissions,
   GameServerModel,
   GameServerPermissions,
+  GameServerTemplateModel,
+  GameServerTemplatePermissions,
   MatchModel,
   MatchPermissions,
   QueueModel,
@@ -62,6 +64,15 @@ export async function subscribe(
         data,
         CollectionModel,
         CollectionPermissions,
+        ws,
+      );
+
+    case 'game-server-templates':
+      return webSocketServer.subscribe(
+        credentials,
+        data,
+        GameServerTemplateModel,
+        GameServerTemplatePermissions,
         ws,
       );
 
