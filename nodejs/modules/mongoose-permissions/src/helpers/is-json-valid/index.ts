@@ -1,4 +1,5 @@
 import * as mongoose from 'mongoose';
+import { isDeepStrictEqual } from 'util';
 
 import { getPropertyByDotNotation } from '../get-property-by-dot-notation';
 import { substituteReferenceValues } from '../substitute-reference-values';
@@ -22,7 +23,7 @@ const operations: { [key: string]: Operation } = {
 /**
  * Determines if the query matches the JSON object.
  */
-export function isJsonValid(json: any, query: any, and = true): boolean {
+export function isJsonValid(json: any, query: any): boolean {
   const substitutedQuery = substituteReferenceValues(query, json);
 
   const results = Object.entries<any>(substitutedQuery).map(([key, value]) => {
@@ -30,7 +31,7 @@ export function isJsonValid(json: any, query: any, and = true): boolean {
     if (key === '$and') {
       return value.map((o) => isJsonValid(json, o)).every((f) => f);
     } else if (key === '$or') {
-      return value.map((o) => isJsonValid(json, o, false)).includes(true);
+      return value.map((o) => isJsonValid(json, o)).includes(true);
     }
 
     // If the value is null or undefined, default to equality check.
@@ -64,7 +65,7 @@ export function isJsonValid(json: any, query: any, and = true): boolean {
   });
 
   if (results.length > 0) {
-    return and ? results.flat().every((f) => f) : results.flat().includes(true);
+    return results.flat().every((f) => f);
   } else {
     return true;
   }
@@ -100,8 +101,14 @@ function $eq(json: any, key: string, value: any) {
     return false;
   }
 
-  if (reference && reference.constructor === Array && value?.constructor !== Array) {
-    return reference.includes(value);
+  if (reference?.constructor === Array) {
+    if (isNestedArray(reference) && value?.constructor === Array) {
+      return reference.some((r) => isDeepStrictEqual(r, value));
+    } else if (!isNestedArray(reference) && value?.constructor === Array) {
+      return isDeepStrictEqual(reference, value);
+    } else {
+      return reference.flat().some((r) => isDeepStrictEqual(r, value));
+    }
   } else if (reference && reference instanceof mongoose.Types.ObjectId) {
     return reference.equals(value);
   } else {
@@ -161,7 +168,7 @@ function $in(json: any, key: string, value: any[]) {
     return false;
   }
 
-  if (reference && reference.constructor === Array) {
+  if (reference?.constructor === Array) {
     return reference.some((r) => value.includes(r));
   } else if (reference instanceof mongoose.Types.ObjectId) {
     return Boolean(value.find((v) => reference.equals(v)));
@@ -210,8 +217,14 @@ function $lte(json: any, key: string, value: any) {
 function $ne(json: any, key: string, value: any) {
   const reference = getPropertyByDotNotation(json, key);
 
-  if (reference && reference.constructor === Array && value?.constructor !== Array) {
-    return !reference.includes(value);
+  if (reference?.constructor === Array) {
+    if (isNestedArray(reference) && value?.constructor === Array) {
+      return !reference.some((r) => isDeepStrictEqual(r, value));
+    } else if (!isNestedArray(reference) && value?.constructor === Array) {
+      return !isDeepStrictEqual(reference, value);
+    } else {
+      return !reference.flat().some((r) => isDeepStrictEqual(r, value));
+    }
   } else if (reference && reference instanceof mongoose.Types.ObjectId) {
     return !reference.equals(value);
   } else {
@@ -237,4 +250,15 @@ function $regex(json: any, key: string, value: any) {
 
   const regex = new RegExp(value);
   return regex.test(reference);
+}
+
+/**
+ * Returns true if the reference is a nested array.
+ */
+function isNestedArray(reference: any) {
+  if (reference?.constructor !== Array) {
+    return false;
+  }
+
+  return reference.every((r) => r?.constructor === Array);
 }

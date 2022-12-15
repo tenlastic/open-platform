@@ -2,14 +2,14 @@ import { expect } from 'chai';
 import { Chance } from 'chance';
 import * as sinon from 'sinon';
 
-import { Migration } from './';
+import { MigrationModel } from './';
 
 const chance = new Chance();
 
 describe('model', function () {
   describe(`pre('delete')`, function () {
     it('calls down()', async function () {
-      const migration = new Migration({ name: chance.hash(), timestamp: new Date() });
+      const migration = new MigrationModel({ name: chance.hash(), timestamp: new Date() });
       await migration.save();
 
       const spy = sinon.spy();
@@ -23,7 +23,7 @@ describe('model', function () {
 
   describe(`pre('save')`, function () {
     it('calls up()', async function () {
-      const migration = new Migration({ name: chance.hash(), timestamp: new Date() });
+      const migration = new MigrationModel({ name: chance.hash(), timestamp: new Date() });
 
       const spy = sinon.spy();
       migration.up = (m) => spy(m);

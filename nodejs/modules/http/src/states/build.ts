@@ -4,7 +4,7 @@ import { BuildModel } from '../models/build';
 
 export interface BuildState extends EntityState<BuildModel> {}
 
-@StoreConfig({ idKey: '_id', deepFreezeFn: (o) => o, name: 'builds', resettable: true })
+@StoreConfig({ deepFreezeFn: (o) => o, idKey: '_id', name: 'builds', resettable: true })
 export class BuildStore extends EntityStore<BuildState, BuildModel> {}
 
 export class BuildQuery extends QueryEntity<BuildState, BuildModel> {

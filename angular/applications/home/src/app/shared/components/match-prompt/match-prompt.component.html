@@ -1,10 +1,10 @@
-<ng-container *ngIf="accepted">
+<ng-container *ngIf="message">
   <div mat-dialog-content>
-    <app-loading-message>Waiting for Game Server...</app-loading-message>
+    <app-loading-message>{{ message }}</app-loading-message>
   </div>
 </ng-container>
 
-<ng-container *ngIf="!accepted">
+<ng-container *ngIf="!message">
   <div mat-dialog-title>Match Found</div>
 
   <div mat-dialog-content>
@@ -17,13 +17,13 @@
   <div mat-dialog-actions>
     <app-button mat-button
                 color="accent"
-                (OnClick)="decline()">
+                (OnClick)="declineMatchInvitation()">
       <div>Decline</div>
     </app-button>
 
     <app-button mat-button
                 color="primary"
-                (OnClick)="accept()">
+                (OnClick)="acceptMatchInvitation()">
       <div>Accept</div>
     </app-button>
   </div>

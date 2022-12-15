@@ -10,8 +10,8 @@ import * as jsonwebtoken from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
 
 import { unsetPlugin } from '../../plugins';
-import { AuthorizationSchema } from '../authorization';
-import { RefreshTokenDocument, RefreshTokenSchema } from '../refresh-token';
+import { AuthorizationModel } from '../authorization';
+import { RefreshTokenDocument, RefreshTokenModel } from '../refresh-token';
 import { UserDocument } from '../user';
 
 @index({ userId: 1 })
@@ -37,24 +37,22 @@ export class LoginSchema {
     refreshTokenId?: mongoose.Types.ObjectId | string,
   ) {
     // Get the User's Authorization.
-    const Authorization = getModelForClass(AuthorizationSchema);
-    const authorization = await Authorization.findOne({
+    const authorization = await AuthorizationModel.findOne({
       namespaceId: { $exists: false },
       userId: user._id,
     });
 
-    // Save the RefreshToken for renewal and revocation.
-    const expiresAt = new Date(new Date().getTime() + 14 * 24 * 60 * 60 * 1000);
-    const RefreshToken = getModelForClass(RefreshTokenSchema);
+    // Save the Refresh Token for renewal and revocation.
+    const expiresAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
     let token: RefreshTokenDocument;
     if (refreshTokenId) {
-      token = await RefreshToken.findOneAndUpdate(
+      token = await RefreshTokenModel.findOneAndUpdate(
         { _id: refreshTokenId, userId: user._id },
         { expiresAt, updatedAt: new Date() },
         { new: true },
       );
     } else {
-      token = await RefreshToken.create({ expiresAt, userId: user._id });
+      token = await RefreshTokenModel.create({ expiresAt, userId: user._id });
     }
 
     // Remove unauthorized fields from the Authorization and User.

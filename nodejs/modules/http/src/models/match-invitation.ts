@@ -5,6 +5,7 @@ export class MatchInvitationModel extends BaseModel {
   public expiresAt: Date;
   public matchId: string;
   public namespaceId: string;
+  public queueId: string;
   public userId: string;
 
   constructor(parameters?: Partial<MatchInvitationModel>) {

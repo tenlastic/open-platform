@@ -153,9 +153,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
       }
 
       this.$namespace = this.namespaceQuery.selectEntity(params.namespaceId);
-      this.$storefront = this.storefrontQuery
-        .selectAll({ filterBy: (s) => s.namespaceId === params.namespaceId })
-        .pipe(map((s) => s[0]));
+      this.$storefront = this.storefrontQuery.selectEntity(params.namespaceId);
 
       this.fetchStorefront$ = this.$namespace.subscribe(async (namespace) => {
         if (namespace?.status.phase === 'Running') {

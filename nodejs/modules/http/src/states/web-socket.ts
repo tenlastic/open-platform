@@ -5,7 +5,7 @@ import { UserQuery } from './user';
 
 export interface WebSocketState extends EntityState<WebSocketModel> {}
 
-@StoreConfig({ idKey: '_id', deepFreezeFn: (o) => o, name: 'websockets', resettable: true })
+@StoreConfig({ deepFreezeFn: (o) => o, idKey: '_id', name: 'websockets', resettable: true })
 export class WebSocketStore extends EntityStore<WebSocketState, WebSocketModel> {}
 
 export class WebSocketQuery extends QueryEntity<WebSocketState, WebSocketModel> {

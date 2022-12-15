@@ -4,7 +4,7 @@ import { GameServerLogModel } from '../models/game-server-log';
 
 export interface GameServerLogState extends EntityState<GameServerLogModel> {}
 
-@StoreConfig({ idKey: 'unix', deepFreezeFn: (o) => o, name: 'game-server-logs', resettable: true })
+@StoreConfig({ deepFreezeFn: (o) => o, idKey: 'unix', name: 'game-server-logs', resettable: true })
 export class GameServerLogStore extends EntityStore<GameServerLogState, GameServerLogModel> {}
 
 export class GameServerLogQuery extends QueryEntity<GameServerLogState, GameServerLogModel> {

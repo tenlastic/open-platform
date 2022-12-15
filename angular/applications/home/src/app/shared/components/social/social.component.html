@@ -11,13 +11,7 @@
 
   <div *ngIf="isLoggedIn"
        class="nav">
-    <ng-container *ngIf="isElectron">
-      <app-match-button *ngFor="let match of $matches | async"
-                        [match]="match"></app-match-button>
-
-      <app-queue-member-button *ngFor="let queueMember of $queueMembers | async"
-                               [queueMember]="queueMember"></app-queue-member-button>
-    </ng-container>
+    <app-match *ngIf="isElectron"></app-match>
 
     <ng-container *ngIf="($group | async) === undefined">
       <app-group-invitation-button *ngFor="let groupInvitation of $groupInvitations | async"

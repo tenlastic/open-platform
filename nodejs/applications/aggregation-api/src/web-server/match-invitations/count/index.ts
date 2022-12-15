@@ -1,4 +1,4 @@
-import { MatchPermissions } from '@tenlastic/mongoose';
+import { MatchInvitationPermissions } from '@tenlastic/mongoose';
 import { count } from '@tenlastic/web-server';
 
-export const handler = count(MatchPermissions);
+export const handler = count(MatchInvitationPermissions);

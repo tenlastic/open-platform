@@ -171,9 +171,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
           sortByOrder: Order.DESC,
         })
         .pipe(map((a) => a[0]));
-      this.$storefront = this.storefrontQuery
-        .selectAll({ filterBy: (s) => s.namespaceId === this.namespaceId })
-        .pipe(map((s) => s[0]));
+      this.$storefront = this.storefrontQuery.selectEntity(params.namespaceId);
 
       // Close previous stream.
       this.streamService.close(this.streamServiceUrl);

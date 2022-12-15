@@ -4,7 +4,7 @@ import { GroupInvitationModel } from '../models/group-invitation';
 
 export interface GroupInvitationState extends EntityState<GroupInvitationModel> {}
 
-@StoreConfig({ idKey: '_id', deepFreezeFn: (o) => o, name: 'group-invitations', resettable: true })
+@StoreConfig({ deepFreezeFn: (o) => o, idKey: '_id', name: 'group-invitations', resettable: true })
 export class GroupInvitationStore extends EntityStore<GroupInvitationState, GroupInvitationModel> {}
 
 export class GroupInvitationQuery extends QueryEntity<GroupInvitationState, GroupInvitationModel> {

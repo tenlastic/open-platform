@@ -4,7 +4,7 @@ import { MessageModel } from '../models/message';
 
 export interface MessageState extends EntityState<MessageModel> {}
 
-@StoreConfig({ idKey: '_id', deepFreezeFn: (o) => o, name: 'messages', resettable: true })
+@StoreConfig({ deepFreezeFn: (o) => o, idKey: '_id', name: 'messages', resettable: true })
 export class MessageStore extends EntityStore<MessageState, MessageModel> {}
 
 export class MessageQuery extends QueryEntity<MessageState, MessageModel> {

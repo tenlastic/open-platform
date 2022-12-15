@@ -42,9 +42,7 @@ export class StorefrontPageComponent implements OnDestroy, OnInit {
     this.activatedRoute.params.subscribe(async (params) => {
       this.loadingMessage = 'Loading Storefront information...';
 
-      this.$storefront = this.storefrontQuery
-        .selectAll({ filterBy: (s) => s.namespaceId === params.namespaceId })
-        .pipe(map((s) => s[0]));
+      this.$storefront = this.storefrontQuery.selectEntity(params.namespaceId);
 
       this.setImagesAndVideos$ = this.$storefront.subscribe((s) => {
         this.storefront = s;

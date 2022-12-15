@@ -4,7 +4,7 @@ import { QueueMemberModel } from '../models/queue-member';
 
 export interface QueueMemberState extends EntityState<QueueMemberModel> {}
 
-@StoreConfig({ idKey: '_id', deepFreezeFn: (o) => o, name: 'queue-members', resettable: true })
+@StoreConfig({ deepFreezeFn: (o) => o, idKey: '_id', name: 'queue-members', resettable: true })
 export class QueueMemberStore extends EntityStore<QueueMemberState, QueueMemberModel> {}
 
 export class QueueMemberQuery extends QueryEntity<QueueMemberState, QueueMemberModel> {

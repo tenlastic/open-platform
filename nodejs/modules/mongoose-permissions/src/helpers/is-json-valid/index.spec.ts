@@ -64,22 +64,64 @@ describe('is-json-valid', function () {
 
   describe('$eq', function () {
     context('when the reference is an array', function () {
-      it('returns true', function () {
-        const json = { user: { roles: ['Admin'] } };
-        const query = { 'user.roles': { $eq: 'Admin' } };
+      context('when the reference is a nested array and the value is an array', function () {
+        it('returns true', function () {
+          const json = { user: { roles: [{ name: ['Admin'] }] } };
+          const query = { 'user.roles.name': { $eq: ['Admin'] } };
 
-        const result = isJsonValid(json, query);
+          const result = isJsonValid(json, query);
 
-        expect(result).to.eql(true);
+          expect(result).to.eql(true);
+        });
+
+        it('returns false', function () {
+          const json = { user: { roles: [{ name: ['Admin', 'Owner'] }] } };
+          const query = { 'user.roles.name': { $eq: ['Owner'] } };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(false);
+        });
       });
 
-      it('returns false', function () {
-        const json = { user: { roles: ['Admin'] } };
-        const query = { 'user.roles': { $eq: 'Owner' } };
+      context('when the reference is not a nested array and the value is an array', function () {
+        it('returns true', function () {
+          const json = { user: { roles: ['Admin'] } };
+          const query = { 'user.roles': { $eq: ['Admin'] } };
 
-        const result = isJsonValid(json, query);
+          const result = isJsonValid(json, query);
 
-        expect(result).to.eql(false);
+          expect(result).to.eql(true);
+        });
+
+        it('returns false', function () {
+          const json = { user: { roles: ['Admin', 'Owner'] } };
+          const query = { 'user.roles': { $eq: ['Owner'] } };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(false);
+        });
+      });
+
+      context('when the value is not an array', function () {
+        it('returns true', function () {
+          const json = { user: { roles: ['Admin'] } };
+          const query = { 'user.roles': { $eq: 'Admin' } };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(true);
+        });
+
+        it('returns false', function () {
+          const json = { user: { roles: ['Admin'] } };
+          const query = { 'user.roles': { $eq: 'Owner' } };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(false);
+        });
       });
     });
 
@@ -398,35 +440,68 @@ describe('is-json-valid', function () {
 
   describe('$ne', function () {
     context('when the reference is an array', function () {
-      it('returns false', function () {
-        const json = { user: { roles: ['Admin'] } };
-        const query = { 'user.roles': { $ne: 'Admin' } };
+      context('when the reference is a nested array and the value is an array', function () {
+        it('returns true', function () {
+          const json = { user: { roles: [{ name: ['Admin', 'Owner'] }] } };
+          const query = { 'user.roles.name': { $ne: ['Admin'] } };
 
-        const result = isJsonValid(json, query);
+          const result = isJsonValid(json, query);
 
-        expect(result).to.eql(false);
+          expect(result).to.eql(true);
+        });
+
+        it('returns false', function () {
+          const json = { user: { roles: [{ name: ['Admin'] }] } };
+          const query = { 'user.roles.name': { $ne: ['Admin'] } };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(false);
+        });
       });
 
-      it('returns true', function () {
-        const json = { user: { roles: ['Admin'] } };
-        const query = { 'user.roles': { $ne: 'Owner' } };
+      context('when the reference is not a nested array and the value is an array', function () {
+        it('returns true', function () {
+          const json = { user: { roles: ['Admin', 'Owner'] } };
+          const query = { 'user.roles': { $ne: ['Admin'] } };
 
-        const result = isJsonValid(json, query);
+          const result = isJsonValid(json, query);
 
-        expect(result).to.eql(true);
+          expect(result).to.eql(true);
+        });
+
+        it('returns false', function () {
+          const json = { user: { roles: ['Admin'] } };
+          const query = { 'user.roles': { $ne: ['Admin'] } };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(false);
+        });
+      });
+
+      context('when the value is not an array', function () {
+        it('returns true', function () {
+          const json = { user: { roles: ['Admin'] } };
+          const query = { 'user.roles': { $ne: 'Owner' } };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(true);
+        });
+
+        it('returns false', function () {
+          const json = { user: { roles: ['Admin'] } };
+          const query = { 'user.roles': { $ne: 'Admin' } };
+
+          const result = isJsonValid(json, query);
+
+          expect(result).to.eql(false);
+        });
       });
     });
 
     context('when the reference is an ObjectId', function () {
-      it('returns false', function () {
-        const json = { user: { _id: new mongoose.Types.ObjectId() } };
-        const query = { 'user._id': { $ne: json.user._id.toHexString() } };
-
-        const result = isJsonValid(json, query);
-
-        expect(result).to.eql(false);
-      });
-
       it('returns true', function () {
         const json = { user: { _id: new mongoose.Types.ObjectId() } };
         const query = { 'user._id': { $ne: new mongoose.Types.ObjectId() } };
@@ -435,18 +510,18 @@ describe('is-json-valid', function () {
 
         expect(result).to.eql(true);
       });
-    });
 
-    context('when the reference is anything else', function () {
       it('returns false', function () {
-        const json = { user: { _id: '123' } };
-        const query = { 'user._id': { $ne: '123' } };
+        const json = { user: { _id: new mongoose.Types.ObjectId() } };
+        const query = { 'user._id': { $ne: json.user._id.toHexString() } };
 
         const result = isJsonValid(json, query);
 
         expect(result).to.eql(false);
       });
+    });
 
+    context('when the reference is anything else', function () {
       it('returns true', function () {
         const json = { user: { _id: '123' } };
         const query = { 'user._id': { $ne: '1' } };
@@ -454,6 +529,15 @@ describe('is-json-valid', function () {
         const result = isJsonValid(json, query);
 
         expect(result).to.eql(true);
+      });
+
+      it('returns false', function () {
+        const json = { user: { _id: '123' } };
+        const query = { 'user._id': { $ne: '123' } };
+
+        const result = isJsonValid(json, query);
+
+        expect(result).to.eql(false);
       });
     });
   });

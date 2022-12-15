@@ -45,12 +45,12 @@
           *matCellDef="let element">{{ getUserIds(element).length }}</td>
     </ng-container>
 
-    <ng-container matColumnDef="createdAt">
+    <ng-container matColumnDef="startedAt">
       <th mat-header-cell
           *matHeaderCellDef
-          mat-sort-header>Created At</th>
+          mat-sort-header>Started At</th>
       <td mat-cell
-          *matCellDef="let element">{{ element.createdAt | date }}</td>
+          *matCellDef="let element">{{ element.startedAt | date }}</td>
     </ng-container>
 
     <ng-container matColumnDef="finishedAt">

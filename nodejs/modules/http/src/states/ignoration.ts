@@ -5,7 +5,7 @@ import { UserQuery } from './user';
 
 export interface IgnorationState extends EntityState<IgnorationModel> {}
 
-@StoreConfig({ idKey: '_id', deepFreezeFn: (o) => o, name: 'ignorations', resettable: true })
+@StoreConfig({ deepFreezeFn: (o) => o, idKey: '_id', name: 'ignorations', resettable: true })
 export class IgnorationStore extends EntityStore<IgnorationState, IgnorationModel> {}
 
 export class IgnorationQuery extends QueryEntity<IgnorationState, IgnorationModel> {

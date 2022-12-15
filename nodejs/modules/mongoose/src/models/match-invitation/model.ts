@@ -9,6 +9,7 @@ import {
 import * as mongoose from 'mongoose';
 
 import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
+import { AuthorizationDocument } from '../authorization';
 
 @index(
   { expiresAt: 1 },
@@ -31,7 +32,7 @@ export class MatchInvitationSchema {
 
   public createdAt: Date;
 
-  @prop({ type: Date })
+  @prop({ default: () => new Date(Date.now() + 15 * 1000), type: Date })
   public expiresAt: Date;
 
   @prop({ ref: 'MatchSchema', required: true, type: mongoose.Schema.Types.ObjectId })
@@ -47,6 +48,9 @@ export class MatchInvitationSchema {
 
   @prop({ ref: 'UserSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public userId: mongoose.Types.ObjectId;
+
+  @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
+  public authorizationDocuments: AuthorizationDocument[];
 
   /**
    * Creates a record with randomized required parameters if not specified.

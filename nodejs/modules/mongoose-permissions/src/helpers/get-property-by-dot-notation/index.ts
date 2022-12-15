@@ -18,15 +18,15 @@ export function getPropertyByDotNotation(json: any, path: string) {
  * If the object is not an Array or Object, return undefined since it has no subproperties.
  */
 function getPropertyByKey(obj: any, key: string) {
-  if (obj && obj.constructor === Array) {
+  if (obj?.constructor === Array) {
     if (/^\d+$/.test(key)) {
       return obj[key];
     } else {
       return obj
-        .map(o => (o && o.constructor === Object ? o[key] : null))
-        .filter(o => o !== null && o !== undefined);
+        .map((o) => (o?.constructor === Object ? o[key] : null))
+        .filter((o) => o !== null && o !== undefined);
     }
-  } else if (obj && obj.constructor === Object) {
+  } else if (obj?.constructor === Object) {
     return obj[key];
   } else {
     return undefined;

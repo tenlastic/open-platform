@@ -65,9 +65,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
       this.params = params;
 
       this.$namespace = this.namespaceQuery.selectEntity(params.namespaceId);
-      this.$storefront = this.storefrontQuery
-        .selectAll({ filterBy: (s) => s.namespaceId === params.namespaceId })
-        .pipe(map((s) => s[0]));
+      this.$storefront = this.storefrontQuery.selectEntity(params.namespaceId);
 
       await this.storefrontService.find(params.namespaceId, { limit: 1 });
 

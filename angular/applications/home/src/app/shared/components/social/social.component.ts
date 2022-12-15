@@ -18,23 +18,21 @@ import {
   MessageModel,
   MessageQuery,
   MessageService,
-  QueueMemberModel,
   QueueMemberQuery,
   UserModel,
   UserQuery,
   UserService,
   UserStore,
   WebSocketService,
-  MatchModel,
   MatchQuery,
   MatchService,
+  MatchInvitationService,
 } from '@tenlastic/http';
 import { Observable, Subscription, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { ElectronService, IdentityService } from '../../../core/services';
 import { InputDialogComponent } from '../input-dialog/input-dialog.component';
-import { MatchPromptComponent } from '../match-prompt/match-prompt.component';
 
 @Component({
   selector: 'app-social',
@@ -57,13 +55,8 @@ export class SocialComponent implements OnDestroy, OnInit {
     );
   }
   public $ignorations: Observable<IgnorationModel[]>;
-  public $matches: Observable<MatchModel[]>;
   public $messages: Observable<MessageModel[]>;
   public $otherConversations: Observable<string[]>;
-  public $queueMembers: Observable<QueueMemberModel[]>;
-  public fetchMatchesQueues$ = new Subscription();
-  public fetchQueueMembersQueues$ = new Subscription();
-  public updateQueueMembers$ = new Subscription();
   public get isElectron() {
     return this.electronService.isElectron;
   }
@@ -71,7 +64,6 @@ export class SocialComponent implements OnDestroy, OnInit {
     return this.identityService.user;
   }
 
-  private onMatchServiceCreate = this.newMatchNotification.bind(this);
   private onMessageServiceCreate = this.newMessageNotification.bind(this);
 
   constructor(
@@ -87,11 +79,8 @@ export class SocialComponent implements OnDestroy, OnInit {
     private ignorationQuery: IgnorationQuery,
     private ignorationService: IgnorationService,
     private matDialog: MatDialog,
-    private matchQuery: MatchQuery,
-    private matchService: MatchService,
     private messageQuery: MessageQuery,
     private messageService: MessageService,
-    private queueMemberQuery: QueueMemberQuery,
     private userQuery: UserQuery,
     private userService: UserService,
     private userStore: UserStore,
@@ -114,11 +103,7 @@ export class SocialComponent implements OnDestroy, OnInit {
       sortBy: 'createdAt',
     });
     this.$ignorations = this.ignorationQuery.selectAll();
-    this.$matches = this.matchQuery.selectAll({
-      filterBy: (m) => !m.finishedAt && m.userIds.includes(userId),
-    });
     this.$messages = this.messageQuery.selectAll();
-    this.$queueMembers = this.queueMemberQuery.selectAll({ filterBy: () => false });
 
     this.$otherConversations = combineLatest([this.$friends, this.$messages]).pipe(
       map(([friends, messages]) => {
@@ -131,23 +116,13 @@ export class SocialComponent implements OnDestroy, OnInit {
       }),
     );
 
-    if (this.isElectron) {
-      this.updateQueueMembers$ = this.$group.subscribe((group) => {
-        this.$queueMembers = this.queueMemberQuery.selectAll({
-          filterBy: (qm) => group?._id === qm.groupId || qm.userId === userId,
-        });
-      });
-
-      this.matchService.emitter.on('create', this.onMatchServiceCreate);
-      this.messageService.emitter.on('create', this.onMessageServiceCreate);
-    }
+    this.messageService.emitter.on('create', this.onMessageServiceCreate);
 
     return Promise.all([
       this.friendService.find({ where: { fromUserId: userId } }),
       this.groupInvitationService.find({ where: { toUserId: userId } }),
       this.groupService.find({ where: { userIds: userId } }),
       this.ignorationService.find({ where: { fromUserId: userId } }),
-      this.matchService.find(null, { where: { 'teams.userIds': userId } }),
       this.messageService.find({ sort: '-createdAt' }),
       this.userService.find({}),
       this.webSocketService.find(null, { sort: '-createdAt' }),
@@ -155,11 +130,6 @@ export class SocialComponent implements OnDestroy, OnInit {
   }
 
   public ngOnDestroy() {
-    this.fetchMatchesQueues$.unsubscribe();
-    this.fetchQueueMembersQueues$.unsubscribe();
-    this.updateQueueMembers$.unsubscribe();
-
-    this.matchService.emitter.off('create', this.onMatchServiceCreate);
     this.messageService.emitter.off('create', this.onMessageServiceCreate);
   }
 
@@ -225,25 +195,8 @@ export class SocialComponent implements OnDestroy, OnInit {
     return users.map((u) => ({ label: u.username, value: u.username }));
   }
 
-  private async newMatchNotification(match: MatchModel) {
-    if (!match.userIds.includes(this.identityService.user._id)) {
-      return;
-    }
-
-    this.matDialog.open(MatchPromptComponent, { autoFocus: false, data: { match } });
-
-    const window = this.electronService.remote.getCurrentWindow();
-    window.flashFrame(true);
-    window.show();
-
-    if (!window.isFocused()) {
-      window.setAlwaysOnTop(true);
-      window.on('focus', () => window.setAlwaysOnTop(false));
-    }
-  }
-
   private async newMessageNotification(message: MessageModel) {
-    if (message.fromUserId === this.identityService.user._id) {
+    if (message.fromUserId === this.identityService.user._id || !this.isElectron) {
       return;
     }
 

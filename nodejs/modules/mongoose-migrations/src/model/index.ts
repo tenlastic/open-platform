@@ -5,7 +5,6 @@ import {
   modelOptions,
   pre,
   prop,
-  ReturnModelType,
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
@@ -45,5 +44,4 @@ export class MigrationSchema {
 }
 
 export type MigrationDocument = DocumentType<MigrationSchema>;
-export type MigrationModel = ReturnModelType<typeof MigrationSchema>;
-export const Migration = getModelForClass(MigrationSchema);
+export const MigrationModel = getModelForClass(MigrationSchema);

@@ -58,6 +58,16 @@ export class BaseService<T extends BaseModel> {
   }
 
   /**
+   * Adds a new entity to the store or replaces an existing entity within the store.
+   */
+  public addOrReplace(entity: T) {
+    const id = entity[this.store.idKey];
+    const { ids } = this.store.getValue();
+
+    return ids.includes(id) ? this.store.replace(id, entity) : this.store.add(entity);
+  }
+
+  /**
    * Returns the number of Records satisfying the query.
    */
   public async count(query: any, url: string): Promise<number> {
@@ -135,15 +145,5 @@ export class BaseService<T extends BaseModel> {
     this.addOrReplace(record);
 
     return record;
-  }
-
-  /**
-   * Adds a new entity to the store or replaces an existing entity within the store.
-   */
-  private addOrReplace(entity: T) {
-    const id = entity[this.store.idKey];
-    const { ids } = this.store.getValue();
-
-    return ids.includes(id) ? this.store.replace(id, entity) : this.store.add(entity);
   }
 }

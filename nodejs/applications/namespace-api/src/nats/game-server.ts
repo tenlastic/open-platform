@@ -45,12 +45,13 @@ GameServerEvent.async(async (payload) => {
 // Creates a Game Server when a Match with confirmation is started.
 MatchEvent.async(async (payload) => {
   const { _id, confirmationExpiresAt, namespaceId, queueId, startedAt } = payload.fullDocument;
+  const updatedFields = payload.updateDescription?.updatedFields;
 
   if (payload.operationType === 'delete') {
     await GameServerModel.deleteMany({ matchId: _id });
   } else if (
-    (payload.operationType === 'insert' && !confirmationExpiresAt) ||
-    (payload.operationType === 'update' && confirmationExpiresAt && startedAt)
+    (payload.operationType === 'insert' && !confirmationExpiresAt && startedAt) ||
+    (payload.operationType === 'update' && confirmationExpiresAt && updatedFields.startedAt)
   ) {
     const queue = await QueueModel.findOne({ _id: queueId });
 
