@@ -6,10 +6,11 @@ import { AuthorizationPermissionsHelpers } from './authorization';
 const administrator = {
   create: [
     'buildId',
-    'confirmationSeconds',
+    'confirmation',
     'cpu',
     'description',
     'gameServerTemplate.*',
+    'invitationSeconds',
     'memory',
     'name',
     'namespaceId',
@@ -22,11 +23,12 @@ const administrator = {
   read: [
     '_id',
     'buildId',
-    'confirmationSeconds',
+    'confirmation',
     'cpu',
     'createdAt',
     'description',
     'gameServerTemplate.*',
+    'invitationSeconds',
     'logs',
     'memory',
     'name',
@@ -41,10 +43,11 @@ const administrator = {
   ],
   update: [
     'buildId',
-    'confirmationSeconds',
+    'confirmation',
     'cpu',
     'description',
     'gameServerTemplate.*',
+    'invitationSeconds',
     'memory',
     'name',
     'preemptible',
@@ -76,9 +79,10 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(QueueMode
   read: {
     default: [
       '_id',
-      'confirmationSeconds',
+      'confirmation',
       'createdAt',
       'description',
+      'invitationSeconds',
       'name',
       'namespaceId',
       'status.phase',
@@ -118,9 +122,10 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(QueueMode
     'namespace-write': administrator.update,
     'system-write': [
       'buildId',
-      'confirmationSeconds',
+      'confirmation',
       'description',
       'gameServerTemplate.*',
+      'invitationSeconds',
       'name',
       'replicas',
       'restartedAt',

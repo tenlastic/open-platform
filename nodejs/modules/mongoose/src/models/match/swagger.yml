@@ -20,6 +20,9 @@ components:
         finishedAt:
           type: string
           format: date-time
+        invitationSeconds:
+          type: number
+          min: 0
         namespaceId:
           type: string
           format: ^[0-9a-f]{24}$

@@ -32,9 +32,9 @@ export async function createMatch(queue: QueueModel): Promise<MatchModel> {
 
   // Create the Match.
   let match: MatchModel;
-  if (queue.confirmationSeconds) {
+  if (queue.confirmation) {
     match = await dependencies.matchService.create(queue.namespaceId, {
-      confirmationExpiresAt: new Date(Date.now() + queue.confirmationSeconds * 1000),
+      confirmationExpiresAt: new Date(Date.now() + queue.invitationSeconds * 1000),
       queueId: queue._id,
       teams,
     });

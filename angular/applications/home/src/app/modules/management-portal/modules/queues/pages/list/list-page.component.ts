@@ -100,7 +100,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
   public async restart($event: Event, record: QueueModel) {
     $event.stopPropagation();
 
-    await this.queueService.update(record.namespaceId, record._id, { restartedAt: new Date() });
+    await this.queueService.restart(record.namespaceId, record._id);
     this.matSnackBar.open('Queue is restarting...');
   }
 

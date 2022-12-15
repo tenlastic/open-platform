@@ -146,6 +146,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
 
     const values: Partial<QueueModel> = {
       _id: this.data._id,
+      confirmation: this.form.get('confirmation').value,
       cpu: this.form.get('cpu').value,
       description: this.form.get('description').value,
       gameServerTemplate: {
@@ -156,6 +157,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
         ports: this.form.get('gameServerTemplate').get('ports').value,
         preemptible: this.form.get('gameServerTemplate').get('preemptible').value,
       },
+      invitationSeconds: this.form.get('invitationSeconds').value,
       memory: this.form.get('memory').value,
       name: this.form.get('name').value,
       namespaceId: this.form.get('namespaceId').value,
@@ -253,7 +255,11 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
   }
 
   private setupForm() {
-    this.data ??= new QueueModel({ usersPerTeam: [1, 1] });
+    this.data ??= new QueueModel({
+      confirmation: true,
+      invitationSeconds: 30,
+      usersPerTeam: [1, 1],
+    });
 
     const { gameServerTemplate } = this.data;
 
@@ -305,9 +311,11 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
     );
 
     this.form = this.formBuilder.group({
+      confirmation: [this.data.confirmation || false],
       cpu: [this.data.cpu || this.cpus[0].value, Validators.required],
       description: [this.data.description],
       gameServerTemplate: gameServerTemplateForm,
+      invitationSeconds: [this.data.invitationSeconds || 0],
       memory: [this.data.memory || this.memories[0].value, Validators.required],
       name: [this.data.name, Validators.required],
       namespaceId: [this.params.namespaceId],

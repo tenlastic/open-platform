@@ -45,8 +45,8 @@ import { QueueThresholdDocument, QueueThresholdSchema } from './threshold';
 export class QueueSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @prop({ min: 0, type: Number })
-  public confirmationSeconds: number;
+  @prop({ type: Boolean })
+  public confirmation: boolean;
 
   @prop({ min: 0.1, required: true, type: Number })
   public cpu: number;
@@ -58,6 +58,9 @@ export class QueueSchema {
 
   @prop({ required: true, type: QueueGameServerTemplateSchema })
   public gameServerTemplate: QueueGameServerTemplateDocument;
+
+  @prop({ default: 30, min: 0, type: Number })
+  public invitationSeconds: number;
 
   @prop({ min: 100 * 1000 * 1000, required: true, type: Number })
   public memory: number;
@@ -74,7 +77,7 @@ export class QueueSchema {
   @prop({ min: 0, required: true, type: Number, validate: enumValidator([1, 3, 5]) })
   public replicas: number;
 
-  @prop({ type: Date })
+  @prop({ type: Date, writable: false })
   public restartedAt: Date;
 
   @prop({

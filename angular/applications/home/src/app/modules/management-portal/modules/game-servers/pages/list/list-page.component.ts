@@ -103,9 +103,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
   public async restart($event: Event, record: GameServerModel) {
     $event.stopPropagation();
 
-    await this.gameServerService.update(record.namespaceId, record._id, {
-      restartedAt: new Date(),
-    });
+    await this.gameServerService.restart(record.namespaceId, record._id);
     this.matSnackBar.open('Game Server is restarting...');
   }
 

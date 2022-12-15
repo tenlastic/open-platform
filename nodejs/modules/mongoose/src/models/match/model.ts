@@ -45,6 +45,9 @@ export class MatchSchema {
   @prop({ type: Date })
   public finishedAt: Date;
 
+  @prop({ default: 30, min: 0, type: Number })
+  public invitationSeconds: number;
+
   @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public namespaceId: mongoose.Types.ObjectId;
 

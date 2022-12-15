@@ -1,8 +1,8 @@
 paths:
-  /namespaces/{namespaceId}/match-invitations/{_id}/accepted-at:
+  /namespaces/{namespaceId}/game-servers/{_id}/restarted-at:
     put:
-      summary: Accept
-      tags: [Match Invitations]
+      summary: Restart
+      tags: [Game Servers]
       description: Updates an existing record's date field to the current date and time.
       security:
         - AccessToken: []
@@ -26,4 +26,4 @@ paths:
                 type: object
                 properties:
                   record:
-                    $ref: '#/components/schemas/MatchInvitation'
+                    $ref: '#/components/schemas/GameServer'

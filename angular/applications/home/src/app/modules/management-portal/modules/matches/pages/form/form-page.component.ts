@@ -113,12 +113,17 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
       return;
     }
 
+    const confirmationExpiresAt = this.form.get('confirmation').value
+      ? new Date(Date.now() + this.form.get('invitationSeconds').value * 1000)
+      : null;
     const teams: IMatch.Team[] = this.form.get('teams').value.map((t) => {
       return { userIds: t.users.map((u) => u._id) };
     });
 
     const values: Partial<MatchModel> = {
       _id: this.data._id,
+      confirmationExpiresAt,
+      invitationSeconds: this.form.get('invitationSeconds').value,
       namespaceId: this.form.get('namespaceId').value,
       queueId: this.form.get('queueId').value,
       teams,
@@ -135,7 +140,11 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
   }
 
   private setupForm() {
-    this.data ??= new MatchModel({ teams: [{ userIds: [null] }, { userIds: [null] }] });
+    this.data ??= new MatchModel({
+      confirmationExpiresAt: new Date(),
+      invitationSeconds: 30,
+      teams: [{ userIds: [null] }, { userIds: [null] }],
+    });
 
     const teamFormGroups = this.data.teams.map((t) => {
       const users = t.userIds.map((ui) => this.userQuery.getEntity(ui));
@@ -146,6 +155,8 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
     });
 
     this.form = this.formBuilder.group({
+      confirmation: [Boolean(this.data.confirmationExpiresAt) || false],
+      invitationSeconds: [this.data.invitationSeconds || 0, Validators.required],
       namespaceId: [this.params.namespaceId],
       queueId: [
         this.data.queueId || this.params.queueId || this.queues[0]?._id,

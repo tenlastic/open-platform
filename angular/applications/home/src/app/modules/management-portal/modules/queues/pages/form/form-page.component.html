@@ -72,6 +72,25 @@
       </mat-form-field>
     </div>
 
+    <div class="row">
+      <mat-form-field floatLabel="always">
+        <mat-label>Confirmation</mat-label>
+        <mat-select formControlName="confirmation">
+          <mat-option [value]="true">Yes</mat-option>
+          <mat-option [value]="false">No</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field floatLabel="always">
+        <mat-label>Invitation Seconds</mat-label>
+        <input formControlName="invitationSeconds"
+               matInput
+               min="0"
+               type="number" />
+        <mat-error>Enter a valid duration for invitations.</mat-error>
+      </mat-form-field>
+    </div>
+
     <app-toggle-section formArrayName="usersPerTeam"
                         [isVisible]="isNew"
                         title="Players Per Team">

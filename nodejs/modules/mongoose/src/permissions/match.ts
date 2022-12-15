@@ -11,13 +11,14 @@ const administrator = {
     'confirmedUserIds',
     'createdAt',
     'finishedAt',
+    'invitationSeconds',
     'namespaceId',
     'queueId',
     'startedAt',
     'teams.*',
     'updatedAt',
   ],
-  update: ['queueId', 'teams.*'],
+  update: ['teams.*'],
 };
 
 export const MatchPermissions = new MongoosePermissions<MatchDocument>(MatchModel, {
@@ -54,6 +55,7 @@ export const MatchPermissions = new MongoosePermissions<MatchDocument>(MatchMode
       'confirmedUserIds',
       'createdAt',
       'finishedAt',
+      'invitationSeconds',
       'namespaceId',
       'queueId',
       'startedAt',
@@ -90,7 +92,7 @@ export const MatchPermissions = new MongoosePermissions<MatchDocument>(MatchMode
   },
   update: {
     'namespace-write': administrator.update,
-    'system-write': ['queueId', 'teams.*'],
+    'system-write': ['teams.*'],
     'user-write': administrator.update,
   },
 });

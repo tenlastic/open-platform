@@ -64,6 +64,23 @@ export class GameServerService {
   }
 
   /**
+   * Restarts the Game Server.
+   */
+  public async restart(namespaceId: string, _id: string) {
+    const url = this.getUrl(namespaceId);
+    const response = await this.apiService.request({
+      method: 'put',
+      url: `${url}/${_id}/restarted-at`,
+    });
+
+    const record = new GameServerModel(response.data.record);
+    this.emitter.emit('update', record);
+    this.baseService.addOrReplace(record);
+
+    return record;
+  }
+
+  /**
    * Updates a Record.
    */
   public async update(namespaceId: string, _id: string, json: Partial<GameServerModel>) {

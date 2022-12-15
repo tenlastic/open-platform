@@ -69,7 +69,10 @@ export const KubernetesQueue = {
       { name: 'QUEUE_ID', value: `${queue._id}` },
       { name: 'WSS_URL', value: `ws://${namespaceName}-api.dynamic:3000` },
     ];
-    const envFrom: V1EnvFromSource[] = [{ secretRef: { name: namespaceName } }];
+    const envFrom: V1EnvFromSource[] = [
+      { secretRef: { name: 'nodejs' } },
+      { secretRef: { name: namespaceName } },
+    ];
     const resources = {
       limits: { cpu: `${queue.cpu}`, memory: `${queue.memory}` },
       requests: { cpu: `${queue.cpu}`, memory: `${queue.memory}` },

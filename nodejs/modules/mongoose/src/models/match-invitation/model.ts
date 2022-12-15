@@ -26,7 +26,7 @@ export class MatchInvitationSchema {
 
   public createdAt: Date;
 
-  @prop({ default: () => new Date(Date.now() + 15 * 1000), type: Date })
+  @prop({ required: true, type: Date })
   public expiresAt: Date;
 
   @prop({ ref: 'MatchSchema', required: true, type: mongoose.Schema.Types.ObjectId })

@@ -66,10 +66,11 @@ export namespace IQueue {
 }
 
 export class QueueModel extends BaseModel {
-  public confirmationSeconds: number;
+  public confirmation: boolean;
   public cpu: number;
   public description: string;
   public gameServerTemplate: IQueue.GameServerTemplate;
+  public invitationSeconds: number;
   public memory: number;
   public name: string;
   public namespaceId: string;

@@ -75,6 +75,7 @@ export class QueuesJsonPageComponent implements OnInit {
 
   private setupForm() {
     this.data ??= new QueueModel({
+      confirmation: true,
       cpu: IQueue.Cpu[0].value,
       description: '',
       gameServerTemplate: {
@@ -84,6 +85,7 @@ export class QueuesJsonPageComponent implements OnInit {
         metadata: {},
         preemptible: true,
       },
+      invitationSeconds: 30,
       memory: IQueue.Memory[0].value,
       name: '',
       preemptible: true,
@@ -93,9 +95,11 @@ export class QueuesJsonPageComponent implements OnInit {
 
     const keys = [
       'buildId',
+      'confirmation',
       'cpu',
       'description',
       'gameServerTemplate',
+      'invitationSeconds',
       'memory',
       'name',
       'preemptible',
