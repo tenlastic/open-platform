@@ -10,21 +10,22 @@ import {
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
-import { unsetPlugin } from '../../plugins';
+import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 import { arrayLengthValidator, arrayNullUndefinedValidator } from '../../validators';
 import { AuthorizationDocument } from '../authorization';
 import { MatchTeamDocument, MatchTeamModel, MatchTeamSchema } from './team';
 
 @index(
   { confirmationExpiresAt: 1 },
-  { expireAfterSeconds: 0, partialFilterExpression: { startedAt: { $type: 'undefined' } } },
+  { expireAfterSeconds: 0, partialFilterExpression: { startedAt: null } },
 )
 @index(
   { namespaceId: 1, 'teams.userIds': 1 },
-  { partialFilterExpression: { finishedAt: { $type: 'undefined' } }, unique: true },
+  { partialFilterExpression: { finishedAt: null }, unique: true },
 )
 @index({ queueId: 1 })
 @modelOptions({ schemaOptions: { collection: 'matches', timestamps: true } })
+@plugin(duplicateKeyErrorPlugin)
 @plugin(unsetPlugin)
 @pre('save', function (this: MatchDocument) {
   if (this.isNew && !this.confirmationExpiresAt) {

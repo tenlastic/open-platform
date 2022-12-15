@@ -127,7 +127,10 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
     try {
       this.data = await this.upsert(values);
     } catch (e) {
-      this.errors = this.formService.handleHttpError(e, { name: 'Name' });
+      this.errors = this.formService.handleHttpError(e, {
+        namespaceId: 'Namespace',
+        'teams.userIds': 'Team Users',
+      });
     }
   }
 

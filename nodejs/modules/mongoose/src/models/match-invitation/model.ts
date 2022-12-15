@@ -11,13 +11,7 @@ import * as mongoose from 'mongoose';
 import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 import { AuthorizationDocument } from '../authorization';
 
-@index(
-  { expiresAt: 1 },
-  {
-    expireAfterSeconds: 0,
-    partialFilterExpression: { acceptedAt: { $type: 'undefined' } },
-  },
-)
+@index({ expiresAt: 1 }, { expireAfterSeconds: 0, partialFilterExpression: { acceptedAt: null } })
 @index({ matchId: 1 })
 @index({ namespaceId: 1 })
 @index({ userId: 1 })
