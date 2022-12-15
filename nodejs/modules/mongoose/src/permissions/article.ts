@@ -28,12 +28,12 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
           ...AuthorizationPermissionsHelpers.getFindQuery([
             AuthorizationRole.ArticlesReadPublished,
           ]),
-          publishedAt: { $exists: true, $ne: null },
+          publishedAt: { $lte: new Date() },
         },
       ],
     },
     'user-read': {},
-    'user-read-published': { publishedAt: { $exists: true, $ne: null } },
+    'user-read-published': { publishedAt: { $lte: new Date() } },
   },
   populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
   read: {

@@ -72,13 +72,13 @@ export async function subscribe(
       }
 
       // Handle the where clause.
+      const document = new Model(json.fullDocument);
       const where = await Permissions.where(credentials, parameters.where || {});
-      if (!isJsonValid(json.fullDocument, where)) {
+      if (!isJsonValid(document.toJSON({ virtuals: true }), where)) {
         continue;
       }
 
       // Strip document of unauthorized information.
-      const document = new Model(json.fullDocument);
       const fullDocument = await Permissions.read(credentials, document);
 
       // Strip update description of unauthorized information.

@@ -22,6 +22,7 @@ export enum BuildPlatform {
 }
 
 @index({ name: 1, namespaceId: 1, platform: 1 }, { unique: true })
+@index({ publishedAt: 1 })
 @modelOptions({ schemaOptions: { collection: 'builds', timestamps: true } })
 @plugin(duplicateKeyErrorPlugin)
 @plugin(unsetPlugin)
