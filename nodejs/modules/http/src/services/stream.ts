@@ -204,8 +204,8 @@ export class StreamService {
     const data = { _id, method: 'logs', parameters };
     const socket = this.webSockets.get(url);
 
-    socket.send(JSON.stringify(data));
-    socket.addEventListener('message', (msg) => {
+    socket?.send(JSON.stringify(data));
+    socket?.addEventListener('message', (msg) => {
       const payload = JSON.parse(msg.data);
 
       // If the response is for a different request, ignore it.
@@ -263,8 +263,8 @@ export class StreamService {
     };
     const socket = this.webSockets.get(url);
 
-    socket.send(JSON.stringify(data));
-    socket.addEventListener('message', (msg) => {
+    socket?.send(JSON.stringify(data));
+    socket?.addEventListener('message', (msg) => {
       const payload = JSON.parse(msg.data) as IPayload<T>;
 
       // If the response is for a different request, ignore it.
@@ -315,7 +315,7 @@ export class StreamService {
     this.subscriptions.splice(index, 1);
 
     const socket = this.webSockets.get(url);
-    socket.send(JSON.stringify(data));
+    socket?.send(JSON.stringify(data));
   }
 
   /**
