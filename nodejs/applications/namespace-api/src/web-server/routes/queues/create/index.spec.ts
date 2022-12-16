@@ -8,7 +8,7 @@ import {
   NamespaceLimitsModel,
   UserDocument,
   UserModel,
-  GameServerPortModel,
+  GameServerTemplateModel,
 } from '@tenlastic/mongoose';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { ContextMock } from '@tenlastic/web-server';
@@ -42,18 +42,17 @@ describe('web-server/queues/create', function () {
         userId: user._id,
       }).save();
       const build = await BuildModel.mock({ namespaceId: namespace._id }).save();
+      const gameServerTemplate = await GameServerTemplateModel.mock({
+        buildId: build._id,
+        namespaceId: namespace._id,
+      }).save();
 
       ctx = new ContextMock({
         params: { namespaceId: namespace._id },
         request: {
           body: {
             cpu: 1,
-            gameServerTemplate: {
-              buildId: build._id,
-              cpu: 1,
-              memory: 1 * 1000 * 1000 * 1000,
-              ports: [GameServerPortModel.mock()],
-            },
+            gameServerTemplateId: gameServerTemplate._id,
             memory: 1 * 1000 * 1000 * 1000,
             name: chance.hash(),
             replicas: 1,

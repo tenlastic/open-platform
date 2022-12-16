@@ -3,7 +3,7 @@
   <div class="hover-off">
     <app-button color="accent"
                 text="left">
-      <mat-icon>join_inner</mat-icon>
+      <mat-icon>local_fire_department</mat-icon>
 
       <div>
         <div>{{ getStorefront(match.namespaceId)?.fullTitle }}</div>
@@ -25,11 +25,11 @@
   <div class="hover-off">
     <app-button color="accent"
                 text="left">
-      <mat-icon>schedule</mat-icon>
+      <mat-icon>hourglass_bottom</mat-icon>
 
       <div>
+        <div>{{ getStorefront(queueMember.namespaceId)?.fullTitle }}</div>
         <div>{{ getQueue(queueMember.queueId)?.name }}</div>
-        <div>{{ queueMember.groupId ? 'Group Queue' : 'Individual Queue' }}</div>
       </div>
     </app-button>
   </div>

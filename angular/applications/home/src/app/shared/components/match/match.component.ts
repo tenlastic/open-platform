@@ -89,10 +89,18 @@ export class MatchComponent implements OnDestroy, OnInit {
       const missingQueueIds = qms
         .filter((qm) => !this.queueQuery.hasEntity(qm.queueId))
         .reduce((p, c) => this.getGroupsByNamespaceId(c, 'queueId', p), {});
+      const missingStorefrontIds = qms.filter(
+        (m) => !this.storefrontQuery.hasEntity(m.namespaceId),
+      );
 
       const promises = [];
       for (const [key, value] of Object.entries(missingQueueIds)) {
         promises.push(this.queueService.find(key, { where: { _id: { $in: value } } }));
+      }
+      if (missingStorefrontIds.length > 0) {
+        promises.push(
+          this.storefrontService.find(null, { where: { _id: { $in: missingStorefrontIds } } }),
+        );
       }
 
       return Promise.all(promises);

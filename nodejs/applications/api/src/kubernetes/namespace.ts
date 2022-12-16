@@ -118,6 +118,7 @@ export const KubernetesNamespace = {
         AuthorizationRole.NamespacesReadWrite,
       ]),
       upsertAuthorization('System (Queues)', namespace._id, [
+        AuthorizationRole.GameServersReadWrite,
         AuthorizationRole.MatchesReadWrite,
         AuthorizationRole.QueuesReadWrite,
       ]),
@@ -143,6 +144,7 @@ export const KubernetesNamespace = {
                 getPath(namespace, '/articles'),
                 getPath(namespace, '/builds'),
                 getPath(namespace, '/collections'),
+                getPath(namespace, '/game-server-templates'),
                 getPath(namespace, '/game-servers'),
                 getPath(namespace, '/match-invitations'),
                 getPath(namespace, '/matches'),

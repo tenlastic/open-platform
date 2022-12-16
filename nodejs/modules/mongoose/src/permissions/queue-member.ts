@@ -3,14 +3,18 @@ import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
 import { AuthorizationRole, QueueMemberDocument, QueueMemberModel } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
+const admin = {
+  create: ['groupId', 'namespaceId', 'queueId', 'userId', 'webSocketId'],
+};
+
 export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocument>(
   QueueMemberModel,
   {
     create: {
-      'group-leader': ['groupId', 'namespaceId', 'queueId', 'userId', 'webSocketId'],
-      'namespace-write': ['groupId', 'namespaceId', 'queueId', 'userId', 'webSocketId'],
+      'group-leader': admin.create,
+      'namespace-write': admin.create,
       owner: ['namespaceId', 'queueId', 'userId', 'webSocketId'],
-      'user-write': ['groupId', 'namespaceId', 'queueId', 'userId', 'webSocketId'],
+      'user-write': admin.create,
     },
     delete: {
       'group-leader': true,

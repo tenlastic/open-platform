@@ -7,6 +7,8 @@ import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Params } from '@angular/router';
 import {
   AuthorizationQuery,
+  GameServerTemplateQuery,
+  GameServerTemplateService,
   IAuthorization,
   MatchModel,
   MatchQuery,
@@ -31,8 +33,8 @@ export class MatchesListPageComponent implements OnDestroy, OnInit {
   public dataSource = new MatTableDataSource<MatchModel>();
   public get displayedColumns() {
     return this.params.queueId
-      ? ['teams', 'users', 'startedAt', 'finishedAt', 'actions']
-      : ['queue', 'teams', 'users', 'startedAt', 'finishedAt', 'actions'];
+      ? ['gameServerTemplate', 'teams', 'users', 'startedAt', 'finishedAt', 'actions']
+      : ['gameServerTemplate', 'queue', 'teams', 'users', 'startedAt', 'finishedAt', 'actions'];
   }
   public hasWriteAuthorization: boolean;
 
@@ -44,6 +46,8 @@ export class MatchesListPageComponent implements OnDestroy, OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private authorizationQuery: AuthorizationQuery,
+    private gameServerTemplateQuery: GameServerTemplateQuery,
+    private gameServerTemplateService: GameServerTemplateService,
     private identityService: IdentityService,
     private matchQuery: MatchQuery,
     private matchService: MatchService,
@@ -69,6 +73,10 @@ export class MatchesListPageComponent implements OnDestroy, OnInit {
 
   public ngOnDestroy() {
     this.updateDataSource$.unsubscribe();
+  }
+
+  public getGameServerTemplate(_id: string) {
+    return this.gameServerTemplateQuery.getEntity(_id);
   }
 
   public getQueue(_id: string) {
@@ -119,6 +127,14 @@ export class MatchesListPageComponent implements OnDestroy, OnInit {
     this.dataSource.sort = this.sort;
 
     const matches = await this.matchService.find(params.namespaceId, { sort: 'name' });
+
+    const gameServerTemplateIds = matches
+      .map((m) => m.gameServerTemplateId)
+      .flat()
+      .filter((gsti, i, arr) => arr.indexOf(gsti) === i);
+    await this.gameServerTemplateService.find(params.namespaceId, {
+      where: { _id: { $in: gameServerTemplateIds } },
+    });
 
     if (params.queueId) {
       return;

@@ -16,8 +16,9 @@ components:
           format: date-time
         description:
           type: string
-        gameServerTemplate:
-          $ref: '#/components/schemas/QueueGameServerTemplate'
+        gameServerTemplateId:
+          type: string
+          format: ^[0-9a-f]{24}$
         invitationSeconds:
           type: number
           min: 0

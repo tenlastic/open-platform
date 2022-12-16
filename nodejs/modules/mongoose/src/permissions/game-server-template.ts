@@ -108,17 +108,7 @@ export const GameServerTemplatePermissions = new MongoosePermissions<GameServerT
     },
     update: {
       'namespace-write': administrator.update,
-      'system-write': [
-        'buildId',
-        'cpu',
-        'description',
-        'memory',
-        'metadata.*',
-        'name',
-        'ports',
-        'preemptible',
-        'probes.*',
-      ],
+      'system-write': administrator.update,
       'user-write': administrator.update,
     },
   },

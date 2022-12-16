@@ -67,3 +67,4 @@ components:
         - memory
         - name
         - namespaceId
+        - ports

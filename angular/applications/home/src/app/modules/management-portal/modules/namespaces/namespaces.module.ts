@@ -51,6 +51,13 @@ export const ROUTES: Routes = [
         path: 'game-servers',
       },
       {
+        loadChildren: () =>
+          import('../game-server-templates/game-server-templates.module').then(
+            (m) => m.GameServerTemplateModule,
+          ),
+        path: 'game-server-templates',
+      },
+      {
         component: NamespacesJsonPageComponent,
         data: { param: 'namespaceId', title: 'Namespace' },
         path: 'json',

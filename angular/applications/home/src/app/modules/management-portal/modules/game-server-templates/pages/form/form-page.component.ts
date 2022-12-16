@@ -1,16 +1,14 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
   AuthorizationQuery,
   BuildModel,
   BuildService,
-  GameServerModel,
-  GameServerQuery,
-  GameServerService,
   GameServerTemplateModel,
+  GameServerTemplateQuery,
+  GameServerTemplateService,
   IAuthorization,
   IBuild,
   IGameServer,
@@ -20,7 +18,7 @@ import {
 import { Subscription } from 'rxjs';
 
 import { FormService, IdentityService } from '../../../../../../core/services';
-import { ProbeFieldComponent, PromptComponent } from '../../../../../../shared/components';
+import { ProbeFieldComponent } from '../../../../../../shared/components';
 
 interface PropertyFormGroup {
   key?: string;
@@ -32,19 +30,19 @@ interface PropertyFormGroup {
   templateUrl: 'form-page.component.html',
   styleUrls: ['./form-page.component.scss'],
 })
-export class GameServersFormPageComponent implements OnDestroy, OnInit {
+export class GameServerTemplatesFormPageComponent implements OnDestroy, OnInit {
   public builds: BuildModel[];
   public get cpus() {
     return this.namespace.limits.cpu
       ? IGameServer.Cpu.filter((r) => r.value <= this.namespace.limits.cpu)
       : IGameServer.Cpu;
   }
-  public data: GameServerModel;
+  public data: GameServerTemplateModel;
   public errors: string[] = [];
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
   public get isNew() {
-    return this.params.gameServerId === 'new';
+    return this.params.gameServerTemplateId === 'new';
   }
   public get liveness() {
     return this.form.get('probes').get('liveness') as FormGroup;
@@ -61,8 +59,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
     return this.form.get('probes').get('readiness') as FormGroup;
   }
 
-  private updateGameServer$ = new Subscription();
-  private gameServerTemplate: Partial<GameServerTemplateModel>;
+  private updateGameServerTemplate$ = new Subscription();
   private namespace: NamespaceModel;
   private params: Params;
 
@@ -72,17 +69,13 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
     private buildService: BuildService,
     private formBuilder: FormBuilder,
     private formService: FormService,
-    private gameServerQuery: GameServerQuery,
-    private gameServerService: GameServerService,
+    private gameServerTemplateQuery: GameServerTemplateQuery,
+    private gameServerTemplateService: GameServerTemplateService,
     private identityService: IdentityService,
-    private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private namespaceService: NamespaceService,
     private router: Router,
-  ) {
-    const navigation = this.router.getCurrentNavigation();
-    this.gameServerTemplate = navigation?.extras?.state?.gameServerTemplate;
-  }
+  ) {}
 
   public ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
@@ -101,8 +94,11 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
       });
       this.namespace = await this.namespaceService.findOne(params.namespaceId);
 
-      if (params.gameServerId !== 'new') {
-        this.data = await this.gameServerService.findOne(params.namespaceId, params.gameServerId);
+      if (params.gameServerTemplateId !== 'new') {
+        this.data = await this.gameServerTemplateService.findOne(
+          params.namespaceId,
+          params.gameServerTemplateId,
+        );
       }
 
       this.setupForm();
@@ -110,7 +106,14 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
   }
 
   public ngOnDestroy() {
-    this.updateGameServer$.unsubscribe();
+    this.updateGameServerTemplate$.unsubscribe();
+  }
+
+  public navigateToGameServerForm() {
+    this.router.navigate(['../../', 'game-servers', 'new'], {
+      relativeTo: this.activatedRoute,
+      state: { gameServerTemplate: new GameServerTemplateModel(this.data) },
+    });
   }
 
   public navigateToJson() {
@@ -130,7 +133,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
       return accumulator;
     }, {});
 
-    const values: Partial<GameServerModel> = {
+    const values: Partial<GameServerTemplateModel> = {
       _id: this.data._id,
       buildId: this.form.get('buildId').value,
       cpu: this.form.get('cpu').value,
@@ -154,38 +157,11 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
       values.probes = { liveness: livenessProbe, readiness: readinessProbe };
     }
 
-    const dirtyFields = this.getDirtyFields();
-    if (this.data._id && GameServerModel.isRestartRequired(dirtyFields)) {
-      const dialogRef = this.matDialog.open(PromptComponent, {
-        data: {
-          buttons: [
-            { color: 'primary', label: 'No' },
-            { color: 'accent', label: 'Yes' },
-          ],
-          message: `These changes require the Game Server to be restarted. Is this OK?`,
-        },
-      });
-
-      dialogRef.afterClosed().subscribe(async (result: string) => {
-        if (result === 'Yes') {
-          try {
-            this.data = await this.upsert(values);
-          } catch (e) {
-            this.errors = this.formService.handleHttpError(e);
-          }
-        }
-      });
-    } else {
-      try {
-        this.data = await this.upsert(values);
-      } catch (e) {
-        this.errors = this.formService.handleHttpError(e);
-      }
+    try {
+      this.data = await this.upsert(values);
+    } catch (e) {
+      this.errors = this.formService.handleHttpError(e);
     }
-  }
-
-  private getDirtyFields() {
-    return Object.keys(this.form.controls).filter((key) => this.form.get(key).dirty);
   }
 
   private getJsonFromProperty(property: PropertyFormGroup) {
@@ -202,7 +178,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
   }
 
   private setupForm() {
-    this.data ??= this.gameServerTemplate?.toGameServer() ?? new GameServerModel();
+    this.data ??= new GameServerTemplateModel();
 
     const metadataFormGroups = [];
     if (this.data.metadata) {
@@ -252,18 +228,18 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
     this.form.valueChanges.subscribe(() => (this.errors = []));
 
     if (this.data._id) {
-      this.updateGameServer$ = this.gameServerQuery
+      this.updateGameServerTemplate$ = this.gameServerTemplateQuery
         .selectAll({ filterBy: (gs) => gs._id === this.data._id })
-        .subscribe((gameServers) => (this.data = gameServers[0]));
+        .subscribe((gsts) => (this.data = gsts[0]));
     }
   }
 
-  private async upsert(values: Partial<GameServerModel>) {
+  private async upsert(values: Partial<GameServerTemplateModel>) {
     const result = values._id
-      ? await this.gameServerService.update(this.params.namespaceId, values._id, values)
-      : await this.gameServerService.create(this.params.namespaceId, values);
+      ? await this.gameServerTemplateService.update(this.params.namespaceId, values._id, values)
+      : await this.gameServerTemplateService.create(this.params.namespaceId, values);
 
-    this.matSnackBar.open(`Game Server saved successfully.`);
+    this.matSnackBar.open(`Game Server Template saved successfully.`);
     this.router.navigate(['../', result._id], { relativeTo: this.activatedRoute });
 
     return result;

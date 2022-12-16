@@ -19,6 +19,7 @@ const administrator = {
     'status.*',
     'updatedAt',
   ],
+  update: ['entrypoint', 'name', 'publishedAt'],
 };
 
 export const BuildPermissions = new MongoosePermissions<BuildDocument>(BuildModel, {
@@ -108,8 +109,8 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(BuildMode
     ]),
   },
   update: {
-    'namespace-write': ['entrypoint', 'name', 'publishedAt'],
-    'system-write': ['files.*', 'status.*'],
-    'user-write': ['entrypoint', 'name', 'publishedAt'],
+    'namespace-write': administrator.update,
+    'system-write': [...administrator.update, 'files.*', 'status.*'],
+    'user-write': administrator.update,
   },
 });

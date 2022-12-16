@@ -20,6 +20,9 @@ components:
         finishedAt:
           type: string
           format: date-time
+        gameServerTemplateId:
+          type: string
+          format: ^[0-9a-f]{24}$
         invitationSeconds:
           type: number
           min: 0
@@ -39,6 +42,6 @@ components:
           type: string
           format: date-time
       required:
+        - gameServerTemplateId
         - namespaceId
-        - queueId
         - teams

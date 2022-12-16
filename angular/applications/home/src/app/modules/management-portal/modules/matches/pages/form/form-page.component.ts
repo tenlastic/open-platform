@@ -4,6 +4,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
   AuthorizationQuery,
+  GameServerTemplateModel,
+  GameServerTemplateService,
   IAuthorization,
   IMatch,
   MatchModel,
@@ -26,6 +28,7 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
   public data: MatchModel;
   public errors: string[] = [];
   public form: FormGroup;
+  public gameServerTemplates: GameServerTemplateModel[];
   public hasWriteAuthorization: boolean;
   public get isNew() {
     return this.params.matchId === 'new';
@@ -43,6 +46,7 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
     private authorizationQuery: AuthorizationQuery,
     private formBuilder: FormBuilder,
     private formService: FormService,
+    private gameServerTemplateService: GameServerTemplateService,
     private identityService: IdentityService,
     private matchQuery: MatchQuery,
     private matchService: MatchService,
@@ -62,6 +66,8 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
       this.hasWriteAuthorization =
         this.authorizationQuery.hasRoles(null, roles, userId) ||
         this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
+
+      this.gameServerTemplates = await this.gameServerTemplateService.find(params.namespaceId, {});
 
       if (params.queueId) {
         this.queues = await this.queueService.find(params.namespaceId, {
@@ -123,6 +129,7 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
     const values: Partial<MatchModel> = {
       _id: this.data._id,
       confirmationExpiresAt,
+      gameServerTemplateId: this.form.get('gameServerTemplateId').value,
       invitationSeconds: this.form.get('invitationSeconds').value,
       namespaceId: this.form.get('namespaceId').value,
       queueId: this.form.get('queueId').value,
@@ -156,12 +163,13 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
 
     this.form = this.formBuilder.group({
       confirmation: [Boolean(this.data.confirmationExpiresAt) || false],
-      invitationSeconds: [this.data.invitationSeconds || 0, Validators.required],
-      namespaceId: [this.params.namespaceId],
-      queueId: [
-        this.data.queueId || this.params.queueId || this.queues[0]?._id,
+      gameServerTemplateId: [
+        this.data.gameServerTemplateId || this.gameServerTemplates[0]?._id,
         Validators.required,
       ],
+      invitationSeconds: [this.data.invitationSeconds || 0, Validators.required],
+      namespaceId: [this.params.namespaceId],
+      queueId: [{ disabled: true, value: this.data.queueId || this.params.queueId }],
       teams: this.formBuilder.array(teamFormGroups),
     });
 

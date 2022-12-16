@@ -1,6 +1,6 @@
 import { BaseModel } from './base';
 
-import { IGameServer } from './game-server';
+import { GameServerModel, IGameServer } from './game-server';
 
 export class GameServerTemplateModel extends BaseModel {
   public buildId: string;
@@ -17,5 +17,21 @@ export class GameServerTemplateModel extends BaseModel {
 
   constructor(parameters?: Partial<GameServerTemplateModel>) {
     super(parameters);
+  }
+
+  public toGameServer() {
+    return new GameServerModel({
+      buildId: this.buildId,
+      cpu: this.cpu,
+      description: this.description,
+      memory: this.memory,
+      metadata: this.metadata,
+      name: this.name,
+      namespaceId: this.namespaceId,
+      persistent: this.persistent,
+      ports: this.ports,
+      preemptible: this.preemptible,
+      probes: this.probes,
+    });
   }
 }

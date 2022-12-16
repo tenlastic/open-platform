@@ -10,6 +10,7 @@ export class MatchModel extends BaseModel {
   public confirmationExpiresAt: Date;
   public confirmedUserIds: string;
   public finishedAt: Date;
+  public gameServerTemplateId: string;
   public invitationSeconds: number;
   public namespaceId: string;
   public queueId: string;

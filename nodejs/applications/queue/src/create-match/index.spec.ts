@@ -21,7 +21,7 @@ describe('create-match', function () {
   it('removes the User from all Queues', async function () {
     const queue = new QueueModel({
       _id: '1',
-      gameServerTemplate: { buildId: '1', cpu: 1, memory: 1, metadata: {}, preemptible: true },
+      gameServerTemplateId: '1',
       name: 'name',
       namespaceId: '1',
       usersPerTeam: [1, 1],

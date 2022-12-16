@@ -8,18 +8,18 @@ import { ActivatedRoute, Params } from '@angular/router';
 import { Order } from '@datorama/akita';
 import {
   AuthorizationQuery,
-  GameServerModel,
+  BuildQuery,
+  BuildService,
   GameServerLogModel,
   GameServerLogQuery,
   GameServerLogStore,
+  GameServerModel,
   GameServerQuery,
   GameServerService,
   IAuthorization,
+  IGameServer,
   GameServerLogService,
   StreamService,
-  BuildQuery,
-  BuildService,
-  IGameServer,
 } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';

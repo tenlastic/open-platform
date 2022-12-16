@@ -35,7 +35,7 @@ export class MatchInvitationSchema {
   @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public namespaceId: mongoose.Types.ObjectId;
 
-  @prop({ ref: 'QueueSchema', required: true, type: mongoose.Schema.Types.ObjectId })
+  @prop({ ref: 'QueueSchema', type: mongoose.Schema.Types.ObjectId })
   public queueId: mongoose.Types.ObjectId;
 
   public updatedAt: Date;
@@ -55,6 +55,7 @@ export class MatchInvitationSchema {
   ) {
     const defaults = {
       matchId: new mongoose.Types.ObjectId(),
+      namespaceId: new mongoose.Types.ObjectId(),
       userId: new mongoose.Types.ObjectId(),
     };
 

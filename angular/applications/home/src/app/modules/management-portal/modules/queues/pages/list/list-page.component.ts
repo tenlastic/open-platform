@@ -10,6 +10,8 @@ import {
   AuthorizationQuery,
   BuildQuery,
   BuildService,
+  GameServerTemplateQuery,
+  GameServerTemplateService,
   IAuthorization,
   IQueue,
   QueueLogModel,
@@ -42,7 +44,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatTable, { static: true }) table: MatTable<QueueModel>;
 
   public dataSource = new MatTableDataSource<QueueModel>();
-  public displayedColumns = ['name', 'description', 'build', 'status', 'actions'];
+  public displayedColumns = ['name', 'description', 'gameServerTemplate', 'status', 'actions'];
   public hasWriteAuthorization: boolean;
 
   private $queues: Observable<QueueModel[]>;
@@ -55,8 +57,8 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private authorizationQuery: AuthorizationQuery,
-    private buildQuery: BuildQuery,
-    private buildService: BuildService,
+    private gameServerTemplateQuery: GameServerTemplateQuery,
+    private gameServerTemplateService: GameServerTemplateService,
     private identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
@@ -86,8 +88,8 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
     this.updateDataSource$.unsubscribe();
   }
 
-  public getBuild(_id: string) {
-    return this.buildQuery.getEntity(_id);
+  public getGameServerTemplate(_id: string) {
+    return this.gameServerTemplateQuery.getEntity(_id);
   }
 
   public getStatus(record: QueueModel) {
@@ -170,8 +172,8 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
     this.dataSource.sort = this.sort;
 
     const queues = await this.queueService.find(params.namespaceId, { sort: 'name' });
-    await this.buildService.find(params.namespaceId, {
-      where: { _id: { $in: queues.map((q) => q.gameServerTemplate?.buildId) } },
+    await this.gameServerTemplateService.find(params.namespaceId, {
+      where: { _id: { $in: queues.map((q) => q.gameServerTemplateId) } },
     });
   }
 

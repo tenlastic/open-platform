@@ -20,11 +20,6 @@ import {
 } from '../../validators';
 import { AuthorizationDocument } from '../authorization';
 import {
-  QueueGameServerTemplateDocument,
-  QueueGameServerTemplateModel,
-  QueueGameServerTemplateSchema,
-} from './game-server-template';
-import {
   QueueStatusModel,
   QueueStatusComponentModel,
   QueueStatusComponentName,
@@ -38,8 +33,6 @@ import { QueueThresholdDocument, QueueThresholdSchema } from './threshold';
 @modelOptions({ schemaOptions: { collection: 'queues', timestamps: true } })
 @plugin(unsetPlugin)
 @pre('save', function (this: QueueDocument) {
-  this.gameServerTemplate.description ||= this.description;
-  this.gameServerTemplate.name ||= this.name;
   this.thresholds.sort((a, b) => (a.seconds > b.seconds ? 1 : -1));
 })
 export class QueueSchema {
@@ -56,8 +49,8 @@ export class QueueSchema {
   @prop({ maxlength: 128, trim: true, type: String })
   public description: string;
 
-  @prop({ required: true, type: QueueGameServerTemplateSchema })
-  public gameServerTemplate: QueueGameServerTemplateDocument;
+  @prop({ ref: 'GameServerTemplateSchema', required: true, type: mongoose.Schema.Types.ObjectId })
+  public gameServerTemplateId: mongoose.Types.ObjectId;
 
   @prop({ default: 30, min: 0, type: Number })
   public invitationSeconds: number;
@@ -126,15 +119,7 @@ export class QueueSchema {
    * Returns true if a restart is required on an update.
    */
   public static isRestartRequired(fields: string[]) {
-    const immutableFields = [
-      'buildId',
-      'cpu',
-      'gameServerTemplate',
-      'memory',
-      'preemptible',
-      'replicas',
-      'restartedAt',
-    ];
+    const immutableFields = ['buildId', 'cpu', 'memory', 'preemptible', 'replicas', 'restartedAt'];
 
     return immutableFields.some((i) => fields.includes(i));
   }
@@ -146,7 +131,7 @@ export class QueueSchema {
     const chance = new Chance();
     const defaults = {
       cpu: chance.floating({ max: 1, min: 0.1 }),
-      gameServerTemplate: QueueGameServerTemplateModel.mock(),
+      gameServerTemplateId: new mongoose.Types.ObjectId(),
       memory: chance.integer({ max: 1 * 1000 * 1000 * 1000, min: 100 * 1000 * 1000 }),
       name: chance.hash(),
       namespaceId: new mongoose.Types.ObjectId(),

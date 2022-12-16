@@ -1,9 +1,10 @@
 import { expect } from 'chai';
-import { BuildModel } from '../build';
 
+import { BuildModel } from '../build';
+import { GameServerTemplateModel } from '../game-server-template';
 import { GroupModel } from '../group';
 import { NamespaceModel } from '../namespace';
-import { QueueModel, QueueGameServerTemplateModel } from '../queue';
+import { QueueModel } from '../queue';
 import { UserModel } from '../user';
 import { WebSocketModel } from '../web-socket';
 import { QueueMemberModel } from './model';
@@ -21,8 +22,12 @@ describe('models/queue-member', function () {
 
       const namespace = await NamespaceModel.mock().save();
       const build = await BuildModel.mock({ namespaceId: namespace._id }).save();
+      const gameServerTemplate = await GameServerTemplateModel.mock({
+        buildId: build._id,
+        namespaceId: namespace._id,
+      }).save();
       const queue = await QueueModel.mock({
-        gameServerTemplate: QueueGameServerTemplateModel.mock({ buildId: build._id }),
+        gameServerTemplateId: gameServerTemplate._id,
         namespaceId: namespace._id,
         usersPerTeam: [1, 1],
       }).save();

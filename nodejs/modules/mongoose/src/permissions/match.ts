@@ -4,13 +4,14 @@ import { AuthorizationRole, MatchDocument, MatchModel } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
 const administrator = {
-  create: ['confirmationExpiresAt', 'namespaceId', 'queueId', 'teams.*'],
+  create: ['confirmationExpiresAt', 'gameServerTemplateId', 'namespaceId', 'teams.*'],
   read: [
     '_id',
     'confirmationExpiresAt',
     'confirmedUserIds',
     'createdAt',
     'finishedAt',
+    'gameServerTemplateId',
     'invitationSeconds',
     'namespaceId',
     'queueId',
@@ -24,6 +25,7 @@ const administrator = {
 export const MatchPermissions = new MongoosePermissions<MatchDocument>(MatchModel, {
   create: {
     'namespace-write': administrator.create,
+    'system-write': [...administrator.create, 'gameServerTemplateId'],
     'user-write': administrator.create,
   },
   delete: {
@@ -55,6 +57,7 @@ export const MatchPermissions = new MongoosePermissions<MatchDocument>(MatchMode
       'confirmedUserIds',
       'createdAt',
       'finishedAt',
+      'gameServerTemplateId',
       'invitationSeconds',
       'namespaceId',
       'queueId',
@@ -92,7 +95,7 @@ export const MatchPermissions = new MongoosePermissions<MatchDocument>(MatchMode
   },
   update: {
     'namespace-write': administrator.update,
-    'system-write': ['teams.*'],
+    'system-write': [...administrator.update, 'teams.*'],
     'user-write': administrator.update,
   },
 });

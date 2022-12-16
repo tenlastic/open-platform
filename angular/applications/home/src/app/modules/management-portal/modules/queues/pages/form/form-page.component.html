@@ -40,6 +40,21 @@
 
     <div class="row">
       <mat-form-field floatLabel="always">
+        <mat-label>Game Server Template</mat-label>
+        <mat-select formControlName="gameServerTemplateId"
+                    placeholder="None"
+                    required>
+          <mat-option *ngFor="let gameServerTemplate of gameServerTemplates"
+                      [value]="gameServerTemplate._id">
+            {{ gameServerTemplate.name }}
+          </mat-option>
+        </mat-select>
+        <mat-error>Select a valid Game Server Template.</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="row">
+      <mat-form-field floatLabel="always">
         <mat-label>CPU</mat-label>
         <mat-select formControlName="cpu">
           <mat-option *ngFor="let cpu of cpus"
@@ -124,76 +139,9 @@
       </app-button>
     </app-toggle-section>
 
-    <app-toggle-section [isVisible]="false"
-                        title="Players Per Team Thresholds">
-      <app-threshold-fields [formArray]="form.get('thresholds')"></app-threshold-fields>
-    </app-toggle-section>
-
-    <app-toggle-section formGroupName="gameServerTemplate"
-                        title="Game Server Template">
-      <div class="row">
-        <mat-form-field floatLabel="always">
-          <mat-label>Build</mat-label>
-          <mat-select required
-                      formControlName="buildId"
-                      placeholder="No Builds Available">
-            <mat-option *ngFor="let build of builds"
-                        [value]="build._id">
-              {{ build.name }}
-            </mat-option>
-          </mat-select>
-          <mat-error>Select a Build.</mat-error>
-        </mat-form-field>
-      </div>
-
-      <div class="row">
-        <mat-form-field floatLabel="always">
-          <mat-label>Preemptible</mat-label>
-          <mat-select formControlName="preemptible">
-            <mat-option [value]="true">Yes</mat-option>
-            <mat-option [value]="false">No</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>CPU</mat-label>
-          <mat-select formControlName="cpu">
-            <mat-option *ngFor="let cpu of gameServerCpus"
-                        [value]="cpu.value">{{ cpu.label }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Memory</mat-label>
-          <mat-select formControlName="memory">
-            <mat-option *ngFor="let memory of gameServerMemories"
-                        [value]="memory.value">{{ memory.label }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-    </app-toggle-section>
-
-    <app-toggle-section [isVisible]="false"
-                        title="Game Server Metadata">
-      <app-metadata-fields [formArray]="form.get('gameServerTemplate').get('metadata')"></app-metadata-fields>
-    </app-toggle-section>
-
     <app-toggle-section [isVisible]="isNew"
-                        title="Game Server Ports">
-      <app-port-fields [form]="ports"></app-port-fields>
-    </app-toggle-section>
-
-    <app-toggle-section [isVisible]="false"
-                        title="Game Server Probes">
-      <h4>Liveness Probe</h4>
-      <div class="row">
-        <app-probe-field [form]="form.get('gameServerTemplate').get('probes').get('liveness')"></app-probe-field>
-      </div>
-
-      <h4>Readiness Probe</h4>
-      <div class="row">
-        <app-probe-field [form]="form.get('gameServerTemplate').get('probes').get('readiness')"></app-probe-field>
-      </div>
+                        title="Thresholds">
+      <app-threshold-fields [formArray]="form.get('thresholds')"></app-threshold-fields>
     </app-toggle-section>
 
     <app-toggle-section *ngIf="data.status"

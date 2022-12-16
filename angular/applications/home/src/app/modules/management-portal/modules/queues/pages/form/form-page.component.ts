@@ -5,11 +5,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
   AuthorizationQuery,
-  BuildModel,
-  BuildService,
+  GameServerTemplateModel,
+  GameServerTemplateService,
   IAuthorization,
-  IBuild,
-  IGameServer,
   IQueue,
   NamespaceModel,
   NamespaceService,
@@ -20,20 +18,13 @@ import {
 import { Subscription } from 'rxjs';
 
 import { FormService, IdentityService } from '../../../../../../core/services';
-import { ProbeFieldComponent, PromptComponent } from '../../../../../../shared/components';
-
-interface PropertyFormGroup {
-  key?: string;
-  type?: string;
-  value?: any;
-}
+import { PromptComponent } from '../../../../../../shared/components';
 
 @Component({
   templateUrl: 'form-page.component.html',
   styleUrls: ['./form-page.component.scss'],
 })
 export class QueuesFormPageComponent implements OnDestroy, OnInit {
-  public builds: BuildModel[];
   public get cpus() {
     return this.namespace.limits.cpu
       ? IQueue.Cpu.filter((r) => r.value <= this.namespace.limits.cpu)
@@ -42,16 +33,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
   public data: QueueModel;
   public errors: string[] = [];
   public form: FormGroup;
-  public get gameServerCpus() {
-    return this.namespace.limits.cpu
-      ? IGameServer.Cpu.filter((r) => r.value <= this.namespace.limits.cpu)
-      : IGameServer.Cpu;
-  }
-  public get gameServerMemories() {
-    return this.namespace.limits.memory
-      ? IGameServer.Memory.filter((r) => r.value <= this.namespace.limits.memory)
-      : IGameServer.Memory;
-  }
+  public gameServerTemplates: GameServerTemplateModel[];
   public hasWriteAuthorization: boolean;
   public get isNew() {
     return this.params.queueId === 'new';
@@ -60,9 +42,6 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
     return this.namespace.limits.memory
       ? IQueue.Memory.filter((r) => r.value <= this.namespace.limits.memory)
       : IQueue.Memory;
-  }
-  public get ports() {
-    return this.form.get('gameServerTemplate').get('ports') as FormArray;
   }
   public get replicas() {
     return IQueue.Replicas;
@@ -78,9 +57,9 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private authorizationQuery: AuthorizationQuery,
-    private buildService: BuildService,
     private formBuilder: FormBuilder,
     private formService: FormService,
+    private gameServerTemplateService: GameServerTemplateService,
     private identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
@@ -100,11 +79,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
         this.authorizationQuery.hasRoles(null, roles, userId) ||
         this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
-      this.builds = await this.buildService.find(params.namespaceId, {
-        select: '-files',
-        sort: '-publishedAt',
-        where: { namespaceId: params.namespaceId, platform: IBuild.Platform.Server64 },
-      });
+      this.gameServerTemplates = await this.gameServerTemplateService.find(params.namespaceId, {});
       this.namespace = await this.namespaceService.findOne(params.namespaceId);
 
       if (params.queueId !== 'new') {
@@ -136,27 +111,12 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       return;
     }
 
-    const metadata = this.form
-      .get('gameServerTemplate')
-      .get('metadata')
-      .value.reduce((accumulator, property) => {
-        accumulator[property.key] = this.getJsonFromProperty(property);
-        return accumulator;
-      }, {});
-
     const values: Partial<QueueModel> = {
       _id: this.data._id,
       confirmation: this.form.get('confirmation').value,
       cpu: this.form.get('cpu').value,
       description: this.form.get('description').value,
-      gameServerTemplate: {
-        buildId: this.form.get('gameServerTemplate').get('buildId').value,
-        cpu: this.form.get('gameServerTemplate').get('cpu').value,
-        memory: this.form.get('gameServerTemplate').get('memory').value,
-        metadata,
-        ports: this.form.get('gameServerTemplate').get('ports').value,
-        preemptible: this.form.get('gameServerTemplate').get('preemptible').value,
-      },
+      gameServerTemplateId: this.form.get('gameServerTemplateId').value,
       invitationSeconds: this.form.get('invitationSeconds').value,
       memory: this.form.get('memory').value,
       name: this.form.get('name').value,
@@ -166,16 +126,6 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       thresholds: this.form.get('thresholds').value,
       usersPerTeam: this.form.get('usersPerTeam').value,
     };
-
-    const livenessProbe = ProbeFieldComponent.getJsonFromProbe(
-      this.form.get('gameServerTemplate').get('probes').get('liveness').value,
-    );
-    const readinessProbe = ProbeFieldComponent.getJsonFromProbe(
-      this.form.get('gameServerTemplate').get('probes').get('readiness').value,
-    );
-    if (livenessProbe || readinessProbe) {
-      values.gameServerTemplate.probes = { liveness: livenessProbe, readiness: readinessProbe };
-    }
 
     const dirtyFields = this.getDirtyFields();
     if (this.data._id && QueueModel.isRestartRequired(dirtyFields)) {
@@ -211,36 +161,6 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
     return Object.keys(this.form.controls).filter((key) => this.form.get(key).dirty);
   }
 
-  private getJsonFromProperty(property: PropertyFormGroup): any {
-    switch (property.type) {
-      case 'boolean':
-        return property.value || false;
-
-      case 'number':
-        return isNaN(parseFloat(property.value)) ? 0 : parseFloat(property.value);
-
-      default:
-        return property.value || '';
-    }
-  }
-
-  private getMetadataFormGroups(metadata: any[]) {
-    return Object.entries(metadata).map(([key, property]) => {
-      let type = 'boolean';
-      if (typeof property === 'string' || property instanceof String) {
-        type = 'string';
-      } else if (typeof property === 'number') {
-        type = 'number';
-      }
-
-      return this.formBuilder.group({
-        key: [key, [Validators.required, Validators.pattern(/^[0-9A-Za-z\-]{2,40}$/)]],
-        value: property,
-        type,
-      });
-    });
-  }
-
   private getThresholdFormGroups(thresholds: IQueue.Threshold[]) {
     return thresholds.map((t) => {
       const formControls = t.usersPerTeam.map((upt) =>
@@ -261,46 +181,6 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       usersPerTeam: [1, 1],
     });
 
-    const { gameServerTemplate } = this.data;
-
-    const metadataFormGroups = [];
-    if (gameServerTemplate?.metadata) {
-      metadataFormGroups.push(...this.getMetadataFormGroups(gameServerTemplate.metadata));
-    }
-
-    const ports = gameServerTemplate?.ports || [{ port: 7777, protocol: IGameServer.Protocol.Tcp }];
-    const portFormGroups = ports.map((p) =>
-      this.formBuilder.group({ port: [p.port, Validators.required], protocol: p.protocol }),
-    );
-
-    const probesFormGroup = this.formBuilder.group({
-      liveness: ProbeFieldComponent.getFormGroupFromProbe(gameServerTemplate?.probes?.liveness),
-      readiness: ProbeFieldComponent.getFormGroupFromProbe(gameServerTemplate?.probes?.readiness),
-    });
-
-    let gameServerTemplateForm: FormGroup;
-    if (gameServerTemplate) {
-      gameServerTemplateForm = this.formBuilder.group({
-        buildId: [gameServerTemplate.buildId, Validators.required],
-        cpu: [gameServerTemplate.cpu || this.cpus[0].value],
-        memory: [gameServerTemplate.memory || this.memories[0].value],
-        metadata: this.formBuilder.array(metadataFormGroups),
-        ports: this.formBuilder.array(portFormGroups),
-        preemptible: [gameServerTemplate.preemptible || false],
-        probes: probesFormGroup,
-      });
-    } else {
-      gameServerTemplateForm = this.formBuilder.group({
-        buildId: [this.builds.length > 0 ? this.builds[0]._id : null, Validators.required],
-        cpu: [this.cpus[0].value],
-        memory: [this.memories[0].value],
-        metadata: this.formBuilder.array(metadataFormGroups),
-        ports: this.formBuilder.array(portFormGroups),
-        preemptible: [true],
-        probes: probesFormGroup,
-      });
-    }
-
     const thresholdFormGroups = [];
     if (this.data?.thresholds?.length > 0) {
       thresholdFormGroups.push(...this.getThresholdFormGroups(this.data.thresholds));
@@ -314,7 +194,10 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       confirmation: [this.data.confirmation || false],
       cpu: [this.data.cpu || this.cpus[0].value, Validators.required],
       description: [this.data.description],
-      gameServerTemplate: gameServerTemplateForm,
+      gameServerTemplateId: [
+        this.data.gameServerTemplateId || this.gameServerTemplates[0]?._id,
+        Validators.required,
+      ],
       invitationSeconds: [this.data.invitationSeconds || 0],
       memory: [this.data.memory || this.memories[0].value, Validators.required],
       name: [this.data.name, Validators.required],

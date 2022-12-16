@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { QueueModel, QueueService, IQueue, IGameServer } from '@tenlastic/http';
+import { GameServerTemplateModel, GameServerTemplateService, IGameServer } from '@tenlastic/http';
 
 import { FormService, TextareaService } from '../../../../../../core/services';
 import { jsonValidator } from '../../../../../../shared/validators';
@@ -11,8 +11,8 @@ import { jsonValidator } from '../../../../../../shared/validators';
   templateUrl: 'json-page.component.html',
   styleUrls: ['./json-page.component.scss'],
 })
-export class QueuesJsonPageComponent implements OnInit {
-  public data: QueueModel;
+export class GameServerTemplatesJsonPageComponent implements OnInit {
+  public data: GameServerTemplateModel;
   public errors: string[] = [];
   public form: FormGroup;
 
@@ -22,8 +22,8 @@ export class QueuesJsonPageComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
     private formService: FormService,
+    private gameServerTemplateService: GameServerTemplateService,
     private matSnackBar: MatSnackBar,
-    private queueService: QueueService,
     private router: Router,
     private textareaService: TextareaService,
   ) {}
@@ -32,8 +32,11 @@ export class QueuesJsonPageComponent implements OnInit {
     this.activatedRoute.params.subscribe(async (params) => {
       this.params = params;
 
-      if (params.queueId !== 'new') {
-        this.data = await this.queueService.findOne(params.namespaceId, params.queueId);
+      if (params.gameServerTemplateId !== 'new') {
+        this.data = await this.gameServerTemplateService.findOne(
+          params.namespaceId,
+          params.gameServerTemplateId,
+        );
       }
 
       this.setupForm();
@@ -61,10 +64,11 @@ export class QueuesJsonPageComponent implements OnInit {
     }
 
     const json = this.form.get('json').value;
-    const values = JSON.parse(json) as QueueModel;
+    const values = JSON.parse(json) as GameServerTemplateModel;
 
     values._id = this.data._id;
     values.namespaceId = this.params.namespaceId;
+    values.persistent = true;
 
     try {
       this.data = await this.upsert(values);
@@ -74,31 +78,25 @@ export class QueuesJsonPageComponent implements OnInit {
   }
 
   private setupForm() {
-    this.data ??= new QueueModel({
-      confirmation: true,
-      cpu: IQueue.Cpu[0].value,
+    this.data ??= new GameServerTemplateModel({
+      buildId: '',
+      cpu: IGameServer.Cpu[0].value,
       description: '',
-      gameServerTemplateId: '',
-      invitationSeconds: 30,
-      memory: IQueue.Memory[0].value,
+      memory: IGameServer.Memory[0].value,
+      metadata: {},
       name: '',
       preemptible: true,
-      replicas: IQueue.Replicas[0].value,
-      usersPerTeam: [1, 1],
     });
 
     const keys = [
       'buildId',
-      'confirmation',
       'cpu',
       'description',
-      'gameServerTemplateId',
-      'invitationSeconds',
       'memory',
+      'metadata',
       'name',
       'preemptible',
-      'replicas',
-      'usersPerTeam',
+      'probes',
     ];
     const data = Object.keys(this.data)
       .filter((key) => keys.includes(key))
@@ -112,12 +110,12 @@ export class QueuesJsonPageComponent implements OnInit {
     this.form.valueChanges.subscribe(() => (this.errors = []));
   }
 
-  private async upsert(values: Partial<QueueModel>) {
+  private async upsert(values: Partial<GameServerTemplateModel>) {
     const result = values._id
-      ? await this.queueService.update(this.params.namespaceId, values._id, values)
-      : await this.queueService.create(this.params.namespaceId, values);
+      ? await this.gameServerTemplateService.update(this.params.namespaceId, values._id, values)
+      : await this.gameServerTemplateService.create(this.params.namespaceId, values);
 
-    this.matSnackBar.open(`Queue saved successfully.`);
+    this.matSnackBar.open(`Game Server Template saved successfully.`);
     this.router.navigate(['../../', result._id], { relativeTo: this.activatedRoute });
 
     return result;

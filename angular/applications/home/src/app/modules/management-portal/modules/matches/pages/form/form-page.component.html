@@ -20,10 +20,24 @@
         autocomplete="off">
     <div class="row">
       <mat-form-field floatLabel="always">
+        <mat-label>Game Server Template</mat-label>
+        <mat-select formControlName="gameServerTemplateId"
+                    placeholder="None"
+                    required>
+          <mat-option *ngFor="let gameServerTemplate of gameServerTemplates"
+                      [value]="gameServerTemplate._id">
+            {{ gameServerTemplate.name }}
+          </mat-option>
+        </mat-select>
+        <mat-error>Select a valid Game Server Template.</mat-error>
+      </mat-form-field>
+
+      <mat-form-field *ngIf="!isNew"
+                      floatLabel="always">
         <mat-label>Queue</mat-label>
         <mat-select formControlName="queueId"
-                    placeholder="No Queues Found"
-                    required>
+                    placeholder="None">
+          <mat-option>None</mat-option>
           <mat-option *ngFor="let queue of queues"
                       [value]="queue._id">
             {{ queue.name }}

@@ -11,9 +11,9 @@ import {
   BuildQuery,
   BuildService,
   GameServerService,
+  GameServerTemplateService,
   IAuthorization,
   IBuild,
-  QueueService,
 } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 
@@ -42,10 +42,10 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
     private buildQuery: BuildQuery,
     private buildService: BuildService,
     private gameServerService: GameServerService,
+    private gameServerTemplateService: GameServerTemplateService,
     private identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
-    private queueService: QueueService,
   ) {}
 
   public ngOnInit() {
@@ -103,7 +103,7 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
             { color: 'accent', label: 'Yes' },
           ],
           message:
-            `Would you like to update Game Servers and Queues using the Reference Build ` +
+            `Would you like to update Game Servers and Game Server Templates using the Reference Build ` +
             `(${referenceBuild.name}) to use this Build?`,
         },
       });
@@ -121,18 +121,20 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
             });
           }
 
-          // Update Queues.
-          const queues = await this.queueService.find(build.namespaceId, {
-            where: { 'gameServerTemplate.buildId': build.reference._id },
+          // Update Game Server Templates.
+          const gameServerTemplates = await this.gameServerTemplateService.find(build.namespaceId, {
+            where: { buildId: build.reference._id },
           });
-          for (const queue of queues) {
-            await this.queueService.update(queue.namespaceId, queue._id, {
-              gameServerTemplate: { ...queue.gameServerTemplate, buildId: build._id },
-            });
+          for (const gameServerTemplate of gameServerTemplates) {
+            await this.gameServerTemplateService.update(
+              gameServerTemplate.namespaceId,
+              gameServerTemplate._id,
+              { buildId: build._id },
+            );
           }
 
           this.matSnackBar.open(
-            `${gameServers.length} Game Server(s) and ${queues.length} Queue(s) updated successfully.`,
+            `${gameServers.length} Game Server(s) and ${gameServerTemplates.length} Game Server Template(s) updated successfully.`,
           );
         }
       });

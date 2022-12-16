@@ -19,8 +19,16 @@
   <table mat-table
          [dataSource]="dataSource"
          matSort
-         matSortActive="queue"
+         matSortActive="gameServerTemplate"
          matSortDirection="asc">
+    <ng-container matColumnDef="gameServerTemplate">
+      <th mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header>Game Server Template</th>
+      <td mat-cell
+          *matCellDef="let element">{{ getGameServerTemplate(element.gameServerTemplateId)?.name }}</td>
+    </ng-container>
+
     <ng-container matColumnDef="queue">
       <th mat-header-cell
           *matHeaderCellDef

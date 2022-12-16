@@ -69,7 +69,7 @@ export class QueueModel extends BaseModel {
   public confirmation: boolean;
   public cpu: number;
   public description: string;
-  public gameServerTemplate: IQueue.GameServerTemplate;
+  public gameServerTemplateId: string;
   public invitationSeconds: number;
   public memory: number;
   public name: string;
@@ -89,14 +89,7 @@ export class QueueModel extends BaseModel {
    * Returns true if the Queue will be restarted on update.
    */
   public static isRestartRequired(fields: string[]) {
-    const immutableFields = [
-      'cpu',
-      'gameServerTemplate',
-      'memory',
-      'preemptible',
-      'replicas',
-      'restartedAt',
-    ];
+    const immutableFields = ['cpu', 'memory', 'preemptible', 'replicas', 'restartedAt'];
 
     return immutableFields.some((i) => fields.includes(i));
   }

@@ -56,7 +56,7 @@ export class MatchPromptComponent implements OnDestroy, OnInit {
 
     const { expiresAt, namespaceId, queueId } = this.data.matchInvitation;
 
-    this.closeOnTimeout(expiresAt, 5 * 1000);
+    this.closeOnTimeout(expiresAt);
     this.message = 'Loading Match information...';
 
     const [queues, storefronts] = await Promise.all([
@@ -98,14 +98,17 @@ export class MatchPromptComponent implements OnDestroy, OnInit {
         .subscribe(([m]) => (m ? resolve(m) : null));
     });
 
+    this.data.matchInvitation = null;
     this.matchInvitationService.emitter.off('delete', this.matchInvitationServiceDelete);
 
     return this.start(this.data.match._id, namespaceId);
   }
 
   public async declineMatchInvitation() {
-    const { _id, namespaceId } = this.data.matchInvitation;
-    await this.matchInvitationService.delete(namespaceId, _id);
+    if (this.data.matchInvitation) {
+      const { _id, namespaceId } = this.data.matchInvitation;
+      await this.matchInvitationService.delete(namespaceId, _id);
+    }
 
     this.dialogRef.close();
   }
@@ -122,7 +125,7 @@ export class MatchPromptComponent implements OnDestroy, OnInit {
     clearTimeout(this.timeout);
 
     const duration = date.getTime() - Date.now();
-    this.timeout = setTimeout(() => this.dialogRef.close(), duration + delay);
+    this.timeout = setTimeout(() => this.declineMatchInvitation(), duration + delay);
   }
 
   private async start(matchId: string, namespaceId: string) {
@@ -140,6 +143,7 @@ export class MatchPromptComponent implements OnDestroy, OnInit {
         .subscribe(([gs]) => (gs ? resolve(gs) : null));
     });
 
+    clearTimeout(this.timeout);
     this.message = 'Launching application...';
     const { build } = this.updateService.getStatus(namespaceId);
     this.executableService.start(build.entrypoint, namespaceId, { gameServer });

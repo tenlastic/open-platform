@@ -93,17 +93,21 @@ describe('/nodejs/namespace/queues', function () {
   });
 
   step('creates a Queue', async function () {
+    const name = chance.hash({ length: 64 });
+
+    const gameServerTemplate = await dependencies.gameServerTemplateService.create(namespace._id, {
+      buildId: build._id,
+      cpu: 0.1,
+      memory: 100 * 1000 * 1000,
+      name,
+      ports: [{ port: 7777, protocol: IGameServer.Protocol.Tcp }],
+      preemptible: true,
+    });
     queue = await dependencies.queueService.create(namespace._id, {
       cpu: 0.1,
-      gameServerTemplate: {
-        buildId: build._id,
-        cpu: 0.1,
-        memory: 100 * 1000 * 1000,
-        ports: [{ port: 7777, protocol: IGameServer.Protocol.Tcp }],
-        preemptible: true,
-      },
+      gameServerTemplateId: gameServerTemplate._id,
       memory: 100 * 1000 * 1000,
-      name: chance.hash({ length: 64 }),
+      name,
       namespaceId: namespace._id,
       preemptible: true,
       replicas: 1,

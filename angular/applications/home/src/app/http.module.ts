@@ -30,6 +30,9 @@ import {
   GameServerQuery,
   GameServerService,
   GameServerStore,
+  GameServerTemplateQuery,
+  GameServerTemplateService,
+  GameServerTemplateStore,
   GroupInvitationQuery,
   GroupInvitationService,
   GroupInvitationStore,
@@ -153,6 +156,11 @@ const queries: Provider[] = [
     deps: [GameServerStore],
     provide: GameServerQuery,
     useFactory: (store: GameServerStore) => new GameServerQuery(store),
+  },
+  {
+    deps: [GameServerTemplateStore],
+    provide: GameServerTemplateQuery,
+    useFactory: (store: GameServerTemplateStore) => new GameServerTemplateQuery(store),
   },
   {
     deps: [GroupInvitationStore],
@@ -337,6 +345,15 @@ const services: Provider[] = [
       environmentService: EnvironmentService,
       store: GameServerStore,
     ) => new GameServerService(apiService, environmentService, store),
+  },
+  {
+    deps: [ApiService, EnvironmentService, GameServerTemplateStore],
+    provide: GameServerTemplateService,
+    useFactory: (
+      apiService: ApiService,
+      environmentService: EnvironmentService,
+      store: GameServerTemplateStore,
+    ) => new GameServerTemplateService(apiService, environmentService, store),
   },
   {
     deps: [ApiService, EnvironmentService, GroupInvitationStore],
@@ -529,6 +546,7 @@ const stores: Provider[] = [
   { provide: FriendStore, useValue: new FriendStore() },
   { provide: GameServerLogStore, useValue: new GameServerLogStore() },
   { provide: GameServerStore, useValue: new GameServerStore() },
+  { provide: GameServerTemplateStore, useValue: new GameServerTemplateStore() },
   { provide: GroupInvitationStore, useValue: new GroupInvitationStore() },
   { provide: GroupStore, useValue: new GroupStore() },
   { provide: IgnorationStore, useValue: new IgnorationStore() },

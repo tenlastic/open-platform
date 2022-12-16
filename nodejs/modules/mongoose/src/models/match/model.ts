@@ -45,13 +45,16 @@ export class MatchSchema {
   @prop({ type: Date })
   public finishedAt: Date;
 
+  @prop({ ref: 'GameServerTemplateSchema', required: true, type: mongoose.Schema.Types.ObjectId })
+  public gameServerTemplateId: mongoose.Types.ObjectId;
+
   @prop({ default: 30, min: 0, type: Number })
   public invitationSeconds: number;
 
   @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public namespaceId: mongoose.Types.ObjectId;
 
-  @prop({ ref: 'QueueSchema', required: true, type: mongoose.Schema.Types.ObjectId })
+  @prop({ ref: 'QueueSchema', type: mongoose.Schema.Types.ObjectId })
   public queueId: mongoose.Types.ObjectId;
 
   @prop({ type: Date })
@@ -81,8 +84,8 @@ export class MatchSchema {
    */
   public static mock(this: typeof MatchModel, values: Partial<MatchSchema> = {}) {
     const defaults = {
+      gameServerTemplateId: new mongoose.Types.ObjectId(),
       namespaceId: new mongoose.Types.ObjectId(),
-      queueId: new mongoose.Types.ObjectId(),
       teams: [MatchTeamModel.mock(), MatchTeamModel.mock()],
     };
 

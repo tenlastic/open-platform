@@ -2,12 +2,18 @@
      class="page">
   <div class="row">
     <div class="col-sm-6">
-      <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Game Server</app-title>
-      <app-title *ngIf="!hasWriteAuthorization">View Game Server</app-title>
+      <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Game Server Template</app-title>
+      <app-title *ngIf="!hasWriteAuthorization">View Game Server Template</app-title>
     </div>
 
     <div *ngIf="hasWriteAuthorization"
          class="col-sm-6 align-right">
+      <app-button color="accent"
+                  (OnClick)="navigateToGameServerForm()">
+        <mat-icon>public</mat-icon>
+        <div>New Game Server</div>
+      </app-button>
+
       <app-button color="accent"
                   (OnClick)="navigateToJson()">
         <mat-icon>code</mat-icon>
@@ -102,75 +108,6 @@
       <div class="row">
         <app-probe-field [form]="form.get('probes').get('readiness')"></app-probe-field>
       </div>
-    </app-toggle-section>
-
-    <app-toggle-section *ngIf="data.status"
-                        title="Status">
-      <div class="row">
-        <mat-form-field floatLabel="always">
-          <mat-label>Phase</mat-label>
-          <input matInput
-                 disabled
-                 [value]="data.status.phase" />
-        </mat-form-field>
-
-        <mat-form-field *ngIf="data.status.message"
-                        floatLabel="always"
-                        [matTooltip]="data.status.message.length >= 30 ? data.status.message : null"
-                        matTooltipPosition="right">
-          <mat-label>Message</mat-label>
-          <input matInput
-                 disabled
-                 [value]="data.status.message" />
-        </mat-form-field>
-      </div>
-
-      <h4>Components</h4>
-
-      <div class="row">
-        <mat-form-field *ngFor="let component of data.status.components"
-                        floatLabel="always">
-          <mat-label>{{ component.name }}</mat-label>
-          <input matInput
-                 disabled
-                 [value]="component.phase + ' (' + component.current + ' / ' + component.total + ')'" />
-        </mat-form-field>
-      </div>
-
-      <ng-container *ngIf="data.status.endpoints.length > 0">
-        <h4>Endpoints</h4>
-
-        <div *ngFor="let endpoint of data.status.endpoints"
-             class="row">
-          <mat-form-field floatLabel="always">
-            <mat-label>External IP</mat-label>
-            <input disabled
-                   matInput
-                   [value]="endpoint.externalIp" />
-          </mat-form-field>
-
-          <mat-form-field floatLabel="always">
-            <mat-label>External Port</mat-label>
-            <input disabled
-                   matInput
-                   [value]="endpoint.externalPort" />
-          </mat-form-field>
-
-          <mat-form-field floatLabel="always">
-            <mat-label>Internal Port</mat-label>
-            <input disabled
-                   matInput
-                   [value]="endpoint.internalPort" />
-          </mat-form-field>
-
-          <mat-form-field floatLabel="always">
-            <mat-label>Protocol</mat-label>
-            <input disabled
-                   matInput
-                   [value]="endpoint.protocol" />
-          </mat-form-field>
-        </div>
-      </ng-container>
     </app-toggle-section>
   </form>
 </div>

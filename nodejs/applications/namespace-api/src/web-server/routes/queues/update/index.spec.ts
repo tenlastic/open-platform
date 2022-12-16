@@ -2,15 +2,14 @@ import {
   AuthorizationModel,
   AuthorizationRole,
   BuildModel,
+  GameServerTemplateModel,
   NamespaceDocument,
   NamespaceModel,
   NamespaceLimitError,
   NamespaceLimitsModel,
   QueueModel,
-  QueueGameServerTemplateModel,
   UserDocument,
   UserModel,
-  GameServerPortModel,
 } from '@tenlastic/mongoose';
 import { ContextMock, RecordNotFoundError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
@@ -43,9 +42,13 @@ describe('web-server/queues/update', function () {
         userId: user._id,
       }).save();
       const build = await BuildModel.mock({ namespaceId: namespace._id }).save();
+      const gameServerTemplate = await GameServerTemplateModel.mock({
+        buildId: build._id,
+        namespaceId: namespace._id,
+      }).save();
       const queue = await QueueModel.mock({
         cpu: 0.5,
-        gameServerTemplate: QueueGameServerTemplateModel.mock({ buildId: build._id }),
+        gameServerTemplateId: gameServerTemplate._id,
         memory: 0.5 * 1000 * 1000 * 1000,
         namespaceId: namespace._id,
         replicas: 1,
@@ -56,12 +59,6 @@ describe('web-server/queues/update', function () {
         request: {
           body: {
             cpu: 1,
-            gameServerTemplate: {
-              buildId: build._id,
-              cpu: 1,
-              memory: 1 * 1000 * 1000 * 1000,
-              ports: [GameServerPortModel.mock()],
-            },
             memory: 1 * 1000 * 1000 * 1000,
             name: chance.hash(),
             replicas: 1,
@@ -97,9 +94,13 @@ describe('web-server/queues/update', function () {
         limits: NamespaceLimitsModel.mock({ cpu: 1, memory: 1 * 1000 * 1000 * 1000 }),
       }).save();
       const build = await BuildModel.mock({ namespaceId: namespace._id }).save();
+      const gameServerTemplate = await GameServerTemplateModel.mock({
+        buildId: build._id,
+        namespaceId: namespace._id,
+      }).save();
       const queue = await QueueModel.mock({
         cpu: 0.5,
-        gameServerTemplate: QueueGameServerTemplateModel.mock({ buildId: build._id }),
+        gameServerTemplateId: gameServerTemplate._id,
         memory: 0.5 * 1000 * 1000 * 1000,
         namespaceId: namespace._id,
         replicas: 1,

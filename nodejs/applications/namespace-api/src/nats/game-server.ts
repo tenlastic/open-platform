@@ -1,8 +1,8 @@
 import {
   GameServerModel,
   GameServerStatusComponentName,
+  GameServerTemplateModel,
   MatchModel,
-  QueueModel,
 } from '@tenlastic/mongoose';
 import { GameServerEvent, MatchEvent, NamespaceEvent, QueueEvent } from '@tenlastic/mongoose-nats';
 
@@ -44,31 +44,31 @@ GameServerEvent.async(async (payload) => {
 // Creates a Game Server when a Match without confirmation is inserted.
 // Creates a Game Server when a Match with confirmation is started.
 MatchEvent.async(async (payload) => {
-  const { _id, confirmationExpiresAt, namespaceId, queueId, startedAt } = payload.fullDocument;
+  const { confirmationExpiresAt, gameServerTemplateId, startedAt } = payload.fullDocument;
   const updatedFields = payload.updateDescription?.updatedFields;
 
   if (payload.operationType === 'delete') {
-    await GameServerModel.deleteMany({ matchId: _id });
+    await GameServerModel.deleteMany({ matchId: payload.fullDocument._id });
   } else if (
     (payload.operationType === 'insert' && !confirmationExpiresAt && startedAt) ||
     (payload.operationType === 'update' && confirmationExpiresAt && updatedFields.startedAt)
   ) {
-    const queue = await QueueModel.findOne({ _id: queueId });
+    const gameServerTemplate = await GameServerTemplateModel.findOne({ _id: gameServerTemplateId });
 
     await GameServerModel.create({
       authorizedUserIds: payload.fullDocument.userIds,
-      buildId: queue.gameServerTemplate.buildId,
-      cpu: queue.gameServerTemplate.cpu,
-      description: queue.gameServerTemplate.description,
-      matchId: _id,
-      memory: queue.gameServerTemplate.memory,
-      metadata: queue.gameServerTemplate.metadata,
-      name: queue.gameServerTemplate.name,
-      namespaceId,
-      ports: queue.gameServerTemplate.ports,
-      preemptible: queue.gameServerTemplate.preemptible,
-      probes: queue.gameServerTemplate.probes,
-      queueId,
+      buildId: gameServerTemplate.buildId,
+      cpu: gameServerTemplate.cpu,
+      description: gameServerTemplate.description,
+      matchId: payload.fullDocument._id,
+      memory: gameServerTemplate.memory,
+      metadata: gameServerTemplate.metadata,
+      name: gameServerTemplate.name,
+      namespaceId: payload.fullDocument.namespaceId,
+      ports: gameServerTemplate.ports,
+      preemptible: gameServerTemplate.preemptible,
+      probes: gameServerTemplate.probes,
+      queueId: payload.fullDocument.queueId,
     });
   }
 });

@@ -6,11 +6,11 @@ import {
   NamespaceDocument,
   NamespaceModel,
   QueueModel,
-  QueueGameServerTemplateModel,
   QueueMemberModel,
   UserDocument,
   UserModel,
   WebSocketModel,
+  GameServerTemplateModel,
 } from '@tenlastic/mongoose';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
@@ -39,9 +39,13 @@ describe('web-server/queue-members/count', function () {
 
   it('returns the number of matching records', async function () {
     const build = await BuildModel.mock({ namespaceId: namespace._id }).save();
+    const gameServerTemplate = await GameServerTemplateModel.mock({
+      buildId: build._id,
+      namespaceId: namespace._id,
+    }).save();
     const group = await GroupModel.mock({ userIds: [users[1]._id, users[2]._id] }).save();
     const queue = await QueueModel.mock({
-      gameServerTemplate: QueueGameServerTemplateModel.mock({ buildId: build._id }),
+      gameServerTemplateId: gameServerTemplate._id,
       namespaceId: namespace._id,
       usersPerTeam: [1, 1],
     }).save();
