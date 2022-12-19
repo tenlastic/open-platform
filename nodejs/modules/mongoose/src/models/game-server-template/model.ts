@@ -59,9 +59,6 @@ export class GameServerTemplateSchema {
   @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public namespaceId: mongoose.Types.ObjectId;
 
-  @prop({ type: Boolean })
-  public persistent: boolean;
-
   @prop(
     {
       required: true,

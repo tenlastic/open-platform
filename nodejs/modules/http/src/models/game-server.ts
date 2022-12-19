@@ -115,7 +115,9 @@ export class GameServerModel extends BaseModel {
   public metadata: any;
   public name: string;
   public namespaceId: string;
-  public persistent: boolean;
+  public get persistent() {
+    return !this.matchId;
+  }
   public ports: IGameServer.Port[];
   public preemptible: boolean;
   public probes: IGameServer.Probes;

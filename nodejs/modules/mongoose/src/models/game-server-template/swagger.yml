@@ -27,8 +27,6 @@ components:
         namespaceId:
           type: string
           format: ^[0-9a-f]{24}$
-        persistent:
-          type: boolean
         ports:
           type: array
           items:

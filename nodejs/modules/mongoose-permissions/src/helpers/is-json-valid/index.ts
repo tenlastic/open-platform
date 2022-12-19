@@ -103,16 +103,14 @@ function $eq(json: any, key: string, value: any) {
 
   if (reference?.constructor === Array) {
     if (isNestedArray(reference) && value?.constructor === Array) {
-      return reference.some((r) => isDeepStrictEqual(r, value));
+      return reference.some((r) => isEqual(r, value));
     } else if (!isNestedArray(reference) && value?.constructor === Array) {
       return isDeepStrictEqual(reference, value);
     } else {
-      return reference.flat().some((r) => isDeepStrictEqual(r, value));
+      return reference.flat().some((r) => isEqual(r, value));
     }
-  } else if (reference && reference instanceof mongoose.Types.ObjectId) {
-    return reference.equals(value);
   } else {
-    return reference === value;
+    return isEqual(reference, value);
   }
 }
 
@@ -219,16 +217,14 @@ function $ne(json: any, key: string, value: any) {
 
   if (reference?.constructor === Array) {
     if (isNestedArray(reference) && value?.constructor === Array) {
-      return !reference.some((r) => isDeepStrictEqual(r, value));
+      return !reference.some((r) => isEqual(r, value));
     } else if (!isNestedArray(reference) && value?.constructor === Array) {
       return !isDeepStrictEqual(reference, value);
     } else {
-      return !reference.flat().some((r) => isDeepStrictEqual(r, value));
+      return !reference.flat().some((r) => isEqual(r, value));
     }
-  } else if (reference && reference instanceof mongoose.Types.ObjectId) {
-    return !reference.equals(value);
   } else {
-    return reference !== value;
+    return !isEqual(reference, value);
   }
 }
 
@@ -250,6 +246,15 @@ function $regex(json: any, key: string, value: any) {
 
   const regex = new RegExp(value);
   return regex.test(reference);
+}
+
+/**
+ * Checks if two basic types are equal, accounting for ObjectIDs.
+ */
+function isEqual(reference: any, value: any) {
+  return reference instanceof mongoose.Types.ObjectId
+    ? reference.equals(value)
+    : isDeepStrictEqual(reference, value);
 }
 
 /**

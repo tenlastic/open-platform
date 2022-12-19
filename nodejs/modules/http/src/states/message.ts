@@ -1,11 +1,12 @@
-import { EntityState, EntityStore, QueryEntity, StoreConfig } from '@datorama/akita';
+import { EntityState, QueryEntity, StoreConfig } from '@datorama/akita';
 
 import { MessageModel } from '../models/message';
+import { BaseStore } from './base';
 
 export interface MessageState extends EntityState<MessageModel> {}
 
-@StoreConfig({ deepFreezeFn: (o) => o, idKey: '_id', name: 'messages', resettable: true })
-export class MessageStore extends EntityStore<MessageState, MessageModel> {}
+@StoreConfig({ idKey: '_id', name: 'messages', resettable: true })
+export class MessageStore extends BaseStore<MessageState, MessageModel> {}
 
 export class MessageQuery extends QueryEntity<MessageState, MessageModel> {
   constructor(protected store: MessageStore) {

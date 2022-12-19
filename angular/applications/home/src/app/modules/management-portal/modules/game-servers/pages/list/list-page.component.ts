@@ -162,7 +162,8 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
   private async fetchGameServers(params: Params) {
     this.$gameServers = this.gameServerQuery.selectAll({
       filterBy: (gs) =>
-        gs.namespaceId === params.namespaceId && (!this.queueId || this.queueId === gs.queueId),
+        gs.namespaceId === params.namespaceId &&
+        (this.queueId ? this.queueId === gs.queueId : gs.persistent),
     });
 
     this.updateDataSource$ = this.$gameServers.subscribe(

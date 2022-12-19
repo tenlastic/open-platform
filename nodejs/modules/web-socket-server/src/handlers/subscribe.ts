@@ -74,6 +74,10 @@ export async function subscribe(
       // Handle the where clause.
       const document = new Model(json.fullDocument);
       const where = await Permissions.where(credentials, parameters.where || {});
+
+      if (parameters.collection === 'matches') {
+        console.log(`Document: ${JSON.stringify(document)} - Query: ${JSON.stringify(where)}`);
+      }
       if (!isJsonValid(document.toJSON({ virtuals: true }), where)) {
         continue;
       }

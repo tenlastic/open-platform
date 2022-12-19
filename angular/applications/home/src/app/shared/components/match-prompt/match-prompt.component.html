@@ -9,20 +9,26 @@
 
   <div mat-dialog-content>
     <h2 *ngIf="storefront">{{ storefront.fullTitle }}</h2>
-    <p *ngIf="queue">
+
+    <h3 *ngIf="queue">
       {{ queue.name }} <ng-container *ngIf="queue.description">- {{ queue.description }}</ng-container>
-    </p>
+    </h3>
+
+    <mat-progress-bar mode="determinate"
+                      [value]="progress * 100"></mat-progress-bar>
   </div>
 
   <div mat-dialog-actions>
     <app-button mat-button
                 color="accent"
+                layout="left"
                 (OnClick)="declineMatchInvitation()">
       <div>Decline</div>
     </app-button>
 
     <app-button mat-button
                 color="primary"
+                layout="left"
                 (OnClick)="acceptMatchInvitation()">
       <div>Accept</div>
     </app-button>

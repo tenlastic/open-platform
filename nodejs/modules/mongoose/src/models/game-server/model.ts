@@ -64,9 +64,6 @@ export class GameServerSchema {
   @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public namespaceId: mongoose.Types.ObjectId;
 
-  @prop({ type: Boolean })
-  public persistent: boolean;
-
   @prop(
     {
       required: true,
@@ -96,6 +93,10 @@ export class GameServerSchema {
 
   @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
   public authorizationDocuments: AuthorizationDocument[];
+
+  public get persistent() {
+    return !this.matchId;
+  }
 
   /**
    * Creates a record with randomized required parameters if not specified.

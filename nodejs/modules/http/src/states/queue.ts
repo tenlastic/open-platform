@@ -1,11 +1,12 @@
-import { EntityState, EntityStore, QueryEntity, StoreConfig } from '@datorama/akita';
+import { EntityState, QueryEntity, StoreConfig } from '@datorama/akita';
 
 import { QueueModel } from '../models/queue';
+import { BaseStore } from './base';
 
 export interface QueueState extends EntityState<QueueModel> {}
 
-@StoreConfig({ deepFreezeFn: (o) => o, idKey: '_id', name: 'queues', resettable: true })
-export class QueueStore extends EntityStore<QueueState, QueueModel> {}
+@StoreConfig({ idKey: '_id', name: 'queues', resettable: true })
+export class QueueStore extends BaseStore<QueueState, QueueModel> {}
 
 export class QueueQuery extends QueryEntity<QueueState, QueueModel> {
   constructor(protected store: QueueStore) {

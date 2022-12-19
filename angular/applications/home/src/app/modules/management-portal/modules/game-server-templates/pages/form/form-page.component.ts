@@ -112,7 +112,7 @@ export class GameServerTemplatesFormPageComponent implements OnDestroy, OnInit {
   public navigateToGameServerForm() {
     this.router.navigate(['../../', 'game-servers', 'new'], {
       relativeTo: this.activatedRoute,
-      state: { gameServerTemplate: new GameServerTemplateModel(this.data) },
+      state: { gameServerTemplate: this.data },
     });
   }
 
@@ -142,7 +142,6 @@ export class GameServerTemplatesFormPageComponent implements OnDestroy, OnInit {
       metadata,
       name: this.form.get('name').value,
       namespaceId: this.form.get('namespaceId').value,
-      persistent: this.form.get('persistent').value,
       ports: this.form.get('ports').value,
       preemptible: this.form.get('preemptible').value,
     };
@@ -213,7 +212,6 @@ export class GameServerTemplatesFormPageComponent implements OnDestroy, OnInit {
       name: [this.data.name, Validators.required],
       namespaceId: [this.params.namespaceId, Validators.required],
       ports: this.formBuilder.array(portFormGroups, Validators.required),
-      persistent: [this.data.persistent === false ? false : true],
       preemptible: [this.data.preemptible === false ? false : true],
       probes: this.formBuilder.group({
         liveness: ProbeFieldComponent.getFormGroupFromProbe(this.data.probes?.liveness),

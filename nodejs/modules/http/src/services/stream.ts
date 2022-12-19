@@ -1,4 +1,3 @@
-import { ID, IDS } from '@datorama/akita';
 import WebSocket from 'isomorphic-ws';
 import TypedEmitter from 'typed-emitter';
 import { v4 as uuid } from 'uuid';
@@ -42,11 +41,8 @@ interface Service {
 }
 
 interface Store {
-  add: (record: any) => void;
-  getValue: () => { ids?: ID[] };
-  idKey: string;
   remove: (_id: string) => void;
-  replace: (_ids: IDS, record: any) => void;
+  upsertMany: (records: any) => void;
 }
 
 interface SubscribeParameters {
@@ -218,7 +214,7 @@ export class StreamService {
       }
 
       const record = new model({ ...payload.fullDocument, ...parameters }) as any;
-      this.addOrReplace(record, store);
+      store.upsertMany([record]);
 
       const subscription = this.subscriptions.find((s) => s._id === _id);
       subscription.logs.since = new Date(record.unix);
@@ -287,10 +283,10 @@ export class StreamService {
         store.remove(record._id);
       } else if (payload.operationType === 'insert') {
         service.emitter.emit('create', record);
-        this.addOrReplace(record, store);
+        store.upsertMany([record]);
       } else if (payload.operationType === 'replace' || payload.operationType === 'update') {
         service.emitter.emit('update', record);
-        this.addOrReplace(record, store);
+        store.upsertMany([record]);
       }
 
       return callback ? callback(payload) : null;
@@ -316,15 +312,5 @@ export class StreamService {
 
     const socket = this.webSockets.get(url);
     socket?.send(JSON.stringify(data));
-  }
-
-  /**
-   * Adds a new entity to the store or replaces an existing entity within the store.
-   */
-  private addOrReplace(entity: BaseModel, store: Store) {
-    const id = entity[store.idKey];
-    const { ids } = store.getValue();
-
-    return ids.includes(id) ? store.replace(id, entity) : store.add(entity);
   }
 }

@@ -35,11 +35,13 @@ export async function createMatch(queue: QueueModel): Promise<MatchModel> {
   if (queue.confirmation) {
     match = await dependencies.matchService.create(queue.namespaceId, {
       confirmationExpiresAt: new Date(Date.now() + queue.invitationSeconds * 1000),
+      gameServerTemplateId: queue.gameServerTemplateId,
       queueId: queue._id,
       teams,
     });
   } else {
     match = await dependencies.matchService.create(queue.namespaceId, {
+      gameServerTemplateId: queue.gameServerTemplateId,
       queueId: queue._id,
       teams,
     });

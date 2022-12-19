@@ -75,7 +75,7 @@ export class GameServerService {
 
     const record = new GameServerModel(response.data.record);
     this.emitter.emit('update', record);
-    this.baseService.addOrReplace(record);
+    this.gameServerStore.upsertMany([record]);
 
     return record;
   }

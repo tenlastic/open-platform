@@ -71,7 +71,7 @@ export class QueueService {
 
     const record = new QueueModel(response.data.record);
     this.emitter.emit('update', record);
-    this.baseService.addOrReplace(record);
+    this.queueStore.upsertMany([record]);
 
     return record;
   }

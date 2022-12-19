@@ -79,7 +79,7 @@ export class GameServerTemplatesListPageComponent implements OnDestroy, OnInit {
 
     this.router.navigate(['../', 'game-servers', 'new'], {
       relativeTo: this.activatedRoute,
-      state: { gameServerTemplate: new GameServerTemplateModel(record) },
+      state: { gameServerTemplate: record },
     });
   }
 

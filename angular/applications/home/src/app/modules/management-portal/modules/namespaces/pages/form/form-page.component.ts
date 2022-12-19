@@ -96,18 +96,16 @@ export class NamespacesFormPageComponent implements OnDestroy, OnInit {
   }
 
   private setupForm() {
-    this.data =
-      this.data ||
-      new NamespaceModel({
-        limits: {
-          bandwidth: 0,
-          cpu: 0,
-          defaultAuthorization: false,
-          memory: 0,
-          nonPreemptible: false,
-          storage: 0,
-        },
-      });
+    this.data ??= new NamespaceModel({
+      limits: {
+        bandwidth: 0,
+        cpu: 0,
+        defaultAuthorization: false,
+        memory: 0,
+        nonPreemptible: false,
+        storage: 0,
+      },
+    });
 
     this.form = this.formBuilder.group({
       limits: this.formBuilder.group({

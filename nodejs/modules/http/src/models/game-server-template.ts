@@ -10,7 +10,6 @@ export class GameServerTemplateModel extends BaseModel {
   public metadata: any;
   public name: string;
   public namespaceId: string;
-  public persistent: boolean;
   public ports: IGameServer.Port[];
   public preemptible: boolean;
   public probes: IGameServer.Probes;
@@ -28,7 +27,6 @@ export class GameServerTemplateModel extends BaseModel {
       metadata: this.metadata,
       name: this.name,
       namespaceId: this.namespaceId,
-      persistent: this.persistent,
       ports: this.ports,
       preemptible: this.preemptible,
       probes: this.probes,

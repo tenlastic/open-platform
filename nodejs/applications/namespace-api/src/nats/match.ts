@@ -25,8 +25,10 @@ MatchEvent.async(async (payload) => {
     const { confirmationExpiresAt, confirmedUserIds, userIds } = payload.fullDocument;
 
     if (confirmationExpiresAt && confirmedUserIds.length === userIds.length) {
-      payload.fullDocument.startedAt = new Date();
-      return payload.fullDocument.save();
+      return MatchModel.findOneAndUpdate(
+        { _id: payload.fullDocument._id },
+        { startedAt: new Date() },
+      );
     }
   }
 });

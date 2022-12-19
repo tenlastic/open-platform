@@ -1,11 +1,12 @@
-import { EntityState, EntityStore, QueryEntity, StoreConfig } from '@datorama/akita';
+import { EntityState, QueryEntity, StoreConfig } from '@datorama/akita';
 
 import { AuthorizationRequestModel } from '../models/authorization-request';
+import { BaseStore } from './base';
 
 export interface AuthorizationRequestState extends EntityState<AuthorizationRequestModel> {}
 
-@StoreConfig({ deepFreezeFn: (o) => o, idKey: '_id', name: 'authorizations', resettable: true })
-export class AuthorizationRequestStore extends EntityStore<
+@StoreConfig({ idKey: '_id', name: 'authorizations', resettable: true })
+export class AuthorizationRequestStore extends BaseStore<
   AuthorizationRequestState,
   AuthorizationRequestModel
 > {}

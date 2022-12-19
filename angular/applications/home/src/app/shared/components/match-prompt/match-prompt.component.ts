@@ -28,11 +28,13 @@ export interface MatchPromptComponentData {
 })
 export class MatchPromptComponent implements OnDestroy, OnInit {
   public message: string;
+  public progress: number;
   public queue: QueueModel;
   public storefront: StorefrontModel;
 
   private waitForGameServer$ = new Subscription();
   private waitForMatch$ = new Subscription();
+  private interval: NodeJS.Timeout;
   private matchInvitationServiceDelete = this.onMatchInvitationDeleted.bind(this);
   private timeout: NodeJS.Timeout;
 
@@ -57,6 +59,7 @@ export class MatchPromptComponent implements OnDestroy, OnInit {
     const { expiresAt, namespaceId, queueId } = this.data.matchInvitation;
 
     this.closeOnTimeout(expiresAt);
+    this.interval = setInterval(() => this.updateProgress(), 100);
     this.message = 'Loading Match information...';
 
     const [queues, storefronts] = await Promise.all([
@@ -70,6 +73,7 @@ export class MatchPromptComponent implements OnDestroy, OnInit {
   }
 
   public ngOnDestroy() {
+    clearInterval(this.interval);
     clearTimeout(this.timeout);
     this.matchInvitationService.emitter.off('delete', this.matchInvitationServiceDelete);
     this.waitForGameServer$.unsubscribe();
@@ -107,15 +111,10 @@ export class MatchPromptComponent implements OnDestroy, OnInit {
   public async declineMatchInvitation() {
     if (this.data.matchInvitation) {
       const { _id, namespaceId } = this.data.matchInvitation;
-      await this.matchInvitationService.delete(namespaceId, _id);
-    }
 
-    this.dialogRef.close();
-  }
-
-  private async onMatchInvitationDeleted(match: MatchModel) {
-    if (match._id !== this.data.matchInvitation.matchId) {
-      return;
+      try {
+        await this.matchInvitationService.delete(namespaceId, _id);
+      } catch {}
     }
 
     this.dialogRef.close();
@@ -126,6 +125,14 @@ export class MatchPromptComponent implements OnDestroy, OnInit {
 
     const duration = date.getTime() - Date.now();
     this.timeout = setTimeout(() => this.declineMatchInvitation(), duration + delay);
+  }
+
+  private async onMatchInvitationDeleted(match: MatchModel) {
+    if (match._id !== this.data.matchInvitation.matchId) {
+      return;
+    }
+
+    this.dialogRef.close();
   }
 
   private async start(matchId: string, namespaceId: string) {
@@ -149,5 +156,14 @@ export class MatchPromptComponent implements OnDestroy, OnInit {
     this.executableService.start(build.entrypoint, namespaceId, { gameServer });
 
     this.dialogRef.close();
+  }
+
+  private updateProgress() {
+    const { createdAt, expiresAt } = this.data.matchInvitation;
+
+    const duration = expiresAt.getTime() - Date.now();
+    const total = expiresAt.getTime() - createdAt.getTime();
+
+    this.progress = duration / total;
   }
 }

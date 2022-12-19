@@ -197,7 +197,7 @@ export class BuildsFormPageComponent implements OnInit {
     this.progress = null;
     this.status = Status.Ready;
 
-    return new BuildModel(result);
+    return result;
   }
 
   private async handleHttpError(err: ApiError, pathMap: any) {
@@ -245,8 +245,7 @@ export class BuildsFormPageComponent implements OnInit {
       this.form.get('reference').disable({ emitEvent: false });
 
       this.$data = this.buildQuery.selectAll({ filterBy: (b) => b._id === this.data._id }).pipe(
-        map((builds) => {
-          const build = new BuildModel(builds[0]);
+        map(([build]) => {
           build.status = build.status || { nodes: [], phase: 'Pending' };
           this.dataSource.data = build.getNestedStatusNodes();
           this.form.get('files').setValue(build.files);

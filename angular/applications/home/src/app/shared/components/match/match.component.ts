@@ -122,15 +122,11 @@ export class MatchComponent implements OnDestroy, OnInit {
   }
 
   public getQueue(_id: string) {
-    const queue = this.queueQuery.getEntity(_id);
-    return new QueueModel(queue);
+    return this.queueQuery.getEntity(_id);
   }
 
   public getStorefront(namespaceId: string) {
-    const [storefront] = this.storefrontQuery.getAll({
-      filterBy: (s) => s.namespaceId === namespaceId,
-    });
-    return new StorefrontModel(storefront);
+    return this.storefrontQuery.getEntity(namespaceId);
   }
 
   public async joinMatch(match: MatchModel) {

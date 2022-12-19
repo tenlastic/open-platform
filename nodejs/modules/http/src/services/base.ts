@@ -1,8 +1,9 @@
-import { EntityState, EntityStore } from '@datorama/akita';
+import { EntityState } from '@datorama/akita';
 import { EventEmitter } from 'events';
 import TypedEmitter from 'typed-emitter';
 
 import { BaseModel } from '../models/base';
+import { BaseStore } from '../states/base';
 import { ApiService } from './api';
 
 export class ServiceEventEmitter<T extends BaseModel> extends EventEmitter {
@@ -45,26 +46,16 @@ export class BaseService<T extends BaseModel> {
   private _emitter = new EventEmitter() as TypedEmitter<ServiceEvents<T>>;
   private apiService: ApiService;
   private Model: new (parameters: T) => T;
-  private store: EntityStore<EntityState<T>, T>;
+  private store: BaseStore<EntityState<T>, T>;
 
   constructor(
     apiService: ApiService,
     Model: new (parameters: T) => T,
-    store: EntityStore<EntityState<T>, T>,
+    store: BaseStore<EntityState<T>, T>,
   ) {
     this.apiService = apiService;
     this.Model = Model;
     this.store = store;
-  }
-
-  /**
-   * Adds a new entity to the store or replaces an existing entity within the store.
-   */
-  public addOrReplace(entity: T) {
-    const id = entity[this.store.idKey];
-    const { ids } = this.store.getValue();
-
-    return ids.includes(id) ? this.store.replace(id, entity) : this.store.add(entity);
   }
 
   /**
@@ -88,7 +79,7 @@ export class BaseService<T extends BaseModel> {
 
     const record = new this.Model(response.data.record);
     this.emitter.emit('create', record);
-    this.addOrReplace(record);
+    this.store.upsertMany([record]);
 
     return record;
   }
@@ -113,7 +104,7 @@ export class BaseService<T extends BaseModel> {
     const response = await this.apiService.request({ method: 'get', params: query, url });
 
     const records = response.data.records.map((r) => new this.Model(r));
-    records.forEach((r) => this.addOrReplace(r));
+    this.store.upsertMany(records);
 
     return records;
   }
@@ -125,7 +116,7 @@ export class BaseService<T extends BaseModel> {
     const response = await this.apiService.request({ method: 'get', url: `${url}/${_id}` });
 
     const record = new this.Model(response.data.record);
-    this.addOrReplace(record);
+    this.store.upsertMany([record]);
 
     return record;
   }
@@ -142,7 +133,7 @@ export class BaseService<T extends BaseModel> {
 
     const record = new this.Model(response.data.record);
     this.emitter.emit('update', record);
-    this.addOrReplace(record);
+    this.store.upsertMany([record]);
 
     return record;
   }

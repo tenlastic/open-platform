@@ -1,11 +1,12 @@
-import { EntityState, EntityStore, QueryEntity, StoreConfig } from '@datorama/akita';
+import { EntityState, QueryEntity, StoreConfig } from '@datorama/akita';
 
 import { WorkflowModel } from '../models/workflow';
+import { BaseStore } from './base';
 
 export interface WorkflowState extends EntityState<WorkflowModel> {}
 
-@StoreConfig({ deepFreezeFn: (o) => o, idKey: '_id', name: 'workflows', resettable: true })
-export class WorkflowStore extends EntityStore<WorkflowState, WorkflowModel> {}
+@StoreConfig({ idKey: '_id', name: 'workflows', resettable: true })
+export class WorkflowStore extends BaseStore<WorkflowState, WorkflowModel> {}
 
 export class WorkflowQuery extends QueryEntity<WorkflowState, WorkflowModel> {
   constructor(protected store: WorkflowStore) {

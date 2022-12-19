@@ -35,7 +35,7 @@ export class MatchInvitationService {
 
     const record = new MatchInvitationModel(response.data.record);
     this.emitter.emit('update', record);
-    this.baseService.addOrReplace(record);
+    this.matchInvitationStore.upsertMany([record]);
 
     return record;
   }

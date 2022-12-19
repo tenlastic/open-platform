@@ -68,7 +68,6 @@ export class GameServerTemplatesJsonPageComponent implements OnInit {
 
     values._id = this.data._id;
     values.namespaceId = this.params.namespaceId;
-    values.persistent = true;
 
     try {
       this.data = await this.upsert(values);

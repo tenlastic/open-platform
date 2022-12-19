@@ -51,12 +51,10 @@ export class WebSocketsListPageComponent implements OnDestroy, OnInit {
   }
 
   private async fetchWebSockets(namespaceId: string, userId: string) {
-    this.$webSockets = this.webSocketQuery
-      .selectAll({
-        filterBy: (ws) =>
-          (!namespaceId || ws.namespaceId === namespaceId) && (!userId || ws.userId === userId),
-      })
-      .pipe(map((ws) => ws.map((w) => new WebSocketModel(w))));
+    this.$webSockets = this.webSocketQuery.selectAll({
+      filterBy: (ws) =>
+        (!namespaceId || ws.namespaceId === namespaceId) && (!userId || ws.userId === userId),
+    });
 
     this.updateDataSource$ = this.$webSockets.subscribe(
       (webSockets) => (this.dataSource.data = webSockets),

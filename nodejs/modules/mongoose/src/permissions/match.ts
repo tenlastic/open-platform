@@ -25,7 +25,7 @@ const administrator = {
 export const MatchPermissions = new MongoosePermissions<MatchDocument>(MatchModel, {
   create: {
     'namespace-write': administrator.create,
-    'system-write': [...administrator.create, 'gameServerTemplateId'],
+    'system-write': [...administrator.create, 'queueId'],
     'user-write': administrator.create,
   },
   delete: {
