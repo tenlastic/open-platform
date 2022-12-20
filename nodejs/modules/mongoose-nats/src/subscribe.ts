@@ -23,6 +23,7 @@ import {
   WebSocketModel,
   WorkflowModel,
 } from '@tenlastic/mongoose';
+import * as nats from '@tenlastic/nats';
 
 import { emit } from './emit';
 import {
@@ -54,39 +55,42 @@ import {
 
 export interface SubscribeOptions {
   database: string;
-  durable: string;
+  maxBytes: number;
   podName?: string;
 }
 
-export function subscribe(options: SubscribeOptions) {
+export async function subscribe(options: SubscribeOptions) {
+  await nats.upsertStream(options.database, { max_bytes: options.maxBytes });
+
   const promises = [
-    emit(options.database, options.durable, ArticleEvent, ArticleModel),
-    emit(options.database, options.durable, AuthorizationEvent, AuthorizationModel),
-    emit(options.database, options.durable, AuthorizationRequestEvent, AuthorizationRequestModel),
-    emit(options.database, options.durable, BuildEvent, BuildModel),
-    emit(options.database, options.durable, CollectionEvent, CollectionModel),
-    emit(options.database, options.durable, FriendEvent, FriendModel),
-    emit(options.database, options.durable, GameServerEvent, GameServerModel),
-    emit(options.database, options.durable, GameServerTemplateEvent, GameServerTemplateModel),
-    emit(options.database, options.durable, GroupEvent, GroupModel),
-    emit(options.database, options.durable, GroupInvitationEvent, GroupInvitationModel),
-    emit(options.database, options.durable, IgnorationEvent, IgnorationModel),
-    emit(options.database, options.durable, LoginEvent, LoginModel),
-    emit(options.database, options.durable, MatchEvent, MatchModel),
-    emit(options.database, options.durable, MatchInvitationEvent, MatchInvitationModel),
-    emit(options.database, options.durable, MessageEvent, MessageModel),
-    emit(options.database, options.durable, NamespaceEvent, NamespaceModel),
-    emit(options.database, options.durable, QueueMemberEvent, QueueMemberModel),
-    emit(options.database, options.durable, QueueEvent, QueueModel),
-    emit(options.database, options.durable, RefreshTokenEvent, RefreshTokenModel),
-    emit(options.database, options.durable, StorefrontEvent, StorefrontModel),
-    emit(options.database, options.durable, UserEvent, UserModel),
-    emit(options.database, options.durable, WebSocketEvent, WebSocketModel),
-    emit(options.database, options.durable, WorkflowEvent, WorkflowModel),
+    emit(options.database, options.database, ArticleEvent, ArticleModel),
+    emit(options.database, options.database, AuthorizationEvent, AuthorizationModel),
+    emit(options.database, options.database, AuthorizationRequestEvent, AuthorizationRequestModel),
+    emit(options.database, options.database, BuildEvent, BuildModel),
+    emit(options.database, options.database, CollectionEvent, CollectionModel),
+    emit(options.database, options.database, FriendEvent, FriendModel),
+    emit(options.database, options.database, GameServerEvent, GameServerModel),
+    emit(options.database, options.database, GameServerTemplateEvent, GameServerTemplateModel),
+    emit(options.database, options.database, GroupEvent, GroupModel),
+    emit(options.database, options.database, GroupInvitationEvent, GroupInvitationModel),
+    emit(options.database, options.database, IgnorationEvent, IgnorationModel),
+    emit(options.database, options.database, LoginEvent, LoginModel),
+    emit(options.database, options.database, MatchEvent, MatchModel),
+    emit(options.database, options.database, MatchInvitationEvent, MatchInvitationModel),
+    emit(options.database, options.database, MessageEvent, MessageModel),
+    emit(options.database, options.database, NamespaceEvent, NamespaceModel),
+    emit(options.database, options.database, QueueMemberEvent, QueueMemberModel),
+    emit(options.database, options.database, QueueEvent, QueueModel),
+    emit(options.database, options.database, RefreshTokenEvent, RefreshTokenModel),
+    emit(options.database, options.database, StorefrontEvent, StorefrontModel),
+    emit(options.database, options.database, UserEvent, UserModel),
+    emit(options.database, options.database, WebSocketEvent, WebSocketModel),
+    emit(options.database, options.database, WorkflowEvent, WorkflowModel),
   ];
 
   if (options.podName) {
-    promises.push(emit(options.database, options.podName, GlobalNamespaceEvent, NamespaceModel));
+    const promise = emit(options.database, options.podName, GlobalNamespaceEvent, NamespaceModel);
+    promises.push(promise);
   }
 
   return Promise.all(promises);

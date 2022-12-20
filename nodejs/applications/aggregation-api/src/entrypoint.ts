@@ -9,6 +9,7 @@ import * as webServer from './web-server';
 import * as webSocketServer from './web-socket-server';
 
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
+const mongoDatabaseName = 'aggregation-api';
 const natsConnectionString = process.env.NATS_CONNECTION_STRING;
 const podName = process.env.POD_NAME;
 
@@ -17,14 +18,17 @@ const podName = process.env.POD_NAME;
     // MongoDB.
     await mongoose.connect({
       connectionString: mongoConnectionString,
-      databaseName: 'aggregation-api',
+      databaseName: mongoDatabaseName,
     });
 
     // NATS.
-    await nats.connect({ connectionString: natsConnectionString, database: 'aggregation-api' });
+    await nats.connect({ connectionString: natsConnectionString });
     nats
-      .subscribe({ database: 'aggregation-api', durable: 'aggregation-api' })
-      .catch((err) => console.error(err.message));
+      .subscribe({ database: mongoDatabaseName, maxBytes: 1 * 1000 * 1000 * 1000 })
+      .catch((err) => {
+        console.error(err.message);
+        process.exit(1);
+      });
 
     // Web Server.
     const { server } = webServer.setup();

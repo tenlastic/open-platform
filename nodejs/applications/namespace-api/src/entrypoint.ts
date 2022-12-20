@@ -28,9 +28,9 @@ const podName = process.env.POD_NAME;
     });
 
     // NATS.
-    await nats.connect({ connectionString: natsConnectionString, database: mongoDatabaseName });
+    await nats.connect({ connectionString: natsConnectionString });
     nats
-      .subscribe({ database: mongoDatabaseName, durable: mongoDatabaseName, podName })
+      .subscribe({ database: mongoDatabaseName, maxBytes: 250 * 1000 * 1000, podName })
       .catch((err) => console.error(err.message));
 
     // Web Server.

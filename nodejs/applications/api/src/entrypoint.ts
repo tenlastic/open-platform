@@ -15,6 +15,7 @@ const mailgunSecret = process.env.MAILGUN_SECRET;
 const minioBucket = process.env.MINIO_BUCKET;
 const minioConnectionString = process.env.MINIO_CONNECTION_STRING;
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
+const mongoDatabaseName = 'api';
 const natsConnectionString = process.env.NATS_CONNECTION_STRING;
 
 (async () => {
@@ -34,11 +35,16 @@ const natsConnectionString = process.env.NATS_CONNECTION_STRING;
     await minio.makeBucket(minioBucket);
 
     // MongoDB.
-    await mongoose.connect({ connectionString: mongoConnectionString, databaseName: 'api' });
+    await mongoose.connect({
+      connectionString: mongoConnectionString,
+      databaseName: mongoDatabaseName,
+    });
 
     // NATS.
-    await nats.connect({ connectionString: natsConnectionString, database: 'api' });
-    nats.subscribe({ database: 'api', durable: 'api' }).catch((err) => console.error(err.message));
+    await nats.connect({ connectionString: natsConnectionString });
+    nats
+      .subscribe({ database: mongoDatabaseName, maxBytes: 1 * 1000 * 1000 * 1000 })
+      .catch((err) => console.error(err.message));
 
     // Web Server.
     webServer.setup();
