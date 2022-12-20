@@ -43,7 +43,7 @@ describe('json-schema/json-to-mongoose', function () {
             type: 'object',
           },
           anyValue: { a: 'b' },
-          arr: {
+          array: {
             items: {
               properties: { num: { type: 'number' }, str: { type: 'string' } },
               type: 'object',
@@ -65,10 +65,10 @@ describe('json-schema/json-to-mongoose', function () {
           street: { default: 44, max: 50, min: 0, type: Number },
         },
         anyValue: mongoose.Schema.Types.Mixed,
-        arr: [
+        array: [
           {
-            num: { type: Number },
-            str: { type: String },
+            _id: false,
+            type: { num: { type: Number }, str: { type: String } },
           },
         ],
         id: { match: /^\d{3}$/, type: String },

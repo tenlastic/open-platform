@@ -47,10 +47,10 @@ export function jsonToMongoose(jsonSchema: any) {
 
 function getArrayType(jsonSchema: any) {
   if (jsonSchema.items && Object.keys(jsonSchema.items).length > 0) {
-    return [jsonToMongoose(jsonSchema.items)];
+    return [{ _id: false, type: jsonToMongoose(jsonSchema.items) }];
   }
 
-  return [mongoose.Schema.Types.Mixed];
+  return [{ _id: false, type: mongoose.Schema.Types.Mixed }];
 }
 
 function getObjectType(jsonSchema: any) {
