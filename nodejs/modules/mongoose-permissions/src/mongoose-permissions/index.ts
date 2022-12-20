@@ -106,7 +106,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
     }
 
     // Create record with authorized attributes
-    const filteredParams = filterObject(params, createPermissions, this.Model.schema);
+    const filteredParams = filterObject('create', params, createPermissions, this.Model.schema);
     const overwriteMerge = (destinationArray, sourceArray) => sourceArray;
     const mergedParams = deepmerge(toPlainObject(filteredParams), toPlainObject(override), {
       arrayMerge: overwriteMerge,
@@ -224,7 +224,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
     }
 
     const object = record.toObject({ flattenMaps: true });
-    return filterObject(object, readPermissions);
+    return filterObject('read', object, readPermissions);
   }
 
   /**
@@ -247,7 +247,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
     }
 
     // Update record with authorized fields
-    const filteredParams = filterObject(params, updatePermissions, this.Model.schema);
+    const filteredParams = filterObject('update', params, updatePermissions, this.Model.schema);
     const arrayMerge = (destinationArray, sourceArray) => sourceArray;
     const customMerge = (key) => {
       return this.Model.schema.paths[key]?.options.merge

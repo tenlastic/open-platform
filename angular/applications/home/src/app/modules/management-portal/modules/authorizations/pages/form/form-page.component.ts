@@ -196,6 +196,10 @@ export class AuthorizationsFormPageComponent implements OnInit {
       ? await this.authorizationService.update(this.params.namespaceId, values._id, values)
       : await this.authorizationService.create(this.params.namespaceId, values);
 
+    if (this.form.get('bannedAt').dirty && this.form.get('bannedAt').value) {
+      await this.authorizationService.ban(this.params.namespaceId, result._id);
+    }
+
     this.matSnackBar.open(`Authorization saved successfully.`);
     this.router.navigate(['../', result._id], { relativeTo: this.activatedRoute });
 

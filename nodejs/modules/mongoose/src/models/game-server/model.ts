@@ -83,7 +83,7 @@ export class GameServerSchema {
   @prop({ ref: 'QueueSchema', type: mongoose.Schema.Types.ObjectId })
   public queueId: mongoose.Types.ObjectId;
 
-  @prop({ type: Date, writable: false })
+  @prop({ filter: { create: true, update: true }, type: Date })
   public restartedAt: Date;
 
   @prop({ default: () => new GameServerStatusModel(), merge: true, type: GameServerStatusSchema })

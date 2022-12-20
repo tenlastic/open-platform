@@ -59,10 +59,10 @@ export class AuthorizationRequestSchema implements ModifiedPlugin {
 
   public createdAt: Date;
 
-  @prop({ type: Date })
+  @prop({ filter: { create: true, update: true }, type: Date })
   public deniedAt: Date;
 
-  @prop({ type: Date })
+  @prop({ filter: { create: true, update: true }, type: Date })
   public grantedAt: Date;
 
   @prop({ ref: 'NamespaceSchema', type: mongoose.Schema.Types.ObjectId })

@@ -8,7 +8,7 @@ describe('filter-object', function () {
     const permissions = ['age', 'name'];
     const record = { age: 5, name: 'name', state: 'NJ' };
 
-    const result = filterObject(record, permissions);
+    const result = filterObject('read', record, permissions);
 
     expect(result.age).to.eql(5);
     expect(result.name).to.eql('name');
@@ -41,7 +41,7 @@ describe('filter-object', function () {
       },
     };
 
-    const result = filterObject(record, permissions);
+    const result = filterObject('read', record, permissions);
 
     expect(result.jsonSchema.properties.age).to.eql({});
     expect(result.jsonSchema.properties.country).to.not.exist;
@@ -62,7 +62,7 @@ describe('filter-object', function () {
       values: [1, 2, 3],
     };
 
-    const result = filterObject(record, permissions);
+    const result = filterObject('read', record, permissions);
 
     expect(result.keys).to.not.exist;
     expect(result.templates[0].key).to.eql(0);
@@ -74,7 +74,7 @@ describe('filter-object', function () {
     expect(result.values).to.eql(record.values);
   });
 
-  it('handles the writable option', function () {
+  it('handles the filter option', function () {
     const permissions = ['keys', 'templates.*', 'values'];
     const record = {
       keys: [1, 2, 3],
@@ -86,20 +86,20 @@ describe('filter-object', function () {
       values: [1, 2, 3],
     };
     const schema = new mongoose.Schema({
-      keys: { type: [Number], writable: false },
+      keys: { type: [Number], filter: true },
       templates: {
         type: new mongoose.Schema({
           key: Number,
           templates: {
             type: new mongoose.Schema({ key: Number, value: Number }),
-            writable: false,
+            filter: { read: true },
           },
           value: Number,
         }),
       },
     });
 
-    const result = filterObject(record, permissions, schema);
+    const result = filterObject('read', record, permissions, schema);
 
     expect(result.keys).to.not.exist;
     expect(result.templates[0].key).to.eql(0);

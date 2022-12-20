@@ -24,6 +24,23 @@ export class AuthorizationService {
   }
 
   /**
+   * Bans the Authorization.
+   */
+  public async ban(namespaceId: string, _id: string) {
+    const url = this.getUrl(namespaceId);
+    const response = await this.apiService.request({
+      method: 'put',
+      url: `${url}/${_id}/banned-at`,
+    });
+
+    const record = new AuthorizationModel(response.data.record);
+    this.emitter.emit('update', record);
+    this.authorizationStore.upsertMany([record]);
+
+    return record;
+  }
+
+  /**
    * Returns the number of Records satisfying the query.
    */
   public async count(namespaceId: string, query: any) {

@@ -25,7 +25,7 @@ import { AuthorizationDocument } from '../authorization';
 export class StorefrontSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @prop({ maxlength: 256, trim: true, type: String, writable: false })
+  @prop({ filter: { create: true, update: true }, maxlength: 256, trim: true, type: String })
   public background: string;
 
   public createdAt: Date;
@@ -33,13 +33,16 @@ export class StorefrontSchema {
   @prop({ maxlength: 256, trim: true, type: String })
   public description: string;
 
-  @prop({ maxlength: 256, trim: true, type: String, writable: false })
+  @prop({ filter: { create: true, update: true }, maxlength: 256, trim: true, type: String })
   public icon: string;
 
-  @prop({ maxlength: 256, trim: true, type: String, writable: false }, PropType.ARRAY)
+  @prop(
+    { filter: { create: true, update: true }, maxlength: 256, trim: true, type: String },
+    PropType.ARRAY,
+  )
   public images: string[];
 
-  @prop({ maxlength: 256, trim: true, type: String, writable: false })
+  @prop({ filter: { create: true, update: true }, maxlength: 256, trim: true, type: String })
   public logo: string;
 
   @prop({ type: mongoose.Schema.Types.Mixed, unset: false })
@@ -56,7 +59,10 @@ export class StorefrontSchema {
 
   public updatedAt: Date;
 
-  @prop({ maxlength: 256, trim: true, type: String, writable: false }, PropType.ARRAY)
+  @prop(
+    { filter: { create: true, update: true }, maxlength: 256, trim: true, type: String },
+    PropType.ARRAY,
+  )
   public videos: string[];
 
   @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })

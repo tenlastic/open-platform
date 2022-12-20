@@ -816,7 +816,7 @@ describe('is-json-valid', function () {
   describe('multiple operators', function () {
     it('returns true', function () {
       const json = { user: { age: 5, name: 'Test User' } };
-      const query = { 'user.age': { $exists: true, $ne: null } };
+      const query = { 'user.age': { $exists: true } };
 
       const result = isJsonValid(json, query);
 

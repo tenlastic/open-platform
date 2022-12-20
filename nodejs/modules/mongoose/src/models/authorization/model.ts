@@ -98,7 +98,7 @@ export class AuthorizationSchema {
   @prop({ maxlength: 256, trim: true, type: String })
   public apiKey: string;
 
-  @prop({ type: Date })
+  @prop({ filter: { create: true, update: true }, type: Date })
   public bannedAt: Date;
 
   public createdAt: Date;

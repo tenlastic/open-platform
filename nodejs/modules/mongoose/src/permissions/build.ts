@@ -76,7 +76,7 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(BuildMode
           ...AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
             AuthorizationRole.BuildsReadPublished,
           ]),
-          publishedAt: { $exists: true, $ne: null },
+          publishedAt: { $exists: true },
         },
       ],
     },
@@ -93,7 +93,7 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(BuildMode
           ...AuthorizationPermissionsHelpers.getSystemRoleQuery([
             AuthorizationRole.BuildsReadPublished,
           ]),
-          publishedAt: { $exists: true, $ne: null },
+          publishedAt: { $exists: true },
         },
       ],
     },

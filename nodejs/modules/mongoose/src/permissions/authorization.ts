@@ -15,7 +15,7 @@ export const AuthorizationPermissionsHelpers = {
                   isOne: true,
                   model: 'AuthorizationSchema',
                   where: {
-                    bannedAt: { $exists: true, $ne: null },
+                    bannedAt: { $exists: true },
                     userId: { $ref: 'user._id' },
                   },
                 },
@@ -73,7 +73,7 @@ export const AuthorizationPermissionsHelpers = {
       ],
       'record.authorizationDocuments': {
         $not: {
-          $elemMatch: { bannedAt: { $exists: true, $ne: null }, userId: { $ref: 'user._id' } },
+          $elemMatch: { bannedAt: { $exists: true }, userId: { $ref: 'user._id' } },
         },
       },
     };

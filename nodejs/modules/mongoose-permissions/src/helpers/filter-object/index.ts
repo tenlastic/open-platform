@@ -2,17 +2,25 @@ import * as mongoose from 'mongoose';
 
 import { isPathValid } from '../is-path-valid';
 
+export type FilterObjectAction = 'create' | 'read' | 'update';
+
 /**
  * Removes any unauthorized attributes from an object.
  */
-export function filterObject<T>(object: T, permissions: string[], schema?: mongoose.Schema) {
-  return filterObjectRecursively(object, permissions, [], schema);
+export function filterObject<T>(
+  action: FilterObjectAction,
+  object: T,
+  permissions: string[],
+  schema?: mongoose.Schema,
+) {
+  return filterObjectRecursively(action, object, permissions, [], schema);
 }
 
 /**
  * Removes any unauthorized attributes from an object recursively.
  */
 function filterObjectRecursively<T>(
+  action: FilterObjectAction,
   object: T,
   permissions: string[],
   paths: string[] = [],
@@ -22,12 +30,12 @@ function filterObjectRecursively<T>(
     let result = value;
 
     if (value?.constructor === Object) {
-      result = filterObjectRecursively(value, permissions, paths.concat(key), schema);
+      result = filterObjectRecursively(action, value, permissions, paths.concat(key), schema);
     } else if (value?.constructor === Array) {
       result = value
         .map((v) => {
           if (v?.constructor === Object) {
-            return filterObjectRecursively(v, permissions, paths.concat(key), schema);
+            return filterObjectRecursively(action, v, permissions, paths.concat(key), schema);
           } else {
             return v;
           }
@@ -41,9 +49,9 @@ function filterObjectRecursively<T>(
         });
     }
 
+    const pathIsFilteredOut = isPathFilteredOut(action, key, paths, schema);
     const pathIsValid = isPathValid(key, paths, permissions);
-    const pathIsWritable = isPathWritable(key, paths, schema);
-    if (pathIsValid && pathIsWritable) {
+    if (!pathIsFilteredOut && pathIsValid) {
       agg[key] = result;
     }
 
@@ -51,13 +59,23 @@ function filterObjectRecursively<T>(
   }, {});
 }
 
-function isPathWritable(key: string, paths: string[], schema: mongoose.Schema) {
+function isPathFilteredOut(
+  action: FilterObjectAction,
+  key: string,
+  paths: string[],
+  schema: mongoose.Schema,
+) {
   if (!schema) {
-    return true;
+    return false;
   }
 
   const path = paths.concat(key).join('.');
   const type = schema.path(path);
 
-  return type?.options.writable !== false;
+  const filter = type?.options.filter;
+  if (!filter) {
+    return false;
+  }
+
+  return filter === true || filter[action] === true;
 }

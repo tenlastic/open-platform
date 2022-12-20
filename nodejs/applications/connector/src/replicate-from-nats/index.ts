@@ -41,7 +41,7 @@ export async function replicateFromNats(
       await eachMessage(Model, options, json, new Query().cast(Model, where));
       message.ack();
     } catch (e) {
-      console.error(e);
+      console.error(e.message);
       message.nak();
 
       process.exit(1);
@@ -56,7 +56,7 @@ export async function eachMessage(
   where?: any,
 ) {
   if (where) {
-    const fullDocument = new Query().cast(Model, payload.fullDocument);
+    const fullDocument = new Model(payload.fullDocument);
 
     if (!mongoosePermissions.isJsonValid(fullDocument, where)) {
       return;

@@ -45,8 +45,7 @@ describe('json-schema/json-to-mongoose', function () {
           anyValue: { a: 'b' },
           array: {
             items: {
-              properties: { num: { type: 'number' }, str: { type: 'string' } },
-              type: 'object',
+              type: 'string',
             },
             type: 'array',
           },
@@ -68,7 +67,7 @@ describe('json-schema/json-to-mongoose', function () {
         array: [
           {
             _id: false,
-            type: { num: { type: Number }, str: { type: String } },
+            type: String,
           },
         ],
         id: { match: /^\d{3}$/, type: String },

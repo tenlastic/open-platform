@@ -21,7 +21,7 @@ import { AuthorizationDocument } from '../authorization';
 export class MatchInvitationSchema {
   public _id: mongoose.Types.ObjectId;
 
-  @prop({ type: Date, writable: false })
+  @prop({ filter: { create: true, update: true }, type: Date })
   public acceptedAt: Date;
 
   public createdAt: Date;

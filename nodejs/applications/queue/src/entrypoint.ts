@@ -83,7 +83,7 @@ const wssUrl = process.env.WSS_URL;
 
 async function main() {
   try {
-    const queue = new QueueModel(dependencies.queueQuery.getEntity(queueId));
+    const queue = dependencies.queueQuery.getEntity(queueId);
 
     const result = await createMatch(queue);
     console.log(`Match created successfully: ${result._id}.`);

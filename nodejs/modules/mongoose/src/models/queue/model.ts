@@ -70,7 +70,7 @@ export class QueueSchema {
   @prop({ min: 0, required: true, type: Number, validate: enumValidator([1, 3, 5]) })
   public replicas: number;
 
-  @prop({ type: Date, writable: false })
+  @prop({ filter: { create: true, update: true }, type: Date })
   public restartedAt: Date;
 
   @prop({
@@ -119,7 +119,7 @@ export class QueueSchema {
    * Returns true if a restart is required on an update.
    */
   public static isRestartRequired(fields: string[]) {
-    const immutableFields = ['buildId', 'cpu', 'memory', 'preemptible', 'replicas', 'restartedAt'];
+    const immutableFields = ['cpu', 'memory', 'preemptible', 'replicas', 'restartedAt'];
 
     return immutableFields.some((i) => fields.includes(i));
   }

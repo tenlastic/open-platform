@@ -1,0 +1,24 @@
+paths:
+  /authorization-requests/{_id}/granted-at:
+    put:
+      summary: Grant
+      tags: [Authorization Requests]
+      description: Updates an existing record's date field to the current date and time.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: _id
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  record:
+                    $ref: '#/components/schemas/AuthorizationRequest'

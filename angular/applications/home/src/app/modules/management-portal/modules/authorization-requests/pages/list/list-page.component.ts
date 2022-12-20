@@ -59,8 +59,22 @@ export class AuthorizationRequestsListPageComponent implements OnDestroy, OnInit
     this.updateDataSource$.unsubscribe();
   }
 
+  public async deny($event: Event, record: AuthorizationRequestModel) {
+    $event.stopPropagation();
+
+    await this.authorizationRequestService.deny(record.namespaceId, record._id);
+    this.matSnackBar.open(`Authorization Request denied successfully.`);
+  }
+
   public getUser(_id: string) {
     return this.userQuery.getEntity(_id);
+  }
+
+  public async grant($event: Event, record: AuthorizationRequestModel) {
+    $event.stopPropagation();
+
+    await this.authorizationRequestService.grant(record.namespaceId, record._id);
+    this.matSnackBar.open(`Authorization Request granted successfully.`);
   }
 
   public showDeletePrompt($event: Event, record: AuthorizationRequestModel) {

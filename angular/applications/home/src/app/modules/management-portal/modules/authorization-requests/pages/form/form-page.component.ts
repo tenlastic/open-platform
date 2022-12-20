@@ -59,16 +59,16 @@ export class AuthorizationRequestsFormPageComponent implements OnInit {
     });
   }
 
-  public async grant() {
+  public async deny() {
     this.errors = [];
 
-    const { namespaceId } = this.params;
-    const values: Partial<AuthorizationRequestModel> = { grantedAt: new Date() };
-
     try {
-      this.data = await this.authorizationRequestService.update(namespaceId, this.data._id, values);
+      this.data = await this.authorizationRequestService.deny(
+        this.params.namespaceId,
+        this.data._id,
+      );
 
-      this.matSnackBar.open(`Authorization Request granted successfully.`);
+      this.matSnackBar.open(`Authorization Request denied successfully.`);
       this.router.navigate(['../', this.data._id], { relativeTo: this.activatedRoute });
     } catch (e) {
       this.errors = this.formService.handleHttpError(e, {
@@ -78,16 +78,16 @@ export class AuthorizationRequestsFormPageComponent implements OnInit {
     }
   }
 
-  public async deny() {
+  public async grant() {
     this.errors = [];
 
-    const { namespaceId } = this.params;
-    const values: Partial<AuthorizationRequestModel> = { deniedAt: new Date() };
-
     try {
-      this.data = await this.authorizationRequestService.update(namespaceId, this.data._id, values);
+      this.data = await this.authorizationRequestService.grant(
+        this.params.namespaceId,
+        this.data._id,
+      );
 
-      this.matSnackBar.open(`Authorization Request denied successfully.`);
+      this.matSnackBar.open(`Authorization Request granted successfully.`);
       this.router.navigate(['../', this.data._id], { relativeTo: this.activatedRoute });
     } catch (e) {
       this.errors = this.formService.handleHttpError(e, {

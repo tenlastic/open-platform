@@ -56,8 +56,8 @@ export class MessageSchema {
         const readReceipt = new MessageReadReceiptModel({ userId: this.fromUserId });
         return [readReceipt];
       },
+      filter: { create: true, update: true },
       type: MessageReadReceiptSchema,
-      writable: false,
     },
     PropType.ARRAY,
   )

@@ -48,6 +48,23 @@ export class AuthorizationRequestService {
   }
 
   /**
+   * Denies the Authorization Request.
+   */
+  public async deny(namespaceId: string, _id: string) {
+    const url = this.getUrl(namespaceId);
+    const response = await this.apiService.request({
+      method: 'put',
+      url: `${url}/${_id}/denied-at`,
+    });
+
+    const record = new AuthorizationRequestModel(response.data.record);
+    this.emitter.emit('update', record);
+    this.authorizationRequestStore.upsertMany([record]);
+
+    return record;
+  }
+
+  /**
    * Returns an array of Records satisfying the query.
    */
   public async find(namespaceId: string, query: BaseServiceFindQuery) {
@@ -61,6 +78,23 @@ export class AuthorizationRequestService {
   public async findOne(namespaceId: string, _id: string) {
     const url = this.getUrl(namespaceId);
     return this.baseService.findOne(_id, url);
+  }
+
+  /**
+   * Grants the Authorization Request.
+   */
+  public async grant(namespaceId: string, _id: string) {
+    const url = this.getUrl(namespaceId);
+    const response = await this.apiService.request({
+      method: 'put',
+      url: `${url}/${_id}/granted-at`,
+    });
+
+    const record = new AuthorizationRequestModel(response.data.record);
+    this.emitter.emit('update', record);
+    this.authorizationRequestStore.upsertMany([record]);
+
+    return record;
   }
 
   /**

@@ -54,7 +54,8 @@
       </ng-container>
     </div>
 
-    <app-toggle-section formGroupName="roles"
+    <app-toggle-section *ngIf="!form.get('bannedAt').value"
+                        formGroupName="roles"
                         title="Roles">
       <h4>Articles</h4>
       <div class="row">

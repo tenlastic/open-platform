@@ -75,9 +75,6 @@ export async function subscribe(
       const document = new Model(json.fullDocument);
       const where = await Permissions.where(credentials, parameters.where || {});
 
-      if (parameters.collection === 'matches') {
-        console.log(`Document: ${JSON.stringify(document)} - Query: ${JSON.stringify(where)}`);
-      }
       if (!isJsonValid(document.toJSON({ virtuals: true }), where)) {
         continue;
       }
@@ -93,7 +90,7 @@ export async function subscribe(
 
         updateDescription = {
           removedFields: removedFields.filter((rf) => permissions.includes(rf)),
-          updatedFields: filterObject(updatedFields, permissions),
+          updatedFields: filterObject('read', updatedFields, permissions),
         };
       }
 

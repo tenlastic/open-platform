@@ -47,7 +47,8 @@ export function jsonToMongoose(jsonSchema: any) {
 
 function getArrayType(jsonSchema: any) {
   if (jsonSchema.items && Object.keys(jsonSchema.items).length > 0) {
-    return [{ _id: false, type: jsonToMongoose(jsonSchema.items) }];
+    const result = jsonToMongoose(jsonSchema.items);
+    return result?.type ? [{ ...result, _id: false }] : [{ _id: false, type: result }];
   }
 
   return [{ _id: false, type: mongoose.Schema.Types.Mixed }];
