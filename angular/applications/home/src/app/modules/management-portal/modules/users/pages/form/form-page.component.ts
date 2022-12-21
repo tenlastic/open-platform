@@ -29,7 +29,7 @@ export class UsersFormPageComponent implements OnInit {
 
   public ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
-      const roles = [IAuthorization.Role.UsersReadWrite];
+      const roles = [IAuthorization.Role.UsersWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
         this.authorizationQuery.hasRoles(null, roles, userId) || params.userId === userId;

@@ -58,7 +58,6 @@ describe('models/collection', function () {
     it('does not return an error', async function () {
       const record = await CollectionModel.mock({
         jsonSchema: CollectionJsonSchemaModel.mock({
-          additionalProperties: false,
           properties: new Map([
             [
               'name',
@@ -78,7 +77,6 @@ describe('models/collection', function () {
     it('sets the validator on the collection within MongoDB', async function () {
       const collection = await CollectionModel.mock({
         jsonSchema: CollectionJsonSchemaModel.mock({
-          additionalProperties: false,
           properties: new Map([
             [
               'name',

@@ -50,7 +50,7 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
 
   public ngOnInit() {
     this.activatedRoute.params.subscribe((params) => {
-      const roles = [IAuthorization.Role.BuildsReadWrite];
+      const roles = [IAuthorization.Role.BuildsWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
         this.authorizationQuery.hasRoles(null, roles, userId) ||

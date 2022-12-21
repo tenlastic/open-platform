@@ -29,10 +29,7 @@ export const MatchInvitationPermissions = new MongoosePermissions<MatchInvitatio
     find: {
       default: {
         $or: [
-          AuthorizationPermissionsHelpers.getFindQuery([
-            AuthorizationRole.MatchesRead,
-            AuthorizationRole.MatchesReadWrite,
-          ]),
+          AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.MatchesRead]),
           { userId: { $ref: 'user._id' } },
         ],
       },
@@ -58,25 +55,22 @@ export const MatchInvitationPermissions = new MongoosePermissions<MatchInvitatio
       default: {},
       'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
         AuthorizationRole.MatchesRead,
-        AuthorizationRole.MatchesReadWrite,
       ]),
       'namespace-write': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-        AuthorizationRole.MatchesReadWrite,
+        AuthorizationRole.MatchesWrite,
       ]),
       recipient: { 'record.userId': { $ref: 'user._id' } },
       'system-read': AuthorizationPermissionsHelpers.getSystemRoleQuery([
         AuthorizationRole.MatchesRead,
-        AuthorizationRole.MatchesReadWrite,
       ]),
       'system-write': AuthorizationPermissionsHelpers.getSystemRoleQuery([
-        AuthorizationRole.MatchesReadWrite,
+        AuthorizationRole.MatchesWrite,
       ]),
       'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([
         AuthorizationRole.MatchesRead,
-        AuthorizationRole.MatchesReadWrite,
       ]),
       'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([
-        AuthorizationRole.MatchesReadWrite,
+        AuthorizationRole.MatchesWrite,
       ]),
     },
     update: {

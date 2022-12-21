@@ -6,6 +6,7 @@ export * from './array-null-undefined';
 export * from './duplicate';
 export * from './decremental';
 export * from './email';
+export * from './entry-length';
 export * from './enum';
 export * from './exclude-keys';
 export * from './key-length';

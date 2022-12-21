@@ -110,20 +110,29 @@ export const KubernetesNamespace = {
      * =======================
      */
     const authorizations = await Promise.all([
-      upsertAuthorization('System (Builds)', namespace._id, [AuthorizationRole.BuildsReadWrite]),
+      upsertAuthorization('System (Builds)', namespace._id, [
+        AuthorizationRole.BuildsRead,
+        AuthorizationRole.BuildsWrite,
+      ]),
       upsertAuthorization('System (Game Servers)', namespace._id, [
-        AuthorizationRole.GameServersReadWrite,
+        AuthorizationRole.GameServersRead,
+        AuthorizationRole.GameServersWrite,
       ]),
       upsertAuthorization('System (Namespaces)', namespace._id, [
-        AuthorizationRole.NamespacesReadWrite,
+        AuthorizationRole.NamespacesRead,
+        AuthorizationRole.NamespacesWrite,
       ]),
       upsertAuthorization('System (Queues)', namespace._id, [
-        AuthorizationRole.GameServersReadWrite,
-        AuthorizationRole.MatchesReadWrite,
-        AuthorizationRole.QueuesReadWrite,
+        AuthorizationRole.GameServersRead,
+        AuthorizationRole.GameServersWrite,
+        AuthorizationRole.MatchesRead,
+        AuthorizationRole.MatchesWrite,
+        AuthorizationRole.QueuesRead,
+        AuthorizationRole.QueuesWrite,
       ]),
       upsertAuthorization('System (Workflows)', namespace._id, [
-        AuthorizationRole.WorkflowsReadWrite,
+        AuthorizationRole.WorkflowsRead,
+        AuthorizationRole.WorkflowsWrite,
       ]),
     ]);
 

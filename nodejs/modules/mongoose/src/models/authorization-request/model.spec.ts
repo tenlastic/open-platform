@@ -7,17 +7,19 @@ describe('models/authorization-request', function () {
   describe('mergeRoles()', function () {
     it('adds a new role', function () {
       const authorization = new AuthorizationModel({
-        roles: [AuthorizationRole.AuthorizationsReadWrite],
+        roles: [AuthorizationRole.AuthorizationsRead, AuthorizationRole.AuthorizationsWrite],
       });
       const authorizationRequest = new AuthorizationRequestModel({
-        roles: [AuthorizationRole.NamespacesReadWrite],
+        roles: [AuthorizationRole.NamespacesRead, AuthorizationRole.NamespacesWrite],
       });
 
       const result = authorizationRequest.mergeRoles(authorization);
 
       expect(result).to.eql([
-        AuthorizationRole.AuthorizationsReadWrite,
-        AuthorizationRole.NamespacesReadWrite,
+        AuthorizationRole.AuthorizationsRead,
+        AuthorizationRole.AuthorizationsWrite,
+        AuthorizationRole.NamespacesRead,
+        AuthorizationRole.NamespacesWrite,
       ]);
     });
 
@@ -26,17 +28,17 @@ describe('models/authorization-request', function () {
         roles: [AuthorizationRole.NamespacesRead],
       });
       const authorizationRequest = new AuthorizationRequestModel({
-        roles: [AuthorizationRole.NamespacesReadWrite],
+        roles: [AuthorizationRole.NamespacesRead, AuthorizationRole.NamespacesWrite],
       });
 
       const result = authorizationRequest.mergeRoles(authorization);
 
-      expect(result).to.eql([AuthorizationRole.NamespacesReadWrite]);
+      expect(result).to.eql([AuthorizationRole.NamespacesRead, AuthorizationRole.NamespacesWrite]);
     });
 
     it('does not replace an existing role with higher priority', function () {
       const authorization = new AuthorizationModel({
-        roles: [AuthorizationRole.NamespacesReadWrite],
+        roles: [AuthorizationRole.NamespacesRead, AuthorizationRole.NamespacesWrite],
       });
       const authorizationRequest = new AuthorizationRequestModel({
         roles: [AuthorizationRole.NamespacesRead],
@@ -44,7 +46,7 @@ describe('models/authorization-request', function () {
 
       const result = authorizationRequest.mergeRoles(authorization);
 
-      expect(result).to.eql([AuthorizationRole.NamespacesReadWrite]);
+      expect(result).to.eql([AuthorizationRole.NamespacesRead, AuthorizationRole.NamespacesWrite]);
     });
   });
 });

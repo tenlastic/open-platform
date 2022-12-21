@@ -1,6 +1,10 @@
 import { DocumentType, getModelForClass, modelOptions, prop, PropType } from '@typegoose/typegoose';
 
-import { alphabeticalKeysValidator, keyLengthValidator } from '../../../validators';
+import {
+  alphabeticalKeysValidator,
+  entryLengthValidator,
+  keyLengthValidator,
+} from '../../../validators';
 import {
   CollectionJsonSchemaPropertiesDocument,
   CollectionJsonSchemaPropertiesSchema,
@@ -9,14 +13,15 @@ import {
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class CollectionJsonSchemaSchema {
-  @prop()
-  additionalProperties: boolean;
-
   @prop(
     {
       required: true,
       type: () => CollectionJsonSchemaPropertiesSchema,
-      validate: [alphabeticalKeysValidator, keyLengthValidator(32)],
+      validate: [
+        alphabeticalKeysValidator,
+        entryLengthValidator(Infinity, 1),
+        keyLengthValidator(32),
+      ],
     },
     PropType.MAP,
   )
@@ -35,7 +40,10 @@ export class CollectionJsonSchemaSchema {
     this: typeof CollectionJsonSchemaModel,
     values: Partial<CollectionJsonSchemaSchema> = {},
   ) {
-    const defaults = { properties: {}, type: CollectionJsonSchemaType.Object };
+    const defaults = {
+      properties: { key: { type: 'boolean' } },
+      type: CollectionJsonSchemaType.Object,
+    };
 
     return new this({ ...defaults, ...values });
   }

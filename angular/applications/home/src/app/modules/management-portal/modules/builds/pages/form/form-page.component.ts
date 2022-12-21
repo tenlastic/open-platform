@@ -82,7 +82,7 @@ export class BuildsFormPageComponent implements OnInit {
     this.activatedRoute.params.subscribe(async (params) => {
       this.params = params;
 
-      const roles = [IAuthorization.Role.BuildsReadWrite];
+      const roles = [IAuthorization.Role.BuildsWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
         this.authorizationQuery.hasRoles(null, roles, userId) ||

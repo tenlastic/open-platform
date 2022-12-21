@@ -47,7 +47,7 @@ export class QueueMembersListPageComponent implements OnDestroy, OnInit {
 
   public async ngOnInit() {
     this.activatedRoute.params.subscribe((params) => {
-      const roles = [IAuthorization.Role.QueuesReadWrite];
+      const roles = [IAuthorization.Role.QueuesWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
         this.authorizationQuery.hasRoles(null, roles, userId) ||

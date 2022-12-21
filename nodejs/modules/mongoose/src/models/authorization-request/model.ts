@@ -51,8 +51,6 @@ import { AuthorizationDocument, AuthorizationRole } from '../authorization';
       this.grantedAt,
     );
   }
-
-  this.validateRoles();
 })
 export class AuthorizationRequestSchema implements ModifiedPlugin {
   public _id: mongoose.Types.ObjectId;
@@ -97,80 +95,15 @@ export class AuthorizationRequestSchema implements ModifiedPlugin {
    * Merges roles between the Authorization and Authorization Request.
    */
   public mergeRoles(this: AuthorizationRequestDocument, authorization: AuthorizationDocument) {
-    const priorities = [
-      AuthorizationRole.ArticlesReadPublished,
-      AuthorizationRole.ArticlesRead,
-      AuthorizationRole.ArticlesReadWrite,
-      AuthorizationRole.AuthorizationsRead,
-      AuthorizationRole.AuthorizationsReadWrite,
-      AuthorizationRole.BuildsReadPublished,
-      AuthorizationRole.BuildsRead,
-      AuthorizationRole.BuildsReadWrite,
-      AuthorizationRole.CollectionsRead,
-      AuthorizationRole.CollectionsReadWrite,
-      AuthorizationRole.GameServersRead,
-      AuthorizationRole.GameServersReadWrite,
-      AuthorizationRole.LoginsRead,
-      AuthorizationRole.NamespacesRead,
-      AuthorizationRole.NamespacesReadWrite,
-      AuthorizationRole.QueuesRead,
-      AuthorizationRole.QueuesReadWrite,
-      AuthorizationRole.RecordsRead,
-      AuthorizationRole.RecordsReadWrite,
-      AuthorizationRole.StorefrontsRead,
-      AuthorizationRole.StorefrontsReadWrite,
-      AuthorizationRole.UsersRead,
-      AuthorizationRole.UsersReadWrite,
-      AuthorizationRole.WebSocketsRead,
-      AuthorizationRole.WebSocketsReadWrite,
-      AuthorizationRole.WorkflowsRead,
-      AuthorizationRole.WorkflowsReadWrite,
-    ];
-    const result = [...authorization.roles];
+    const result = [...authorization.roles, ...this.roles];
 
-    for (const role of this.roles) {
-      const [prefix] = role.split(':');
-
-      const current = result.find((r) => r.startsWith(`${prefix}:`));
-      if (!current) {
-        result.push(role);
-        continue;
-      }
-
-      const currentPriority = priorities.indexOf(current);
-      const priority = priorities.indexOf(role);
-      if (currentPriority >= priority) {
-        continue;
-      }
-
-      const i = result.indexOf(current);
-      result[i] = role;
-    }
-
-    return result.sort();
+    return result.filter((r, i) => i === result.indexOf(r)).sort();
   }
 
   /**
    * Returns true if any of the path or paths were modified.
    */
   public wasModified: (path?: string | string[]) => boolean;
-
-  /**
-   * Allows only one role per entity.
-   */
-  private validateRoles(this: AuthorizationRequestDocument) {
-    const set = new Set<string>();
-
-    for (const role of this.roles) {
-      const [entity] = role.split(':');
-
-      if (set.has(entity)) {
-        this.invalidate('roles', 'Only one role can be set per entity.', role, 'DuplicateRole');
-      } else {
-        set.add(entity);
-      }
-    }
-  }
 }
 
 export type AuthorizationRequestDocument = DocumentType<AuthorizationRequestSchema>;

@@ -16,34 +16,34 @@ import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 export enum AuthorizationRole {
   ArticlesRead = 'Articles:Read',
   ArticlesReadPublished = 'Articles:ReadPublished',
-  ArticlesReadWrite = 'Articles:ReadWrite',
+  ArticlesWrite = 'Articles:Write',
   AuthorizationsRead = 'Authorizations:Read',
-  AuthorizationsReadWrite = 'Authorizations:ReadWrite',
+  AuthorizationsWrite = 'Authorizations:Write',
   BuildsRead = 'Builds:Read',
   BuildsReadPublished = 'Builds:ReadPublished',
-  BuildsReadWrite = 'Builds:ReadWrite',
+  BuildsWrite = 'Builds:Write',
   CollectionsRead = 'Collections:Read',
-  CollectionsReadWrite = 'Collections:ReadWrite',
+  CollectionsWrite = 'Collections:Write',
   GameServersRead = 'GameServers:Read',
   GameServersReadAuthorized = 'GameServers:ReadAuthorized',
-  GameServersReadWrite = 'GameServers:ReadWrite',
+  GameServersWrite = 'GameServers:Write',
   LoginsRead = 'Logins:Read',
   MatchesRead = 'Matches:Read',
-  MatchesReadWrite = 'Matches:ReadWrite',
+  MatchesWrite = 'Matches:Write',
   NamespacesRead = 'Namespaces:Read',
-  NamespacesReadWrite = 'Namespaces:ReadWrite',
+  NamespacesWrite = 'Namespaces:Write',
   QueuesRead = 'Queues:Read',
-  QueuesReadWrite = 'Queues:ReadWrite',
+  QueuesWrite = 'Queues:Write',
   RecordsRead = 'Records:Read',
-  RecordsReadWrite = 'Records:ReadWrite',
+  RecordsWrite = 'Records:Write',
   StorefrontsRead = 'Storefronts:Read',
-  StorefrontsReadWrite = 'Storefronts:ReadWrite',
+  StorefrontsWrite = 'Storefronts:Write',
   UsersRead = 'Users:Read',
-  UsersReadWrite = 'Users:ReadWrite',
+  UsersWrite = 'Users:Write',
   WebSocketsRead = 'WebSockets:Read',
-  WebSocketsReadWrite = 'WebSockets:ReadWrite',
+  WebSocketsWrite = 'WebSockets:Write',
   WorkflowsRead = 'Workflows:Read',
-  WorkflowsReadWrite = 'Workflows:ReadWrite',
+  WorkflowsWrite = 'Workflows:Write',
 }
 
 @index({ apiKey: 1 }, { partialFilterExpression: { apiKey: { $exists: true } }, unique: true })
@@ -89,8 +89,6 @@ export enum AuthorizationRole {
     this.invalidate('bannedAt', message, this.bannedAt);
     this.invalidate('userId', message, this.userId);
   }
-
-  this.validateRoles();
 })
 export class AuthorizationSchema {
   public _id: mongoose.Types.ObjectId;
@@ -141,23 +139,6 @@ export class AuthorizationSchema {
     const privateKey = process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n');
 
     return jsonwebtoken.sign({ authorization, system: true, type: 'access' }, privateKey, options);
-  }
-
-  /**
-   * Allows only one role per entity.
-   */
-  private validateRoles(this: AuthorizationDocument) {
-    const set = new Set<string>();
-
-    for (const role of this.roles) {
-      const [entity] = role.split(':');
-
-      if (set.has(entity)) {
-        this.invalidate('roles', 'Only one role can be set per entity.', role, 'DuplicateRole');
-      } else {
-        set.add(entity);
-      }
-    }
   }
 }
 

@@ -48,7 +48,7 @@ describe('web-server/builds/create', function () {
     beforeEach(async function () {
       await AuthorizationModel.mock({
         namespaceId: namespace._id,
-        roles: [AuthorizationRole.BuildsReadWrite],
+        roles: [AuthorizationRole.BuildsRead, AuthorizationRole.BuildsWrite],
         userId: user._id,
       }).save();
 

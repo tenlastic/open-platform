@@ -59,122 +59,83 @@
                         title="Roles">
       <h4>Articles</h4>
       <div class="row">
-        <mat-radio-group formControlName="articles">
-          <mat-radio-button>None</mat-radio-button>
-          <mat-radio-button [value]="AuthorizationRole.ArticlesReadPublished">Read (Published)</mat-radio-button>
-          <mat-radio-button [value]="AuthorizationRole.ArticlesRead">Read</mat-radio-button>
-          <mat-radio-button [value]="AuthorizationRole.ArticlesReadWrite">Read / Write</mat-radio-button>
-        </mat-radio-group>
+        <mat-checkbox formControlName="Articles:ReadPublished">Read (Published)</mat-checkbox>
+        <mat-checkbox formControlName="Articles:Read">Read</mat-checkbox>
+        <mat-checkbox formControlName="Articles:Write">Write</mat-checkbox>
       </div>
 
       <h4>Authorizations</h4>
       <div class="row">
-        <mat-radio-group formControlName="authorizations">
-          <mat-radio-button>None</mat-radio-button>
-          <mat-radio-button [value]="AuthorizationRole.AuthorizationsRead">Read</mat-radio-button>
-          <mat-radio-button [value]="AuthorizationRole.AuthorizationsReadWrite">Read / Write</mat-radio-button>
-        </mat-radio-group>
+        <mat-checkbox formControlName="Authorizations:Read">Read</mat-checkbox>
+        <mat-checkbox formControlName="Authorizations:Write">Write</mat-checkbox>
       </div>
 
       <h4>Builds</h4>
       <div class="row">
-        <mat-radio-group formControlName="builds">
-          <mat-radio-button>None</mat-radio-button>
-          <mat-radio-button [value]="AuthorizationRole.BuildsReadPublished">Read (Published)</mat-radio-button>
-          <mat-radio-button [value]="AuthorizationRole.BuildsRead">Read</mat-radio-button>
-          <mat-radio-button [value]="AuthorizationRole.BuildsReadWrite">Read / Write</mat-radio-button>
-        </mat-radio-group>
+        <mat-checkbox formControlName="Builds:ReadPublished">Read (Published)</mat-checkbox>
+        <mat-checkbox formControlName="Builds:Read">Read</mat-checkbox>
+        <mat-checkbox formControlName="Builds:Write">Write</mat-checkbox>
       </div>
 
       <h4>Collections</h4>
       <div class="row">
-        <mat-radio-group formControlName="collections">
-          <mat-radio-button>None</mat-radio-button>
-          <mat-radio-button [value]="AuthorizationRole.CollectionsRead">Read</mat-radio-button>
-          <mat-radio-button [value]="AuthorizationRole.CollectionsReadWrite">Read / Write</mat-radio-button>
-        </mat-radio-group>
+        <mat-checkbox formControlName="Collections:Read">Read</mat-checkbox>
+        <mat-checkbox formControlName="Collections:Write">Write</mat-checkbox>
       </div>
 
       <h4>Game Servers</h4>
       <div class="row">
-        <mat-radio-group formControlName="gameServers">
-          <mat-radio-button>None</mat-radio-button>
-          <mat-radio-button [value]="AuthorizationRole.GameServersReadAuthorized">Read (Authorized)</mat-radio-button>
-          <mat-radio-button [value]="AuthorizationRole.GameServersRead">Read</mat-radio-button>
-          <mat-radio-button [value]="AuthorizationRole.GameServersReadWrite">Read / Write</mat-radio-button>
-        </mat-radio-group>
+        <mat-checkbox formControlName="GameServers:ReadAuthorized">Read (Authorized)</mat-checkbox>
+        <mat-checkbox formControlName="GameServers:Read">Read</mat-checkbox>
+        <mat-checkbox formControlName="GameServers:Write">Write</mat-checkbox>
       </div>
 
       <h4>Matches</h4>
       <div class="row">
-        <mat-radio-group formControlName="matches">
-          <mat-radio-button>None</mat-radio-button>
-          <mat-radio-button [value]="AuthorizationRole.MatchesRead">Read</mat-radio-button>
-          <mat-radio-button [value]="AuthorizationRole.MatchesReadWrite">Read / Write</mat-radio-button>
-        </mat-radio-group>
+        <mat-checkbox formControlName="Matches:Read">Read</mat-checkbox>
+        <mat-checkbox formControlName="Matches:Write">Write</mat-checkbox>
       </div>
 
       <h4>Namespaces</h4>
       <div class="row">
-        <mat-radio-group formControlName="namespaces">
-          <mat-radio-button>None</mat-radio-button>
-          <mat-radio-button [value]="AuthorizationRole.NamespacesRead">Read</mat-radio-button>
-          <mat-radio-button [value]="AuthorizationRole.NamespacesReadWrite">Read / Write</mat-radio-button>
-        </mat-radio-group>
+        <mat-checkbox formControlName="Namespaces:Read">Read</mat-checkbox>
+        <mat-checkbox formControlName="Namespaces:Write">Write</mat-checkbox>
       </div>
 
       <h4>Queues</h4>
       <div class="row">
-        <mat-radio-group formControlName="queues">
-          <mat-radio-button>None</mat-radio-button>
-          <mat-radio-button [value]="AuthorizationRole.QueuesRead">Read</mat-radio-button>
-          <mat-radio-button [value]="AuthorizationRole.QueuesReadWrite">Read / Write</mat-radio-button>
-        </mat-radio-group>
+        <mat-checkbox formControlName="Queues:Read">Read</mat-checkbox>
+        <mat-checkbox formControlName="Queues:Write">Write</mat-checkbox>
       </div>
 
       <h4>Records</h4>
       <div class="row">
-        <mat-radio-group formControlName="records">
-          <mat-radio-button>None</mat-radio-button>
-          <mat-radio-button [value]="AuthorizationRole.RecordsRead">Read</mat-radio-button>
-          <mat-radio-button [value]="AuthorizationRole.RecordsReadWrite">Read / Write</mat-radio-button>
-        </mat-radio-group>
+        <mat-checkbox formControlName="Records:Read">Read</mat-checkbox>
+        <mat-checkbox formControlName="Records:Write">Write</mat-checkbox>
       </div>
 
       <h4>Storefronts</h4>
       <div class="row">
-        <mat-radio-group formControlName="storefronts">
-          <mat-radio-button>None</mat-radio-button>
-          <mat-radio-button [value]="AuthorizationRole.StorefrontsRead">Read</mat-radio-button>
-          <mat-radio-button [value]="AuthorizationRole.StorefrontsReadWrite">Read / Write</mat-radio-button>
-        </mat-radio-group>
+        <mat-checkbox formControlName="Storefronts:Read">Read</mat-checkbox>
+        <mat-checkbox formControlName="Storefronts:Write">Write</mat-checkbox>
       </div>
 
       <h4>Users</h4>
       <div class="row">
-        <mat-radio-group formControlName="users">
-          <mat-radio-button>None</mat-radio-button>
-          <mat-radio-button [value]="AuthorizationRole.UsersRead">Read</mat-radio-button>
-          <mat-radio-button [value]="AuthorizationRole.UsersReadWrite">Read / Write</mat-radio-button>
-        </mat-radio-group>
+        <mat-checkbox formControlName="Users:Read">Read</mat-checkbox>
+        <mat-checkbox formControlName="Users:Write">Write</mat-checkbox>
       </div>
 
       <h4>Web Sockets</h4>
       <div class="row">
-        <mat-radio-group formControlName="webSockets">
-          <mat-radio-button>None</mat-radio-button>
-          <mat-radio-button [value]="AuthorizationRole.WebSocketsRead">Read</mat-radio-button>
-          <mat-radio-button [value]="AuthorizationRole.WebSocketsReadWrite">Read / Write</mat-radio-button>
-        </mat-radio-group>
+        <mat-checkbox formControlName="WebSockets:Read">Read</mat-checkbox>
+        <mat-checkbox formControlName="WebSockets:Write">Write</mat-checkbox>
       </div>
 
       <h4>Workflows</h4>
       <div class="row">
-        <mat-radio-group formControlName="workflows">
-          <mat-radio-button>None</mat-radio-button>
-          <mat-radio-button [value]="AuthorizationRole.WorkflowsRead">Read</mat-radio-button>
-          <mat-radio-button [value]="AuthorizationRole.WorkflowsReadWrite">Read / Write</mat-radio-button>
-        </mat-radio-group>
+        <mat-checkbox formControlName="Workflows:Read">Read</mat-checkbox>
+        <mat-checkbox formControlName="Workflows:Write">Write</mat-checkbox>
       </div>
     </app-toggle-section>
   </form>

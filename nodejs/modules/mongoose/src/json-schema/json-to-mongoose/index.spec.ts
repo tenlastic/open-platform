@@ -42,7 +42,6 @@ describe('json-schema/json-to-mongoose', function () {
             },
             type: 'object',
           },
-          anyValue: { a: 'b' },
           array: {
             items: {
               type: 'string',
@@ -50,6 +49,7 @@ describe('json-schema/json-to-mongoose', function () {
             type: 'array',
           },
           id: { pattern: '^\\d{3}$', type: 'string' },
+          mixed: { a: 'b' },
           name: { type: 'object' },
         },
         type: 'object',
@@ -63,7 +63,6 @@ describe('json-schema/json-to-mongoose', function () {
           builtAt: Date,
           street: { default: 44, max: 50, min: 0, type: Number },
         },
-        anyValue: mongoose.Schema.Types.Mixed,
         array: [
           {
             _id: false,
@@ -71,6 +70,7 @@ describe('json-schema/json-to-mongoose', function () {
           },
         ],
         id: { match: /^\d{3}$/, type: String },
+        mixed: mongoose.Schema.Types.Mixed,
         name: mongoose.Schema.Types.Mixed,
       });
     });

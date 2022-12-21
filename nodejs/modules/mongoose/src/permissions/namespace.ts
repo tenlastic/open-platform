@@ -16,7 +16,7 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
   },
   find: {
     default: AuthorizationPermissionsHelpers.getFindQuery(
-      [AuthorizationRole.NamespacesRead, AuthorizationRole.NamespacesReadWrite],
+      [AuthorizationRole.NamespacesRead],
       '_id',
     ),
     'user-read': {},
@@ -32,24 +32,21 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
     default: {},
     'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
       AuthorizationRole.NamespacesRead,
-      AuthorizationRole.NamespacesReadWrite,
     ]),
     'namespace-write': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-      AuthorizationRole.NamespacesReadWrite,
+      AuthorizationRole.NamespacesWrite,
     ]),
     'system-read': AuthorizationPermissionsHelpers.getSystemRoleQuery([
       AuthorizationRole.NamespacesRead,
-      AuthorizationRole.NamespacesReadWrite,
     ]),
     'system-write': AuthorizationPermissionsHelpers.getSystemRoleQuery([
-      AuthorizationRole.NamespacesReadWrite,
+      AuthorizationRole.NamespacesWrite,
     ]),
     'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([
       AuthorizationRole.NamespacesRead,
-      AuthorizationRole.NamespacesReadWrite,
     ]),
     'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([
-      AuthorizationRole.NamespacesReadWrite,
+      AuthorizationRole.NamespacesWrite,
     ]),
   },
   update: {

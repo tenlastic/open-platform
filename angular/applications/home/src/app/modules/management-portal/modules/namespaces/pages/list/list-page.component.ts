@@ -59,7 +59,7 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
   ) {}
 
   public ngOnInit() {
-    const roles = [IAuthorization.Role.NamespacesReadWrite];
+    const roles = [IAuthorization.Role.NamespacesWrite];
     const userId = this.identityService.user?._id;
     this.hasWriteAuthorization = this.authorizationQuery.hasRoles(null, roles, userId);
 
@@ -78,7 +78,7 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
   }
 
   public hasWriteAuthorizationForNamespace(namespaceId: string) {
-    const roles = [IAuthorization.Role.NamespacesReadWrite];
+    const roles = [IAuthorization.Role.NamespacesWrite];
     const userId = this.identityService.user?._id;
     return this.authorizationQuery.hasRoles(namespaceId, roles, userId);
   }

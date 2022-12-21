@@ -40,7 +40,7 @@ describe('web-server/storefronts/upload', function () {
     beforeEach(async function () {
       await AuthorizationModel.mock({
         namespaceId: namespace._id,
-        roles: [AuthorizationRole.StorefrontsReadWrite],
+        roles: [AuthorizationRole.StorefrontsRead, AuthorizationRole.StorefrontsWrite],
         userId: user._id,
       }).save();
       storefront = await StorefrontModel.mock({ namespaceId: namespace._id }).save();

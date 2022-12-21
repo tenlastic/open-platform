@@ -20,10 +20,7 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
   find: {
     default: {
       $or: [
-        AuthorizationPermissionsHelpers.getFindQuery([
-          AuthorizationRole.ArticlesRead,
-          AuthorizationRole.ArticlesReadWrite,
-        ]),
+        AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.ArticlesRead]),
         {
           ...AuthorizationPermissionsHelpers.getFindQuery([
             AuthorizationRole.ArticlesReadPublished,
@@ -53,10 +50,7 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
     default: {},
     'namespace-read': {
       $or: [
-        AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-          AuthorizationRole.ArticlesRead,
-          AuthorizationRole.ArticlesReadWrite,
-        ]),
+        AuthorizationPermissionsHelpers.getNamespaceRoleQuery([AuthorizationRole.ArticlesRead]),
         {
           ...AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
             AuthorizationRole.ArticlesReadPublished,
@@ -66,17 +60,14 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
       ],
     },
     'namespace-write': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-      AuthorizationRole.ArticlesReadWrite,
+      AuthorizationRole.ArticlesWrite,
     ]),
-    'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([
-      AuthorizationRole.ArticlesRead,
-      AuthorizationRole.ArticlesReadWrite,
-    ]),
+    'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([AuthorizationRole.ArticlesRead]),
     'user-read-published': AuthorizationPermissionsHelpers.getUserRoleQuery([
       AuthorizationRole.ArticlesReadPublished,
     ]),
     'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([
-      AuthorizationRole.ArticlesReadWrite,
+      AuthorizationRole.ArticlesWrite,
     ]),
   },
   update: {

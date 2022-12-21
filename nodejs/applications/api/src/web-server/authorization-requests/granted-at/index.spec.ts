@@ -55,13 +55,13 @@ describe('web-server/authorization-requests/granted-at', function () {
     beforeEach(async function () {
       await AuthorizationModel.mock({
         namespaceId: namespace._id,
-        roles: [AuthorizationRole.AuthorizationsReadWrite],
+        roles: [AuthorizationRole.AuthorizationsRead, AuthorizationRole.AuthorizationsWrite],
         userId: user._id,
       }).save();
       record = await AuthorizationRequestModel.mock({
         deniedAt: new Date(),
         namespaceId: namespace._id,
-        roles: [AuthorizationRole.AuthorizationsReadWrite],
+        roles: [AuthorizationRole.AuthorizationsRead, AuthorizationRole.AuthorizationsWrite],
         userId: otherUser._id,
       }).save();
     });
@@ -82,7 +82,7 @@ describe('web-server/authorization-requests/granted-at', function () {
       it('updates the Authorization', async function () {
         await AuthorizationModel.mock({
           namespaceId: namespace._id,
-          roles: [AuthorizationRole.NamespacesReadWrite],
+          roles: [AuthorizationRole.NamespacesRead, AuthorizationRole.NamespacesWrite],
           userId: otherUser._id,
         }).save();
         const ctx = new ContextMock({
@@ -95,8 +95,10 @@ describe('web-server/authorization-requests/granted-at', function () {
         const authorization = await AuthorizationModel.findOne({ userId: otherUser._id });
         expect(authorization).to.exist;
         expect(authorization.roles).to.eql([
-          AuthorizationRole.AuthorizationsReadWrite,
-          AuthorizationRole.NamespacesReadWrite,
+          AuthorizationRole.AuthorizationsRead,
+          AuthorizationRole.AuthorizationsWrite,
+          AuthorizationRole.NamespacesRead,
+          AuthorizationRole.NamespacesWrite,
         ]);
       });
     });

@@ -44,7 +44,7 @@ export class AuthorizationRequestsFormPageComponent implements OnInit {
     this.activatedRoute.params.subscribe(async (params) => {
       this.params = params;
 
-      const roles = [IAuthorization.Role.AuthorizationsReadWrite];
+      const roles = [IAuthorization.Role.AuthorizationsWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization = this.authorizationQuery.hasRoles(null, roles, userId);
 
@@ -101,27 +101,18 @@ export class AuthorizationRequestsFormPageComponent implements OnInit {
     this.data ??= new AuthorizationRequestModel();
     this.form = null;
 
+    const roles = Object.values(IAuthorization.Role).reduce((previous, current) => {
+      previous[current] = this.data.roles.includes(current);
+      return previous;
+    }, {});
+
     let user: UserModel = null;
     if (this.data.userId) {
       user = await this.userService.findOne(this.data.userId);
     }
 
     this.form = this.formBuilder.group({
-      roles: this.formBuilder.group({
-        articles: this.data.roles?.find((r) => r.startsWith('Articles')),
-        authorizations: this.data.roles?.find((r) => r.startsWith('Authorizations')),
-        builds: this.data.roles?.find((r) => r.startsWith('Builds')),
-        collections: this.data.roles?.find((r) => r.startsWith('Collections')),
-        gameServers: this.data.roles?.find((r) => r.startsWith('GameServers')),
-        matches: this.data.roles?.find((r) => r.startsWith('Matches')),
-        namespaces: this.data.roles?.find((r) => r.startsWith('Namespaces')),
-        queues: this.data.roles?.find((r) => r.startsWith('Queues')),
-        records: this.data.roles?.find((r) => r.startsWith('Records')),
-        storefronts: this.data.roles?.find((r) => r.startsWith('Storefronts')),
-        users: this.data.roles?.find((r) => r.startsWith('Users')),
-        webSockets: this.data.roles?.find((r) => r.startsWith('WebSockets')),
-        workflows: this.data.roles?.find((r) => r.startsWith('Workflows')),
-      }),
+      roles: this.formBuilder.group(roles),
       user: [user, [Validators.required]],
     });
 

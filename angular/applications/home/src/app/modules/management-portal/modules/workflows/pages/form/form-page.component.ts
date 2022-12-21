@@ -83,7 +83,7 @@ export class WorkflowsFormPageComponent implements OnInit {
     this.activatedRoute.params.subscribe(async (params) => {
       this.params = params;
 
-      const roles = [IAuthorization.Role.QueuesReadWrite];
+      const roles = [IAuthorization.Role.QueuesWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
         this.authorizationQuery.hasRoles(null, roles, userId) ||

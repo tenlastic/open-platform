@@ -38,7 +38,7 @@ describe('web-server/queues/update', function () {
       }).save();
       await AuthorizationModel.mock({
         namespaceId: namespace._id,
-        roles: [AuthorizationRole.QueuesReadWrite],
+        roles: [AuthorizationRole.QueuesRead, AuthorizationRole.QueuesWrite],
         userId: user._id,
       }).save();
       const build = await BuildModel.mock({ namespaceId: namespace._id }).save();

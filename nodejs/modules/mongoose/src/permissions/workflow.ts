@@ -47,10 +47,7 @@ export const WorkflowPermissions = new MongoosePermissions<WorkflowDocument>(Wor
     'user-write': true,
   },
   find: {
-    default: AuthorizationPermissionsHelpers.getFindQuery([
-      AuthorizationRole.WorkflowsRead,
-      AuthorizationRole.WorkflowsReadWrite,
-    ]),
+    default: AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.WorkflowsRead]),
     'user-read': {},
   },
   populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
@@ -74,24 +71,21 @@ export const WorkflowPermissions = new MongoosePermissions<WorkflowDocument>(Wor
     default: {},
     'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
       AuthorizationRole.WorkflowsRead,
-      AuthorizationRole.WorkflowsReadWrite,
     ]),
     'namespace-write': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-      AuthorizationRole.WorkflowsReadWrite,
+      AuthorizationRole.WorkflowsWrite,
     ]),
     'system-read': AuthorizationPermissionsHelpers.getSystemRoleQuery([
       AuthorizationRole.WorkflowsRead,
-      AuthorizationRole.WorkflowsReadWrite,
     ]),
     'system-write': AuthorizationPermissionsHelpers.getSystemRoleQuery([
-      AuthorizationRole.WorkflowsReadWrite,
+      AuthorizationRole.WorkflowsWrite,
     ]),
     'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([
       AuthorizationRole.WorkflowsRead,
-      AuthorizationRole.WorkflowsReadWrite,
     ]),
     'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([
-      AuthorizationRole.WorkflowsReadWrite,
+      AuthorizationRole.WorkflowsWrite,
     ]),
   },
   update: {

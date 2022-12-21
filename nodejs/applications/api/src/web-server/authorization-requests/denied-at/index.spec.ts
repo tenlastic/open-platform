@@ -55,13 +55,13 @@ describe('web-server/authorization-requests/denied-at', function () {
     beforeEach(async function () {
       await AuthorizationModel.mock({
         namespaceId: namespace._id,
-        roles: [AuthorizationRole.AuthorizationsReadWrite],
+        roles: [AuthorizationRole.AuthorizationsRead, AuthorizationRole.AuthorizationsWrite],
         userId: user._id,
       }).save();
       record = await AuthorizationRequestModel.mock({
         grantedAt: new Date(),
         namespaceId: namespace._id,
-        roles: [AuthorizationRole.AuthorizationsReadWrite],
+        roles: [AuthorizationRole.AuthorizationsRead, AuthorizationRole.AuthorizationsWrite],
         userId: otherUser._id,
       }).save();
     });
@@ -81,7 +81,7 @@ describe('web-server/authorization-requests/denied-at', function () {
     it('updates the Authorization', async function () {
       await AuthorizationModel.mock({
         namespaceId: namespace._id,
-        roles: [AuthorizationRole.AuthorizationsReadWrite],
+        roles: [AuthorizationRole.AuthorizationsRead, AuthorizationRole.AuthorizationsWrite],
         userId: otherUser._id,
       }).save();
       const ctx = new ContextMock({

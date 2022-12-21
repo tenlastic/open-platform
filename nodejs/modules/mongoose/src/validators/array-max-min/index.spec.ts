@@ -2,7 +2,7 @@ import { expect } from 'chai';
 
 import { arrayMaxMinValidator } from './';
 
-describe('validators/array-length', function () {
+describe('validators/array-max-min', function () {
   describe('msg', function () {
     it('shows the min message', function () {
       const { msg } = arrayMaxMinValidator(0, 5);

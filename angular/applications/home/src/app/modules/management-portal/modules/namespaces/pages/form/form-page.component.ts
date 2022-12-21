@@ -40,7 +40,7 @@ export class NamespacesFormPageComponent implements OnDestroy, OnInit {
 
   public ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
-      const roles = [IAuthorization.Role.NamespacesReadWrite];
+      const roles = [IAuthorization.Role.NamespacesWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization = this.authorizationQuery.hasRoles(null, roles, userId);
       this.hasWriteAuthorizationForNamespace = this.authorizationQuery.hasRoles(

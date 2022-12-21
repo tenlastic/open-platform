@@ -39,10 +39,7 @@ export const StorefrontPermissions = new MongoosePermissions<StorefrontDocument>
     'user-write': true,
   },
   find: {
-    default: AuthorizationPermissionsHelpers.getFindQuery([
-      AuthorizationRole.StorefrontsRead,
-      AuthorizationRole.StorefrontsReadWrite,
-    ]),
+    default: AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.StorefrontsRead]),
     'user-read': {},
   },
   populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
@@ -67,17 +64,15 @@ export const StorefrontPermissions = new MongoosePermissions<StorefrontDocument>
     default: {},
     'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
       AuthorizationRole.StorefrontsRead,
-      AuthorizationRole.StorefrontsReadWrite,
     ]),
     'namespace-write': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-      AuthorizationRole.StorefrontsReadWrite,
+      AuthorizationRole.StorefrontsWrite,
     ]),
     'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([
       AuthorizationRole.StorefrontsRead,
-      AuthorizationRole.StorefrontsReadWrite,
     ]),
     'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([
-      AuthorizationRole.StorefrontsReadWrite,
+      AuthorizationRole.StorefrontsWrite,
     ]),
   },
   update: {

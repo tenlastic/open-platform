@@ -18,7 +18,6 @@ export namespace ICollection {
   }
 
   export interface JsonSchemaProperty {
-    additionalProperties?: boolean;
     default?: any;
     format?: string;
     items?: JsonSchemaProperty;

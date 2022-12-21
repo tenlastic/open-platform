@@ -61,7 +61,7 @@ export class MatchesListPageComponent implements OnDestroy, OnInit {
     this.activatedRoute.params.subscribe((params) => {
       this.params = params;
 
-      const roles = [IAuthorization.Role.MatchesReadWrite];
+      const roles = [IAuthorization.Role.MatchesWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
         this.authorizationQuery.hasRoles(null, roles, userId) ||

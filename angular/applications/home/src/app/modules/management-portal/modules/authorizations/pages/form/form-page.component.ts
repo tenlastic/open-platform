@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -58,7 +58,7 @@ export class AuthorizationsFormPageComponent implements OnInit {
     this.activatedRoute.params.subscribe(async (params) => {
       this.params = params;
 
-      const roles = [IAuthorization.Role.AuthorizationsReadWrite];
+      const roles = [IAuthorization.Role.AuthorizationsWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization = this.authorizationQuery.hasRoles(null, roles, userId);
 
@@ -85,7 +85,13 @@ export class AuthorizationsFormPageComponent implements OnInit {
       return;
     }
 
-    const roles = Object.values<IAuthorization.Role>(this.form.get('roles').value).filter((v) => v);
+    const roles = Object.entries(this.form.get('roles').value).reduce((previous, [k, v]) => {
+      if (v) {
+        previous.push(k);
+      }
+
+      return previous;
+    }, []);
 
     const values: Partial<AuthorizationModel> = {
       _id: this.data._id,
@@ -132,12 +138,12 @@ export class AuthorizationsFormPageComponent implements OnInit {
     this.data ??= new AuthorizationModel();
     this.form = null;
 
-    let user: UserModel = null;
-    if (this.data.userId) {
-      user = await this.userService.findOne(this.data.userId);
-    }
-
     const apiKey = Array(64).fill(0).map(this.getRandomCharacter).join('');
+    const roles = Object.values(IAuthorization.Role).reduce((previous, current) => {
+      previous[current] = this.data.roles.includes(current);
+      return previous;
+    }, {});
+
     let type = AuthorizationType.Default;
     if (this.data.name && this.params.namespaceId) {
       type = AuthorizationType.ApiKey;
@@ -145,25 +151,16 @@ export class AuthorizationsFormPageComponent implements OnInit {
       type = AuthorizationType.User;
     }
 
+    let user: UserModel = null;
+    if (this.data.userId) {
+      user = await this.userService.findOne(this.data.userId);
+    }
+
     this.form = this.formBuilder.group({
       apiKey: [this.data._id ? undefined : apiKey],
       bannedAt: [Boolean(this.data.bannedAt)],
       name: [this.data.name, type === AuthorizationType.ApiKey ? [Validators.required] : []],
-      roles: this.formBuilder.group({
-        articles: this.data.roles?.find((r) => r.startsWith('Articles')),
-        authorizations: this.data.roles?.find((r) => r.startsWith('Authorizations')),
-        builds: this.data.roles?.find((r) => r.startsWith('Builds')),
-        collections: this.data.roles?.find((r) => r.startsWith('Collections')),
-        gameServers: this.data.roles?.find((r) => r.startsWith('GameServers')),
-        matches: this.data.roles?.find((r) => r.startsWith('Matches')),
-        namespaces: this.data.roles?.find((r) => r.startsWith('Namespaces')),
-        queues: this.data.roles?.find((r) => r.startsWith('Queues')),
-        records: this.data.roles?.find((r) => r.startsWith('Records')),
-        storefronts: this.data.roles?.find((r) => r.startsWith('Storefronts')),
-        users: this.data.roles?.find((r) => r.startsWith('Users')),
-        webSockets: this.data.roles?.find((r) => r.startsWith('WebSockets')),
-        workflows: this.data.roles?.find((r) => r.startsWith('Workflows')),
-      }),
+      roles: this.formBuilder.group(roles),
       type: { disabled: this.data._id || !this.params.namespaceId, value: type },
       user: [
         { disabled: this.data._id, value: user },

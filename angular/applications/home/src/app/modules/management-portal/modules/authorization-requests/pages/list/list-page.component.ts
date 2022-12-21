@@ -47,7 +47,7 @@ export class AuthorizationRequestsListPageComponent implements OnDestroy, OnInit
 
   public ngOnInit() {
     this.activatedRoute.params.subscribe((params) => {
-      const roles = [IAuthorization.Role.AuthorizationsReadWrite];
+      const roles = [IAuthorization.Role.AuthorizationsWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization = this.authorizationQuery.hasRoles(null, roles, userId);
 

@@ -69,10 +69,7 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(QueueMode
     'user-write': true,
   },
   find: {
-    default: AuthorizationPermissionsHelpers.getFindQuery([
-      AuthorizationRole.QueuesRead,
-      AuthorizationRole.QueuesReadWrite,
-    ]),
+    default: AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.QueuesRead]),
     'user-read': {},
   },
   populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
@@ -98,25 +95,18 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(QueueMode
     default: {},
     'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
       AuthorizationRole.QueuesRead,
-      AuthorizationRole.QueuesReadWrite,
     ]),
     'namespace-write': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-      AuthorizationRole.QueuesReadWrite,
+      AuthorizationRole.QueuesWrite,
     ]),
     'system-read': AuthorizationPermissionsHelpers.getSystemRoleQuery([
       AuthorizationRole.QueuesRead,
-      AuthorizationRole.QueuesReadWrite,
     ]),
     'system-write': AuthorizationPermissionsHelpers.getSystemRoleQuery([
-      AuthorizationRole.QueuesReadWrite,
+      AuthorizationRole.QueuesWrite,
     ]),
-    'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([
-      AuthorizationRole.QueuesRead,
-      AuthorizationRole.QueuesReadWrite,
-    ]),
-    'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([
-      AuthorizationRole.QueuesReadWrite,
-    ]),
+    'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([AuthorizationRole.QueuesRead]),
+    'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([AuthorizationRole.QueuesWrite]),
   },
   update: {
     'namespace-write': administrator.update,

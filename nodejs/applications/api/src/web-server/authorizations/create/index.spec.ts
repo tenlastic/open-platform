@@ -35,7 +35,7 @@ describe('web-server/authorizations/create', function () {
       }).save();
       await AuthorizationModel.mock({
         namespaceId: namespace._id,
-        roles: [AuthorizationRole.AuthorizationsReadWrite],
+        roles: [AuthorizationRole.AuthorizationsRead, AuthorizationRole.AuthorizationsWrite],
         userId: user._id,
       }).save();
     });

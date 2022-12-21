@@ -27,6 +27,11 @@ div.row:last-of-type {
   }
 }
 
+mat-checkbox {
+  margin-bottom: 1.25em;
+  margin-right: 32px;
+}
+
 mat-form-field.mat-form-field {
   display: inline-block;
   margin-right: 16px;
@@ -34,12 +39,4 @@ mat-form-field.mat-form-field {
   input[disabled] {
     text-overflow: ellipsis;
   }
-}
-
-mat-radio-button {
-  margin-right: 32px;
-}
-
-mat-radio-group {
-  margin-bottom: 1.25em;
 }

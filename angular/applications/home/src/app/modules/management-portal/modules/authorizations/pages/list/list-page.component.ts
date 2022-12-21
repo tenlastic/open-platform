@@ -51,7 +51,7 @@ export class AuthorizationsListPageComponent implements OnDestroy, OnInit {
         this.displayedColumns = ['user', 'roles', 'createdAt', 'actions'];
       }
 
-      const roles = [IAuthorization.Role.AuthorizationsReadWrite];
+      const roles = [IAuthorization.Role.AuthorizationsWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization = this.authorizationQuery.hasRoles(null, roles, userId);
 

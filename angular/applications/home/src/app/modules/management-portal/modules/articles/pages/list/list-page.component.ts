@@ -76,7 +76,7 @@ export class ArticlesListPageComponent implements OnDestroy, OnInit {
   public ngOnInit() {
     this.activatedRoute.data.subscribe((data) => (this.type = data.type));
     this.activatedRoute.params.subscribe((params) => {
-      const roles = [IAuthorization.Role.ArticlesReadWrite];
+      const roles = [IAuthorization.Role.ArticlesWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
         this.authorizationQuery.hasRoles(null, roles, userId) ||

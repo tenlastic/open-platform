@@ -27,10 +27,7 @@ export function RecordPermissions(
     },
     find: {
       ...Object.fromEntries(collection.permissions?.find || []),
-      default: AuthorizationPermissionsHelpers.getFindQuery([
-        AuthorizationRole.RecordsRead,
-        AuthorizationRole.RecordsReadWrite,
-      ]),
+      default: AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.RecordsRead]),
       'user-read': {},
     },
     populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
@@ -44,17 +41,15 @@ export function RecordPermissions(
       default: {},
       'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
         AuthorizationRole.RecordsRead,
-        AuthorizationRole.RecordsReadWrite,
       ]),
       'namespace-write': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-        AuthorizationRole.RecordsReadWrite,
+        AuthorizationRole.RecordsWrite,
       ]),
       'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([
         AuthorizationRole.RecordsRead,
-        AuthorizationRole.RecordsReadWrite,
       ]),
       'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([
-        AuthorizationRole.RecordsReadWrite,
+        AuthorizationRole.RecordsWrite,
       ]),
     },
     update: {

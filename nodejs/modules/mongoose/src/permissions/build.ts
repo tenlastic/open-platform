@@ -34,10 +34,7 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(BuildMode
   find: {
     default: {
       $or: [
-        AuthorizationPermissionsHelpers.getFindQuery([
-          AuthorizationRole.BuildsRead,
-          AuthorizationRole.BuildsReadWrite,
-        ]),
+        AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.BuildsRead]),
         {
           ...AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.BuildsReadPublished]),
           publishedAt: { $lte: new Date() },
@@ -68,10 +65,7 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(BuildMode
     default: {},
     'namespace-read': {
       $or: [
-        AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-          AuthorizationRole.BuildsRead,
-          AuthorizationRole.BuildsReadWrite,
-        ]),
+        AuthorizationPermissionsHelpers.getNamespaceRoleQuery([AuthorizationRole.BuildsRead]),
         {
           ...AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
             AuthorizationRole.BuildsReadPublished,
@@ -81,14 +75,11 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(BuildMode
       ],
     },
     'namespace-write': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-      AuthorizationRole.BuildsReadWrite,
+      AuthorizationRole.BuildsWrite,
     ]),
     'system-read': {
       $or: [
-        AuthorizationPermissionsHelpers.getSystemRoleQuery([
-          AuthorizationRole.BuildsRead,
-          AuthorizationRole.BuildsReadWrite,
-        ]),
+        AuthorizationPermissionsHelpers.getSystemRoleQuery([AuthorizationRole.BuildsRead]),
         {
           ...AuthorizationPermissionsHelpers.getSystemRoleQuery([
             AuthorizationRole.BuildsReadPublished,
@@ -98,15 +89,10 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(BuildMode
       ],
     },
     'system-write': AuthorizationPermissionsHelpers.getSystemRoleQuery([
-      AuthorizationRole.BuildsReadWrite,
+      AuthorizationRole.BuildsWrite,
     ]),
-    'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([
-      AuthorizationRole.BuildsRead,
-      AuthorizationRole.BuildsReadWrite,
-    ]),
-    'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([
-      AuthorizationRole.BuildsReadWrite,
-    ]),
+    'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([AuthorizationRole.BuildsRead]),
+    'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([AuthorizationRole.BuildsWrite]),
   },
   update: {
     'namespace-write': administrator.update,

@@ -75,7 +75,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
     this.activatedRoute.params.subscribe((params) => {
       this.params = params;
 
-      const roles = [IAuthorization.Role.GameServersReadWrite];
+      const roles = [IAuthorization.Role.GameServersWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
         this.authorizationQuery.hasRoles(null, roles, userId) ||

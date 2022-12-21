@@ -36,10 +36,7 @@ export const MatchPermissions = new MongoosePermissions<MatchDocument>(MatchMode
   find: {
     default: {
       $or: [
-        AuthorizationPermissionsHelpers.getFindQuery([
-          AuthorizationRole.MatchesRead,
-          AuthorizationRole.MatchesReadWrite,
-        ]),
+        AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.MatchesRead]),
         {
           confirmedUserIds: { $ref: 'user._id' },
           startedAt: { $exists: true },
@@ -73,24 +70,19 @@ export const MatchPermissions = new MongoosePermissions<MatchDocument>(MatchMode
     default: {},
     'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
       AuthorizationRole.MatchesRead,
-      AuthorizationRole.MatchesReadWrite,
     ]),
     'namespace-write': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-      AuthorizationRole.MatchesReadWrite,
+      AuthorizationRole.MatchesWrite,
     ]),
     'system-read': AuthorizationPermissionsHelpers.getSystemRoleQuery([
       AuthorizationRole.MatchesRead,
-      AuthorizationRole.MatchesReadWrite,
     ]),
     'system-write': AuthorizationPermissionsHelpers.getSystemRoleQuery([
-      AuthorizationRole.MatchesReadWrite,
+      AuthorizationRole.MatchesWrite,
     ]),
-    'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([
-      AuthorizationRole.MatchesRead,
-      AuthorizationRole.MatchesReadWrite,
-    ]),
+    'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([AuthorizationRole.MatchesRead]),
     'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([
-      AuthorizationRole.MatchesReadWrite,
+      AuthorizationRole.MatchesWrite,
     ]),
   },
   update: {

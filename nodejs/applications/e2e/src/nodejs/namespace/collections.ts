@@ -42,7 +42,6 @@ describe('/nodejs/namespace/collections', function () {
   step('creates a Collection', async function () {
     collection = await dependencies.collectionService.create(namespace._id, {
       jsonSchema: {
-        additionalProperties: false,
         properties: {
           email: { type: 'string' },
           name: { type: 'string' },

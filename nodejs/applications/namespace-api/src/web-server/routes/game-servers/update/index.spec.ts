@@ -37,7 +37,7 @@ describe('web-server/game-servers/update', function () {
       }).save();
       await AuthorizationModel.mock({
         namespaceId: namespace._id,
-        roles: [AuthorizationRole.GameServersReadWrite],
+        roles: [AuthorizationRole.GameServersRead, AuthorizationRole.GameServersWrite],
         userId: user._id,
       }).save();
       const build = await BuildModel.mock({ namespaceId: namespace._id }).save();

@@ -70,10 +70,7 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
   find: {
     default: {
       $or: [
-        AuthorizationPermissionsHelpers.getFindQuery([
-          AuthorizationRole.GameServersRead,
-          AuthorizationRole.GameServersReadWrite,
-        ]),
+        AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.GameServersRead]),
         {
           ...AuthorizationPermissionsHelpers.getFindQuery([
             AuthorizationRole.GameServersReadAuthorized,
@@ -110,24 +107,21 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
     default: {},
     'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
       AuthorizationRole.GameServersRead,
-      AuthorizationRole.GameServersReadWrite,
     ]),
     'namespace-write': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-      AuthorizationRole.GameServersReadWrite,
+      AuthorizationRole.GameServersWrite,
     ]),
     'system-read': AuthorizationPermissionsHelpers.getSystemRoleQuery([
       AuthorizationRole.GameServersRead,
-      AuthorizationRole.GameServersReadWrite,
     ]),
     'system-write': AuthorizationPermissionsHelpers.getSystemRoleQuery([
-      AuthorizationRole.GameServersReadWrite,
+      AuthorizationRole.GameServersWrite,
     ]),
     'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([
       AuthorizationRole.GameServersRead,
-      AuthorizationRole.GameServersReadWrite,
     ]),
     'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([
-      AuthorizationRole.GameServersReadWrite,
+      AuthorizationRole.GameServersWrite,
     ]),
   },
   update: {

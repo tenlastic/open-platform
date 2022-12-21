@@ -22,10 +22,7 @@ export const AuthorizationRequestPermissions =
     find: {
       default: {
         $or: [
-          AuthorizationPermissionsHelpers.getFindQuery([
-            AuthorizationRole.AuthorizationsRead,
-            AuthorizationRole.AuthorizationsReadWrite,
-          ]),
+          AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.AuthorizationsRead]),
           { userId: { $ref: 'user._id' } },
         ],
       },
@@ -48,18 +45,16 @@ export const AuthorizationRequestPermissions =
       default: {},
       'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
         AuthorizationRole.AuthorizationsRead,
-        AuthorizationRole.AuthorizationsReadWrite,
       ]),
       'namespace-write': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-        AuthorizationRole.AuthorizationsReadWrite,
+        AuthorizationRole.AuthorizationsWrite,
       ]),
       owner: { 'record.userId': { $ref: 'user._id' } },
       'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([
         AuthorizationRole.AuthorizationsRead,
-        AuthorizationRole.AuthorizationsReadWrite,
       ]),
       'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([
-        AuthorizationRole.AuthorizationsReadWrite,
+        AuthorizationRole.AuthorizationsWrite,
       ]),
     },
     update: {

@@ -36,7 +36,7 @@ describe('web-server/workflows/create', function () {
       }).save();
       await AuthorizationModel.mock({
         namespaceId: namespace._id,
-        roles: [AuthorizationRole.WorkflowsReadWrite],
+        roles: [AuthorizationRole.WorkflowsRead, AuthorizationRole.WorkflowsWrite],
         userId: user._id,
       }).save();
 

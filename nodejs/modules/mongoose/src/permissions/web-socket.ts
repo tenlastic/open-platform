@@ -15,10 +15,9 @@ export const WebSocketPermissions = new MongoosePermissions<WebSocketDocument>(W
     default: {},
     'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([
       AuthorizationRole.WebSocketsRead,
-      AuthorizationRole.WebSocketsReadWrite,
     ]),
     'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([
-      AuthorizationRole.WebSocketsReadWrite,
+      AuthorizationRole.WebSocketsWrite,
     ]),
   },
 });

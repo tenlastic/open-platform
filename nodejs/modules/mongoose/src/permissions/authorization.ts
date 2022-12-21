@@ -116,10 +116,7 @@ export const AuthorizationPermissions = new MongoosePermissions<AuthorizationDoc
     find: {
       default: {
         $or: [
-          AuthorizationPermissionsHelpers.getFindQuery([
-            AuthorizationRole.AuthorizationsRead,
-            AuthorizationRole.AuthorizationsReadWrite,
-          ]),
+          AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.AuthorizationsRead]),
           {
             apiKey: { $exists: false },
             namespaceId: { $exists: true },
@@ -148,17 +145,15 @@ export const AuthorizationPermissions = new MongoosePermissions<AuthorizationDoc
       default: {},
       'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
         AuthorizationRole.AuthorizationsRead,
-        AuthorizationRole.AuthorizationsReadWrite,
       ]),
       'namespace-write': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-        AuthorizationRole.AuthorizationsReadWrite,
+        AuthorizationRole.AuthorizationsWrite,
       ]),
       'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([
         AuthorizationRole.AuthorizationsRead,
-        AuthorizationRole.AuthorizationsReadWrite,
       ]),
       'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([
-        AuthorizationRole.AuthorizationsReadWrite,
+        AuthorizationRole.AuthorizationsWrite,
       ]),
     },
     update: {

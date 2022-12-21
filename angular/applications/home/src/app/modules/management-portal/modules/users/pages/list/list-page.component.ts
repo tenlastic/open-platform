@@ -53,7 +53,7 @@ export class UsersListPageComponent implements OnDestroy, OnInit {
   ) {}
 
   public ngOnInit() {
-    const roles = [IAuthorization.Role.NamespacesReadWrite];
+    const roles = [IAuthorization.Role.NamespacesWrite];
     const userId = this.identityService.user?._id;
     this.hasWriteAuthorization = this.authorizationQuery.hasRoles(null, roles, userId);
 

@@ -53,7 +53,7 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
     this.activatedRoute.params.subscribe(async (params) => {
       this.params = params;
 
-      const roles = [IAuthorization.Role.CollectionsReadWrite];
+      const roles = [IAuthorization.Role.CollectionsWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
         this.authorizationQuery.hasRoles(null, roles, userId) ||

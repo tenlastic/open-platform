@@ -4,53 +4,53 @@ export namespace IAuthorization {
   export enum Role {
     ArticlesRead = 'Articles:Read',
     ArticlesReadPublished = 'Articles:ReadPublished',
-    ArticlesReadWrite = 'Articles:ReadWrite',
+    ArticlesWrite = 'Articles:Write',
     AuthorizationsRead = 'Authorizations:Read',
-    AuthorizationsReadWrite = 'Authorizations:ReadWrite',
+    AuthorizationsWrite = 'Authorizations:Write',
     BuildsRead = 'Builds:Read',
     BuildsReadPublished = 'Builds:ReadPublished',
-    BuildsReadWrite = 'Builds:ReadWrite',
+    BuildsWrite = 'Builds:Write',
     CollectionsRead = 'Collections:Read',
-    CollectionsReadWrite = 'Collections:ReadWrite',
+    CollectionsWrite = 'Collections:Write',
     GameServersRead = 'GameServers:Read',
     GameServersReadAuthorized = 'GameServers:ReadAuthorized',
-    GameServersReadWrite = 'GameServers:ReadWrite',
+    GameServersWrite = 'GameServers:Write',
     LoginsRead = 'Logins:Read',
     MatchesRead = 'Matches:Read',
-    MatchesReadWrite = 'Matches:ReadWrite',
+    MatchesWrite = 'Matches:Write',
     NamespacesRead = 'Namespaces:Read',
-    NamespacesReadWrite = 'Namespaces:ReadWrite',
+    NamespacesWrite = 'Namespaces:Write',
     QueuesRead = 'Queues:Read',
-    QueuesReadWrite = 'Queues:ReadWrite',
+    QueuesWrite = 'Queues:Write',
     RecordsRead = 'Records:Read',
-    RecordsReadWrite = 'Records:ReadWrite',
+    RecordsWrite = 'Records:Write',
     StorefrontsRead = 'Storefronts:Read',
-    StorefrontsReadWrite = 'Storefronts:ReadWrite',
+    StorefrontsWrite = 'Storefronts:Write',
     UsersRead = 'Users:Read',
-    UsersReadWrite = 'Users:ReadWrite',
+    UsersWrite = 'Users:Write',
     WebSocketsRead = 'WebSockets:Read',
-    WebSocketsReadWrite = 'WebSockets:ReadWrite',
+    WebSocketsWrite = 'WebSockets:Write',
     WorkflowsRead = 'Workflows:Read',
-    WorkflowsReadWrite = 'Workflows:ReadWrite',
+    WorkflowsWrite = 'Workflows:Write',
   }
 
-  export const articleRoles = [
-    Role.ArticlesReadPublished,
-    Role.ArticlesRead,
-    Role.ArticlesReadWrite,
+  export const articleRoles = [Role.ArticlesRead, Role.ArticlesReadPublished, Role.ArticlesWrite];
+  export const authorizationRoles = [Role.AuthorizationsRead, Role.AuthorizationsWrite];
+  export const buildRoles = [Role.BuildsReadPublished, Role.BuildsRead, Role.BuildsWrite];
+  export const collectionRoles = [Role.CollectionsRead, Role.CollectionsWrite];
+  export const gameServerRoles = [
+    Role.GameServersRead,
+    Role.GameServersReadAuthorized,
+    Role.GameServersWrite,
   ];
-  export const authorizationRoles = [Role.AuthorizationsRead, Role.AuthorizationsReadWrite];
-  export const buildRoles = [Role.BuildsReadPublished, Role.BuildsRead, Role.BuildsReadWrite];
-  export const collectionRoles = [Role.CollectionsRead, Role.CollectionsReadWrite];
-  export const gameServerRoles = [Role.GameServersRead, Role.GameServersReadWrite];
-  export const matchRoles = [Role.MatchesRead, Role.MatchesReadWrite];
-  export const namespaceRoles = [Role.NamespacesRead, Role.NamespacesReadWrite];
-  export const queueRoles = [Role.QueuesRead, Role.QueuesReadWrite];
-  export const recordRoles = [Role.RecordsRead, Role.RecordsReadWrite];
-  export const storefrontRoles = [Role.StorefrontsRead, Role.StorefrontsReadWrite];
-  export const userRoles = [Role.UsersRead, Role.UsersReadWrite];
-  export const webSocketRoles = [Role.WebSocketsRead, Role.WebSocketsReadWrite];
-  export const workflowRoles = [Role.WorkflowsRead, Role.WorkflowsReadWrite];
+  export const matchRoles = [Role.MatchesRead, Role.MatchesWrite];
+  export const namespaceRoles = [Role.NamespacesRead, Role.NamespacesWrite];
+  export const queueRoles = [Role.QueuesRead, Role.QueuesWrite];
+  export const recordRoles = [Role.RecordsRead, Role.RecordsWrite];
+  export const storefrontRoles = [Role.StorefrontsRead, Role.StorefrontsWrite];
+  export const userRoles = [Role.UsersRead, Role.UsersWrite];
+  export const webSocketRoles = [Role.WebSocketsRead, Role.WebSocketsWrite];
+  export const workflowRoles = [Role.WorkflowsRead, Role.WorkflowsWrite];
 }
 
 export class AuthorizationModel extends BaseModel {

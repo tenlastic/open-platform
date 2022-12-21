@@ -13,10 +13,7 @@ export const CollectionPermissions = new MongoosePermissions<CollectionDocument>
     'user-write': true,
   },
   find: {
-    default: AuthorizationPermissionsHelpers.getFindQuery([
-      AuthorizationRole.CollectionsRead,
-      AuthorizationRole.CollectionsReadWrite,
-    ]),
+    default: AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.CollectionsRead]),
     'user-read': {},
   },
   populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
@@ -36,17 +33,15 @@ export const CollectionPermissions = new MongoosePermissions<CollectionDocument>
     default: {},
     'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
       AuthorizationRole.CollectionsRead,
-      AuthorizationRole.CollectionsReadWrite,
     ]),
     'namespace-write': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-      AuthorizationRole.CollectionsReadWrite,
+      AuthorizationRole.CollectionsWrite,
     ]),
     'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([
       AuthorizationRole.CollectionsRead,
-      AuthorizationRole.CollectionsReadWrite,
     ]),
     'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([
-      AuthorizationRole.CollectionsReadWrite,
+      AuthorizationRole.CollectionsWrite,
     ]),
   },
   update: {

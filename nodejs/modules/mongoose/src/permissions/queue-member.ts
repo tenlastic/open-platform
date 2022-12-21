@@ -27,10 +27,7 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
     find: {
       default: {
         $or: [
-          AuthorizationPermissionsHelpers.getFindQuery([
-            AuthorizationRole.QueuesRead,
-            AuthorizationRole.QueuesReadWrite,
-          ]),
+          AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.QueuesRead]),
           { userId: { $ref: 'user._id' } },
         ],
       },
@@ -55,25 +52,20 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
       'group-member': { 'record.groupDocument.userIds': { $ref: 'user._id' } },
       'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
         AuthorizationRole.QueuesRead,
-        AuthorizationRole.QueuesReadWrite,
       ]),
       'namespace-write': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-        AuthorizationRole.QueuesReadWrite,
+        AuthorizationRole.QueuesWrite,
       ]),
       owner: { 'record.userId': { $ref: 'user._id' } },
       'system-read': AuthorizationPermissionsHelpers.getSystemRoleQuery([
         AuthorizationRole.QueuesRead,
-        AuthorizationRole.QueuesReadWrite,
       ]),
       'system-write': AuthorizationPermissionsHelpers.getSystemRoleQuery([
-        AuthorizationRole.QueuesReadWrite,
+        AuthorizationRole.QueuesWrite,
       ]),
-      'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([
-        AuthorizationRole.QueuesRead,
-        AuthorizationRole.QueuesReadWrite,
-      ]),
+      'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([AuthorizationRole.QueuesRead]),
       'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([
-        AuthorizationRole.QueuesReadWrite,
+        AuthorizationRole.QueuesWrite,
       ]),
     },
   },
