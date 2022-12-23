@@ -23,40 +23,39 @@
     <ng-container *ngFor="let key of form.controls | keys; let i = index">
       <app-toggle-section *ngIf="collection.jsonSchema.properties[key].type === 'array'"
                           [title]="key | camelCaseToTitleCase">
-        <div *ngFor="let item of form['controls'][key]['controls']; let i = index"
-             class="row"
-             [formArrayName]="key">
-          <mat-form-field floatLabel="always">
-            <mat-label>Element #{{ i + 1 }}</mat-label>
+        <mat-form-field *ngFor="let item of form['controls'][key]['controls']; let i = index"
+                        floatLabel="always"
+                        [formArrayName]="key">
+          <mat-label>Element {{ i + 1 }}</mat-label>
 
-            <ng-container [ngSwitch]="collection.jsonSchema.properties[key].items.type">
-              <mat-select *ngSwitchCase="'boolean'"
-                          [formControlName]="i">
-                <mat-option [value]="true">True</mat-option>
-                <mat-option [value]="false">False</mat-option>
-              </mat-select>
+          <ng-container [ngSwitch]="collection.jsonSchema.properties[key].items.type">
+            <mat-select *ngSwitchCase="'boolean'"
+                        [formControlName]="i">
+              <mat-option [value]="true">True</mat-option>
+              <mat-option [value]="false">False</mat-option>
+            </mat-select>
 
-              <input *ngSwitchCase="'number'"
-                     matInput
-                     type="number"
-                     [formControlName]="i" />
+            <input *ngSwitchCase="'number'"
+                   matInput
+                   type="number"
+                   [formControlName]="i" />
 
-              <input *ngSwitchCase="'string'"
-                     matInput
-                     [formControlName]="i" />
-            </ng-container>
-
-            <mat-error>Enter a valid {{ key }}.</mat-error>
-          </mat-form-field>
+            <input *ngSwitchCase="'string'"
+                   matInput
+                   [formControlName]="i" />
+          </ng-container>
 
           <app-button *ngIf="!form.disabled"
                       color="accent"
-                      layout="left"
+                      mat-icon-button
+                      matSuffix
+                      matTooltip="Remove Element"
                       (OnClick)="removeArrayItem(key, i)">
             <mat-icon>remove</mat-icon>
-            <div>Remove Item</div>
           </app-button>
-        </div>
+
+          <mat-error>Enter a valid {{ key }}.</mat-error>
+        </mat-form-field>
 
         <div *ngIf="!form.disabled"
              class="row">
@@ -64,7 +63,7 @@
                       layout="left"
                       (OnClick)="addArrayItem(key)">
             <mat-icon>add</mat-icon>
-            <div>Add Item</div>
+            <div>Add Element</div>
           </app-button>
         </div>
       </app-toggle-section>

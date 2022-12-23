@@ -149,7 +149,7 @@ export class StorefrontsFormPageComponent implements OnInit {
     }
 
     this.form = this.formBuilder.group({
-      description: [this.data.description, Validators.required],
+      description: [this.data.description],
       icon: [this.data.icon],
       metadata: this.formBuilder.array(metadata),
       subtitle: [this.data.subtitle],

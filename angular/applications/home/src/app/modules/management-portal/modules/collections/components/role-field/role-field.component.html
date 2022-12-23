@@ -28,15 +28,18 @@
         </mat-form-field>
       </div>
 
-      <div *ngFor="let criterion of criteria.controls; let i = index"
-           class="row">
-        <app-criterion-field [fields]="criteriaFields"
-                             [form]="criterion"
-                             [operators]="criteriaOperators"
-                             [properties]="properties"
-                             [referenceFields]="criteriaFields"
-                             (remove)="removeCriterion(i)"></app-criterion-field>
-      </div>
+      <ng-container *ngFor="let criterion of criteria.controls; let i = index">
+        <h4>Criterion {{ i + 1 }}</h4>
+
+        <div class="row">
+          <app-criterion-field [fields]="criteriaFields"
+                               [form]="criterion"
+                               [operators]="criteriaOperators"
+                               [properties]="properties"
+                               [referenceFields]="criteriaFields"
+                               (remove)="removeCriterion(i)"></app-criterion-field>
+        </div>
+      </ng-container>
 
       <div *ngIf="!form.disabled"
            class="row">
@@ -101,15 +104,18 @@
 
     <app-toggle-section [isVisible]="false"
                         title="Filter Query">
-      <div *ngFor="let criterion of find.controls;let i = index"
-           class="row">
-        <app-criterion-field [fields]="recordFieldsWithProperties"
-                             [form]="criterion"
-                             [operators]="findOperators"
-                             [properties]="properties"
-                             [referenceFields]="userFields"
-                             (remove)="removeFindCriterion(i)"></app-criterion-field>
-      </div>
+      <ng-container *ngFor="let criterion of find.controls;let i = index">
+        <h4>Criterion {{ i + 1 }}</h4>
+
+        <div class="row">
+          <app-criterion-field [fields]="recordFieldsWithProperties"
+                               [form]="criterion"
+                               [operators]="findOperators"
+                               [properties]="properties"
+                               [referenceFields]="userFields"
+                               (remove)="removeFindCriterion(i)"></app-criterion-field>
+        </div>
+      </ng-container>
 
       <div *ngIf="!form.disabled"
            class="row">
@@ -124,7 +130,7 @@
   </div>
 
   <div *ngIf="!form.disabled"
-       class="row remove-button">
+       class="buttons row">
     <app-button *ngIf="index > 0"
                 color="accent"
                 layout="left"

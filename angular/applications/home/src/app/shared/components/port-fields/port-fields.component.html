@@ -1,32 +1,35 @@
-<div *ngFor="let port of form.controls; let i = index"
-     class="row"
-     [formGroup]="form.at(i)">
-  <mat-form-field floatLabel="always">
-    <mat-label>Port</mat-label>
-    <input formControlName="port"
-           matInput
-           max="65535"
-           min="1"
-           type="number" />
-    <mat-error>Enter a valid port.</mat-error>
-  </mat-form-field>
+<ng-container *ngFor="let port of form.controls; let i = index">
+  <h4>Port {{ i + 1 }}</h4>
 
-  <mat-form-field floatLabel="always">
-    <mat-label>Protocol</mat-label>
-    <mat-select formControlName="protocol">
-      <mat-option [value]="Protocol.Tcp">TCP</mat-option>
-      <mat-option [value]="Protocol.Udp">UDP</mat-option>
-    </mat-select>
-  </mat-form-field>
+  <div class="row"
+       [formGroup]="form.at(i)">
+    <mat-form-field floatLabel="always">
+      <mat-label>Number</mat-label>
+      <input formControlName="port"
+             matInput
+             max="65535"
+             min="1"
+             type="number" />
+      <mat-error>Enter a valid port.</mat-error>
+    </mat-form-field>
 
-  <app-button *ngIf="!form?.disabled && form.length > 1"
-              color="accent"
-              layout="left"
-              (OnClick)="removeAt(i)">
-    <mat-icon>remove</mat-icon>
-    <div>Remove</div>
-  </app-button>
-</div>
+    <mat-form-field floatLabel="always">
+      <mat-label>Protocol</mat-label>
+      <mat-select formControlName="protocol">
+        <mat-option [value]="Protocol.Tcp">TCP</mat-option>
+        <mat-option [value]="Protocol.Udp">UDP</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <app-button *ngIf="!form?.disabled && form.length > 1"
+                color="accent"
+                layout="left"
+                (OnClick)="removeAt(i)">
+      <mat-icon>remove</mat-icon>
+      <div>Remove</div>
+    </app-button>
+  </div>
+</ng-container>
 
 <div *ngIf="!form?.disabled"
      class="row">

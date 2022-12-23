@@ -133,12 +133,14 @@
         <mat-error>Enter a valid number of players.</mat-error>
       </mat-form-field>
 
-      <app-button color="accent"
-                  layout="left"
-                  (OnClick)="pushUsersPerTeam(usersPerTeam)">
-        <mat-icon>add</mat-icon>
-        <div>Add Team</div>
-      </app-button>
+      <div class="row">
+        <app-button color="accent"
+                    layout="left"
+                    (OnClick)="pushUsersPerTeam(usersPerTeam)">
+          <mat-icon>add</mat-icon>
+          <div>Add Team</div>
+        </app-button>
+      </div>
     </app-toggle-section>
 
     <app-toggle-section [isVisible]="isNew"

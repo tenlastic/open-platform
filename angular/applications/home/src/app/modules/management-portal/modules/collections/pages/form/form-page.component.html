@@ -32,12 +32,15 @@
     </div>
 
     <app-toggle-section title="Properties">
-      <div *ngFor="let property of properties.controls; let i = index"
-           class="row"
-           formArrayName="properties">
-        <app-property-field [form]="property"
-                            (remove)="removeProperty(i)"></app-property-field>
-      </div>
+      <ng-container *ngFor="let property of properties.controls; let i = index">
+        <h4>Property {{ i + 1 }}</h4>
+
+        <div class="row"
+             formArrayName="properties">
+          <app-property-field [form]="property"
+                              (remove)="removeProperty(i)"></app-property-field>
+        </div>
+      </ng-container>
 
       <div *ngIf="!form.disabled"
            class="row">
@@ -51,17 +54,20 @@
     </app-toggle-section>
 
     <app-toggle-section title="Roles">
-      <div *ngFor="let role of roles.controls; let i = index"
-           class="row"
-           formArrayName="roles">
-        <app-role-field [form]="role"
-                        [index]="i"
-                        [length]="roles.length"
-                        [properties]="properties"
-                        (moveDown)="moveRoleDown(i)"
-                        (moveUp)="moveRoleUp(i)"
-                        (remove)="removeRole(i)"></app-role-field>
-      </div>
+      <ng-container *ngFor="let role of roles.controls; let i = index">
+        <h4>Role {{ i + 1 }}</h4>
+
+        <div class="row"
+             formArrayName="roles">
+          <app-role-field [form]="role"
+                          [index]="i"
+                          [length]="roles.length"
+                          [properties]="properties"
+                          (moveDown)="moveRoleDown(i)"
+                          (moveUp)="moveRoleUp(i)"
+                          (remove)="removeRole(i)"></app-role-field>
+        </div>
+      </ng-container>
 
       <div *ngIf="!form.disabled"
            class="row">

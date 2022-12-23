@@ -44,10 +44,9 @@
         <mat-form-field floatLabel="always"
                         width="full">
           <mat-label>Description</mat-label>
-          <textarea matInput
-                    cdkTextareaAutosize
-                    required
+          <textarea cdkTextareaAutosize
                     formControlName="description"
+                    matInput
                     type="text"></textarea>
           <mat-error>Enter a valid description.</mat-error>
         </mat-form-field>

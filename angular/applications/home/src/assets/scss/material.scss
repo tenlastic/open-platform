@@ -312,6 +312,10 @@ mat-form-field.mat-form-field {
     }
   }
 
+  div.mat-form-field-suffix {
+    margin-left: 4px;
+  }
+
   .mat-input-element:disabled {
     color: white;
   }
