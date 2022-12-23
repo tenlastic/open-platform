@@ -12,7 +12,7 @@ import { IdentityService } from '../../../../core/services';
 })
 export class InformationPageComponent implements OnInit {
   public data: UserModel;
-  public error: string;
+  public errors: string[] = [];
   public form: FormGroup;
   public loadingMessage: string;
 
@@ -38,6 +38,8 @@ export class InformationPageComponent implements OnInit {
   }
 
   public async save() {
+    this.errors = [];
+
     if (this.form.invalid) {
       this.form.get('email').markAsTouched();
       this.form.get('username').markAsTouched();
@@ -62,7 +64,7 @@ export class InformationPageComponent implements OnInit {
       await this.userService.create(data);
       this.matSnackBar.open('User created successfully.');
     } catch (e) {
-      this.error = 'That email is already taken.';
+      this.errors = ['That email is already taken.'];
     }
   }
 
@@ -74,7 +76,7 @@ export class InformationPageComponent implements OnInit {
       username: [this.data.username, Validators.required],
     });
 
-    this.form.valueChanges.subscribe(() => (this.error = null));
+    this.form.valueChanges.subscribe(() => (this.errors = []));
   }
 
   private async update(data: Partial<UserModel>) {
@@ -84,7 +86,7 @@ export class InformationPageComponent implements OnInit {
       await this.userService.update(data._id, data);
       this.matSnackBar.open('User updated successfully.');
     } catch (e) {
-      this.error = 'That email is already taken.';
+      this.errors = ['That email is already taken.'];
     }
   }
 }

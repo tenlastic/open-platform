@@ -5,7 +5,7 @@ import { BaseStore } from './base';
 
 export interface MessageState extends EntityState<MessageModel> {}
 
-@StoreConfig({ idKey: '_id', name: 'messages', resettable: true })
+@StoreConfig({ idKey: '_id', deepFreezeFn: (o) => o, name: 'messages', resettable: true })
 export class MessageStore extends BaseStore<MessageState, MessageModel> {}
 
 export class MessageQuery extends QueryEntity<MessageState, MessageModel> {

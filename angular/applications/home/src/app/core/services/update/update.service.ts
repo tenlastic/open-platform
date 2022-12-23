@@ -137,7 +137,7 @@ export class UpdateService {
       const builds = await this.buildService.find(namespaceId, {
         limit: 1,
         sort: '-publishedAt',
-        where: { namespaceId, platform: this.platform, publishedAt: { $exists: true, $ne: null } },
+        where: { namespaceId, platform: this.platform, publishedAt: { $exists: true } },
       });
       if (builds.length === 0) {
         status.state = UpdateServiceState.NotAvailable;

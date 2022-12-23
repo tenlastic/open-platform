@@ -5,7 +5,7 @@ import { BaseStore } from './base';
 
 export interface MatchState extends EntityState<MatchModel> {}
 
-@StoreConfig({ idKey: '_id', name: 'matches', resettable: true })
+@StoreConfig({ idKey: '_id', deepFreezeFn: (o) => o, name: 'matches', resettable: true })
 export class MatchStore extends BaseStore<MatchState, MatchModel> {}
 
 export class MatchQuery extends QueryEntity<MatchState, MatchModel> {

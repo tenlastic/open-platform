@@ -5,7 +5,7 @@ import { BaseStore } from './base';
 
 export interface GameServerState extends EntityState<GameServerModel> {}
 
-@StoreConfig({ idKey: '_id', name: 'game-servers', resettable: true })
+@StoreConfig({ idKey: '_id', deepFreezeFn: (o) => o, name: 'game-servers', resettable: true })
 export class GameServerStore extends BaseStore<GameServerState, GameServerModel> {
   public akitaPreAddEntity(entity: GameServerModel) {
     return new GameServerModel(entity);

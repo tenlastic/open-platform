@@ -5,7 +5,7 @@ import { BaseStore } from './base';
 
 export interface CollectionState extends EntityState<CollectionModel> {}
 
-@StoreConfig({ idKey: '_id', name: 'collections', resettable: true })
+@StoreConfig({ idKey: '_id', deepFreezeFn: (o) => o, name: 'collections', resettable: true })
 export class CollectionStore extends BaseStore<CollectionState, CollectionModel> {}
 
 export class CollectionQuery extends QueryEntity<CollectionState, CollectionModel> {

@@ -140,7 +140,7 @@ export class AuthorizationsFormPageComponent implements OnInit {
 
     const apiKey = Array(64).fill(0).map(this.getRandomCharacter).join('');
     const roles = Object.values(IAuthorization.Role).reduce((previous, current) => {
-      previous[current] = this.data.roles.includes(current);
+      previous[current] = this.data.roles?.includes(current) ?? false;
       return previous;
     }, {});
 

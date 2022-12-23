@@ -56,7 +56,7 @@ export class LayoutComponent implements OnInit {
   private fetchArticles(namespaceId: string) {
     return this.articleService.find(namespaceId, {
       sort: '-publishedAt',
-      where: { namespaceId, publishedAt: { $exists: true, $ne: null }, type: this.type },
+      where: { namespaceId, publishedAt: { $exists: true }, type: this.type },
     });
   }
 }

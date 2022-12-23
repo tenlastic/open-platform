@@ -16,13 +16,14 @@ export class StorefrontsMultimediaFormPageComponent implements OnInit {
     return this._data;
   }
   public set data(value) {
+    const data = new StorefrontModel(value);
     const timestamp = Date.now();
 
-    value.background = value.background ? `${value.background}?timestamp=${timestamp}` : null;
-    value.icon = value.icon ? `${value.icon}?timestamp=${timestamp}` : null;
-    value.logo = value.logo ? `${value.logo}?timestamp=${timestamp}` : null;
+    data.background = data.background ? `${data.background}?timestamp=${timestamp}` : null;
+    data.icon = data.icon ? `${data.icon}?timestamp=${timestamp}` : null;
+    data.logo = data.logo ? `${data.logo}?timestamp=${timestamp}` : null;
 
-    this._data = value;
+    this._data = data;
   }
   public pending: { [key: string]: Blob[] } = {
     background: [],

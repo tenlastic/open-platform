@@ -1,10 +1,12 @@
-<a mat-button
-   [attr.color]="color"
-   [attr.href]="href"
-   [attr.layout]="layout"
-   [attr.size]="size"
-   [attr.target]="target"
-   [disabled]="disabled"
-   (click)="OnClick.emit($event)">
+<button [attr.color]="color"
+        [attr.form]="form"
+        [attr.href]="href"
+        [attr.layout]="layout"
+        [attr.size]="size"
+        [attr.target]="target"
+        (click)="OnClick.emit($event)"
+        [disabled]="disabled"
+        mat-button
+        [type]="form ? 'submit' : 'button'">
   <ng-content></ng-content>
-</a>
+</button>

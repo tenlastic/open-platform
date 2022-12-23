@@ -1,11 +1,15 @@
 <div *ngIf="form"
      class="page">
-  <app-title>Account Information</app-title>
+  <div class="row">
+    <app-title>Account Information</app-title>
+  </div>
 
   <app-loading-message *ngIf="loadingMessage">{{ loadingMessage }}</app-loading-message>
 
-  <form [formGroup]="form"
-        autocomplete="off">
+  <form autocomplete="off"
+        [formGroup]="form"
+        id="form"
+        (ngSubmit)="save()">
     <div class="row">
       <mat-form-field floatLabel="always">
         <mat-label>Email Address</mat-label>
@@ -24,15 +28,21 @@
         <mat-error>Enter a valid username.</mat-error>
       </mat-form-field>
     </div>
-
-    <div *ngIf="error"
-         class="form-error">
-      {{ error }}
-    </div>
-
-    <app-button color="primary"
-                (OnClick)="save()">
-      <div>Save</div>
-    </app-button>
   </form>
+</div>
+
+<div *ngIf="form && !form.disabled"
+     class="page-actions">
+  <div *ngFor="let error of errors"
+       class="form-error">
+    {{ error }}
+  </div>
+
+  <app-button color="primary"
+              form="form"
+              size="large"
+              width="full">
+    <mat-icon>save</mat-icon>
+    <div>Save</div>
+  </app-button>
 </div>

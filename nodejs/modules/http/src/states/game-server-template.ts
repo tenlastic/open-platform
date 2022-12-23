@@ -5,7 +5,12 @@ import { BaseStore } from './base';
 
 export interface GameServerTemplateState extends EntityState<GameServerTemplateModel> {}
 
-@StoreConfig({ idKey: '_id', name: 'game-server-templates', resettable: true })
+@StoreConfig({
+  idKey: '_id',
+  deepFreezeFn: (o) => o,
+  name: 'game-server-templates',
+  resettable: true,
+})
 export class GameServerTemplateStore extends BaseStore<
   GameServerTemplateState,
   GameServerTemplateModel

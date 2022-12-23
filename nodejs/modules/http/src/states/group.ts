@@ -5,7 +5,7 @@ import { BaseStore } from './base';
 
 export interface GroupState extends EntityState<GroupModel> {}
 
-@StoreConfig({ idKey: '_id', name: 'groups', resettable: true })
+@StoreConfig({ idKey: '_id', deepFreezeFn: (o) => o, name: 'groups', resettable: true })
 export class GroupStore extends BaseStore<GroupState, GroupModel> {}
 
 export class GroupQuery extends QueryEntity<GroupState, GroupModel> {

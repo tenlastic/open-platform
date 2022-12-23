@@ -5,7 +5,7 @@ import { BaseStore } from './base';
 
 export interface RefreshTokenState extends EntityState<RefreshTokenModel> {}
 
-@StoreConfig({ idKey: '_id', name: 'refreshtokens', resettable: true })
+@StoreConfig({ idKey: '_id', deepFreezeFn: (o) => o, name: 'refreshtokens', resettable: true })
 export class RefreshTokenStore extends BaseStore<RefreshTokenState, RefreshTokenModel> {}
 
 export class RefreshTokenQuery extends QueryEntity<RefreshTokenState, RefreshTokenModel> {

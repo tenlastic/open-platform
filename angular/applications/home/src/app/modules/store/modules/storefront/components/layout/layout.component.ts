@@ -213,29 +213,17 @@ export class LayoutComponent implements OnDestroy, OnInit {
       this.articleService.find(namespaceId, {
         limit: 1,
         sort: '-publishedAt',
-        where: {
-          namespaceId,
-          publishedAt: { $exists: true, $ne: null },
-          type: IArticle.Type.Guide,
-        },
+        where: { namespaceId, publishedAt: { $exists: true }, type: IArticle.Type.Guide },
       }),
       this.articleService.find(namespaceId, {
         limit: 1,
         sort: '-publishedAt',
-        where: {
-          namespaceId,
-          publishedAt: { $exists: true, $ne: null },
-          type: IArticle.Type.News,
-        },
+        where: { namespaceId, publishedAt: { $exists: true }, type: IArticle.Type.News },
       }),
       this.articleService.find(namespaceId, {
         limit: 1,
         sort: '-publishedAt',
-        where: {
-          namespaceId,
-          publishedAt: { $exists: true, $ne: null },
-          type: IArticle.Type.PatchNotes,
-        },
+        where: { namespaceId, publishedAt: { $exists: true }, type: IArticle.Type.PatchNotes },
       }),
     ];
 

@@ -5,7 +5,7 @@ import { BaseStore } from './base';
 
 export interface BuildState extends EntityState<BuildModel> {}
 
-@StoreConfig({ idKey: '_id', name: 'builds', resettable: true })
+@StoreConfig({ idKey: '_id', deepFreezeFn: (o) => o, name: 'builds', resettable: true })
 export class BuildStore extends BaseStore<BuildState, BuildModel> {}
 
 export class BuildQuery extends QueryEntity<BuildState, BuildModel> {

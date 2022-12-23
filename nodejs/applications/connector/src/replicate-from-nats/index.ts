@@ -58,7 +58,8 @@ export async function eachMessage(
   if (where) {
     const fullDocument = new Model(payload.fullDocument);
 
-    if (!mongoosePermissions.isJsonValid(fullDocument, where)) {
+    if (!mongoosePermissions.isJsonValid(fullDocument.toJSON({ virtuals: true }), where)) {
+      console.log('Not Valid');
       return;
     }
   }

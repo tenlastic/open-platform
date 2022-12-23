@@ -5,7 +5,7 @@ import { BaseStore } from './base';
 
 export interface UserState extends EntityState<UserModel> {}
 
-@StoreConfig({ idKey: '_id', name: 'users', resettable: true })
+@StoreConfig({ idKey: '_id', deepFreezeFn: (o) => o, name: 'users', resettable: true })
 export class UserStore extends BaseStore<UserState, UserModel> {}
 
 export class UserQuery extends QueryEntity<UserState, UserModel> {

@@ -5,7 +5,7 @@ import { BaseStore } from './base';
 
 export interface WorkflowState extends EntityState<WorkflowModel> {}
 
-@StoreConfig({ idKey: '_id', name: 'workflows', resettable: true })
+@StoreConfig({ idKey: '_id', deepFreezeFn: (o) => o, name: 'workflows', resettable: true })
 export class WorkflowStore extends BaseStore<WorkflowState, WorkflowModel> {}
 
 export class WorkflowQuery extends QueryEntity<WorkflowState, WorkflowModel> {

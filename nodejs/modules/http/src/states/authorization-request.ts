@@ -5,7 +5,7 @@ import { BaseStore } from './base';
 
 export interface AuthorizationRequestState extends EntityState<AuthorizationRequestModel> {}
 
-@StoreConfig({ idKey: '_id', name: 'authorizations', resettable: true })
+@StoreConfig({ idKey: '_id', deepFreezeFn: (o) => o, name: 'authorizations', resettable: true })
 export class AuthorizationRequestStore extends BaseStore<
   AuthorizationRequestState,
   AuthorizationRequestModel

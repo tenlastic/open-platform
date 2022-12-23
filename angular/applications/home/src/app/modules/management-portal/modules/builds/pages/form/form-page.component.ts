@@ -246,7 +246,6 @@ export class BuildsFormPageComponent implements OnInit {
 
       this.$data = this.buildQuery.selectAll({ filterBy: (b) => b._id === this.data._id }).pipe(
         map(([build]) => {
-          build.status = build.status || { nodes: [], phase: 'Pending' };
           this.dataSource.data = build.getNestedStatusNodes();
           this.form.get('files').setValue(build.files);
           return build;

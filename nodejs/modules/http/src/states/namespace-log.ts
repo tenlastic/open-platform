@@ -5,7 +5,7 @@ import { BaseStore } from './base';
 
 export interface NamespaceLogState extends EntityState<NamespaceLogModel> {}
 
-@StoreConfig({ idKey: 'unix', name: 'namespace-logs', resettable: true })
+@StoreConfig({ idKey: 'unix', deepFreezeFn: (o) => o, name: 'namespace-logs', resettable: true })
 export class NamespaceLogStore extends BaseStore<NamespaceLogState, NamespaceLogModel> {}
 
 export class NamespaceLogQuery extends QueryEntity<NamespaceLogState, NamespaceLogModel> {

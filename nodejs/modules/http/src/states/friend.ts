@@ -6,7 +6,7 @@ import { UserQuery } from './user';
 
 export interface FriendState extends EntityState<FriendModel> {}
 
-@StoreConfig({ idKey: '_id', name: 'friends', resettable: true })
+@StoreConfig({ idKey: '_id', deepFreezeFn: (o) => o, name: 'friends', resettable: true })
 export class FriendStore extends BaseStore<FriendState, FriendModel> {}
 
 export class FriendQuery extends QueryEntity<FriendState, FriendModel> {

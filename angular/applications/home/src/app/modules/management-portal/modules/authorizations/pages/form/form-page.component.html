@@ -15,8 +15,10 @@
     </div>
   </div>
 
-  <form [formGroup]="form"
-        autocomplete="off">
+  <form autocomplete="off"
+        [formGroup]="form"
+        id="form"
+        (ngSubmit)="save()">
     <div class="row">
       <mat-form-field floatLabel="always">
         <mat-label>Type</mat-label>
@@ -149,8 +151,9 @@
   </div>
 
   <app-button color="primary"
+              form="form"
               size="large"
-              (OnClick)="save()">
+              width="full">
     <mat-icon>save</mat-icon>
     <div>Save</div>
   </app-button>

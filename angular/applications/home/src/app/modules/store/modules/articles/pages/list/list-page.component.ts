@@ -24,11 +24,7 @@ export class ListPageComponent implements OnInit {
 
       const [article] = await this.articleService.find(params.namespaceId, {
         sort: '-publishedAt',
-        where: {
-          namespaceId: params.namespaceId,
-          publishedAt: { $exists: true, $ne: null },
-          type: this.type,
-        },
+        where: { namespaceId: params.namespaceId, publishedAt: { $exists: true }, type: this.type },
       });
       this.router.navigate([article._id], { relativeTo: this.activatedRoute });
 

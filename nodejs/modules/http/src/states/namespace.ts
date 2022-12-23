@@ -5,7 +5,7 @@ import { BaseStore } from './base';
 
 export interface NamespaceState extends EntityState<NamespaceModel> {}
 
-@StoreConfig({ idKey: '_id', name: 'namespaces', resettable: true })
+@StoreConfig({ idKey: '_id', deepFreezeFn: (o) => o, name: 'namespaces', resettable: true })
 export class NamespaceStore extends BaseStore<NamespaceState, NamespaceModel> {}
 
 export class NamespaceQuery extends QueryEntity<NamespaceState, NamespaceModel> {

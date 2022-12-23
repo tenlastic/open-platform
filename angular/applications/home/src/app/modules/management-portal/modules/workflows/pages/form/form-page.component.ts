@@ -327,9 +327,7 @@ export class WorkflowsFormPageComponent implements OnInit {
       this.form.disable({ emitEvent: false });
 
       this.$data = this.workflowQuery.selectAll({ filterBy: (w) => w._id === this.data._id }).pipe(
-        map((workflows) => {
-          const workflow = new WorkflowModel(workflows[0]);
-          workflow.status = workflow.status || { nodes: [], phase: 'Pending' };
+        map(([workflow]) => {
           this.dataSource.data = workflow.getNestedStatusNodes();
           return workflow;
         }),

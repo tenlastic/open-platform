@@ -30,7 +30,7 @@ mat-toolbar.mat-toolbar {
   }
 
   &::ng-deep {
-    a.mat-button[color='accent'] {
+    button.mat-button[color='accent'] {
       font-size: 12px;
       height: 24px;
       line-height: 24px;
