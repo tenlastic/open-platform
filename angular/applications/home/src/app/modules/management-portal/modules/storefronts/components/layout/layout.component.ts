@@ -11,6 +11,7 @@ import {
   StorefrontModel,
   StorefrontQuery,
   StorefrontService,
+  StreamRequest,
   StreamService,
   TokenService,
 } from '@tenlastic/http';
@@ -40,7 +41,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
   private subscriptions = [
     {
       Model: ArticleModel,
-      parameters: { _id: uuid(), collection: 'articles' },
+      request: { _id: uuid(), path: '/articles' } as StreamRequest,
       service: this.articleService,
       store: this.articleStore,
     },
@@ -77,8 +78,8 @@ export class LayoutComponent implements OnDestroy, OnInit {
     });
   }
 
-  public ngOnDestroy() {
-    this.unsubscribe();
+  public async ngOnDestroy() {
+    await this.unsubscribe();
   }
 
   public $hasPermission(roles: IAuthorization.Role[]) {
@@ -94,7 +95,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
     const promises = this.subscriptions.map((s) =>
       this.streamService.subscribe(
         s.Model,
-        s.parameters,
+        { ...s.request },
         s.service,
         s.store,
         this.streamServiceUrl,
@@ -105,8 +106,10 @@ export class LayoutComponent implements OnDestroy, OnInit {
   }
 
   private unsubscribe() {
-    for (const subscription of this.subscriptions) {
-      this.streamService.unsubscribe(subscription.parameters._id, this.streamServiceUrl);
-    }
+    const promises = this.subscriptions.map((s) =>
+      this.streamService.unsubscribe(s.request._id, this.streamServiceUrl),
+    );
+
+    return Promise.all(promises);
   }
 }

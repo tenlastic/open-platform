@@ -73,14 +73,13 @@ export class BuildStatusNodeComponent {
           tail: 500,
         }),
       node: this.node,
-      subscribe: async (container, pod, unix) => {
-        return this.streamService.logs(
+      subscribe: (container, pod, unix) => {
+        return this.streamService.logs<BuildLogModel>(
           BuildLogModel,
+          { buildId: this.build._id },
           {
-            buildId: this.build._id,
-            container,
-            pod,
-            since: unix ? new Date(unix) : new Date(),
+            body: { since: unix ? new Date(unix) : new Date() },
+            path: `/builds/${this.build._id}/logs/${pod}/${container}`,
           },
           this.buildLogStore,
           this.streamServiceUrl,

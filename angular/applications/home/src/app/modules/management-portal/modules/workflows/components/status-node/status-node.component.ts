@@ -73,14 +73,13 @@ export class WorkflowStatusNodeComponent {
           tail: 500,
         }),
       node: this.node,
-      subscribe: async (container, pod, unix) => {
-        return this.streamService.logs(
+      subscribe: (container, pod, unix) => {
+        return this.streamService.logs<WorkflowLogModel>(
           WorkflowLogModel,
+          { workflowId: this.workflow._id },
           {
-            container,
-            pod,
-            since: unix ? new Date(unix) : new Date(),
-            workflowId: this.workflow._id,
+            body: { since: unix ? new Date(unix) : new Date() },
+            path: `/workflows/${this.workflow._id}/logs/${pod}/${container}`,
           },
           this.workflowLogStore,
           this.streamServiceUrl,

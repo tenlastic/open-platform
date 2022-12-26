@@ -35,6 +35,7 @@ import {
   StorefrontModel,
   StorefrontService,
   StorefrontStore,
+  StreamRequest,
   StreamService,
   TokenService,
   UserModel,
@@ -64,73 +65,73 @@ export class AppComponent implements OnInit {
   private subscriptions = [
     {
       Model: AuthorizationModel,
-      parameters: { _id: uuid(), collection: 'authorizations' },
+      request: { _id: uuid(), path: '/authorizations' } as StreamRequest,
       service: this.authorizationService,
       store: this.authorizationStore,
     },
     {
       Model: AuthorizationRequestModel,
-      parameters: { _id: uuid(), collection: 'authorization-requests' },
+      request: { _id: uuid(), path: '/authorization-requests' } as StreamRequest,
       service: this.authorizationRequestService,
       store: this.authorizationRequestStore,
     },
     {
       Model: GroupModel,
-      parameters: { _id: uuid(), collection: 'groups' },
+      request: { _id: uuid(), path: '/groups' } as StreamRequest,
       service: this.groupService,
       store: this.groupStore,
     },
     {
       Model: GroupInvitationModel,
-      parameters: { _id: uuid(), collection: 'group-invitations' },
+      request: { _id: uuid(), path: '/group-invitations' } as StreamRequest,
       service: this.groupInvitationService,
       store: this.groupInvitationStore,
     },
     {
       Model: MatchInvitationModel,
-      parameters: { _id: uuid(), collection: 'match-invitations' },
+      request: { _id: uuid(), path: '/match-invitations' } as StreamRequest,
       service: this.matchInvitationService,
       store: this.matchInvitationStore,
     },
     {
       Model: MatchModel,
-      parameters: { _id: uuid(), collection: 'matches' },
+      request: { _id: uuid(), path: '/matches' } as StreamRequest,
       service: this.matchService,
       store: this.matchStore,
     },
     {
       Model: MessageModel,
-      parameters: { _id: uuid(), collection: 'messages' },
+      request: { _id: uuid(), path: '/messages' } as StreamRequest,
       service: this.messageService,
       store: this.messageStore,
     },
     {
       Model: NamespaceModel,
-      parameters: { _id: uuid(), collection: 'namespaces' },
+      request: { _id: uuid(), path: '/namespaces' } as StreamRequest,
       service: this.namespaceService,
       store: this.namespaceStore,
     },
     {
       Model: QueueMemberModel,
-      parameters: { _id: uuid(), collection: 'queue-members' },
+      request: { _id: uuid(), path: '/queue-members' } as StreamRequest,
       service: this.queueMemberService,
       store: this.queueMemberStore,
     },
     {
       Model: StorefrontModel,
-      parameters: { _id: uuid(), collection: 'storefronts' },
+      request: { _id: uuid(), path: '/storefronts' } as StreamRequest,
       service: this.storefrontService,
       store: this.storefrontStore,
     },
     {
       Model: UserModel,
-      parameters: { _id: uuid(), collection: 'users' },
+      request: { _id: uuid(), path: '/users' } as StreamRequest,
       service: this.userService,
       store: this.userStore,
     },
     {
       Model: WebSocketModel,
-      parameters: { _id: uuid(), collection: 'web-sockets' },
+      request: { _id: uuid(), path: '/web-sockets' } as StreamRequest,
       service: this.webSocketService,
       store: this.webSocketStore,
     },
@@ -249,7 +250,13 @@ export class AppComponent implements OnInit {
 
   private subscribe() {
     const promises = this.subscriptions.map((s) =>
-      this.streamService.subscribe(s.Model, s.parameters, s.service, s.store, environment.wssUrl),
+      this.streamService.subscribe(
+        s.Model,
+        { ...s.request },
+        s.service,
+        s.store,
+        environment.wssUrl,
+      ),
     );
 
     return Promise.all(promises);

@@ -27,6 +27,7 @@ import {
   StorefrontModel,
   StorefrontQuery,
   StorefrontService,
+  StreamRequest,
   StreamService,
   TokenService,
 } from '@tenlastic/http';
@@ -69,31 +70,31 @@ export class LayoutComponent implements OnDestroy, OnInit {
   private subscriptions = [
     {
       Model: ArticleModel,
-      parameters: { _id: uuid(), collection: 'articles' },
+      request: { _id: uuid(), path: '/articles' } as StreamRequest,
       service: this.articleService,
       store: this.articleStore,
     },
     {
       Model: BuildModel,
-      parameters: { _id: uuid(), collection: 'builds' },
+      request: { _id: uuid(), path: '/builds' } as StreamRequest,
       service: this.buildService,
       store: this.buildStore,
     },
     {
       Model: GameServerModel,
-      parameters: { _id: uuid(), collection: 'game-servers' },
+      request: { _id: uuid(), path: '/game-servers' } as StreamRequest,
       service: this.gameServerService,
       store: this.gameServerStore,
     },
     {
       Model: QueueMemberModel,
-      parameters: { _id: uuid(), collection: 'queue-members' },
+      request: { _id: uuid(), path: '/queue-members' } as StreamRequest,
       service: this.queueMemberService,
       store: this.queueMemberStore,
     },
     {
       Model: QueueModel,
-      parameters: { _id: uuid(), collection: 'queues' },
+      request: { _id: uuid(), path: '/queues' } as StreamRequest,
       service: this.queueService,
       store: this.queueStore,
     },
@@ -234,7 +235,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
     const promises = this.subscriptions.map((s) =>
       this.streamService.subscribe(
         s.Model,
-        s.parameters,
+        { ...s.request },
         s.service,
         s.store,
         this.streamServiceUrl,

@@ -3,7 +3,7 @@ import { WebSocketServer } from '@tenlastic/web-socket-server';
 import { Server } from 'http';
 
 import { connection } from './connection';
-import { message } from './message';
+import routes from './routes';
 
 export interface SetupOptions {
   podName: string;
@@ -20,6 +20,7 @@ export async function setup(options: SetupOptions) {
 
   // Web Sockets.
   const webSocketServer = new WebSocketServer(options.server);
-  webSocketServer.connection((auth, ws) => connection(auth, options.podName, ws));
-  webSocketServer.message(message);
+  webSocketServer.connection((state, ws) => connection(options.podName, state, ws));
+  webSocketServer.message(routes);
+  webSocketServer.listen();
 }

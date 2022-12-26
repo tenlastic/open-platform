@@ -141,10 +141,14 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
         this.queueLogService.find(record.namespaceId, record._id, pod, container, {
           tail: 500,
         }),
-      subscribe: async (container, pod, unix) => {
-        return this.streamService.logs(
+      subscribe: (container, pod, unix) => {
+        return this.streamService.logs<QueueLogModel>(
           QueueLogModel,
-          { container, pod, queueId: record._id, since: unix ? new Date(unix) : new Date() },
+          { queueId: record._id },
+          {
+            body: { since: unix ? new Date(unix) : new Date() },
+            path: `/queues/${record._id}/logs/${pod}/${container}`,
+          },
           this.queueLogStore,
           this.streamServiceUrl,
         );

@@ -1,5 +1,5 @@
-import { AuthenticationData, WebSocket } from '../web-socket-server';
+import { Context, StatusCode } from '../definitions';
 
-export async function ping(auth: AuthenticationData, data: any, ws: WebSocket) {
-  ws.send(JSON.stringify({ _id: data._id }));
+export async function ping(ctx: Context) {
+  ctx.response.status = StatusCode.OK;
 }

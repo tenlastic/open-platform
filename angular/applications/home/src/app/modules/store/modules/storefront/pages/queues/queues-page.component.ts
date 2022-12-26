@@ -90,11 +90,10 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
     });
   }
 
-  public ngOnDestroy() {
+  public async ngOnDestroy() {
     clearInterval(this.getCurrentUsersInterval);
-
     this.updateQueueMembers$.unsubscribe();
-    this.streamService.unsubscribe(this.subscription, this.streamServiceUrl);
+    await this.streamService.unsubscribe(this.subscription, this.streamServiceUrl);
   }
 
   public $getGroup(queue: QueueModel) {

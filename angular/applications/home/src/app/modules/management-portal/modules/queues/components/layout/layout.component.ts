@@ -11,6 +11,7 @@ import {
   QueueModel,
   QueueQuery,
   QueueService,
+  StreamRequest,
   StreamService,
   TokenService,
 } from '@tenlastic/http';
@@ -52,7 +53,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
   private subscriptions = [
     {
       Model: QueueMemberModel,
-      parameters: { _id: uuid(), collection: 'queue-members' },
+      request: { _id: uuid(), path: '/queue-members' } as StreamRequest,
       service: this.queueMemberService,
       store: this.queueMemberStore,
     },
@@ -93,8 +94,8 @@ export class LayoutComponent implements OnDestroy, OnInit {
     });
   }
 
-  public ngOnDestroy() {
-    this.unsubscribe();
+  public async ngOnDestroy() {
+    await this.unsubscribe();
   }
 
   public $hasPermission(roles: IAuthorization.Role[]) {
@@ -110,7 +111,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
     const promises = this.subscriptions.map((s) =>
       this.streamService.subscribe(
         s.Model,
-        { ...s.parameters, where: { queueId: this.params.queueId } },
+        { ...s.request, body: { where: { queueId: this.params.queueId } } },
         s.service,
         s.store,
         this.streamServiceUrl,
@@ -121,8 +122,10 @@ export class LayoutComponent implements OnDestroy, OnInit {
   }
 
   private unsubscribe() {
-    for (const subscription of this.subscriptions) {
-      this.streamService.unsubscribe(subscription.parameters._id, this.streamServiceUrl);
-    }
+    const promises = this.subscriptions.map((s) =>
+      this.streamService.unsubscribe(s.request._id, this.streamServiceUrl),
+    );
+
+    return Promise.all(promises);
   }
 }

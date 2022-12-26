@@ -144,10 +144,14 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
         this.gameServerLogService.find(record.namespaceId, record._id, pod, container, {
           tail: 500,
         }),
-      subscribe: async (container, pod, unix) => {
-        return this.streamService.logs(
+      subscribe: (container, pod, unix) => {
+        return this.streamService.logs<GameServerLogModel>(
           GameServerLogModel,
-          { container, gameServerId: record._id, pod, since: unix ? new Date(unix) : new Date() },
+          { gameServerId: record._id },
+          {
+            body: { since: unix ? new Date(unix) : new Date() },
+            path: `/game-servers/${record._id}/logs/${pod}/${container}`,
+          },
           this.gameServerLogStore,
           this.streamServiceUrl,
         );

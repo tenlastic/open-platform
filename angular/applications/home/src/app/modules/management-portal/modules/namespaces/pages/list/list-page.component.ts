@@ -118,10 +118,14 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
         .pipe(map((namespace) => this.getNodes(namespace))),
       find: (container, pod) =>
         this.namespaceLogService.find(record._id, pod, container, { tail: 500 }),
-      subscribe: async (container, pod, unix) => {
-        return this.streamService.logs(
+      subscribe: (container, pod, unix) => {
+        return this.streamService.logs<NamespaceLogModel>(
           NamespaceLogModel,
-          { container, namespaceId: record._id, pod, since: unix ? new Date(unix) : new Date() },
+          { namespaceId: record._id },
+          {
+            body: { since: unix ? new Date(unix) : new Date() },
+            path: `/namespaces/${record._id}/logs/${pod}/${container}`,
+          },
           this.namespaceLogStore,
           environment.wssUrl,
         );

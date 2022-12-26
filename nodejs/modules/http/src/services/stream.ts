@@ -5,35 +5,59 @@ import { v4 as uuid } from 'uuid';
 import { BaseModel } from '../models/base';
 import { Jwt } from '../models/jwt';
 
-export type DatabaseOperationType = 'delete' | 'insert' | 'replace' | 'update';
-
-export interface IPayload<T> {
-  _id: string;
-  documentKey: any;
-  error?: string;
-  fullDocument?: T;
-  ns: { coll: string; db: string };
-  operationType: DatabaseOperationType;
-  resumeToken?: string;
-  updateDescription?: {
-    removedFields: string[];
-    truncatedArrays?: Array<{ field: string; newSize: number }>;
-    updatedFields: { [key: string]: any };
-  };
+export interface LogsRequest extends StreamRequest {
+  body?: LogsRequestBody;
 }
+
+export interface LogsRequestBody {
+  since?: Date;
+}
+
+export interface StreamRequest {
+  _id?: string;
+  body?: { [key: string]: any };
+  method?: 'DELETE' | 'GET' | 'POST' | 'PUT';
+  path: string;
+}
+
+export interface StreamResponse {
+  _id: string;
+  body?: { [key: string]: any };
+  status?: number;
+}
+
+export interface SubscribeRequest extends StreamRequest {
+  body?: SubscribeRequestBody;
+}
+
+export interface SubscribeRequestBody {
+  operationType?: string[];
+  resumeToken?: string;
+  where?: any;
+}
+
+export type DatabaseOperationType = 'delete' | 'insert' | 'replace' | 'update';
 
 type ConnectOptions = { url: string } & ({ accessToken: Jwt } | { apiKey: string });
 
-interface LogsParameters {
-  _id?: string;
-  buildId?: string;
-  container: string;
-  gameServerId?: string;
-  namespaceId?: string;
-  pod: string;
-  queueId?: string;
-  since?: Date;
-  workflowId?: string;
+interface ErrorResponse extends StreamResponse {
+  body: {
+    errors: Array<{ message: string; name: string }>;
+  };
+}
+
+interface LogsResponse<T> extends StreamResponse {
+  body: {
+    fullDocument?: T;
+  };
+}
+
+enum Method {
+  Delete = 'DELETE',
+  Get = 'GET',
+  Patch = 'PATCH',
+  Post = 'POST',
+  Put = 'PUT',
 }
 
 interface Service {
@@ -45,22 +69,28 @@ interface Store {
   upsertMany: (records: any) => void;
 }
 
-interface SubscribeParameters {
-  _id?: string;
-  collection: string;
-  operationType?: string[];
-  resumeToken?: string;
-  where?: any;
+interface SubscribeResponse<T> extends StreamResponse {
+  body: {
+    documentKey: any;
+    fullDocument?: T;
+    ns: { coll: string; db: string };
+    operationType: DatabaseOperationType;
+    resumeToken?: string;
+    updateDescription?: {
+      removedFields: string[];
+      truncatedArrays?: Array<{ field: string; newSize: number }>;
+      updatedFields: { [key: string]: any };
+    };
+  };
 }
 
 interface Subscription {
-  _id: string;
-  logs?: LogsParameters;
   method: 'logs' | 'subscribe';
-  model: any;
+  Model: new (parameters?: Partial<BaseModel>) => BaseModel;
+  parameters?: Partial<BaseModel>;
+  request: LogsRequest & SubscribeRequest;
   service?: Service;
   store?: Store;
-  subscribe?: SubscribeParameters;
   url: string;
 }
 
@@ -100,7 +130,7 @@ export class StreamService {
     this.pendingWebSockets.set(options.url, socket);
     this.webSockets.set(options.url, socket);
 
-    const data = { _id: uuid(), method: 'ping' };
+    const data: StreamRequest = { _id: uuid(), method: Method.Post, path: '/pings' };
     const interval = setInterval(() => socket.send(JSON.stringify(data)), 5000);
 
     socket.addEventListener('close', async (e) => {
@@ -123,16 +153,16 @@ export class StreamService {
 
     return new Promise<WebSocket>((resolve, reject) => {
       const onMessage = async (msg) => {
-        const payload = JSON.parse(msg.data);
-        if (payload._id !== 0 || payload.status !== 200) {
+        const payload = JSON.parse(msg.data) as SubscribeResponse<any>;
+        if (payload._id || payload.status !== 200) {
           return;
         }
 
         socket.removeEventListener('message', onMessage);
         this.pendingWebSockets.delete(options.url);
 
-        if (payload.fullDocument && payload.operationType === 'insert') {
-          this._ids.set(options.url, payload.fullDocument._id);
+        if (payload.body?.fullDocument && payload.body?.operationType === 'insert') {
+          this._ids.set(options.url, payload.body.fullDocument._id);
         }
 
         const subscriptions = this.subscriptions.filter((s) => s.url === options.url);
@@ -140,9 +170,11 @@ export class StreamService {
         const subscribe = subscriptions.filter((s) => s.method === 'subscribe');
         this.subscriptions = this.subscriptions.filter((s) => s.url !== options.url);
 
-        await Promise.all(logs.map((l) => this.logs(l.model, l.logs, l.store, l.url)));
         await Promise.all(
-          subscribe.map((s) => this.subscribe(s.model, s.subscribe, s.service, s.store, s.url)),
+          logs.map((l) => this.logs(l.Model, l.parameters, l.request, l.store, l.url)),
+        );
+        await Promise.all(
+          subscribe.map((s) => this.subscribe(s.Model, s.request, s.service, s.store, s.url)),
         );
 
         return resolve(socket);
@@ -178,121 +210,123 @@ export class StreamService {
     });
   }
 
-  public async logs(
+  public logs<T = any>(
     model: new (parameters?: Partial<BaseModel>) => BaseModel,
-    parameters: LogsParameters,
+    parameters: Partial<T>,
+    request: LogsRequest,
     store: Store,
     url: string,
   ) {
-    const _id = parameters._id || uuid();
-    if (this.subscriptions.some((s) => s._id === _id)) {
-      return _id;
+    request._id ??= uuid();
+    request.method = Method.Get;
+
+    // If there is already a subscription with this ID, return the ID.
+    if (this.subscriptions.some((s) => request._id === s.request._id)) {
+      return request._id;
     }
 
     // Cache the subscription to resubscribe when reconnected.
-    this.subscriptions.push({ _id, logs: parameters, method: 'logs', model, store, url });
+    this.subscriptions.push({ method: 'logs', Model: model, parameters, request, store, url });
 
     // Wait until web socket is connected to subscribe.
     if (this.pendingWebSockets.has(url) || !this.webSockets.has(url)) {
-      return _id;
+      return request._id;
     }
 
-    const data = { _id, method: 'logs', parameters };
     const socket = this.webSockets.get(url);
 
-    socket?.send(JSON.stringify(data));
+    socket?.send(JSON.stringify(request));
     socket?.addEventListener('message', (msg) => {
-      const payload = JSON.parse(msg.data);
+      const response = JSON.parse(msg.data) as ErrorResponse & LogsResponse<T>;
 
       // If the response is for a different request, ignore it.
-      if (payload._id !== _id || !payload.fullDocument) {
+      if (request._id !== response._id || !response.body?.fullDocument) {
         return;
       }
 
-      if (payload.error) {
-        throw new Error(payload.error);
+      if (response.body.errors) {
+        throw new Error(response.body.errors[0].message);
       }
 
-      const record = new model({ ...payload.fullDocument, ...parameters }) as any;
+      const record = new model({ ...parameters, ...response.body.fullDocument }) as any;
       store.upsertMany([record]);
 
-      const subscription = this.subscriptions.find((s) => s._id === _id);
-      subscription.logs.since = new Date(record.unix);
+      const subscription = this.subscriptions.find((s) => request._id === s.request._id);
+      subscription.request.body.since = new Date(record.unix);
     });
 
-    return _id;
+    return this.response(request._id, socket);
   }
 
-  public async subscribe<T = any>(
-    model: new (parameters?: Partial<BaseModel>) => BaseModel,
-    parameters: SubscribeParameters,
+  public subscribe<T = any>(
+    Model: new (parameters?: Partial<BaseModel>) => BaseModel,
+    request: SubscribeRequest,
     service: Service,
     store: Store,
     url: string,
-    callback?: (payload: IPayload<T>) => any,
+    callback?: (response: SubscribeResponse<T>) => any,
   ) {
-    const _id = parameters._id || uuid();
-    if (this.subscriptions.some((s) => s._id === _id)) {
-      return _id;
+    request._id ??= uuid();
+    request.method = Method.Get;
+
+    // Add the resume token.
+    if (request.body || this.resumeTokens[request._id]) {
+      request.body = { resumeToken: this.resumeTokens[request._id], ...request.body };
+    }
+
+    if (this.subscriptions.some((s) => request._id === s.request._id)) {
+      return request._id;
     }
 
     // Cache the subscription to resubscribe when reconnected.
-    this.subscriptions.push({
-      _id,
-      method: 'subscribe',
-      model,
-      service,
-      store,
-      subscribe: parameters,
-      url,
-    });
+    this.subscriptions.push({ method: 'subscribe', Model, request, service, store, url });
 
     // Wait until web socket is connected to subscribe.
     if (this.pendingWebSockets.has(url) || !this.webSockets.has(url)) {
-      return _id;
+      return request._id;
     }
 
-    const data = {
-      _id,
-      method: 'subscribe',
-      parameters: { resumeToken: this.resumeTokens[parameters.collection], ...parameters },
-    };
     const socket = this.webSockets.get(url);
 
-    socket?.send(JSON.stringify(data));
+    socket?.send(JSON.stringify(request));
     socket?.addEventListener('message', (msg) => {
-      const payload = JSON.parse(msg.data) as IPayload<T>;
+      const response = JSON.parse(msg.data) as ErrorResponse & SubscribeResponse<T>;
 
       // If the response is for a different request, ignore it.
-      if (payload._id !== _id) {
+      if (request._id !== response._id || !response.body?.fullDocument || response.status) {
         return;
       }
 
-      if (payload.error) {
-        throw new Error(payload.error);
+      if (response.body.errors) {
+        throw new Error(response.body.errors[0].message);
       }
 
       // Save the resume token if available.
-      if (payload.resumeToken && !parameters.resumeToken) {
-        this.resumeTokens[parameters.collection] = payload.resumeToken;
+      if (!request.body?.resumeToken && response.body?.resumeToken) {
+        this.resumeTokens[request._id] = response.body.resumeToken;
       }
 
-      const record = new model(payload.fullDocument);
-      if (payload.operationType === 'delete') {
+      const record = new Model(response.body.fullDocument);
+      if (response.body.operationType === 'delete') {
         service.emitter.emit('delete', record);
         store.remove(record._id);
-      } else if (payload.operationType === 'insert') {
+      } else if (response.body.operationType === 'insert') {
         service.emitter.emit('create', record);
         store.upsertMany([record]);
-      } else if (payload.operationType === 'replace' || payload.operationType === 'update') {
+      } else if (
+        response.body.operationType === 'replace' ||
+        response.body.operationType === 'update'
+      ) {
         service.emitter.emit('update', record);
         store.upsertMany([record]);
       }
 
-      return callback ? callback(payload) : null;
+      this.ack(request._id, url);
+
+      return callback ? callback(response) : null;
     });
 
-    return _id;
+    return this.response(request._id, socket);
   }
 
   public unsubscribe(_id: string, url: string) {
@@ -300,17 +334,62 @@ export class StreamService {
       return;
     }
 
-    const subscription = this.subscriptions.find((s) => s._id === _id);
-    if (!subscription) {
+    const index = this.subscriptions.findIndex((s) => _id === s.request._id);
+    this.subscriptions.splice(index, index >= 0 ? 1 : 0);
+
+    const request = { _id: uuid(), method: Method.Delete, url: `/subscriptions/${_id}` };
+    const socket = this.webSockets.get(url);
+    socket?.send(JSON.stringify(request));
+
+    return this.response(request._id, socket);
+  }
+
+  private ack(_id: string, url: string) {
+    if (!_id) {
       return;
     }
 
-    const data = { _id, method: subscription.method };
-
-    const index = this.subscriptions.findIndex((s) => s._id === _id);
-    this.subscriptions.splice(index, 1);
-
+    const request = { _id: uuid(), method: Method.Post, url: `/subscriptions/${_id}/acks` };
     const socket = this.webSockets.get(url);
-    socket?.send(JSON.stringify(data));
+    socket?.send(JSON.stringify(request));
+
+    return this.response(request._id, socket);
+  }
+
+  private nak(_id: string, url: string) {
+    if (!_id) {
+      return;
+    }
+
+    const request = { _id: uuid(), method: Method.Post, url: `/subscriptions/${_id}/naks` };
+    const socket = this.webSockets.get(url);
+    socket?.send(JSON.stringify(request));
+
+    return this.response(request._id, socket);
+  }
+
+  private response(_id: string, socket: WebSocket) {
+    return new Promise<string>((resolve, reject) => {
+      const onMessage = (msg) => {
+        const response = JSON.parse(msg.data) as ErrorResponse & StreamResponse;
+
+        // If the response is for a different request, ignore it.
+        if (_id !== response._id || !response.status) {
+          return;
+        }
+
+        socket.removeEventListener('message', onMessage);
+
+        if (response.status >= 400 && response.body?.errors) {
+          return reject(response.body.errors[0].message);
+        } else if (response.status >= 400) {
+          return reject('Unknown error response from web socket.');
+        } else {
+          return resolve(_id);
+        }
+      };
+
+      socket?.addEventListener('message', onMessage);
+    });
   }
 }

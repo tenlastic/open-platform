@@ -17,11 +17,15 @@
     "build": "../../scripts/build.sh",
     "build:watch": "watch ../../scripts/build.sh ./src",
     "lint": "../../scripts/lint.sh",
-    "prepublishOnly": "../../scripts/build.sh"
+    "prepublishOnly": "../../scripts/build.sh",
+    "test": "../../scripts/test.sh",
+    "test:watch": "../../scripts/test.sh --watch"
   },
   "dependencies": {
+    "@tenlastic/kubernetes": "0.0.314",
     "@tenlastic/mongoose-permissions": "0.0.314",
     "@tenlastic/nats": "0.0.314",
+    "@tenlastic/web-server": "0.0.314",
     "axios": "0.27.2",
     "jsonwebtoken": "8.5.1",
     "uuid": "8.3.0",

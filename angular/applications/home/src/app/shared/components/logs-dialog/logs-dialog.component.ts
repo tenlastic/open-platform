@@ -86,7 +86,7 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
 
   public async ngOnDestroy() {
     this.setDefaultNode$.unsubscribe();
-    this.streamService.unsubscribe(this.subscription, this.wssUrl);
+    await this.streamService.unsubscribe(this.subscription, this.wssUrl);
   }
 
   public getJson(log: GameServerLogModel) {
@@ -138,7 +138,7 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
         mostRecentLog?.unix,
       );
     } else {
-      this.streamService.unsubscribe(this.subscription, this.wssUrl);
+      await this.streamService.unsubscribe(this.subscription, this.wssUrl);
     }
   }
 

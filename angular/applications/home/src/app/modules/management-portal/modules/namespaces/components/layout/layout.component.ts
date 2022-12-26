@@ -28,6 +28,7 @@ import {
   StorefrontModel,
   StorefrontQuery,
   StorefrontService,
+  StreamRequest,
   StreamService,
   TokenService,
   WorkflowModel,
@@ -83,43 +84,43 @@ export class LayoutComponent implements OnDestroy, OnInit {
   private subscriptions = [
     {
       Model: BuildModel,
-      parameters: { _id: uuid(), collection: 'builds' },
+      request: { _id: uuid(), path: '/builds' } as StreamRequest,
       service: this.buildService,
       store: this.buildStore,
     },
     {
       Model: CollectionModel,
-      parameters: { _id: uuid(), collection: 'collections' },
+      request: { _id: uuid(), path: '/collections' } as StreamRequest,
       service: this.collectionService,
       store: this.collectionStore,
     },
     {
       Model: GameServerModel,
-      parameters: { _id: uuid(), collection: 'game-servers' },
+      request: { _id: uuid(), path: '/game-servers' } as StreamRequest,
       service: this.gameServerService,
       store: this.gameServerStore,
     },
     {
       Model: GameServerTemplateModel,
-      parameters: { _id: uuid(), collection: 'game-server-templates' },
+      request: { _id: uuid(), path: '/game-server-templates' } as StreamRequest,
       service: this.gameServerTemplateService,
       store: this.gameServerTemplateStore,
     },
     {
       Model: QueueMemberModel,
-      parameters: { _id: uuid(), collection: 'queue-members' },
+      request: { _id: uuid(), path: '/queue-members' } as StreamRequest,
       service: this.queueMemberService,
       store: this.queueMemberStore,
     },
     {
       Model: QueueModel,
-      parameters: { _id: uuid(), collection: 'queues' },
+      request: { _id: uuid(), path: '/queues' } as StreamRequest,
       service: this.queueService,
       store: this.queueStore,
     },
     {
       Model: WorkflowModel,
-      parameters: { _id: uuid(), collection: 'workflows' },
+      request: { _id: uuid(), path: '/workflows' } as StreamRequest,
       service: this.workflowService,
       store: this.workflowStore,
     },
@@ -211,7 +212,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
     const promises = this.subscriptions.map((s) =>
       this.streamService.subscribe(
         s.Model,
-        s.parameters,
+        { ...s.request },
         s.service,
         s.store,
         this.streamServiceUrl,

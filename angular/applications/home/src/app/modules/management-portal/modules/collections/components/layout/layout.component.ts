@@ -11,6 +11,7 @@ import {
   RecordModel,
   RecordService,
   RecordStore,
+  StreamRequest,
   StreamService,
   TokenService,
 } from '@tenlastic/http';
@@ -52,7 +53,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
   private subscriptions = [
     {
       Model: RecordModel,
-      parameters: { _id: uuid(), collection: 'records' },
+      request: { _id: uuid() } as StreamRequest,
       service: this.recordService,
       store: this.recordStore,
     },
@@ -93,8 +94,8 @@ export class LayoutComponent implements OnDestroy, OnInit {
     });
   }
 
-  public ngOnDestroy() {
-    this.unsubscribe();
+  public async ngOnDestroy() {
+    await this.unsubscribe();
   }
 
   public $hasPermission(roles: IAuthorization.Role[]) {
@@ -107,22 +108,26 @@ export class LayoutComponent implements OnDestroy, OnInit {
   }
 
   private async subscribe() {
-    const promises = this.subscriptions.map((s) =>
-      this.streamService.subscribe(
+    const promises = this.subscriptions.map((s) => {
+      const path = `/collections/${this.params.collectionId}/records`;
+
+      return this.streamService.subscribe(
         s.Model,
-        { ...s.parameters, where: { collectionId: this.params.collectionId } },
+        { ...s.request, path },
         s.service,
         s.store,
         this.streamServiceUrl,
-      ),
-    );
+      );
+    });
 
     return Promise.all(promises);
   }
 
   private unsubscribe() {
-    for (const subscription of this.subscriptions) {
-      this.streamService.unsubscribe(subscription.parameters._id, this.streamServiceUrl);
-    }
+    const promises = this.subscriptions.map((s) =>
+      this.streamService.unsubscribe(s.request._id, this.streamServiceUrl),
+    );
+
+    return Promise.all(promises);
   }
 }
