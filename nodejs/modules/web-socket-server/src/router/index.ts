@@ -1,6 +1,6 @@
 import { posix } from 'path';
 
-import { Request, StatusCode } from '../definitions';
+import { Method, Request, StatusCode } from '../definitions';
 import { Middleware, MiddlewareLayer } from '../middleware';
 
 export class Router {
@@ -16,28 +16,28 @@ export class Router {
    * Registers middleware to a matching DELETE request.
    */
   public delete(path: string, ...middleware: MiddlewareLayer[]) {
-    this.route('DELETE', path, ...middleware);
+    this.route(Method.Delete, path, ...middleware);
   }
 
   /**
    * Registers middleware to a matching GET request.
    */
   public get(path: string, ...middleware: MiddlewareLayer[]) {
-    this.route('GET', path, ...middleware);
+    this.route(Method.Get, path, ...middleware);
   }
 
   /**
    * Registers middleware to a matching POST request.
    */
   public post(path: string, ...middleware: MiddlewareLayer[]) {
-    this.route('POST', path, ...middleware);
+    this.route(Method.Post, path, ...middleware);
   }
 
   /**
    * Registers middleware to a matching PUT request.
    */
   public put(path: string, ...middleware: MiddlewareLayer[]) {
-    this.route('PUT', path, ...middleware);
+    this.route(Method.Put, path, ...middleware);
   }
 
   /**
@@ -105,11 +105,13 @@ export class Router {
   /**
    * Registers middleware to a given method and path.
    */
-  private route(method: string, path: string, ...middleware: MiddlewareLayer[]) {
+  private route(method: Method, path: string, ...middleware: MiddlewareLayer[]) {
     const routeMiddleware: MiddlewareLayer = async (ctx, next) => {
-      if (this.match(method, path, ctx.request)) {
-        console.log(`Method: ${method} - Path: ${path}`);
+      console.log(
+        `Method: ${method} - Path: ${path} - Request: ${ctx.request.method} ${ctx.request.path}`,
+      );
 
+      if (this.match(method, path, ctx.request)) {
         // Route found, so default status to 200.
         ctx.response.status = StatusCode.OK;
 

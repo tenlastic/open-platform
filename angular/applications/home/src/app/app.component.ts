@@ -8,6 +8,7 @@ import {
   AuthorizationRequestStore,
   AuthorizationService,
   AuthorizationStore,
+  BaseModel,
   GroupInvitationModel,
   GroupInvitationService,
   GroupInvitationStore,
@@ -250,7 +251,7 @@ export class AppComponent implements OnInit {
 
   private subscribe() {
     const promises = this.subscriptions.map((s) =>
-      this.streamService.subscribe(
+      this.streamService.subscribe<BaseModel>(
         s.Model,
         { ...s.request },
         s.service,

@@ -195,7 +195,7 @@ export class SocialComponent implements OnDestroy, OnInit {
     return users.map((u) => ({ label: u.username, value: u.username }));
   }
 
-  private async newMessageNotification(message: MessageModel) {
+  private newMessageNotification(message: MessageModel) {
     if (message.fromUserId === this.identityService.user._id || !this.isElectron) {
       return;
     }

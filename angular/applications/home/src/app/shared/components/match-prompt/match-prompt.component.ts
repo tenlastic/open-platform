@@ -127,7 +127,7 @@ export class MatchPromptComponent implements OnDestroy, OnInit {
     this.timeout = setTimeout(() => this.declineMatchInvitation(), duration + delay);
   }
 
-  private async onMatchInvitationDeleted(match: MatchModel) {
+  private onMatchInvitationDeleted(match: MatchModel) {
     if (match._id !== this.data.matchInvitation.matchId) {
       return;
     }

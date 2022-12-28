@@ -1,11 +1,22 @@
-import { QueueModel } from '@tenlastic/http';
+import { QueueModel, QueueMemberModel } from '@tenlastic/http';
 import * as redis from '@tenlastic/redis';
+import { Redis } from 'ioredis';
 
 import dependencies from '../dependencies';
 
 const podName = process.env.POD_NAME;
 const redisConnectionString = process.env.REDIS_CONNECTION_STRING;
 const redisPassword = process.env.REDIS_PASSWORD;
+
+export async function add(client: Redis, queueMember: QueueMemberModel) {
+  const score = getScore(queueMember._id);
+  return client.zadd(podName, score, JSON.stringify(queueMember));
+}
+
+export function remove(client: Redis, queueMember: QueueMemberModel) {
+  const score = getScore(queueMember._id);
+  return client.zremrangebyscore(podName, score, score);
+}
 
 export async function start(queue: QueueModel) {
   // Connect to Sentinel.
@@ -41,20 +52,10 @@ export async function start(queue: QueueModel) {
   // Add existing QueueMembers to the store.
   for (const queueMember of queueMembers) {
     const json = JSON.parse(queueMember);
-    dependencies.queueMemberStore.upsert(json._id, json);
+    dependencies.queueMemberStore.upsert(json._id, new QueueMemberModel(json));
   }
 
-  // Sync QueueMembers with Redis.
-  dependencies.queueMemberService.emitter.on('create', (qm) =>
-    client.zadd(podName, getScore(qm._id), JSON.stringify(qm)),
-  );
-  dependencies.queueMemberService.emitter.on('delete', (qm) => {
-    const score = getScore(qm._id);
-    return client.zremrangebyscore(podName, score, score);
-  });
-  dependencies.queueMemberService.emitter.on('update', (qm) =>
-    client.zadd(podName, getScore(qm._id), JSON.stringify(qm)),
-  );
+  return client;
 }
 
 function getScore(_id: string) {

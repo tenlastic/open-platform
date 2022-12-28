@@ -88,9 +88,9 @@ export class LayoutComponent implements OnInit {
       }
     });
 
-    this.tokenService.emitter.on('accessToken', (accessToken) => {
+    this.tokenService.emitter.on('accessToken', async (accessToken) => {
       if (accessToken) {
-        this.find();
+        await this.find();
       } else {
         this.urls.clear();
       }

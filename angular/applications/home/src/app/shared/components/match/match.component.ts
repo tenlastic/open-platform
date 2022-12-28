@@ -157,7 +157,7 @@ export class MatchComponent implements OnDestroy, OnInit {
     }
   }
 
-  private async newMatchInvitationNotification(matchInvitation: MatchInvitationModel) {
+  private newMatchInvitationNotification(matchInvitation: MatchInvitationModel) {
     if (matchInvitation.userId !== this.identityService.user._id) {
       return;
     }
@@ -166,8 +166,8 @@ export class MatchComponent implements OnDestroy, OnInit {
     this.openDialog({ matchInvitation });
   }
 
-  private async newMatchNotification(match: MatchModel) {
-    if (!match.userIds.includes(this.identityService.user._id)) {
+  private newMatchNotification(match: MatchModel) {
+    if (!match.startedAt || !match.userIds.includes(this.identityService.user._id)) {
       return;
     }
 

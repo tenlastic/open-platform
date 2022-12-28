@@ -46,7 +46,7 @@ interface ErrorResponse extends StreamResponse {
   };
 }
 
-interface LogsResponse<T> extends StreamResponse {
+interface LogsResponse<T = any> extends StreamResponse {
   body: {
     fullDocument?: T;
   };
@@ -69,7 +69,7 @@ interface Store {
   upsertMany: (records: any) => void;
 }
 
-interface SubscribeResponse<T> extends StreamResponse {
+interface SubscribeResponse<T = any> extends StreamResponse {
   body: {
     documentKey: any;
     fullDocument?: T;
@@ -85,6 +85,7 @@ interface SubscribeResponse<T> extends StreamResponse {
 }
 
 interface Subscription {
+  callback?: (response: SubscribeResponse) => any;
   method: 'logs' | 'subscribe';
   Model: new (parameters?: Partial<BaseModel>) => BaseModel;
   parameters?: Partial<BaseModel>;
@@ -174,7 +175,9 @@ export class StreamService {
           logs.map((l) => this.logs(l.Model, l.parameters, l.request, l.store, l.url)),
         );
         await Promise.all(
-          subscribe.map((s) => this.subscribe(s.Model, s.request, s.service, s.store, s.url)),
+          subscribe.map((s) =>
+            this.subscribe(s.Model, s.request, s.service, s.store, s.url, s.callback),
+          ),
         );
 
         return resolve(socket);
@@ -258,8 +261,8 @@ export class StreamService {
     return this.response(request._id, socket);
   }
 
-  public subscribe<T = any>(
-    Model: new (parameters?: Partial<BaseModel>) => BaseModel,
+  public subscribe<T extends BaseModel = any>(
+    Model: new (parameters?: Partial<T>) => T,
     request: SubscribeRequest,
     service: Service,
     store: Store,
@@ -279,7 +282,7 @@ export class StreamService {
     }
 
     // Cache the subscription to resubscribe when reconnected.
-    this.subscriptions.push({ method: 'subscribe', Model, request, service, store, url });
+    this.subscriptions.push({ callback, method: 'subscribe', Model, request, service, store, url });
 
     // Wait until web socket is connected to subscribe.
     if (this.pendingWebSockets.has(url) || !this.webSockets.has(url)) {
@@ -289,7 +292,7 @@ export class StreamService {
     const socket = this.webSockets.get(url);
 
     socket?.send(JSON.stringify(request));
-    socket?.addEventListener('message', (msg) => {
+    socket?.addEventListener('message', async (msg) => {
       const response = JSON.parse(msg.data) as ErrorResponse & SubscribeResponse<T>;
 
       // If the response is for a different request, ignore it.
@@ -321,9 +324,15 @@ export class StreamService {
         store.upsertMany([record]);
       }
 
-      this.ack(request._id, url);
+      if (callback) {
+        try {
+          await callback(response);
+        } catch {
+          return this.nak(request._id, url);
+        }
+      }
 
-      return callback ? callback(response) : null;
+      return this.ack(request._id, url);
     });
 
     return this.response(request._id, socket);
@@ -337,7 +346,12 @@ export class StreamService {
     const index = this.subscriptions.findIndex((s) => _id === s.request._id);
     this.subscriptions.splice(index, index >= 0 ? 1 : 0);
 
-    const request = { _id: uuid(), method: Method.Delete, url: `/subscriptions/${_id}` };
+    const request: StreamRequest = {
+      _id: uuid(),
+      method: Method.Delete,
+      path: `/subscriptions/${_id}`,
+    };
+
     const socket = this.webSockets.get(url);
     socket?.send(JSON.stringify(request));
 
@@ -349,7 +363,12 @@ export class StreamService {
       return;
     }
 
-    const request = { _id: uuid(), method: Method.Post, url: `/subscriptions/${_id}/acks` };
+    const request: StreamRequest = {
+      _id: uuid(),
+      method: Method.Post,
+      path: `/subscriptions/${_id}/acks`,
+    };
+
     const socket = this.webSockets.get(url);
     socket?.send(JSON.stringify(request));
 
@@ -361,7 +380,12 @@ export class StreamService {
       return;
     }
 
-    const request = { _id: uuid(), method: Method.Post, url: `/subscriptions/${_id}/naks` };
+    const request: StreamRequest = {
+      _id: uuid(),
+      method: Method.Post,
+      path: `/subscriptions/${_id}/naks`,
+    };
+
     const socket = this.webSockets.get(url);
     socket?.send(JSON.stringify(request));
 
@@ -383,7 +407,7 @@ export class StreamService {
         if (response.status >= 400 && response.body?.errors) {
           return reject(response.body.errors[0].message);
         } else if (response.status >= 400) {
-          return reject('Unknown error response from web socket.');
+          return reject(`Unhandled error response from web socket: ${response.status}.`);
         } else {
           return resolve(_id);
         }

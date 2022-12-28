@@ -18,7 +18,7 @@ const wssUrl = process.env.WSS_URL;
     const queue = await dependencies.queueService.findOne(namespaceId, queueId);
 
     // Redis.
-    await redis.start(queue);
+    const client = await redis.start(queue);
 
     // Log Queue Member changes.
     dependencies.queueMemberService.emitter.on('create', (record) =>
@@ -54,6 +54,7 @@ const wssUrl = process.env.WSS_URL;
         dependencies.queueMemberService,
         dependencies.queueMemberStore,
         wssUrl,
+        (payload) => redis.add(client, payload.body.fullDocument),
       ),
 
       // Get all Queue Member deletions.
@@ -66,6 +67,7 @@ const wssUrl = process.env.WSS_URL;
         dependencies.queueMemberService,
         dependencies.queueMemberStore,
         wssUrl,
+        (payload) => redis.remove(client, payload.body.fullDocument),
       ),
     ]);
 

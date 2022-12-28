@@ -9,6 +9,7 @@ import {
   ArticleStore,
   AuthorizationQuery,
   AuthorizationService,
+  BaseModel,
   BuildModel,
   BuildService,
   BuildStore,
@@ -233,7 +234,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
 
   private async subscribe() {
     const promises = this.subscriptions.map((s) =>
-      this.streamService.subscribe(
+      this.streamService.subscribe<BaseModel>(
         s.Model,
         { ...s.request },
         s.service,
