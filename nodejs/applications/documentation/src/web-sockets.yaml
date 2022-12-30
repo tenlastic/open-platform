@@ -1,0 +1,50 @@
+components:
+  securitySchemes:
+    AccessToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+info:
+  version: 1.0.0
+  title: 'Tenlastic Web Socket Documentation'
+  description: |
+    ## Using Web Sockets
+
+    ### API Key Authentication
+    An API Key may be provided for a web socket connection with the 'api_key' query parameter. 
+    An example connection string would be:
+    ```
+    wss://wss.tenlastic.com?api_key=0123456789
+    ```
+
+    ### User Authentication
+    A User's access token may be provided for a web socket connection with the 'access_token' query parameter. 
+    An example connection string would be:
+    ```
+    wss://wss.tenlastic.com?access_token=0123456789
+    ```
+
+    ### Connection
+    The first message returned after successfully connecting a web socket contains a status code and change set
+    involving the create Web Socket.
+    ```
+    {  
+      
+      "body": {
+        "fullDocument": {
+          "_id": "63ae97e1fd9ccb054eecfe7d",
+          "createdAt": "2022-12-30T07:48:49.048Z",
+          "updatedAt": "2022-12-30T07:48:49.048Z",
+          "userId": "6362414529e694c3e0c54054"
+        }
+      },
+      "status": 200
+    }
+    ```
+openapi: '3.0.0'
+paths: {}
+servers:
+  - description: Production
+    url: wss://wss.tenlastic.com
+  - description: Development
+    url: ws://wss.local.tenlastic.com

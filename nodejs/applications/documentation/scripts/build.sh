@@ -6,7 +6,7 @@ mkdir -p ./dist/swagger/
 
 # Merge API swagger files.
 merge-yaml \
-  -i ./swagger.yaml \
+  -i ./src/api.yaml \
   ../../modules/mongoose/src/**/*.yaml \
   ../aggregation-api/src/web-server/**/swagger.yaml \
   ../api/src/web-server/**/swagger.yaml \
@@ -16,7 +16,7 @@ merge-yaml \
 
 # Merge Web Socket swagger files.
 merge-yaml \
-  -i ./swagger.yaml \
+  -i ./src/web-sockets.yaml \
   ../aggregation-api/src/web-socket-server/**/swagger.yaml \
   ../api/src/web-socket-server/**/swagger.yaml \
   ../namespace-api/src/web-socket-server/**/swagger.yaml \
