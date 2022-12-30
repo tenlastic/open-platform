@@ -144,7 +144,7 @@ spec:
             - /bin/registry
             - garbage-collect
             - --delete-untagged=true
-            - /etc/docker/registry/config.yml
+            - /etc/docker/registry/config.yaml
           env:
             - name: REGISTRY_STORAGE_S3_ACCESSKEY
               valueFrom:

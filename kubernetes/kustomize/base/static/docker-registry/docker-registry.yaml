@@ -6,7 +6,7 @@ metadata:
   name: docker-registry
   namespace: static
 data:
-  config.yml: |-
+  config.yaml: |-
     auth:
       htpasswd:
         realm: Registry Realm
@@ -78,7 +78,7 @@ spec:
           command:
             - /bin/registry
             - serve
-            - /etc/docker/registry/config.yml
+            - /etc/docker/registry/config.yaml
           env:
             - name: REGISTRY_HTTP_SECRET
               valueFrom:

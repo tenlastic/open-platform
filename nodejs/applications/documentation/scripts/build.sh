@@ -6,27 +6,27 @@ mkdir -p ./dist/swagger/
 
 # Merge API swagger files.
 merge-yaml \
-  -i ./swagger.yml \
-  ../../modules/mongoose/src/**/*.yml \
-  ../aggregation-api/src/web-server/**/swagger.yml \
-  ../api/src/web-server/**/swagger.yml \
-  ../namespace-api/src/web-server/**/swagger.yml \
-  ../social-api/src/web-server/**/swagger.yml \
-  -o ./dist/swagger/api.yml
+  -i ./swagger.yaml \
+  ../../modules/mongoose/src/**/*.yaml \
+  ../aggregation-api/src/web-server/**/swagger.yaml \
+  ../api/src/web-server/**/swagger.yaml \
+  ../namespace-api/src/web-server/**/swagger.yaml \
+  ../social-api/src/web-server/**/swagger.yaml \
+  -o ./dist/swagger/api.yaml
 
 # Merge Web Socket swagger files.
 merge-yaml \
-  -i ./swagger.yml \
-  ../aggregation-api/src/web-socket-server/**/swagger.yml \
-  ../api/src/web-socket-server/**/swagger.yml \
-  ../namespace-api/src/web-socket-server/**/swagger.yml \
-  ../social-api/src/web-socket-server/**/swagger.yml \
-  -o ./dist/swagger/web-sockets.yml
+  -i ./swagger.yaml \
+  ../aggregation-api/src/web-socket-server/**/swagger.yaml \
+  ../api/src/web-socket-server/**/swagger.yaml \
+  ../namespace-api/src/web-socket-server/**/swagger.yaml \
+  ../social-api/src/web-socket-server/**/swagger.yaml \
+  -o ./dist/swagger/web-sockets.yaml
 
 # Alphabetize Output.
-yml-sorter --input ./dist/swagger/api.yml
-yml-sorter --input ./dist/swagger/web-sockets.yml
+yml-sorter --input ./dist/swagger/api.yaml
+yml-sorter --input ./dist/swagger/web-sockets.yaml
 
 # Convert to JSON.
-yaml2json ./dist/swagger/api.yml > ./dist/swagger/api.json
-yaml2json ./dist/swagger/web-sockets.yml > ./dist/swagger/web-sockets.json
+yaml2json ./dist/swagger/api.yaml > ./dist/swagger/api.json
+yaml2json ./dist/swagger/web-sockets.yaml > ./dist/swagger/web-sockets.json
