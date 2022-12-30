@@ -109,7 +109,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
 
   private async subscribe() {
     const promises = this.subscriptions.map((s) => {
-      const path = `/collections/${this.params.collectionId}/records`;
+      const path = `/subscriptions/collections/${this.params.collectionId}/records`;
 
       return this.streamService.subscribe(
         s.Model,

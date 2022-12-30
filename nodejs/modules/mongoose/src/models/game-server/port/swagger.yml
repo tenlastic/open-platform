@@ -8,5 +8,9 @@ components:
           maximum: 65535
           minimum: 1
         protocol:
+          $ref: '#/components/schemas/GameServerPortProtocol'
       required:
         - port
+    GameServerPortProtocol:
+      type: string
+      enum: [TCP, UDP]

@@ -1,0 +1,17 @@
+paths:
+  /subscriptions/{_id}:
+    delete:
+      summary: Delete
+      tags: [Subscriptions]
+      description: Deletes an existing subscription.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: _id
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK

@@ -23,6 +23,7 @@ export * from './probe-field/probe-field.component';
 export * from './prompt/prompt.component';
 export * from './sidenav/sidenav.component';
 export * from './social/social.component';
+export * from './swagger/swagger.component';
 export * from './text-area-dialog/text-area-dialog.component';
 export * from './title/title.component';
 export * from './toggle-section/toggle-section.component';

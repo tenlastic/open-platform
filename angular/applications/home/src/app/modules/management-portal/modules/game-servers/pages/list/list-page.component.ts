@@ -150,7 +150,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
           { gameServerId: record._id },
           {
             body: { since: unix ? new Date(unix) : new Date() },
-            path: `/game-servers/${record._id}/logs/${pod}/${container}`,
+            path: `/subscriptions/game-servers/${record._id}/logs/${pod}/${container}`,
           },
           this.gameServerLogStore,
           this.streamServiceUrl,

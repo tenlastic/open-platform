@@ -79,7 +79,7 @@ export class WorkflowStatusNodeComponent {
           { workflowId: this.workflow._id },
           {
             body: { since: unix ? new Date(unix) : new Date() },
-            path: `/workflows/${this.workflow._id}/logs/${pod}/${container}`,
+            path: `/subscriptions/workflows/${this.workflow._id}/logs/${pod}/${container}`,
           },
           this.workflowLogStore,
           this.streamServiceUrl,

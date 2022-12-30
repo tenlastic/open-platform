@@ -10,11 +10,11 @@ export interface Headers {
   authorization?: string;
 }
 
-export interface Request {
+export interface Request<T = { [key: string]: any }> {
   _id: string;
-  body: { [s: string]: any };
+  body: T;
   headers: Headers;
   method: Method;
-  params?: { [s: string]: string };
+  params?: { [key: string]: string };
   path: string;
 }

@@ -27,7 +27,7 @@ paths:
           schema:
             type: string
             format: date-time
-        - in: since
+        - in: query
           name: tail
           schema:
             type: integer

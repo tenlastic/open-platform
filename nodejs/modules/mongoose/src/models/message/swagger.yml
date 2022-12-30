@@ -18,7 +18,7 @@ components:
         readReceipts:
           type: array
           items:
-            $ref: '#/components/schema/MessageReadReceipt'
+            $ref: '#/components/schemas/MessageReadReceipt'
         toGroupId:
           type: string
           format: ^[0-9a-f]{24}$

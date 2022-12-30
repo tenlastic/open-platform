@@ -131,7 +131,7 @@ export class StreamService {
     this.pendingWebSockets.set(options.url, socket);
     this.webSockets.set(options.url, socket);
 
-    const data: StreamRequest = { _id: uuid(), method: Method.Post, path: '/pings' };
+    const data: StreamRequest = { _id: uuid(), method: Method.Get, path: '/probes/liveness' };
     const interval = setInterval(() => socket.send(JSON.stringify(data)), 5000);
 
     socket.addEventListener('close', async (e) => {
@@ -221,7 +221,7 @@ export class StreamService {
     url: string,
   ) {
     request._id ??= uuid();
-    request.method = Method.Get;
+    request.method = Method.Post;
 
     // If there is already a subscription with this ID, return the ID.
     if (this.subscriptions.some((s) => request._id === s.request._id)) {
@@ -270,7 +270,7 @@ export class StreamService {
     callback?: (response: SubscribeResponse<T>) => any,
   ) {
     request._id ??= uuid();
-    request.method = Method.Get;
+    request.method = Method.Post;
 
     // Add the resume token.
     if (request.body || this.resumeTokens[request._id]) {

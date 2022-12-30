@@ -5,14 +5,12 @@ type AckCallback = () => void;
 const ackCallbacks = new Map<WebSocket, Map<string, AckCallback>>();
 
 export async function ack(ctx: Context) {
-  console.log('Starting ACK...');
   const callback = ackCallbacks.get(ctx.ws)?.get(ctx.request.params._id);
 
   if (callback) {
     callback();
   }
 
-  console.log('ACK!');
   ctx.response.status = StatusCode.OK;
 }
 

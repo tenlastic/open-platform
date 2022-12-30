@@ -1,0 +1,171 @@
+@import 'src/assets/scss/theme.scss';
+
+:host {
+  height: 100%;
+  overflow: auto;
+}
+
+:host::ng-deep {
+  * {
+    font-family: 'Oswald' !important;
+  }
+
+  button.authorization__btn {
+    display: none;
+  }
+
+  div.body-param-content-type {
+    display: none;
+  }
+
+  button.expand-operation {
+    display: none;
+  }
+
+  div.scheme-container {
+    display: none;
+  }
+
+  div.swagger-ui {
+    margin-top: -24px;
+    padding-bottom: 32px;
+  }
+
+  div.try-out {
+    display: none;
+  }
+
+  a.nostyle,
+  div.opblock-summary-description {
+    color: white !important;
+  }
+
+  code {
+    background: rgba(0, 0, 0, 0.25) !important;
+    box-shadow: $box-shadow;
+    color: white !important;
+    font-weight: 400 !important;
+  }
+
+  h2,
+  h3,
+  h4,
+  p {
+    color: white !important;
+  }
+
+  h2.title div {
+    display: none;
+  }
+
+  h4.opblock-tag {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.25) !important;
+  }
+
+  h4.opblock-title {
+    font-weight: 700 !important;
+  }
+
+  hgroup.main a {
+    display: none;
+  }
+
+  div.copy-to-clipboard {
+    display: none;
+  }
+
+  div.execute-wrapper {
+    display: none;
+  }
+
+  div.model-example {
+    ul.tab {
+      display: none;
+    }
+  }
+
+  div.opblock {
+    border-radius: 0px !important;
+    overflow: hidden;
+  }
+
+  div.opblock-section-header {
+    background: rgba(0, 0, 0, 0.25) !important;
+    box-shadow: $box-shadow !important;
+    color: white !important;
+  }
+
+  div.opblock > div.no-margin > div.opblock-body > div.opblock-section {
+    & > div.opblock-section-header,
+    & > div.parameters-container {
+      display: none;
+    }
+  }
+
+  div.opblock-section-request-body {
+    code {
+      background: none !important;
+      box-shadow: none !important;
+    }
+  }
+
+  div.swagger-ui button.opblock-summary-control:focus {
+    outline: none;
+  }
+
+  p {
+    margin: 0px !important;
+  }
+
+  pre {
+    background: rgba(0, 0, 0, 0.25) !important;
+    box-shadow: $box-shadow !important;
+    color: white !important;
+    font-weight: 400 !important;
+    max-height: initial !important;
+  }
+
+  section.response-controls {
+    display: none;
+  }
+
+  small pre {
+    background: none !important;
+    box-shadow: none !important;
+  }
+
+  span.opblock-summary-method {
+    border-radius: 0px !important;
+    text-shadow: inherit !important;
+  }
+
+  svg.arrow {
+    display: none;
+  }
+
+  td.response-col_links {
+    display: none;
+  }
+
+  textarea {
+    background: rgba(0, 0, 0, 0.25) !important;
+    box-shadow: $box-shadow;
+    caret-color: white;
+    color: white !important;
+    font-weight: 400 !important;
+
+    &:focus {
+      border: none;
+    }
+  }
+
+  tr.responses-header td,
+  tr.response td {
+    color: white !important;
+
+    code {
+      background: none !important;
+      box-shadow: none !important;
+    }
+  }
+}

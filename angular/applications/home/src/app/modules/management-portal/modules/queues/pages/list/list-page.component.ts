@@ -147,7 +147,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
           { queueId: record._id },
           {
             body: { since: unix ? new Date(unix) : new Date() },
-            path: `/queues/${record._id}/logs/${pod}/${container}`,
+            path: `/subscriptions/queues/${record._id}/logs/${pod}/${container}`,
           },
           this.queueLogStore,
           this.streamServiceUrl,

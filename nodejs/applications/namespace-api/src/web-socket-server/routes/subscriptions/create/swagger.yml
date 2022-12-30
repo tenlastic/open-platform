@@ -1,0 +1,71 @@
+paths:
+  /subscriptions/{collection}:
+    post:
+      summary: Create
+      tags: [Subscriptions]
+      description: Creates a new subscription.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: collection
+          schema:
+            type: string
+            enum:
+              - articles
+              - builds
+              - collections
+              - game-server-templates
+              - game-servers
+              - matches
+              - queue-members
+              - queues
+              - storefronts
+              - web-sockets
+              - workflows
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                operationType:
+                  type: string
+                  enum: ['delete', 'insert', 'replace', 'update']
+                resumeToken:
+                  type: string
+                where:
+                  type: object
+      responses:
+        202:
+          description: OK
+  /subscriptions/collections/{collectionId}/records:
+    post:
+      summary: Create
+      tags: [Subscriptions]
+      description: Creates a new subscription.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: collectionId
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                operationType:
+                  type: string
+                  enum: ['delete', 'insert', 'replace', 'update']
+                resumeToken:
+                  type: string
+                where:
+                  type: object
+      responses:
+        202:
+          description: OK

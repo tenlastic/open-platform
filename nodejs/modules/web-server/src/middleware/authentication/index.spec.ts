@@ -3,7 +3,7 @@ import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
 
 import { ContextMock } from '../../context';
-import { HttpError } from '../../errors';
+import { UnauthorizedError } from '../../errors';
 import { authenticationMiddleware } from './';
 
 const chance = new Chance();
@@ -27,7 +27,7 @@ describe('middleware/authentication', function () {
 
       const promise = authenticationMiddleware(ctx as any, noop);
 
-      return expect(promise).to.be.rejectedWith(HttpError);
+      return expect(promise).to.be.rejectedWith(UnauthorizedError);
     });
   });
 });

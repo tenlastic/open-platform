@@ -71,31 +71,31 @@ export class LayoutComponent implements OnDestroy, OnInit {
   private subscriptions = [
     {
       Model: ArticleModel,
-      request: { _id: uuid(), path: '/articles' } as StreamRequest,
+      request: { _id: uuid(), path: '/subscriptions/articles' } as StreamRequest,
       service: this.articleService,
       store: this.articleStore,
     },
     {
       Model: BuildModel,
-      request: { _id: uuid(), path: '/builds' } as StreamRequest,
+      request: { _id: uuid(), path: '/subscriptions/builds' } as StreamRequest,
       service: this.buildService,
       store: this.buildStore,
     },
     {
       Model: GameServerModel,
-      request: { _id: uuid(), path: '/game-servers' } as StreamRequest,
+      request: { _id: uuid(), path: '/subscriptions/game-servers' } as StreamRequest,
       service: this.gameServerService,
       store: this.gameServerStore,
     },
     {
       Model: QueueMemberModel,
-      request: { _id: uuid(), path: '/queue-members' } as StreamRequest,
+      request: { _id: uuid(), path: '/subscriptions/queue-members' } as StreamRequest,
       service: this.queueMemberService,
       store: this.queueMemberStore,
     },
     {
       Model: QueueModel,
-      request: { _id: uuid(), path: '/queues' } as StreamRequest,
+      request: { _id: uuid(), path: '/subscriptions/queues' } as StreamRequest,
       service: this.queueService,
       store: this.queueStore,
     },

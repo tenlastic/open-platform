@@ -26,7 +26,7 @@ export interface SubscribeOptions {
 }
 
 export async function subscribe(
-  ctx: Context,
+  ctx: Context<SubscribeOptions>,
   Model: mongoose.Model<mongoose.Document>,
   Permissions: MongoosePermissions<any>,
 ) {

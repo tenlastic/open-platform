@@ -38,7 +38,7 @@ const wssUrl = process.env.WSS_URL;
       // Watch for updates to the Queue.
       dependencies.streamService.subscribe(
         QueueModel,
-        { body: { resumeToken: podName, where: { _id: queueId } }, path: '/queues' },
+        { body: { resumeToken: podName, where: { _id: queueId } }, path: '/subscriptions/queues' },
         dependencies.queueService,
         dependencies.queueStore,
         wssUrl,
@@ -49,7 +49,7 @@ const wssUrl = process.env.WSS_URL;
         QueueMemberModel,
         {
           body: { operationType: ['insert'], resumeToken: `queue-${queueId}`, where: { queueId } },
-          path: '/queue-members',
+          path: '/subscriptions/queue-members',
         },
         dependencies.queueMemberService,
         dependencies.queueMemberStore,
@@ -62,7 +62,7 @@ const wssUrl = process.env.WSS_URL;
         QueueMemberModel,
         {
           body: { operationType: ['delete'], resumeToken: podName, where: { queueId } },
-          path: '/queue-members',
+          path: '/subscriptions/queue-members',
         },
         dependencies.queueMemberService,
         dependencies.queueMemberStore,

@@ -85,8 +85,8 @@ spec:
                 name: aggregation-api
                 port:
                   number: 3000
-          - path: /swagger.json
-            pathType: Exact
+          - path: /swagger
+            pathType: Prefix
             backend:
               service:
                 name: documentation

@@ -1,0 +1,17 @@
+paths:
+  /subscriptions/{collection}/acks:
+    post:
+      summary: ACK
+      tags: [Subscriptions]
+      description: ACKs the latest message on an existing subscription.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: collection
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK

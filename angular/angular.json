@@ -31,11 +31,7 @@
                 "input": "node_modules/@angular/material/prebuilt-themes/indigo-pink.css"
               }
             ],
-            "scripts": [
-              "node_modules/marked/lib/marked.js",
-              "node_modules/swagger-ui-dist/swagger-ui-bundle.js",
-              "node_modules/swagger-ui-dist/swagger-ui-standalone-preset.js"
-            ],
+            "scripts": ["node_modules/marked/lib/marked.js"],
             "customWebpackConfig": {
               "path": "applications/home/electron.webpack.js"
             },
@@ -45,6 +41,7 @@
               "events",
               "jszip",
               "marked",
+              "path",
               "spark-md5"
             ]
           },
@@ -156,9 +153,7 @@
     }
   },
   "cli": {
-    "schematicCollections": [
-      "@angular-eslint/schematics"
-    ],
+    "schematicCollections": ["@angular-eslint/schematics"],
     "analytics": "fb2676a1-46f6-433b-8d97-92756ca071fe"
   }
 }

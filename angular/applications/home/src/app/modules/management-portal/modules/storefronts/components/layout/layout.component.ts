@@ -41,7 +41,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
   private subscriptions = [
     {
       Model: ArticleModel,
-      request: { _id: uuid(), path: '/articles' } as StreamRequest,
+      request: { _id: uuid(), path: '/subscriptions/articles' } as StreamRequest,
       service: this.articleService,
       store: this.articleStore,
     },

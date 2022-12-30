@@ -124,7 +124,7 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
           { namespaceId: record._id },
           {
             body: { since: unix ? new Date(unix) : new Date() },
-            path: `/namespaces/${record._id}/logs/${pod}/${container}`,
+            path: `/subscriptions/namespaces/${record._id}/logs/${pod}/${container}`,
           },
           this.namespaceLogStore,
           environment.wssUrl,

@@ -17,7 +17,7 @@
       "image": "tenlastic/node-development:latest",
       "livenessProbe": {
         "httpGet": {
-          "path": "/swagger.json",
+          "path": "/swagger/api.json",
           "port": 3000
         },
         "initialDelaySeconds": 30,

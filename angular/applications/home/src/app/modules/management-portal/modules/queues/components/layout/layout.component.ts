@@ -53,7 +53,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
   private subscriptions = [
     {
       Model: QueueMemberModel,
-      request: { _id: uuid(), path: '/queue-members' } as StreamRequest,
+      request: { _id: uuid(), path: '/subscriptions/queue-members' } as StreamRequest,
       service: this.queueMemberService,
       store: this.queueMemberStore,
     },

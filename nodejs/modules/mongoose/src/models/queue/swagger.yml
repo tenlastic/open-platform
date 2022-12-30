@@ -21,7 +21,7 @@ components:
           format: ^[0-9a-f]{24}$
         invitationSeconds:
           type: number
-          min: 0
+          minimum: 0
         memory:
           type: number
           minimum: 100000000
@@ -50,7 +50,7 @@ components:
           type: array
           items:
             type: integer
-            min: 1
+            minimum: 1
       required:
         - name
         - usersPerTeam

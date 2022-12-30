@@ -3,12 +3,16 @@ import { posix } from 'path';
 import { Method, Request, StatusCode } from '../definitions';
 import { Middleware, MiddlewareLayer } from '../middleware';
 
-export class Router {
-  private basePath: string;
-  private middleware: MiddlewareLayer[];
+export interface RouterOptions {
+  prefix?: string;
+}
 
-  constructor(basePath?: string) {
-    this.basePath = basePath;
+export class Router {
+  private middleware: MiddlewareLayer[];
+  private options: RouterOptions;
+
+  constructor(options?: RouterOptions) {
+    this.options = options;
     this.middleware = [];
   }
 
@@ -96,8 +100,8 @@ export class Router {
     path = path.replace(/:\w+/g, '([^\\/]+)');
 
     // Combine basePath with path.
-    const basePath = this.basePath ? this.basePath : '';
-    const wholePath = posix.join('/', basePath, path);
+    const prefix = this.options?.prefix ?? '';
+    const wholePath = posix.join('/', prefix, path);
 
     return new RegExp('^' + wholePath + '$');
   }
@@ -107,10 +111,6 @@ export class Router {
    */
   private route(method: Method, path: string, ...middleware: MiddlewareLayer[]) {
     const routeMiddleware: MiddlewareLayer = async (ctx, next) => {
-      console.log(
-        `Method: ${method} - Path: ${path} - Request: ${ctx.request.method} ${ctx.request.path}`,
-      );
-
       if (this.match(method, path, ctx.request)) {
         // Route found, so default status to 200.
         ctx.response.status = StatusCode.OK;

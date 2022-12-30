@@ -8,7 +8,9 @@ components:
           items:
             $ref: '#/components/schemas/GameServerStatusComponent'
         endpoints:
-          $ref: '#/components/schemas/GameServerStatusEndpoints'
+          type: array
+          items:
+            $ref: '#/components/schemas/GameServerStatusEndpoint'
         message:
           type: string
         nodes:

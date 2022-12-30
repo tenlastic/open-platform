@@ -79,7 +79,7 @@ export class BuildStatusNodeComponent {
           { buildId: this.build._id },
           {
             body: { since: unix ? new Date(unix) : new Date() },
-            path: `/builds/${this.build._id}/logs/${pod}/${container}`,
+            path: `/subscriptions/builds/${this.build._id}/logs/${pod}/${container}`,
           },
           this.buildLogStore,
           this.streamServiceUrl,

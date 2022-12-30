@@ -25,7 +25,7 @@ components:
           format: ^[0-9a-f]{24}$
         invitationSeconds:
           type: number
-          min: 0
+          minimum: 0
         namespaceId:
           type: string
           format: ^[0-9a-f]{24}$

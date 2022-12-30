@@ -2,8 +2,8 @@ import { Request } from './request';
 import { Response } from './response';
 import { WebSocket } from './web-socket';
 
-export class Context {
-  public request: Request;
+export class Context<T = { [key: string]: any }> {
+  public request: Request<T>;
   public response: Response;
   public state: State;
   public ws?: WebSocket;
