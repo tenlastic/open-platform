@@ -44,5 +44,16 @@ paths:
                 tail:
                   type: number
       responses:
-        202:
+        200:
           description: OK
+        202:
+          description: Accepted
+        206:
+          description: Partial Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fullDocument:
+                    type: object

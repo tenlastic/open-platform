@@ -38,8 +38,33 @@ paths:
                 where:
                   type: object
       responses:
-        202:
+        200:
           description: OK
+        202:
+          description: Accepted
+        206:
+          description: Partial Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fullDocument:
+                    type: object
+                  operationType:
+                    type: string
+                    enum: ['delete', 'insert', 'replace', 'update']
+                  resumeToken:
+                    type: string
+                  updateDescription:
+                    type: object
+                    properties:
+                      removedFields:
+                        type: array
+                        items:
+                          type: string
+                      updatedFields:
+                        type: object
   /subscriptions/collections/{collectionId}/records:
     post:
       summary: Create
@@ -67,5 +92,30 @@ paths:
                 where:
                   type: object
       responses:
-        202:
+        200:
           description: OK
+        202:
+          description: Accepted
+        206:
+          description: Partial Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fullDocument:
+                    type: object
+                  operationType:
+                    type: string
+                    enum: ['delete', 'insert', 'replace', 'update']
+                  resumeToken:
+                    type: string
+                  updateDescription:
+                    type: object
+                    properties:
+                      removedFields:
+                        type: array
+                        items:
+                          type: string
+                      updatedFields:
+                        type: object

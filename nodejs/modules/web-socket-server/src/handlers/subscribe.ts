@@ -105,6 +105,7 @@ export async function subscribe(
         const result: Response = {
           _id,
           body: { fullDocument, operationType: json.operationType, resumeToken, updateDescription },
+          status: StatusCode.PartialContent,
         };
         ctx.ws.send(result);
 

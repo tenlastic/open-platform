@@ -282,7 +282,7 @@ export class StreamService {
       const json = JSON.parse(msg.data) as ErrorResponse & SubscribeResponse<T>;
 
       // If the response is for a different request, ignore it.
-      if (request._id !== json._id || !json.body?.fullDocument || json.status) {
+      if (request._id !== json._id || !json.body?.fullDocument) {
         return;
       }
 
