@@ -17,6 +17,7 @@ merge-yaml \
 # Merge Web Socket swagger files.
 merge-yaml \
   -i ./src/web-sockets.yaml \
+  ../../modules/mongoose/src/**/*.yaml \
   ../aggregation-api/src/web-socket-server/**/swagger.yaml \
   ../api/src/web-socket-server/**/swagger.yaml \
   ../namespace-api/src/web-socket-server/**/swagger.yaml \

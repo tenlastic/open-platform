@@ -4,7 +4,7 @@ import { AuthorizationRole, QueueMemberDocument, QueueMemberModel } from '../mod
 import { AuthorizationPermissionsHelpers } from './authorization';
 
 const admin = {
-  create: ['groupId', 'namespaceId', 'queueId', 'userId', 'webSocketId'],
+  create: ['groupId', 'namespaceId', 'queueId', 'userId'],
 };
 
 export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocument>(
@@ -13,7 +13,7 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
     create: {
       'group-leader': admin.create,
       'namespace-write': admin.create,
-      owner: ['namespaceId', 'queueId', 'userId', 'webSocketId'],
+      owner: ['namespaceId', 'queueId', 'userId'],
       'user-write': admin.create,
     },
     delete: {
@@ -39,11 +39,13 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
         '_id',
         'createdAt',
         'groupId',
+        'matchedAt',
         'namespaceId',
         'queueId',
         'updatedAt',
         'userId',
         'userIds',
+        'webSocketId',
       ],
     },
     roles: {

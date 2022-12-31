@@ -1,12 +1,15 @@
+import * as mongoose from 'mongoose';
+
 import { Request } from './request';
 import { Response } from './response';
 import { WebSocket } from './web-socket';
 
 export class Context<T = { [key: string]: any }> {
+  public params: { [key: string]: string };
   public request: Request<T>;
   public response: Response;
   public state: State;
-  public ws?: WebSocket;
+  public ws: WebSocket;
 
   constructor(parameters?: Partial<Context>) {
     Object.assign(this, parameters);
@@ -24,4 +27,5 @@ export interface State {
   authorization?: { _id?: string; roles?: string[] };
   jwt?: Jwt;
   user?: { _id?: string; email?: string; username?: string };
+  webSocket?: mongoose.Document;
 }

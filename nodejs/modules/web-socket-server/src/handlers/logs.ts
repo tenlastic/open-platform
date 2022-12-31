@@ -16,12 +16,12 @@ export interface LogsOptions {
 
 export async function logs(ctx: Context, Permissions: MongoosePermissions<any>) {
   const { _id } = ctx.request;
-  const { container, pod } = ctx.request.params;
+  const { container, pod } = ctx.params;
   const credentials: ICredentials = { ...ctx.state };
   const options: LogsOptions = { ...ctx.request.body };
 
   // Fetch record to check permissions.
-  const override = { where: { _id: ctx.request.params._id } };
+  const override = { where: { _id: ctx.params._id } };
   const record = await Permissions.findOne(credentials, override, {});
   if (!record) {
     throw new RecordNotFoundError('Record');

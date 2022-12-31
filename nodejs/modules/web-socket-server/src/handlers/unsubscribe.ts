@@ -25,7 +25,7 @@ export function setUnsubscribeCallback(_id: string, callback: UnsubscribeCallbac
 }
 
 export async function unsubscribe(ctx: Context) {
-  const callback = unsubscribeCallbacks.get(ctx.ws)?.get(ctx.request.params._id);
+  const callback = unsubscribeCallbacks.get(ctx.ws)?.get(ctx.params._id);
 
   if (callback) {
     callback();

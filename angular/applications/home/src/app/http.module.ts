@@ -443,13 +443,14 @@ const services: Provider[] = [
     ) => new QueueLogService(apiService, environmentService, store),
   },
   {
-    deps: [ApiService, EnvironmentService, QueueMemberStore],
+    deps: [ApiService, EnvironmentService, QueueMemberStore, StreamService],
     provide: QueueMemberService,
     useFactory: (
       apiService: ApiService,
       environmentService: EnvironmentService,
       store: QueueMemberStore,
-    ) => new QueueMemberService(apiService, environmentService, store),
+      streamService: StreamService,
+    ) => new QueueMemberService(apiService, environmentService, store, streamService),
   },
   {
     deps: [ApiService, EnvironmentService, QueueStore],

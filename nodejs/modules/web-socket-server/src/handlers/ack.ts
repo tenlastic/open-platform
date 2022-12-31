@@ -5,7 +5,7 @@ type AckCallback = () => void;
 const ackCallbacks = new Map<WebSocket, Map<string, AckCallback>>();
 
 export async function ack(ctx: Context) {
-  const callback = ackCallbacks.get(ctx.ws)?.get(ctx.request.params._id);
+  const callback = ackCallbacks.get(ctx.ws)?.get(ctx.params._id);
 
   if (callback) {
     callback();

@@ -76,10 +76,15 @@ export class WebSocketServer {
           // Run middleware.
           await this.messageMiddleware.run(ctx);
 
+          // Default status to 200 if body is set.
+          if (ctx.response.body && ctx.response.status === StatusCode.NotFound) {
+            ctx.response.status = StatusCode.OK;
+          }
+
           // Respond to the request.
           ws.send(ctx.response);
         } catch (e) {
-          console.error(e);
+          console.error(e.message);
 
           const errors = [{ message: e.message, name: e.name }];
           ws.send({ _id: json?._id, body: { errors }, status: StatusCode.BadRequest });

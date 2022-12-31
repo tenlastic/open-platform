@@ -17,7 +17,7 @@ export function deleteNakCallback(_id: string, ws: WebSocket) {
 }
 
 export async function nak(ctx: Context) {
-  const callback = nakCallbacks.get(ctx.ws)?.get(ctx.request.params._id);
+  const callback = nakCallbacks.get(ctx.ws)?.get(ctx.params._id);
 
   if (callback) {
     callback();

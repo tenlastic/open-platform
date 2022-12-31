@@ -5,10 +5,17 @@ import { v4 as uuid } from 'uuid';
 import { BaseModel } from '../models/base';
 import { Jwt } from '../models/jwt';
 
+export enum Method {
+  Delete = 'DELETE',
+  Get = 'GET',
+  Patch = 'PATCH',
+  Post = 'POST',
+  Put = 'PUT',
+}
+
 export interface LogsRequest extends StreamRequest {
   body?: LogsRequestBody;
 }
-
 export interface LogsRequestBody {
   since?: Date;
 }
@@ -20,9 +27,9 @@ export interface StreamRequest {
   path: string;
 }
 
-export interface StreamResponse {
+export interface StreamResponse<T = any> {
   _id: string;
-  body?: { [key: string]: any };
+  body?: T;
   status?: number;
 }
 
@@ -50,14 +57,6 @@ interface LogsResponse<T = any> extends StreamResponse {
   body: {
     fullDocument?: T;
   };
-}
-
-enum Method {
-  Delete = 'DELETE',
-  Get = 'GET',
-  Patch = 'PATCH',
-  Post = 'POST',
-  Put = 'PUT',
 }
 
 interface Service {
@@ -96,9 +95,9 @@ interface Subscription {
 }
 
 export class StreamService {
-  public _ids = new Map<string, string>();
   public webSockets = new Map<string, WebSocket>();
 
+  private _ids = new Map<string, string>();
   private pendingWebSockets = new Map<string, WebSocket>();
   private resumeTokens: { [key: string]: string } = {};
   private subscriptions: Subscription[] = [];
@@ -189,31 +188,7 @@ export class StreamService {
     });
   }
 
-  public async getId(url: string) {
-    if (this._ids.has(url)) {
-      return this._ids.get(url);
-    }
-
-    return new Promise<string>((resolve) => {
-      const socket = this.webSockets.get(url);
-
-      const onMessage = async (msg) => {
-        const payload = JSON.parse(msg.data);
-        if (payload._id !== 0 || payload.status !== 200) {
-          return;
-        }
-
-        if (payload.fullDocument && payload.operationType === 'insert') {
-          socket.removeEventListener('message', onMessage);
-          return resolve(payload.fullDocument._id);
-        }
-      };
-
-      socket.addEventListener('message', onMessage);
-    });
-  }
-
-  public logs<T = any>(
+  public async logs<T = any>(
     model: new (parameters?: Partial<BaseModel>) => BaseModel,
     parameters: Partial<T>,
     request: LogsRequest,
@@ -240,28 +215,39 @@ export class StreamService {
 
     socket?.send(JSON.stringify(request));
     socket?.addEventListener('message', (msg) => {
-      const response = JSON.parse(msg.data) as ErrorResponse & LogsResponse<T>;
+      const json = JSON.parse(msg.data) as ErrorResponse & LogsResponse<T>;
 
       // If the response is for a different request, ignore it.
-      if (request._id !== response._id || !response.body?.fullDocument) {
+      if (request._id !== json._id || !json.body?.fullDocument) {
         return;
       }
 
-      if (response.body.errors) {
-        throw new Error(response.body.errors[0].message);
+      if (json.body.errors) {
+        throw new Error(json.body.errors[0].message);
       }
 
-      const record = new model({ ...parameters, ...response.body.fullDocument }) as any;
+      const record = new model({ ...parameters, ...json.body.fullDocument }) as any;
       store.upsertMany([record]);
 
       const subscription = this.subscriptions.find((s) => request._id === s.request._id);
       subscription.request.body.since = new Date(record.unix);
     });
 
-    return this.response(request._id, socket);
+    const response = await this.response<LogsResponse>(request._id, socket);
+    return response._id;
   }
 
-  public subscribe<T extends BaseModel = any>(
+  public async request<T = { [key: string]: any }>(request: StreamRequest, url: string) {
+    request._id ??= uuid();
+
+    const socket = this.webSockets.get(url);
+    socket?.send(JSON.stringify(request));
+
+    const response = await this.response<StreamResponse<T>>(request._id, socket);
+    return response;
+  }
+
+  public async subscribe<T extends BaseModel = any>(
     Model: new (parameters?: Partial<T>) => T,
     request: SubscribeRequest,
     service: Service,
@@ -293,40 +279,37 @@ export class StreamService {
 
     socket?.send(JSON.stringify(request));
     socket?.addEventListener('message', async (msg) => {
-      const response = JSON.parse(msg.data) as ErrorResponse & SubscribeResponse<T>;
+      const json = JSON.parse(msg.data) as ErrorResponse & SubscribeResponse<T>;
 
       // If the response is for a different request, ignore it.
-      if (request._id !== response._id || !response.body?.fullDocument || response.status) {
+      if (request._id !== json._id || !json.body?.fullDocument || json.status) {
         return;
       }
 
-      if (response.body.errors) {
-        throw new Error(response.body.errors[0].message);
+      if (json.body.errors) {
+        throw new Error(json.body.errors[0].message);
       }
 
       // Save the resume token if available.
-      if (!request.body?.resumeToken && response.body?.resumeToken) {
-        this.resumeTokens[request._id] = response.body.resumeToken;
+      if (!request.body?.resumeToken && json.body?.resumeToken) {
+        this.resumeTokens[request._id] = json.body.resumeToken;
       }
 
-      const record = new Model(response.body.fullDocument);
-      if (response.body.operationType === 'delete') {
+      const record = new Model(json.body.fullDocument);
+      if (json.body.operationType === 'delete') {
         service.emitter.emit('delete', record);
         store.remove(record._id);
-      } else if (response.body.operationType === 'insert') {
+      } else if (json.body.operationType === 'insert') {
         service.emitter.emit('create', record);
         store.upsertMany([record]);
-      } else if (
-        response.body.operationType === 'replace' ||
-        response.body.operationType === 'update'
-      ) {
+      } else if (json.body.operationType === 'replace' || json.body.operationType === 'update') {
         service.emitter.emit('update', record);
         store.upsertMany([record]);
       }
 
       if (callback) {
         try {
-          await callback(response);
+          await callback(json);
         } catch {
           return this.nak(request._id, url);
         }
@@ -335,10 +318,11 @@ export class StreamService {
       return this.ack(request._id, url);
     });
 
-    return this.response(request._id, socket);
+    const response = await this.response<SubscribeResponse>(request._id, socket);
+    return response._id;
   }
 
-  public unsubscribe(_id: string, url: string) {
+  public async unsubscribe(_id: string, url: string) {
     if (!_id) {
       return;
     }
@@ -355,10 +339,11 @@ export class StreamService {
     const socket = this.webSockets.get(url);
     socket?.send(JSON.stringify(request));
 
-    return this.response(request._id, socket);
+    const response = await this.response(request._id, socket);
+    return response._id;
   }
 
-  private ack(_id: string, url: string) {
+  private async ack(_id: string, url: string) {
     if (!_id) {
       return;
     }
@@ -372,10 +357,11 @@ export class StreamService {
     const socket = this.webSockets.get(url);
     socket?.send(JSON.stringify(request));
 
-    return this.response(request._id, socket);
+    const response = await this.response(request._id, socket);
+    return response._id;
   }
 
-  private nak(_id: string, url: string) {
+  private async nak(_id: string, url: string) {
     if (!_id) {
       return;
     }
@@ -389,13 +375,14 @@ export class StreamService {
     const socket = this.webSockets.get(url);
     socket?.send(JSON.stringify(request));
 
-    return this.response(request._id, socket);
+    const response = await this.response(request._id, socket);
+    return response._id;
   }
 
-  private response(_id: string, socket: WebSocket) {
-    return new Promise<string>((resolve, reject) => {
+  private response<T extends StreamResponse = StreamResponse>(_id: string, socket: WebSocket) {
+    return new Promise<T>((resolve, reject) => {
       const onMessage = (msg) => {
-        const response = JSON.parse(msg.data) as ErrorResponse & StreamResponse;
+        const response = JSON.parse(msg.data) as ErrorResponse & T;
 
         // If the response is for a different request, ignore it.
         if (_id !== response._id || !response.status) {
@@ -409,7 +396,7 @@ export class StreamService {
         } else if (response.status >= 400) {
           return reject(`Unhandled error response from web socket: ${response.status}.`);
         } else {
-          return resolve(_id);
+          return resolve(response);
         }
       };
 

@@ -101,7 +101,7 @@ export class Router {
 
     // Combine basePath with path.
     const prefix = this.options?.prefix ?? '';
-    const wholePath = posix.join('/', prefix, path);
+    const wholePath = posix.join('/', prefix, path).replace(/\/$/, '');
 
     return new RegExp('^' + wholePath + '$');
   }
@@ -116,7 +116,7 @@ export class Router {
         ctx.response.status = StatusCode.OK;
 
         // Parse URL params.
-        ctx.request.params = this.params(path, ctx.request.path);
+        ctx.params = this.params(path, ctx.request.path);
 
         await new Middleware(middleware).run(ctx);
       } else if (next) {

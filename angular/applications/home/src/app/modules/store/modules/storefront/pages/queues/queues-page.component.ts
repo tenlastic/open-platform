@@ -144,17 +144,14 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
 
   public async join(group: GroupModel, queue: QueueModel) {
     try {
-      await this.queueMemberService.create(queue.namespaceId, {
-        groupId: group?._id,
-        namespaceId: queue.namespaceId,
-        queueId: queue._id,
-        userId: this.identityService.user._id,
-        webSocketId: this.streamService._ids.get(this.streamServiceUrl),
-      });
+      await this.queueMemberService.create(
+        { groupId: group?._id, queueId: queue._id },
+        this.streamServiceUrl,
+      );
     } catch (e) {
       if (e instanceof HttpErrorResponse) {
         if (e.error.errors[0].name === 'QueueMemberAuthorizationError') {
-          this.matSnackBar.open('A User in your Group is not authorized to play this Storefront.');
+          this.matSnackBar.open('A User in your Group is not authorized to access this Queue.');
         }
 
         if (e.error.errors[0].name === 'QueueMemberDuplicateKeyError') {

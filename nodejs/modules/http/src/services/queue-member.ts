@@ -3,6 +3,7 @@ import { QueueMemberStore } from '../states/queue-member';
 import { ApiService } from './api';
 import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
+import { Method, StreamRequest, StreamService } from './stream';
 
 export class QueueMemberService {
   public get emitter() {
@@ -15,6 +16,7 @@ export class QueueMemberService {
     private apiService: ApiService,
     private environmentService: EnvironmentService,
     private queueMemberStore: QueueMemberStore,
+    private streamService: StreamService,
   ) {
     this.baseService = new BaseService<QueueMemberModel>(
       this.apiService,
@@ -34,9 +36,15 @@ export class QueueMemberService {
   /**
    * Creates a Record.
    */
-  public async create(namespaceId: string, json: Partial<QueueMemberModel>) {
-    const url = this.getUrl(namespaceId);
-    return this.baseService.create(json, url);
+  public async create(json: Partial<QueueMemberModel>, url: string) {
+    const request: StreamRequest = { body: json, method: Method.Post, path: '/queue-members' };
+    const response = await this.streamService.request(request, url);
+
+    const record = new QueueMemberModel(response.body.record);
+    this.emitter.emit('create', record);
+    this.queueMemberStore.upsertMany([record]);
+
+    return record;
   }
 
   /**

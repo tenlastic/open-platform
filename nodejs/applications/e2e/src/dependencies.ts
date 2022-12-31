@@ -143,13 +143,14 @@ const services: injector.Injection[] = [
     ) => new QueueLogService(apiService, environmentService, queueLogStore),
   },
   {
-    deps: [ApiService, EnvironmentService, QueueMemberStore],
+    deps: [ApiService, EnvironmentService, QueueMemberStore, StreamService],
     provide: QueueMemberService,
     useFactory: (
       apiService: ApiService,
       environmentService: EnvironmentService,
       queueMemberStore: QueueMemberStore,
-    ) => new QueueMemberService(apiService, environmentService, queueMemberStore),
+      streamService: StreamService,
+    ) => new QueueMemberService(apiService, environmentService, queueMemberStore, streamService),
   },
   {
     deps: [ApiService, EnvironmentService, QueueStore],

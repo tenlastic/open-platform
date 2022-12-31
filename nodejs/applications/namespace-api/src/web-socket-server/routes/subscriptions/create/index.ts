@@ -27,7 +27,7 @@ import {
 import { Context, subscribe, SubscribeOptions } from '@tenlastic/web-socket-server';
 
 export async function handler(ctx: Context<SubscribeOptions>) {
-  switch (ctx.request.params.collection) {
+  switch (ctx.params.collection) {
     case 'articles':
       return subscribe(ctx, ArticleModel, ArticlePermissions);
 
@@ -63,8 +63,8 @@ export async function handler(ctx: Context<SubscribeOptions>) {
   }
 
   // Records.
-  if (ctx.request.params.collectionId) {
-    const collection = await CollectionModel.findOne({ _id: ctx.request.params.collectionId });
+  if (ctx.params.collectionId) {
+    const collection = await CollectionModel.findOne({ _id: ctx.params.collectionId });
     const Model = RecordSchema.getModel(collection);
     const Permissions = RecordPermissions(collection, Model);
 

@@ -15,6 +15,5 @@ export interface Request<T = { [key: string]: any }> {
   body: T;
   headers: Headers;
   method: Method;
-  params?: { [key: string]: string };
   path: string;
 }

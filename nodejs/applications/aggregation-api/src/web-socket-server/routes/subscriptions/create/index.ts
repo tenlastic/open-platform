@@ -31,7 +31,7 @@ import {
 import { Context, subscribe, SubscribeOptions } from '@tenlastic/web-socket-server';
 
 export async function handler(ctx: Context<SubscribeOptions>) {
-  switch (ctx.request.params.collection) {
+  switch (ctx.params.collection) {
     case 'authorization-requests':
       return subscribe(ctx, AuthorizationRequestModel, AuthorizationRequestPermissions);
 

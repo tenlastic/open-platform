@@ -125,15 +125,13 @@ describe('/nodejs/namespace/queues', function () {
   });
 
   step('removes disconnected Users', async function () {
-    const { user, webSocketId } = await createUser(namespace._id);
+    const { streamServiceUrl, user } = await createUser(namespace._id);
 
     // Add Queue Members.
-    await dependencies.queueMemberService.create(namespace._id, {
-      namespaceId: namespace._id,
-      queueId: queue._id,
-      userId: user._id,
-      webSocketId,
-    });
+    await dependencies.queueMemberService.create(
+      { queueId: queue._id, userId: user._id },
+      streamServiceUrl,
+    );
 
     try {
       // Close WebSocket and wait for asynchronous Queue Member deletion.
@@ -152,15 +150,13 @@ describe('/nodejs/namespace/queues', function () {
 
   step('creates a Game Server', async function () {
     queue = await dependencies.queueService.update(namespace._id, queue._id, { usersPerTeam: [1] });
-    const { user, webSocketId } = await createUser(namespace._id);
+    const { streamServiceUrl, user } = await createUser(namespace._id);
 
     // Add Queue Members.
-    await dependencies.queueMemberService.create(namespace._id, {
-      namespaceId: namespace._id,
-      queueId: queue._id,
-      userId: user._id,
-      webSocketId,
-    });
+    await dependencies.queueMemberService.create(
+      { queueId: queue._id, userId: user._id },
+      streamServiceUrl,
+    );
 
     try {
       // Wait for Game Server to be created.
@@ -218,14 +214,14 @@ async function createUser(namespaceId: string) {
   dependencies.tokenService.setAccessToken(credentials.accessToken);
 
   // Connect to the web socket server.
+  const streamServiceUrl = `${wssUrl}/namespaces/${namespaceId}`;
   await dependencies.streamService.connect({
     accessToken: new Jwt(credentials.accessToken),
-    url: `${wssUrl}/namespaces/${namespaceId}`,
+    url: streamServiceUrl,
   });
-  const webSocketId = await dependencies.streamService.getId(`${wssUrl}/namespaces/${namespaceId}`);
 
   // Restore original access token.
   dependencies.tokenService.setAccessToken(administratorAccessToken);
 
-  return { user, webSocketId };
+  return { streamServiceUrl, user };
 }

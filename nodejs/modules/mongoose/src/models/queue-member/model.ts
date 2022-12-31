@@ -15,7 +15,6 @@ import { DuplicateKeyError, duplicateKeyErrorPlugin, unsetPlugin } from '../../p
 import { AuthorizationDocument } from '../authorization';
 import { GroupDocument } from '../group';
 import { QueueDocument } from '../queue';
-import { WebSocketDocument } from '../web-socket';
 
 export class QueueMemberDuplicateKeyError extends Error {
   public userIds: string[] | mongoose.Types.ObjectId[];
@@ -37,23 +36,9 @@ export class QueueMemberDuplicateKeyError extends Error {
   await this.setUserIds();
   await this.checkPlayersPerTeam();
   this.checkUsers();
-  await this.checkWebSocket();
-})
-@post('findOneAndUpdate', function (err: any, doc: QueueMemberDocument, next) {
-  if (err.code === 11000) {
-    const uniqueError = new DuplicateKeyError(err.keyValue);
-
-    const i = uniqueError.paths.indexOf('userIds');
-    const userIds = uniqueError.values[i];
-    const duplicateQueueMemberError = new QueueMemberDuplicateKeyError(userIds);
-
-    return next(duplicateQueueMemberError);
-  }
-
-  return next(err);
 })
 @post('save', function (err: any, doc: QueueMemberDocument, next) {
-  if (err.name === 'MongoError' && err.code === 11000) {
+  if (err.code === 11000 && err.name === 'MongoError') {
     const uniqueError = new DuplicateKeyError(err.keyValue);
 
     const i = uniqueError.paths.indexOf('userIds');
@@ -71,6 +56,9 @@ export class QueueMemberSchema {
 
   @prop({ ref: 'GroupSchema', type: mongoose.Schema.Types.ObjectId })
   public groupId: mongoose.Types.ObjectId;
+
+  @prop({ type: Date })
+  public matchedAt: Date;
 
   @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public namespaceId: mongoose.Types.ObjectId;
@@ -97,9 +85,6 @@ export class QueueMemberSchema {
 
   @prop({ foreignField: '_id', justOne: true, localField: 'queueId', ref: 'QueueSchema' })
   public queueDocument: QueueDocument;
-
-  @prop({ foreignField: '_id', justOne: true, localField: 'webSocketId', ref: 'WebSocketSchema' })
-  public webSocketDocument: WebSocketDocument;
 
   /**
    * Get the number of Users matching the criteria.
@@ -147,16 +132,6 @@ export class QueueMemberSchema {
   private checkUsers(this: QueueMemberDocument) {
     if (!this.userIds.some((ui) => ui.equals(this.userId))) {
       throw new Error('User is not in the Group.');
-    }
-  }
-
-  private async checkWebSocket(this: QueueMemberDocument) {
-    if (!this.populated('webSocketDocument')) {
-      await this.populate('webSocketDocument');
-    }
-
-    if (!this.userId?.equals(this.webSocketDocument?.userId)) {
-      throw new Error('Web Socket does not belong to the same User.');
     }
   }
 

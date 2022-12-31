@@ -2,13 +2,13 @@ import {
   AuthorizationModel,
   AuthorizationRole,
   BuildModel,
+  GameServerPortModel,
   NamespaceDocument,
-  NamespaceModel,
   NamespaceLimitError,
   NamespaceLimitsModel,
+  NamespaceModel,
   UserDocument,
   UserModel,
-  GameServerPortModel,
 } from '@tenlastic/mongoose';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { ContextMock } from '@tenlastic/web-server';

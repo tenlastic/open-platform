@@ -4,6 +4,7 @@ export class QueueMemberModel extends BaseModel {
   public _id: string;
   public createdAt: Date;
   public groupId: string;
+  public matchedAt: Date;
   public namespaceId: string;
   public queueId: string;
   public updatedAt: Date;
@@ -13,5 +14,7 @@ export class QueueMemberModel extends BaseModel {
 
   constructor(parameters?: Partial<QueueMemberModel>) {
     super(parameters);
+
+    this.matchedAt = parameters?.matchedAt ? new Date(parameters.matchedAt) : null;
   }
 }
