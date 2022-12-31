@@ -26,7 +26,7 @@ info:
 
     ### Connection
     The first message returned after successfully connecting a web socket contains a status code and change set
-    involving the create Web Socket.
+    involving the created Web Socket.
     ```
     {  
       
