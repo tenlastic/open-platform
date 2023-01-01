@@ -1,5 +1,8 @@
 import {
   CollectionDocument,
+  CollectionJsonSchemaModel,
+  CollectionJsonSchemaPropertiesModel,
+  CollectionJsonSchemaType,
   CollectionModel,
   CollectionPermissionsModel,
   NamespaceModel,
@@ -28,6 +31,19 @@ describe('web-server/records/update', function () {
 
     const namespace = await NamespaceModel.mock().save();
     collection = await CollectionModel.mock({
+      jsonSchema: CollectionJsonSchemaModel.mock({
+        properties: new Map([
+          [
+            'email',
+            CollectionJsonSchemaPropertiesModel.mock({ type: CollectionJsonSchemaType.String }),
+          ],
+          [
+            'name',
+            CollectionJsonSchemaPropertiesModel.mock({ type: CollectionJsonSchemaType.String }),
+          ],
+        ]),
+        type: CollectionJsonSchemaType.Object,
+      }),
       namespaceId: namespace._id,
       permissions: CollectionPermissionsModel.mock({
         find: new Map(Object.entries({ public: {} })),
@@ -60,6 +76,7 @@ describe('web-server/records/update', function () {
     await handler(ctx as any);
 
     expect(ctx.response.body.record).to.exist;
-    expect(ctx.response.body.record.properties).to.eql(properties);
+    expect(ctx.response.body.record.properties.email).to.eql(properties.email);
+    expect(ctx.response.body.record.properties.name).to.eql(properties.name);
   });
 });

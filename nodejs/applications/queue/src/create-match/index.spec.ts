@@ -18,7 +18,7 @@ describe('create-match', function () {
     sandbox.restore();
   });
 
-  it('removes the User from all Queues', async function () {
+  it('sets matchedAt on Queue Members', async function () {
     const queue = new QueueModel({
       _id: '1',
       gameServerTemplateId: '1',
@@ -31,14 +31,14 @@ describe('create-match', function () {
     dependencies.queueMemberStore.upsert('3', new QueueMemberModel({ _id: '3', userIds: ['3'] }));
 
     const createMatchSpy = sandbox.stub(dependencies.matchService, 'create').resolves({ _id: '1' });
-    const deleteQueueMemberSpy = sandbox.stub(dependencies.queueMemberStore, 'remove').resolves();
-    const findMatchSpy = sandbox.stub(dependencies.matchService, 'find').resolves([]);
+    const upsertManyQueueMemberSpy = sandbox
+      .stub(dependencies.queueMemberStore, 'upsertMany')
+      .resolves();
 
     const result = await createMatch(queue);
 
     expect(result).to.eql({ _id: '1' });
     expect(createMatchSpy.calledOnce).to.eql(true);
-    expect(deleteQueueMemberSpy.calledTwice).to.eql(true);
-    expect(findMatchSpy.calledOnce).to.eql(true);
+    expect(upsertManyQueueMemberSpy.calledTwice).to.eql(true);
   });
 });
