@@ -6,7 +6,7 @@ import {
   NamespaceEvent,
 } from '@tenlastic/mongoose-nats';
 
-// Delete Matches if associated Namespace is deleted.
+// Mark Match as finished when Game Server is deleted.
 GameServerEvent.async(async (payload) => {
   const { matchId } = payload.fullDocument;
 
@@ -15,32 +15,28 @@ GameServerEvent.async(async (payload) => {
   }
 });
 
-// Starts a Match if all Match Invitations are accepted.
+// Starts a Match if all Match Invitations have been accepted.
 MatchEvent.async(async (payload) => {
   if (
     !payload.fullDocument.startedAt &&
     payload.operationType === 'update' &&
-    payload.updateDescription.updatedFields.confirmedUserIds
+    payload.updateDescription.updatedFields.confirmedUserIds &&
+    payload.fullDocument.confirmationExpiresAt &&
+    payload.fullDocument.confirmedUserIds.length === payload.fullDocument.userIds.length
   ) {
-    const { confirmationExpiresAt, confirmedUserIds, userIds } = payload.fullDocument;
-
-    if (confirmationExpiresAt && confirmedUserIds.length === userIds.length) {
-      return MatchModel.findOneAndUpdate(
-        { _id: payload.fullDocument._id },
-        { startedAt: new Date() },
-      );
-    }
+    return MatchModel.findOneAndUpdate(
+      { _id: payload.fullDocument._id },
+      { startedAt: new Date() },
+    );
   }
 });
 
-// Deletes a Match if a Match Invitation is deleted or expires before confirmation.
+// Deletes a Match if a Match Invitation is deleted before confirmation.
 // Confirms the User if a Match Invitation is accepted.
 MatchInvitationEvent.async(async (payload) => {
-  const { matchId, userId } = payload.fullDocument;
-
   if (payload.operationType === 'delete') {
     return MatchModel.deleteOne({
-      _id: matchId,
+      _id: payload.fullDocument.matchId,
       confirmationExpiresAt: { $exists: true },
       startedAt: { $exists: false },
     });
@@ -49,8 +45,8 @@ MatchInvitationEvent.async(async (payload) => {
     payload.updateDescription.updatedFields.acceptedAt
   ) {
     return MatchModel.findOneAndUpdate(
-      { _id: matchId },
-      { $addToSet: { confirmedUserIds: userId } },
+      { _id: payload.fullDocument.matchId },
+      { $addToSet: { confirmedUserIds: payload.fullDocument.userId } },
     );
   }
 });

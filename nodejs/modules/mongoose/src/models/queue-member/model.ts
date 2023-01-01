@@ -14,6 +14,7 @@ import * as mongoose from 'mongoose';
 import { DuplicateKeyError, duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 import { AuthorizationDocument } from '../authorization';
 import { GroupDocument } from '../group';
+import { MatchModel } from '../match';
 import { QueueDocument } from '../queue';
 
 export class QueueMemberDuplicateKeyError extends Error {
@@ -27,6 +28,17 @@ export class QueueMemberDuplicateKeyError extends Error {
   }
 }
 
+export class QueueMemberMatchError extends Error {
+  public userIds: string[] | mongoose.Types.ObjectId[];
+
+  constructor(userIds: string[] | mongoose.Types.ObjectId[]) {
+    super(`The following Users are already in a Match: ${userIds.join(', ')}.`);
+
+    this.name = 'QueueMemberMatchError';
+    this.userIds = userIds;
+  }
+}
+
 @index({ namespaceId: 1, queueId: 1, userIds: 1 }, { unique: true })
 @index({ webSocketId: 1 })
 @modelOptions({ schemaOptions: { collection: 'queue-members', timestamps: true } })
@@ -34,6 +46,7 @@ export class QueueMemberDuplicateKeyError extends Error {
 @plugin(unsetPlugin)
 @pre('save', async function (this: QueueMemberDocument) {
   await this.setUserIds();
+  await this.checkMatches();
   await this.checkPlayersPerTeam();
   this.checkUsers();
 })
@@ -114,6 +127,22 @@ export class QueueMemberSchema {
   }
 
   /**
+   * Throws an error if a User is already in a Match.
+   */
+  private async checkMatches(this: QueueMemberDocument) {
+    const matches = await MatchModel.find({ 'teams.userIds': { $in: this.userIds } });
+
+    if (matches.length === 0) {
+      return;
+    }
+
+    const userIds = matches.map((m) => m.userIds).flat();
+    const intersection = this.userIds.filter((ui) => userIds.includes(ui));
+
+    throw new QueueMemberMatchError(intersection);
+  }
+
+  /**
    * Throws an error if there are too many Users for the Queue.
    */
   private async checkPlayersPerTeam(this: QueueMemberDocument) {
@@ -144,7 +173,7 @@ export class QueueMemberSchema {
         await this.populate('groupDocument');
       }
 
-      this.userIds = this.groupDocument ? this.groupDocument.userIds : [];
+      this.userIds = this.groupDocument?.userIds ?? [];
     } else {
       this.userIds = [this.userId];
     }

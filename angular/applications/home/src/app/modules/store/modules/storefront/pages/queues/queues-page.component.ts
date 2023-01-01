@@ -159,6 +159,12 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
             group ? 'A User in your Group is already queued.' : 'You are already queued.',
           );
         }
+
+        if (e.error.errors[0].name === 'QueueMemberMatchError') {
+          this.matSnackBar.open(
+            group ? 'A User in your Group is already in a Match.' : 'You are already in a Match.',
+          );
+        }
       }
     }
 

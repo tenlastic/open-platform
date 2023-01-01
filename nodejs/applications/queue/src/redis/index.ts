@@ -8,11 +8,6 @@ const podName = process.env.POD_NAME;
 const redisConnectionString = process.env.REDIS_CONNECTION_STRING;
 const redisPassword = process.env.REDIS_PASSWORD;
 
-export async function add(client: Redis, queueMember: QueueMemberModel) {
-  const score = getScore(queueMember._id);
-  return client.zadd(podName, score, JSON.stringify(queueMember));
-}
-
 export function remove(client: Redis, queueMember: QueueMemberModel) {
   const score = getScore(queueMember._id);
   return client.zremrangebyscore(podName, score, score);
@@ -52,10 +47,15 @@ export async function start(queue: QueueModel) {
   // Add existing QueueMembers to the store.
   for (const queueMember of queueMembers) {
     const json = JSON.parse(queueMember);
-    dependencies.queueMemberStore.upsert(json._id, new QueueMemberModel(json));
+    dependencies.queueMemberStore.upsertMany([new QueueMemberModel(json)]);
   }
 
   return client;
+}
+
+export async function upsert(client: Redis, queueMember: QueueMemberModel) {
+  const score = getScore(queueMember._id);
+  return client.zadd(podName, score, JSON.stringify(queueMember));
 }
 
 function getScore(_id: string) {

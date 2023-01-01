@@ -10,6 +10,7 @@ import * as mongoose from 'mongoose';
 
 import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 import { AuthorizationDocument } from '../authorization';
+import { MatchDocument } from '../match';
 
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0, partialFilterExpression: { acceptedAt: null } })
 @index({ matchId: 1 })
@@ -45,6 +46,25 @@ export class MatchInvitationSchema {
 
   @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
   public authorizationDocuments: AuthorizationDocument[];
+
+  /**
+   * Creates Match Invitations for the Match.
+   */
+  public static createForMatch(this: typeof MatchInvitationModel, match: MatchDocument) {
+    const { namespaceId, queueId } = match;
+
+    // If the Match required confirmation, use the confirmation time.
+    // If not, use the invitation time.
+    let expiresAt = new Date(Date.now() + match.invitationSeconds * 1000);
+    if (match.confirmationExpiresAt && !match.startedAt) {
+      expiresAt = match.confirmationExpiresAt;
+    }
+
+    const values = { expiresAt, matchId: match._id, namespaceId, queueId };
+    const matchInvitations = match.userIds.map((ui) => new this({ ...values, userId: ui }));
+
+    return MatchInvitationModel.create(matchInvitations);
+  }
 
   /**
    * Creates a record with randomized required parameters if not specified.

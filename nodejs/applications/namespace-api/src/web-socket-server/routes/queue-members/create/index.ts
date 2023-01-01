@@ -3,7 +3,6 @@ import { Context } from '@tenlastic/web-socket-server';
 import * as mongoose from 'mongoose';
 
 export async function handler(ctx: Context) {
-  console.log(`CREATE QUEUE MEMBER`);
   if (!ctx.state.user || !ctx.state.webSocket) {
     throw new Error('Cannot create Queue Member using an API Key.');
   }

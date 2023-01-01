@@ -76,7 +76,7 @@ export class BuildStatusNodeComponent {
       subscribe: (container, pod, unix) => {
         return this.streamService.logs<BuildLogModel>(
           BuildLogModel,
-          { buildId: this.build._id },
+          { buildId: this.build._id, container, pod },
           {
             body: { since: unix ? new Date(unix) : new Date() },
             path: `/subscriptions/builds/${this.build._id}/logs/${pod}/${container}`,

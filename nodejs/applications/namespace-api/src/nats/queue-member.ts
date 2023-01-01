@@ -1,5 +1,11 @@
 import { QueueMemberModel } from '@tenlastic/mongoose';
-import { GroupEvent, MatchEvent, QueueEvent, WebSocketEvent } from '@tenlastic/mongoose-nats';
+import {
+  GroupEvent,
+  MatchEvent,
+  NamespaceEvent,
+  QueueEvent,
+  WebSocketEvent,
+} from '@tenlastic/mongoose-nats';
 
 // Delete Queue Member when associated Group is deleted or its Users are updated.
 GroupEvent.async(async (payload) => {
@@ -16,11 +22,33 @@ GroupEvent.async(async (payload) => {
   }
 });
 
-// Delete Queue Member when associated Match is created.
+// Delete Queue Members when Match is started.
+// Set MatchedAt on Queue Members when Match is created, but not started.
+// Unset MatchedAt from Queue Members when Match is deleted.
 MatchEvent.async(async (payload) => {
+  if (
+    (payload.operationType === 'insert' && payload.fullDocument.startedAt) ||
+    (payload.operationType === 'update' && payload.updateDescription.updatedFields.startedAt)
+  ) {
+    return QueueMemberModel.deleteMany({ userIds: { $in: payload.fullDocument.userIds } });
+  } else if (payload.operationType === 'insert' && !payload.fullDocument.startedAt) {
+    return QueueMemberModel.updateMany(
+      { userIds: { $in: payload.fullDocument.userIds } },
+      { matchedAt: new Date() },
+    );
+  } else if (payload.operationType === 'delete') {
+    return QueueMemberModel.updateMany(
+      { userIds: { $in: payload.fullDocument.userIds } },
+      { $unset: { matchedAt: 1 } },
+    );
+  }
+});
+
+// Delete Queue Members if associated Namespace is deleted.
+NamespaceEvent.async(async (payload) => {
   switch (payload.operationType) {
-    case 'insert':
-      return QueueMemberModel.deleteMany({ userIds: { $in: payload.fullDocument.userIds } });
+    case 'delete':
+      return QueueMemberModel.deleteMany({ namespaceId: payload.fullDocument._id });
   }
 });
 

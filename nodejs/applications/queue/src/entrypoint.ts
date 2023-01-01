@@ -54,20 +54,26 @@ const wssUrl = process.env.WSS_URL;
         dependencies.queueMemberService,
         dependencies.queueMemberStore,
         wssUrl,
-        (payload) => redis.add(client, payload.body.fullDocument),
+        (payload) => redis.upsert(client, payload.body.fullDocument),
       ),
 
-      // Get all Queue Member deletions.
+      // Get all Queue Member deletions and updates.
       dependencies.streamService.subscribe(
         QueueMemberModel,
         {
-          body: { operationType: ['delete'], resumeToken: podName, where: { queueId } },
+          body: { operationType: ['delete', 'update'], resumeToken: podName, where: { queueId } },
           path: '/subscriptions/queue-members',
         },
         dependencies.queueMemberService,
         dependencies.queueMemberStore,
         wssUrl,
-        (payload) => redis.remove(client, payload.body.fullDocument),
+        (payload) => {
+          if (payload.body.operationType === 'delete') {
+            return redis.remove(client, payload.body.fullDocument);
+          } else if (dependencies.queueMemberQuery.hasEntity(payload.body.fullDocument._id)) {
+            return redis.upsert(client, payload.body.fullDocument);
+          }
+        },
       ),
     ]);
 

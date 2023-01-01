@@ -12,6 +12,6 @@ router.delete('/:_id', deleteHandler);
 router.post('/:_id/acks', ackHandler);
 router.post('/:_id/naks', nakHandler);
 router.post('/:collection', createHandler);
-router.post('/:collection/:_id/logs/:container/:pod', logsHandler);
+router.post('/:collection/:_id/logs/:pod/:container', logsHandler);
 
 export default router.routes();

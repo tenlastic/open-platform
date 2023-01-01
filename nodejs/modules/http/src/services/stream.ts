@@ -189,7 +189,7 @@ export class StreamService {
   }
 
   public async logs<T = any>(
-    model: new (parameters?: Partial<BaseModel>) => BaseModel,
+    Model: new (parameters?: Partial<BaseModel>) => BaseModel,
     parameters: Partial<T>,
     request: LogsRequest,
     store: Store,
@@ -204,7 +204,7 @@ export class StreamService {
     }
 
     // Cache the subscription to resubscribe when reconnected.
-    this.subscriptions.push({ method: 'logs', Model: model, parameters, request, store, url });
+    this.subscriptions.push({ method: 'logs', Model, parameters, request, store, url });
 
     // Wait until web socket is connected to subscribe.
     if (this.pendingWebSockets.has(url) || !this.webSockets.has(url)) {
@@ -226,7 +226,7 @@ export class StreamService {
         throw new Error(json.body.errors[0].message);
       }
 
-      const record = new model({ ...parameters, ...json.body.fullDocument }) as any;
+      const record = new Model({ ...json.body.fullDocument, ...parameters }) as any;
       store.upsertMany([record]);
 
       const subscription = this.subscriptions.find((s) => request._id === s.request._id);

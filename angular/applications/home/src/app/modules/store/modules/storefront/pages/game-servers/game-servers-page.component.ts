@@ -45,6 +45,7 @@ export class GameServersPageComponent implements OnInit {
 
       this.$gameServers = this.gameServerQuery.selectAll({
         filterBy: (gs) =>
+          !gs.matchId &&
           gs.namespaceId === params.namespaceId &&
           !gs.queueId &&
           gs.status &&

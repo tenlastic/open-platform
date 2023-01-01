@@ -74,7 +74,7 @@ export async function subscribe(
         const json = JSON.parse(decoding) as DatabasePayload<any>;
 
         // Filter by operation type.
-        if (options?.operationType && !options?.operationType.includes(json.operationType)) {
+        if (options.operationType && !options.operationType.includes(json.operationType)) {
           continue;
         }
 

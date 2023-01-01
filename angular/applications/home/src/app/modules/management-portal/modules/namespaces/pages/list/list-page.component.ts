@@ -121,7 +121,7 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
       subscribe: (container, pod, unix) => {
         return this.streamService.logs<NamespaceLogModel>(
           NamespaceLogModel,
-          { namespaceId: record._id },
+          { container, namespaceId: record._id, pod },
           {
             body: { since: unix ? new Date(unix) : new Date() },
             path: `/subscriptions/namespaces/${record._id}/logs/${pod}/${container}`,

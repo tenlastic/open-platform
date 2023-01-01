@@ -118,6 +118,8 @@ export class MatchComponent implements OnDestroy, OnInit {
   public ngOnDestroy() {
     this.fetchMatchReferences$.unsubscribe();
     this.fetchQueueMemberReferences$.unsubscribe();
+    this.matchInvitationService.emitter.off('create', this.onMatchInvitationServiceCreate);
+    this.matchService.emitter.off('create', this.onMatchServiceCreate);
     this.updateQueueMembers$.unsubscribe();
   }
 

@@ -9,7 +9,10 @@ import { getTeams } from '../get-teams';
  * Creates a Match if enough Queue Members exist.
  */
 export async function createMatch(queue: QueueModel): Promise<MatchModel> {
-  const queueMembers = dependencies.queueMemberQuery.getAll();
+  const queueMembers = dependencies.queueMemberQuery.getAll({
+    filterBy: (qm) => !qm.matchedAt,
+    sortBy: 'createdAt',
+  });
   const teams = getTeams(queue, queueMembers);
 
   // Throw an error if not enough teams were found.
@@ -24,32 +27,37 @@ export async function createMatch(queue: QueueModel): Promise<MatchModel> {
     qm.userIds.find((ui) => userIds.includes(ui)),
   );
 
-  // If any Queue Members have been deleted, retry creating the Match.
-  const deletedQueueMembers = await deleteConflictedQueueMembers(queue, matchedQueueMembers);
-  if (deletedQueueMembers.length) {
-    return createMatch(queue);
-  }
-
   // Create the Match.
   let match: MatchModel;
-  if (queue.confirmation) {
-    match = await dependencies.matchService.create(queue.namespaceId, {
-      confirmationExpiresAt: new Date(Date.now() + queue.invitationSeconds * 1000),
-      gameServerTemplateId: queue.gameServerTemplateId,
-      queueId: queue._id,
-      teams,
-    });
-  } else {
-    match = await dependencies.matchService.create(queue.namespaceId, {
-      gameServerTemplateId: queue.gameServerTemplateId,
-      queueId: queue._id,
-      teams,
-    });
+  try {
+    if (queue.confirmation) {
+      match = await dependencies.matchService.create(queue.namespaceId, {
+        confirmationExpiresAt: new Date(Date.now() + queue.invitationSeconds * 1000),
+        gameServerTemplateId: queue.gameServerTemplateId,
+        queueId: queue._id,
+        teams,
+      });
+    } else {
+      match = await dependencies.matchService.create(queue.namespaceId, {
+        gameServerTemplateId: queue.gameServerTemplateId,
+        queueId: queue._id,
+        teams,
+      });
+    }
+  } catch (e) {
+    console.error(e.message);
+
+    // If any Queue Members are already in a match, delete them and try again if successful.
+    const deletedQueueMembers = await deleteConflictedQueueMembers(queue, matchedQueueMembers);
+    if (deletedQueueMembers.length) {
+      return createMatch(queue);
+    }
   }
 
-  // Remove matched Queue Members from the store.
-  for (const mqm of matchedQueueMembers) {
-    dependencies.queueMemberStore.remove(mqm._id);
+  // Set MatchedAt on Queue Members.
+  for (const matchedQueueMember of matchedQueueMembers) {
+    matchedQueueMember.matchedAt = new Date();
+    dependencies.queueMemberStore.upsertMany([matchedQueueMember]);
   }
 
   // Return the Match.

@@ -26,17 +26,17 @@ function getConflictedQueueMembers(matches: MatchModel[], queueMembers: QueueMem
   const matchUserIds = matches.map((m) => m.userIds).flat();
   const queueMemberIds = queueMembers.map((qm) => qm.userIds).flat();
 
-  const intersection = matchUserIds.filter((ui) => queueMemberIds.includes(ui));
+  const conflictedUserIds = matchUserIds.filter((ui) => queueMemberIds.includes(ui));
 
-  return queueMembers.filter((qm) => qm.userIds.some((uid) => intersection.includes(uid)));
+  return queueMembers.filter((qm) => qm.userIds.some((uid) => conflictedUserIds.includes(uid)));
 }
 
 /**
  * Find Matches that are associated with Queue Members.
  */
 function getMatchesWithUsers(namespaceId: string, queueMembers: QueueMemberModel[]) {
-  const queueMemberIds = queueMembers.map((qm) => qm.userIds).flat();
-  const where = { finishedAt: { $exists: false }, 'teams.userIds': { $in: queueMemberIds } };
+  const userIds = queueMembers.map((qm) => qm.userIds).flat();
+  const where = { finishedAt: { $exists: false }, 'teams.userIds': { $in: userIds } };
 
   return dependencies.matchService.find(namespaceId, { where });
 }
