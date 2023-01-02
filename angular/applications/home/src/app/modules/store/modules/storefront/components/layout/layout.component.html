@@ -1,0 +1,61 @@
+<app-sidenav>
+  <div *ngIf="$storefront | async as storefront"
+       appNav
+       class="nav">
+    <img *ngIf="storefront.logo"
+         [src]="storefront.logo">
+
+    <app-button color="accent"
+                layout="vertical"
+                [routerLink]="['./']"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{exact:true}"
+                [attr.text]="storefront.logo ? null : 'left'"
+                width="full">
+      <mat-icon fontSet="material-icons-outlined">info</mat-icon>
+      <div>Information</div>
+    </app-button>
+
+    <ng-container *ngIf="$hasPermission(IAuthorization.articleRoles) | async">
+      <app-button *ngIf="$guide | async"
+                  color="accent"
+                  layout="vertical"
+                  [routerLink]="['guides']"
+                  routerLinkActive="active"
+                  [attr.text]="storefront.logo ? null : 'left'"
+                  width="full">
+        <mat-icon fontSet="material-icons-outlined">format_list_bulleted</mat-icon>
+        <div>Guides</div>
+      </app-button>
+
+      <app-button *ngIf="$news | async"
+                  color="accent"
+                  layout="vertical"
+                  [routerLink]="['news']"
+                  routerLinkActive="active"
+                  [attr.text]="storefront.logo ? null : 'left'"
+                  width="full">
+        <mat-icon fontSet="material-icons-outlined">campaign</mat-icon>
+        <div>News</div>
+      </app-button>
+
+      <app-button *ngIf="$patchNotes | async"
+                  color="accent"
+                  layout="vertical"
+                  [routerLink]="['patch-notes']"
+                  routerLinkActive="active"
+                  [attr.text]="storefront.logo ? null : 'left'"
+                  width="full">
+        <mat-icon>healing</mat-icon>
+        <div>Patch Notes</div>
+      </app-button>
+    </ng-container>
+  </div>
+
+  <router-outlet></router-outlet>
+</app-sidenav>
+
+<app-download *ngIf="!isElectron"
+              [storefront]="$storefront | async"></app-download>
+
+<app-status *ngIf="status"></app-status>

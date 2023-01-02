@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "name": "@tenlastic/build",
   "private": true,
-  "version": "0.0.314",
+  "version": "0.0.315",
   "scripts": {
     "build": "../../scripts/build.sh",
     "lint": "../../scripts/lint.sh",
@@ -14,12 +14,10 @@
     "test:watch": "../../scripts/test.sh --watch"
   },
   "dependencies": {
-    "@tenlastic/minio": "0.0.314",
-    "@tenlastic/mongoose-models": "0.0.314",
-    "@typegoose/typegoose": "9.9.0",
-    "mongoose": "6.3.5",
-    "request": "2.88.0",
-    "request-promise-native": "1.0.7",
+    "@tenlastic/dependency-injection": "0.0.315",
+    "@tenlastic/http": "0.0.315",
+    "@tenlastic/minio": "0.0.315",
+    "axios": "0.27.2",
     "source-map-support": "0.5.12",
     "unzipper": "0.10.11"
   },
@@ -27,8 +25,8 @@
     "eslint": "^7.26.0",
     "mocha": "7.1.2",
     "nyc": "15.0.0",
-    "ts-node": "8.9.1",
-    "ts-node-dev": "1.0.0-pre.44",
-    "typescript": "4.3.5"
+    "ts-node": "10.9.1",
+    "ts-node-dev": "2.0.0",
+    "typescript": "4.8.3"
   }
 }

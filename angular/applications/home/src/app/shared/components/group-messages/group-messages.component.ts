@@ -9,18 +9,19 @@ import {
 } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import {
-  Group,
+  GroupModel,
   GroupInvitationService,
   GroupService,
   GroupStore,
-  Message,
+  MessageModel,
   MessageQuery,
   MessageService,
-  User,
+  UserModel,
   UserQuery,
   UserService,
-} from '@tenlastic/ng-http';
+} from '@tenlastic/http';
 import { Subscription, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -34,32 +35,34 @@ import { PromptComponent } from '../prompt/prompt.component';
   templateUrl: 'group-messages.component.html',
 })
 export class GroupMessagesComponent implements OnChanges, OnDestroy {
-  @Input() public group: Group;
-  @ViewChild('messagesScrollContainer')
-  public messagesScrollContainer: ElementRef;
+  @Input() public group: GroupModel;
+  @ViewChild('messagesScrollContainer') public messagesScrollContainer: ElementRef;
 
-  public $messages: Observable<Message[]>;
-  public $users: Observable<User[]>;
+  public $messages: Observable<MessageModel[]>;
+  public $users: Observable<UserModel[]>;
   public readUnreadMessages$ = new Subscription();
   public scrollToBottom$ = new Subscription();
   public setGroup$ = new Subscription();
   public get canInvite() {
-    return this.group.isOpen || this.group.userIds[0] === this.identityService.user._id;
+    return this.group.open || this.group.userIds[0] === this.identityService.user._id;
   }
   public get isLeader() {
     return this.group.userIds[0] === this.identityService.user._id;
   }
   public loadingMessage: string;
   public get usernames() {
-    return this.group.users ? this.group.users.map(u => u.username).join('\n') : null;
+    return this.group.userIds
+      ? this.group.userIds.map((ui) => this.getUser(ui).username).join('\n')
+      : null;
   }
 
   constructor(
     private groupInvitationService: GroupInvitationService,
     private groupService: GroupService,
     private groupStore: GroupStore,
-    public identityService: IdentityService,
+    private identityService: IdentityService,
     private matDialog: MatDialog,
+    private matSnackBar: MatSnackBar,
     private messageQuery: MessageQuery,
     private messageService: MessageService,
     private userQuery: UserQuery,
@@ -91,6 +94,37 @@ export class GroupMessagesComponent implements OnChanges, OnDestroy {
     await this.groupService.delete(this.group._id);
   }
 
+  public editGroupName() {
+    const dialogRef = this.matDialog.open(InputDialogComponent, {
+      data: {
+        error: 'Enter a valid name.',
+        label: 'Name',
+        maxlength: 24,
+        title: 'Edit Group Name',
+        width: 300,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe(async (name) => {
+      if (name === undefined) {
+        return;
+      }
+
+      try {
+        this.group = await this.groupService.update(this.group._id, { name: name || null });
+      } catch (err) {
+        const duplicateKeyError = err?.errors.find((e) => e.name === 'DuplicateKeyError');
+        if (duplicateKeyError) {
+          this.matSnackBar.open('Group name is already taken.');
+        }
+      }
+    });
+  }
+
+  public getUser(_id: string) {
+    return this.userQuery.getEntity(_id);
+  }
+
   public invite() {
     const dialogRef = this.matDialog.open(InputDialogComponent, {
       data: {
@@ -103,7 +137,7 @@ export class GroupMessagesComponent implements OnChanges, OnDestroy {
       },
     });
 
-    dialogRef.afterClosed().subscribe(async username => {
+    dialogRef.afterClosed().subscribe(async (username) => {
       if (!username) {
         return;
       }
@@ -144,24 +178,20 @@ export class GroupMessagesComponent implements OnChanges, OnDestroy {
       },
     });
 
-    dialogRef.afterClosed().subscribe(async result => {
+    dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
-        const { _id } = this.group;
-        await this.groupService.delete(_id);
+        await this.groupService.delete(this.group._id);
       }
     });
   }
 
   public async leave() {
-    const { _id } = this.group;
-    this.groupStore.removeActive(_id);
-
-    return this.groupService.leave(_id);
+    this.groupStore.removeActive(this.group._id);
+    return this.groupService.leave(this.group._id);
   }
 
   public async toggleIsOpen() {
-    const group = new Group({ ...this.group, isOpen: !this.group.isOpen });
-    return this.groupService.update(group);
+    return this.groupService.update(this.group._id, { open: !this.group.open });
   }
 
   private async autocomplete(value: string) {
@@ -176,7 +206,7 @@ export class GroupMessagesComponent implements OnChanges, OnDestroy {
       },
     });
 
-    return users.map(u => ({ label: u.username, value: u.username }));
+    return users.map((u) => ({ label: u.username, value: u.username }));
   }
 
   private async setGroup() {
@@ -188,7 +218,6 @@ export class GroupMessagesComponent implements OnChanges, OnDestroy {
     }
 
     this.$messages = this.messageQuery.selectAllInGroup(this.group._id);
-    this.$messages = this.messageQuery.populateUsers(this.$messages);
     this.$users = this.userQuery.selectAll();
 
     this.loadingMessage = 'Loading conversation...';
@@ -198,13 +227,14 @@ export class GroupMessagesComponent implements OnChanges, OnDestroy {
     // Mark unread messages as read.
     this.readUnreadMessages$ = this.messageQuery
       .selectAllUnreadInGroup(this.group._id, this.identityService.user._id)
-      .pipe(map(messages => messages[0]))
-      .subscribe(message => (message ? this.messageService.read(message._id) : null));
+      .pipe(map((messages) => messages[0]))
+      .subscribe((message) => (message ? this.messageService.read(message._id) : null));
 
     // Scroll to the bottom when new message received.
     this.scrollToBottom$ = this.$messages.subscribe(() =>
       this.messagesScrollContainer
-        ? (this.messagesScrollContainer.nativeElement.scrollTop = this.messagesScrollContainer.nativeElement.scrollHeight)
+        ? (this.messagesScrollContainer.nativeElement.scrollTop =
+            this.messagesScrollContainer.nativeElement.scrollHeight)
         : null,
     );
   }

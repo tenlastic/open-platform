@@ -1,51 +1,48 @@
 <mat-toolbar>
-  <span class="space"></span>
+  <div class="space"></div>
 
-  <ng-container *ngIf="identityService.user">
-    <app-button color="accent"
-                routerLink="/"
-                routerLinkActive="active"
-                [routerLinkActiveOptions]="{ exact: true }">
-      <mat-icon>home</mat-icon>
-      <span>Home</span>
-    </app-button>
+  <app-button *ngIf="!isElectron"
+              color="accent"
+              [ngClass]="{ 'active': isHomeUrl }"
+              routerLink="/">
+    <mat-icon>home</mat-icon>
+    <div>Home</div>
+  </app-button>
 
-    <app-button *ngIf="identityService.user && ($games | async)?.length > 0"
-                color="accent"
-                [routerLink]="gameQuery.hasActive() ? ['/games', gameQuery.getActiveId()] : ['/games']"
-                routerLinkActive="active">
-      <mat-icon>sports_esports</mat-icon>
-      <span>Games</span>
-    </app-button>
-
-    <app-button *ngIf="identityService.user?.roles?.length > 0 || ($namespaces | async)?.length > 0"
+  <ng-container *ngIf="user">
+    <app-button *ngIf="!isElectron && (($authorization | async) || ($namespaces | async)?.length > 0)"
                 color="accent"
                 routerLink="/management-portal"
                 routerLinkActive="active">
       <mat-icon>admin_panel_settings</mat-icon>
-      <span>Management Portal</span>
+      <div>Management Portal</div>
+    </app-button>
+
+    <app-button *ngIf="($storefronts | async)?.length > 0"
+                color="accent"
+                [routerLink]="['/store']"
+                routerLinkActive="active">
+      <mat-icon>sports_esports</mat-icon>
+      <div>Store</div>
+    </app-button>
+
+    <app-button color="accent"
+                routerLink="/account"
+                routerLinkActive="active">
+      <mat-icon>{{ socket?.readyState === 1 ? 'person' : 'person_outline' }}</mat-icon>
+      <div>{{ user.username }}</div>
     </app-button>
   </ng-container>
 
-  <app-button *ngIf="identityService.user"
-              color="accent"
-              routerLink="/account"
-              routerLinkActive="active">
-    <mat-icon>
-      {{ socket?.readyState === 1 ? 'person' : 'person_outline' }}
-    </mat-icon>
-    <span>{{ identityService.user.username }}</span>
-  </app-button>
-
-  <app-button *ngIf="!identityService.user"
+  <app-button *ngIf="!user"
               color="accent"
               routerLink="/authentication/log-in"
               routerLinkActive="active">
     <mat-icon>lock</mat-icon>
-    <span>Log In</span>
+    <div>Log In</div>
   </app-button>
 
-  <ng-container *ngIf="electronService.isElectron">
+  <ng-container *ngIf="isElectron">
     <app-button color="accent"
                 (OnClick)="minimize()">
       <mat-icon>remove</mat-icon>

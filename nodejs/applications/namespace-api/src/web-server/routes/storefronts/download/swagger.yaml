@@ -1,0 +1,68 @@
+paths:
+  /namespaces/{namespaceId}/storefronts/{storefrontId}/{field}:
+    get:
+      summary: Download Image or Video
+      tags: [Storefront]
+      description: Returns a stream containing the image or video.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: field
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: namespaceId
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: storefrontId
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+  /namespaces/{namespaceId}/storefronts/{storefrontId}/{field}/{_id}:
+    get:
+      summary: Download Image or Video
+      tags: [Storefront]
+      description: Returns a stream containing the image or video.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: _id
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: field
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: namespaceId
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: storefrontId
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary

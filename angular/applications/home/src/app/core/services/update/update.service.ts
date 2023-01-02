@@ -1,32 +1,29 @@
 import { Injectable } from '@angular/core';
 import {
-  Build,
+  AuthorizationModel,
+  AuthorizationRequestModel,
+  AuthorizationRequestService,
+  AuthorizationService,
+  BuildModel,
   BuildService,
-  Game,
-  GameAuthorization,
-  GameAuthorizationService,
-  GameQuery,
-  GameServer,
-  GameService,
+  IAuthorization,
   IBuild,
-  IGame,
-  IGameAuthorization,
-  IUser,
   LoginService,
-  Namespace,
-  NamespaceService,
-} from '@tenlastic/ng-http';
-import { ChildProcess } from 'child_process';
-import { Subject } from 'rxjs';
+  StorefrontModel,
+  StorefrontService,
+  TokenService,
+} from '@tenlastic/http';
 
+import { environment } from '../../../../environments/environment';
 import { ElectronService } from '../../services/electron/electron.service';
 import { IdentityService } from '../../services/identity/identity.service';
 
 export enum UpdateServiceState {
+  AuthorizationRequestDenied,
+  AuthorizationRequested,
   Banned,
   Checking,
   Deleting,
-  Downloading,
   Installing,
   NotAuthorized,
   NotAvailable,
@@ -35,16 +32,8 @@ export enum UpdateServiceState {
   NotUpdated,
   PendingAuthorization,
   Ready,
-}
-
-export interface UpdateServiceLocalFile {
-  md5: string;
-  path: string;
-}
-
-export interface UpdateServicePlayOptions {
-  gameServer?: GameServer;
-  groupId?: string;
+  RequestingAuthorization,
+  Updating,
 }
 
 export interface UpdateServiceProgress {
@@ -54,59 +43,61 @@ export interface UpdateServiceProgress {
 }
 
 export interface UpdateServiceStatus {
-  build?: Build;
-  childProcess?: ChildProcess;
-  isInstalled?: boolean;
+  authorizationRequest?: AuthorizationRequestModel;
+  build?: BuildModel;
   modifiedFiles?: IBuild.File[];
   progress?: UpdateServiceProgress;
   state?: UpdateServiceState;
   text?: string;
 }
 
+interface UpdateServiceLocalFile {
+  md5: string;
+  path: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class UpdateService {
-  public OnChange = new Subject<Map<Game, UpdateServiceStatus>>();
-
   private get installPath() {
-    return this.electronService.remote.app.getPath('userData').replace(/\\/g, '/') + '/Tenlastic';
+    return this.electronService.installPath;
   }
   private get platform() {
-    if (!this.electronService.isElectron) {
-      return null;
+    const platform: string = navigator['userAgentData']?.platform || navigator.platform;
+
+    if (platform.startsWith('Linux')) {
+      return IBuild.Platform.Linux64;
+    } else if (platform.startsWith('Mac')) {
+      return IBuild.Platform.Mac64;
+    } else if (platform.startsWith('Win')) {
+      return IBuild.Platform.Windows64;
     }
 
-    const arch = this.electronService.os.arch();
-    const platform = this.electronService.os.platform();
-
-    return `${this.platforms[platform]}${arch.replace('x', '')}`;
+    return null;
   }
-  private platforms = {
-    debian: 'mac',
-    linux: 'linux',
-    win32: 'windows',
-    win64: 'windows',
-  };
   private status = new Map<string, UpdateServiceStatus>();
 
   constructor(
+    private authorizationRequestService: AuthorizationRequestService,
+    private authorizationService: AuthorizationService,
     private buildService: BuildService,
     private electronService: ElectronService,
-    private gameQuery: GameQuery,
-    private gameService: GameService,
-    private gameAuthorizationService: GameAuthorizationService,
     private identityService: IdentityService,
     private loginService: LoginService,
-    private namespaceService: NamespaceService,
+    private storefrontService: StorefrontService,
+    private tokenService: TokenService,
   ) {
+    this.loginService.emitter.on('logout', () => this.status.clear());
     this.subscribeToServices();
-    this.loginService.onLogout.subscribe(() => this.status.clear());
   }
 
-  public async checkForUpdates(gameId: string, useCache = false) {
-    const status = this.getStatus(gameId);
+  public async checkForUpdates(namespaceId: string, download = false, useCache = false) {
+    const status = this.getStatus(namespaceId);
+
     if (
-      status.state !== UpdateServiceState.NotChecked &&
-      status.state !== UpdateServiceState.NotAvailable
+      status.state === UpdateServiceState.Checking ||
+      status.state === UpdateServiceState.Deleting ||
+      status.state === UpdateServiceState.Installing ||
+      status.state === UpdateServiceState.Updating
     ) {
       return;
     }
@@ -114,198 +105,219 @@ export class UpdateService {
     status.progress = null;
     status.state = UpdateServiceState.Checking;
 
-    // Check Game Authorization...
-    status.text = 'Checking authorization...';
-    const { Games } = IUser.Role;
-    const { game, gameAuthorization, namespaceUser } = await this.getAuthorization(gameId);
-    const { user } = this.identityService;
-    if (!user.roles.includes(Games) && !namespaceUser?.roles.includes(Games)) {
-      if (gameAuthorization?.status === IGameAuthorization.GameAuthorizationStatus.Revoked) {
+    try {
+      // Check Authorization...
+      status.text = 'Checking authorization...';
+      const authorizations = await this.authorizationService.findUserAuthorizations(
+        namespaceId,
+        this.identityService.user?._id,
+      );
+      if (authorizations.some((a) => a.bannedAt)) {
         status.state = UpdateServiceState.Banned;
+        return;
+      } else if (!authorizations.some((a) => a.hasRoles(IAuthorization.buildRoles))) {
+        const [authorizationRequest] = await this.authorizationRequestService.find(namespaceId, {
+          where: { userId: this.identityService.user?._id },
+        });
+
+        status.authorizationRequest = authorizationRequest;
+        if (status.authorizationRequest?.deniedAt) {
+          status.state = UpdateServiceState.AuthorizationRequestDenied;
+        } else if (status.authorizationRequest?.hasRoles(IAuthorization.buildRoles)) {
+          status.state = UpdateServiceState.AuthorizationRequested;
+        } else {
+          status.state = UpdateServiceState.NotAuthorized;
+        }
+
         return;
       }
 
-      if (game.access !== IGame.Access.Public) {
-        if (gameAuthorization?.status === IGameAuthorization.GameAuthorizationStatus.Pending) {
-          status.state = UpdateServiceState.PendingAuthorization;
-          return;
-        } else if (
-          gameAuthorization?.status !== IGameAuthorization.GameAuthorizationStatus.Granted
-        ) {
-          status.state = UpdateServiceState.NotAuthorized;
-          return;
+      // Get the latest Build from the server.
+      status.text = 'Retrieving latest build...';
+      const builds = await this.buildService.find(namespaceId, {
+        limit: 1,
+        sort: '-publishedAt',
+        where: { namespaceId, platform: this.platform, publishedAt: { $exists: true } },
+      });
+      if (builds.length === 0) {
+        status.state = UpdateServiceState.NotAvailable;
+        return;
+      }
+
+      // Find Files associated with latest Build.
+      status.build = builds[0];
+      status.progress = null;
+      status.text = 'Retrieving build files...';
+      if (status.build.files.length === 0) {
+        status.state = UpdateServiceState.NotAvailable;
+        return;
+      }
+
+      // Do not check files without Electron.
+      if (!this.electronService.isElectron) {
+        status.state = UpdateServiceState.NotInstalled;
+        return;
+      }
+
+      // Calculate local file checksums.
+      status.progress = null;
+      status.text = 'Checking local files...';
+      const cachedFiles = useCache ? await this.getCachedFiles(namespaceId) : null;
+      const localFiles = cachedFiles ? cachedFiles : await this.getLocalFiles(namespaceId);
+      if (localFiles.length === 0) {
+        status.modifiedFiles = status.build.files;
+        status.state = UpdateServiceState.NotInstalled;
+        return;
+      }
+
+      // Delete files no longer listed in the Build.
+      status.progress = null;
+      status.text = 'Deleting stale files...';
+      await this.deleteRemovedFiles(localFiles, namespaceId, status.build.files);
+
+      // Calculate which files either don't exist locally or have a different checksum.
+      status.progress = null;
+      status.text = 'Calculating updated files...';
+      const updatedFiles = this.getUpdatedFiles(namespaceId, localFiles);
+
+      if (download && updatedFiles.length > 0) {
+        status.modifiedFiles = updatedFiles;
+        status.progress = null;
+        status.state = UpdateServiceState.Updating;
+        status.text = 'Downloading and installing update...';
+
+        try {
+          await this.download(status.build, namespaceId);
+        } catch (e) {
+          console.error(e);
         }
+
+        // Make sure download is complete.
+        status.state = UpdateServiceState.NotChecked;
+        await this.checkForUpdates(namespaceId, true);
+      } else if (!download && updatedFiles.length > 0) {
+        status.modifiedFiles = updatedFiles;
+        status.progress = null;
+        status.state = UpdateServiceState.NotUpdated;
+      } else {
+        status.modifiedFiles = [];
+        status.progress = null;
+        status.state = UpdateServiceState.Ready;
       }
-    }
+    } catch (e) {
+      console.error(e);
 
-    // Get the latest Build from the server.
-    status.text = 'Retrieving latest build...';
-    const builds = await this.buildService.find({
-      limit: 1,
-      sort: '-publishedAt',
-      where: {
-        gameId,
-        platform: this.platform,
-        publishedAt: { $exists: true, $ne: null },
-      },
-    });
-    if (builds.length === 0) {
-      status.state = UpdateServiceState.NotAvailable;
-      return;
-    }
-
-    // Find Files associated with latest Build.
-    status.build = builds[0];
-    status.progress = null;
-    status.text = 'Retrieving build files...';
-    if (status.build.files.length === 0) {
-      status.state = UpdateServiceState.NotAvailable;
-      return;
-    }
-
-    // Calculate local file checksums.
-    status.progress = null;
-    status.text = 'Checking local files...';
-    const cachedFiles = useCache ? await this.getCachedFiles(gameId) : null;
-    const localFiles = cachedFiles || (await this.getLocalFiles(gameId));
-    if (localFiles.length === 0) {
-      status.modifiedFiles = status.build.files;
-      status.state = UpdateServiceState.NotInstalled;
-      return;
-    }
-
-    // Delete files no longer listed in the Build.
-    status.isInstalled = true;
-    status.progress = null;
-    status.text = 'Deleting stale files...';
-    await this.deleteRemovedFiles(gameId, localFiles, status.build.files);
-
-    // Calculate which files either don't exist locally or have a different checksum.
-    status.progress = null;
-    status.text = 'Calculating updated files...';
-    const updatedFiles = this.getUpdatedFiles(gameId, localFiles);
-
-    if (updatedFiles.length > 0) {
-      status.modifiedFiles = updatedFiles;
       status.progress = null;
-      status.state = UpdateServiceState.Downloading;
-      status.text = 'Downloading and installing update...';
-
-      try {
-        await this.download(status.build, gameId);
-      } catch (e) {
-        console.error(e);
-      }
-
-      // Make sure download is complete.
-      status.state = UpdateServiceState.NotChecked;
-      await this.checkForUpdates(gameId, false);
-    } else {
-      status.modifiedFiles = [];
-      status.progress = null;
-      status.state = UpdateServiceState.Ready;
+      status.state = UpdateServiceState.NotAvailable;
     }
   }
 
-  public async delete(gameId: string) {
+  public async delete(namespaceId: string) {
     const { fs } = this.electronService;
-    const status = this.getStatus(gameId);
+    const status = this.getStatus(namespaceId);
 
     status.state = UpdateServiceState.Deleting;
     status.text = 'Deleting Files...';
 
-    fs.rmdirSync(`${this.installPath}/${gameId}/`, { recursive: true });
-    fs.unlinkSync(`${this.installPath}/${gameId}.json`);
+    fs.rmdirSync(`${this.installPath}/${namespaceId}/`, { recursive: true });
+    fs.unlinkSync(`${this.installPath}/${namespaceId}.json`);
 
     status.state = UpdateServiceState.NotInstalled;
   }
 
-  public getStatus(gameId: string) {
-    if (!this.status.has(gameId)) {
-      this.status.set(gameId, { state: UpdateServiceState.NotChecked });
+  public getStatus(namespaceId: string) {
+    if (!this.status.has(namespaceId)) {
+      const status = { state: UpdateServiceState.NotChecked };
+      this.status.set(namespaceId, status);
     }
 
-    return this.status.get(gameId);
+    return this.status.get(namespaceId);
   }
 
-  public async install(gameId: string) {
-    const status = this.getStatus(gameId);
+  public async install(namespaceId: string) {
+    const status = this.getStatus(namespaceId);
 
     status.modifiedFiles = status.build.files;
     status.progress = null;
-    status.state = UpdateServiceState.Downloading;
+    status.state = UpdateServiceState.Installing;
     status.text = 'Downloading and installing...';
 
     try {
-      await this.download(status.build, gameId);
+      await this.download(status.build, namespaceId);
     } catch (e) {
       console.error(e);
     }
 
     // Make sure download is complete.
     status.state = UpdateServiceState.NotChecked;
-    await this.checkForUpdates(gameId);
+    await this.checkForUpdates(namespaceId, true);
   }
 
-  public async play(gameId: string, options: UpdateServicePlayOptions = {}) {
-    const status = this.getStatus(gameId);
-    if (status.childProcess) {
-      return;
+  public async requestAuthorization(namespaceId: string) {
+    const status = this.getStatus(namespaceId);
+
+    status.state = UpdateServiceState.RequestingAuthorization;
+    status.text = 'Requesting authorization...';
+
+    const roles = [IAuthorization.Role.BuildsReadPublished];
+
+    if (status.authorizationRequest) {
+      await this.authorizationRequestService.update(namespaceId, status.authorizationRequest._id, {
+        roles: [...status.authorizationRequest.roles, ...roles],
+        userId: this.identityService.user?._id,
+      });
+    } else {
+      await this.authorizationRequestService.create(namespaceId, {
+        roles,
+        userId: this.identityService.user?._id,
+      });
     }
 
-    const accessToken = await this.identityService.getAccessToken();
-    const game = this.gameQuery.getEntity(gameId);
-    const refreshToken = this.identityService.getRefreshToken();
-
-    const env = {
-      ...process.env,
-      ACCESS_TOKEN: accessToken.value,
-      GAME_JSON: JSON.stringify(game),
-      GAME_SERVER_JSON: JSON.stringify(options.gameServer),
-      GROUP_ID: options.groupId,
-      REFRESH_TOKEN: refreshToken.value,
-    };
-    const target = `${this.installPath}/${gameId}/${status.build.entrypoint}`;
-
-    status.childProcess = this.electronService.childProcess.execFile(target, null, { env });
-    status.childProcess.on('close', () => (status.childProcess = null));
+    status.state = UpdateServiceState.AuthorizationRequested;
   }
 
-  public showInExplorer(gameId: string) {
-    const path = this.electronService.path.join(this.installPath, gameId);
+  public showInExplorer(namespaceId: string) {
+    const path = this.electronService.path.join(this.installPath, namespaceId);
     this.electronService.shell.openExternal(path);
   }
 
-  public stop(gameId: string) {
-    const status = this.getStatus(gameId);
-    if (!status.childProcess) {
-      return;
+  public async update(namespaceId: string) {
+    const status = this.getStatus(namespaceId);
+
+    status.progress = null;
+    status.state = UpdateServiceState.Updating;
+    status.text = 'Downloading and installing update...';
+
+    try {
+      await this.download(status.build, namespaceId);
+    } catch (e) {
+      console.error(e);
     }
 
-    status.childProcess.kill();
+    // Make sure download is complete.
+    status.state = UpdateServiceState.NotChecked;
+    await this.checkForUpdates(namespaceId, true);
   }
 
   private async deleteRemovedFiles(
-    gameId: string,
     localFiles: { md5: string; path: string }[],
+    namespaceId: string,
     remoteFiles: IBuild.File[],
   ) {
     const { fs } = this.electronService;
 
     for (const localFile of localFiles) {
-      const localPath = localFile.path.replace(`${this.installPath}/${gameId}/`, '');
+      const localPath = localFile.path.replace(`${this.installPath}/${namespaceId}/`, '');
       const remotePaths = remoteFiles.map((rf) => rf.path);
 
       if (!remotePaths.includes(localPath)) {
-        await new Promise<void>((resolve) =>
-          fs.unlink(`${this.installPath}/${gameId}/${localPath}`, () => resolve()),
-        );
+        fs.unlinkSync(`${this.installPath}/${namespaceId}/${localPath}`);
       }
     }
   }
 
-  private async download(build: Build, gameId: string) {
-    const status = this.getStatus(gameId);
+  private async download(build: BuildModel, namespaceId: string) {
+    const status = this.getStatus(namespaceId);
 
     let downloadedBytes = 0;
     const start = performance.now();
@@ -319,13 +331,13 @@ export class UpdateService {
     const { fs, request, unzipper } = this.electronService;
 
     return new Promise(async (resolve, reject) => {
-      const accessToken = await this.identityService.getAccessToken();
+      const accessToken = await this.tokenService.getAccessToken();
 
       request
         .get({
           headers: { Authorization: `Bearer ${accessToken.value}` },
           qs: { query: JSON.stringify({ files: files.join('') }) },
-          url: `${this.buildService.basePath}/${status.build._id}/files`,
+          url: `${environment.apiUrl}/namespaces/${namespaceId}/builds/${status.build._id}/files`,
         })
         .on('data', (data) => {
           downloadedBytes += data.length;
@@ -344,7 +356,7 @@ export class UpdateService {
             return;
           }
 
-          const target = `${this.installPath}/${gameId}/${entry.path}`;
+          const target = `${this.installPath}/${namespaceId}/${entry.path}`;
           const targetDirectory = target.substr(0, target.lastIndexOf('/'));
           fs.mkdirSync(targetDirectory, { recursive: true });
 
@@ -354,38 +366,23 @@ export class UpdateService {
     });
   }
 
-  private async getAuthorization(gameId: string) {
-    const game = await this.gameService.findOne(gameId);
-    const gameAuthorizations = await this.gameAuthorizationService.find({
-      where: { gameId, userId: this.identityService.user._id },
-    });
-
-    let namespace: Namespace;
-    try {
-      namespace = await this.namespaceService.findOne(game.namespaceId);
-    } catch {}
-    const namespaceUser = namespace?.users.find((u) => u._id === this.identityService.user._id);
-
-    return { game, gameAuthorization: gameAuthorizations[0], namespaceUser };
-  }
-
-  private async getCachedFiles(gameId: string) {
+  private async getCachedFiles(namespaceId: string) {
     const { fs } = this.electronService;
 
-    const isCached = fs.existsSync(`${this.installPath}/${gameId}.json`);
+    const isCached = fs.existsSync(`${this.installPath}/${namespaceId}.json`);
     if (!isCached) {
       return null;
     }
 
-    const file = fs.readFileSync(`${this.installPath}/${gameId}.json`, 'utf8');
+    const file = fs.readFileSync(`${this.installPath}/${namespaceId}.json`, 'utf8');
     return JSON.parse(file);
   }
 
-  private async getLocalFiles(gameId: string) {
+  private async getLocalFiles(namespaceId: string) {
     const { crypto, fs, glob } = this.electronService;
-    const status = this.getStatus(gameId);
+    const status = this.getStatus(namespaceId);
 
-    const files = glob.sync(`${this.installPath}/${gameId}/**/*`, { nodir: true });
+    const files = glob.sync(`${this.installPath}/${namespaceId}/**/*`, { nodir: true });
 
     const localFiles: { md5: string; path: string }[] = [];
     for (let i = 0; i < files.length; i++) {
@@ -409,13 +406,13 @@ export class UpdateService {
     }
 
     fs.mkdirSync(this.installPath, { recursive: true });
-    fs.writeFileSync(`${this.installPath}/${gameId}.json`, JSON.stringify(localFiles));
+    fs.writeFileSync(`${this.installPath}/${namespaceId}.json`, JSON.stringify(localFiles));
 
     return localFiles;
   }
 
-  private getUpdatedFiles(gameId: string, localFiles: UpdateServiceLocalFile[]) {
-    const status = this.getStatus(gameId);
+  private getUpdatedFiles(namespaceId: string, localFiles: UpdateServiceLocalFile[]) {
+    const status = this.getStatus(namespaceId);
 
     let updatedFiles = status.build.files;
     if (localFiles.length > 0) {
@@ -427,7 +424,7 @@ export class UpdateService {
       updatedFiles = status.build.files.filter((rf, i) => {
         status.progress = { current: i, total: status.build.files.length };
 
-        const localFile = localFilePaths[`${this.installPath}/${gameId}/${rf.path}`];
+        const localFile = localFilePaths[`${this.installPath}/${namespaceId}/${rf.path}`];
         return !localFile || localFile.md5 !== rf.md5;
       });
     }
@@ -435,38 +432,35 @@ export class UpdateService {
     return updatedFiles;
   }
 
-  private onGameChange(record: Game) {
-    this.checkForUpdates(record._id);
-  }
-
-  private onGameAuthorizationChange(record: GameAuthorization) {
+  private onAuthorizationChange(record: AuthorizationModel) {
     if (record.userId !== this.identityService.user._id) {
       return;
     }
 
-    this.checkForUpdates(record.gameId);
+    this.checkForUpdates(record.namespaceId);
+  }
+
+  private onBuildChange(record: BuildModel) {
+    if (!record.namespaceId) {
+      return;
+    }
+
+    this.checkForUpdates(record.namespaceId);
+  }
+
+  private onStorefrontChange(record: StorefrontModel) {
+    this.checkForUpdates(record.namespaceId);
   }
 
   private subscribeToServices() {
-    this.buildService.onUpdate.subscribe((record: Build) => {
-      if (!record.gameId) {
-        return;
-      }
+    this.authorizationService.emitter.on('create', this.onAuthorizationChange.bind(this));
+    this.authorizationService.emitter.on('delete', this.onAuthorizationChange.bind(this));
+    this.authorizationService.emitter.on('update', this.onAuthorizationChange.bind(this));
 
-      this.checkForUpdates(record.gameId);
-    });
+    this.buildService.emitter.on('update', this.onBuildChange.bind(this));
 
-    this.gameService.onCreate.subscribe((record: Game) => this.onGameChange(record));
-    this.gameService.onDelete.subscribe((record: Game) => this.onGameChange(record));
-    this.gameService.onUpdate.subscribe((record: Game) => this.onGameChange(record));
-    this.gameAuthorizationService.onCreate.subscribe((record: GameAuthorization) =>
-      this.onGameAuthorizationChange(record),
-    );
-    this.gameAuthorizationService.onDelete.subscribe((record: GameAuthorization) =>
-      this.onGameAuthorizationChange(record),
-    );
-    this.gameAuthorizationService.onUpdate.subscribe((record: GameAuthorization) =>
-      this.onGameAuthorizationChange(record),
-    );
+    this.storefrontService.emitter.on('delete', this.onStorefrontChange.bind(this));
+    this.storefrontService.emitter.on('update', this.onStorefrontChange.bind(this));
+    this.storefrontService.emitter.on('create', this.onStorefrontChange.bind(this));
   }
 }

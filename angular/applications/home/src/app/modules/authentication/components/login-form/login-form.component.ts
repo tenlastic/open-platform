@@ -35,13 +35,13 @@ export class LoginFormComponent implements OnInit {
     this.logIn.emit(values);
   }
 
-  private setupForm(): void {
+  private setupForm() {
     this.form = new FormGroup({
       password: new FormControl('', Validators.required),
       username: new FormControl('', [Validators.required]),
     });
 
-    this.form.valueChanges.subscribe(data => {
+    this.form.valueChanges.subscribe((data) => {
       this.error = null;
     });
   }

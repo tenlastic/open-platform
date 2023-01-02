@@ -1,0 +1,22 @@
+components:
+  schemas:
+    Namespace:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ^[0-9a-f]{24}$
+        createdAt:
+          type: string
+          format: date-time
+        limits:
+          $ref: '#/components/schemas/NamespaceLimits'
+        name:
+          type: string
+        status:
+          $ref: '#/components/schemas/NamespaceStatus'
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - name

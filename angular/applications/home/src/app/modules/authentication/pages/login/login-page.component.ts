@@ -1,11 +1,9 @@
 import { DOCUMENT } from '@angular/common';
 import { Component, Inject, OnInit, ViewChild } from '@angular/core';
-import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { LoginService } from '@tenlastic/ng-http';
+import { LoginService, TokenService } from '@tenlastic/http';
 
-import { IdentityService } from '../../../../core/services';
-import { TITLE } from '../../../../shared/constants';
+import { ElectronService } from '../../../../core/services';
 import { ILogIn, LoginFormComponent } from '../../components';
 
 @Component({
@@ -21,19 +19,21 @@ export class LoginPageComponent implements OnInit {
   public isLoggingIn = false;
   public loadingMessage: string;
 
+  private get isOAuth() {
+    return this.activatedRoute.snapshot.queryParamMap.has('redirectUrl');
+  }
+
   constructor(
     private activatedRoute: ActivatedRoute,
     @Inject(DOCUMENT) private document: Document,
-    private identityService: IdentityService,
+    private electronService: ElectronService,
     private loginService: LoginService,
     private router: Router,
-    private titleService: Title,
-  ) {
-    this.titleService.setTitle(`${TITLE} | Log In`);
-  }
+    private tokenService: TokenService,
+  ) {}
 
   public ngOnInit() {
-    if (this.identityService.getRefreshToken()) {
+    if (this.isOAuth && this.tokenService.getRefreshToken()) {
       this.refreshToken();
     }
   }
@@ -51,13 +51,11 @@ export class LoginPageComponent implements OnInit {
   }
 
   private async logIn() {
-    const { snapshot } = this.activatedRoute;
+    if (this.isOAuth) {
+      const accessToken = await this.tokenService.getAccessToken();
+      const refreshToken = this.tokenService.getRefreshToken();
 
-    if (snapshot.queryParamMap.has('redirectUrl')) {
-      const accessToken = await this.identityService.getAccessToken();
-      const refreshToken = this.identityService.getRefreshToken();
-
-      const redirectUrl = snapshot.queryParamMap.get('redirectUrl');
+      const redirectUrl = this.activatedRoute.snapshot.queryParamMap.get('redirectUrl');
       const url = new URL(redirectUrl);
       url.searchParams.delete('accessToken');
       url.searchParams.append('accessToken', accessToken.value);
@@ -66,7 +64,7 @@ export class LoginPageComponent implements OnInit {
 
       this.document.location.href = redirectUrl.split('?')[0] + url.search;
     } else {
-      this.router.navigateByUrl('/');
+      this.router.navigateByUrl(this.electronService.isElectron ? '/store' : '/');
     }
   }
 
@@ -74,7 +72,7 @@ export class LoginPageComponent implements OnInit {
     this.loadingMessage = 'Logging in...';
 
     try {
-      const refreshToken = this.identityService.getRefreshToken();
+      const refreshToken = this.tokenService.getRefreshToken();
       await this.loginService.createWithRefreshToken(refreshToken.value);
 
       return this.logIn();

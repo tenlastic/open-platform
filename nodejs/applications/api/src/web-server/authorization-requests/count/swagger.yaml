@@ -1,0 +1,41 @@
+paths:
+  /authorization-requests/count:
+    get:
+      summary: Count
+      tags: [Authorization Requests]
+      description: Returns the number of matching records for the query.
+      security:
+        - AccessToken: []
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: number
+  /namespaces/{namespaceId}/authorization-requests/count:
+    get:
+      summary: Count
+      tags: [Authorization Requests]
+      description: Returns the number of matching records for the query.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: namespaceId
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: number

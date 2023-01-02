@@ -1,0 +1,21 @@
+components:
+  schemas:
+    GameServerProbesProbe:
+      type: object
+      properties:
+        exec:
+          $ref: '#/components/schemas/GameServerProbesProbeExec'
+        failureThreshold:
+          type: number
+        http:
+          $ref: '#/components/schemas/GameServerProbesProbeHttp'
+        initialDelaySeconds:
+          type: number
+        periodSeconds:
+          type: number
+        successThreshold:
+          type: number
+        tcp:
+          $ref: '#/components/schemas/GameServerProbesProbeTcp'
+        timeoutSeconds:
+          type: number

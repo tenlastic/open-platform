@@ -10,8 +10,8 @@ const noop = async () => {};
 
 use(chaiAsPromised);
 
-describe('middleware/api-key', function() {
-  it(`sets the API Key state object`, async function() {
+describe('middleware/api-key', function () {
+  it(`sets the API Key state object`, async function () {
     const ctx = new ContextMock({
       request: {
         headers: {

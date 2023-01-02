@@ -1,0 +1,18 @@
+paths:
+  /password-resets:
+    post:
+      summary: Request Password Reset
+      tags: [Password Resets]
+      description: Registers a new Password Reset and emails the User with further instructions.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        200:
+          description: OK

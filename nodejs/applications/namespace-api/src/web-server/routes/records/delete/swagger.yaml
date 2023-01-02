@@ -1,0 +1,34 @@
+paths:
+  /namespaces/{namespaceId}/collections/{collectionId}/records/{_id}:
+    delete:
+      summary: Delete
+      tags: [Records]
+      description: Deletes an existing record.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: _id
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: collectionId
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: namespaceId
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  record:
+                    $ref: '#/components/schemas/Record'

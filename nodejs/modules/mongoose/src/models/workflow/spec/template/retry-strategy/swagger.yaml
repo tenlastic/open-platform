@@ -1,0 +1,13 @@
+components:
+  schemas:
+    WorkflowSpecTemplateRetryStrategy:
+      type: object
+      properties:
+        limit:
+          type: integer
+        retryPolicy:
+          type: string
+          enum: [OnError, OnFailure]
+      required:
+        - limit
+        - retryPolicy

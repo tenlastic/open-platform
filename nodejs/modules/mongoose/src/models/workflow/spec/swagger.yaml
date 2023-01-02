@@ -1,0 +1,18 @@
+components:
+  schemas:
+    WorkflowSpec:
+      type: object
+      properties:
+        arguments:
+          $ref: '#/components/schemas/WorkflowSpecArguments'
+        entrypoint:
+          type: string
+        parallelism:
+          type: number
+        templates:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowSpecTemplate'
+      required:
+        - entrypoint
+        - templates

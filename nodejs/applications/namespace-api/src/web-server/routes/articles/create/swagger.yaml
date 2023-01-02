@@ -1,0 +1,29 @@
+paths:
+  /namespaces/{namespaceId}/articles:
+    post:
+      summary: Create
+      tags: [Articles]
+      description: Creates a new record.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: namespaceId
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Article'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  record:
+                    $ref: '#/components/schemas/Article'

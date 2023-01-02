@@ -1,18 +1,16 @@
 import { Injectable } from '@angular/core';
 import { CanActivate } from '@angular/router';
-import { LoginService } from '@tenlastic/ng-http';
-
-import { IdentityService } from '../../services';
+import { LoginService, TokenService } from '@tenlastic/http';
 
 @Injectable({ providedIn: 'root' })
 export class LoginGuard implements CanActivate {
-  constructor(private identityService: IdentityService, private loginService: LoginService) {}
+  constructor(private loginService: LoginService, private tokenService: TokenService) {}
 
   public async canActivate() {
-    const refreshToken = this.identityService.getRefreshToken();
+    const refreshToken = this.tokenService.getRefreshToken();
 
     if (!refreshToken || refreshToken.isExpired) {
-      this.loginService.onLogout.emit();
+      this.loginService.emitter.emit('logout');
       return false;
     }
 
@@ -20,7 +18,7 @@ export class LoginGuard implements CanActivate {
   }
 
   public canActivateChild() {
-    const refreshToken = this.identityService.getRefreshToken();
+    const refreshToken = this.tokenService.getRefreshToken();
     return Boolean(refreshToken);
   }
 }

@@ -1,6 +1,6 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { AbstractControl, FormControl } from '@angular/forms';
-import { User, UserQuery, UserService } from '@tenlastic/ng-http';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { FormControl } from '@angular/forms';
+import { UserModel, UserQuery, UserService } from '@tenlastic/http';
 import { Observable, Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
@@ -11,29 +11,28 @@ import { debounceTime } from 'rxjs/operators';
 })
 export class AutocompleteUserFieldComponent implements OnInit {
   @Input() public control: FormControl;
+  @Input() public removeButton: boolean;
+  @Input() public removeButtonTooltip: string;
+  @Output() public OnRemove = new EventEmitter();
 
-  public $users = new Observable<User[]>();
+  public $users = new Observable<UserModel[]>();
   public isLoading = false;
-  public get isRequired() {
-    const validator = this.control.validator({} as AbstractControl);
-    return validator?.required;
-  }
 
   private subject = new Subject<string>();
 
   constructor(private userQuery: UserQuery, private userService: UserService) {}
 
   public ngOnInit() {
-    this.subject.pipe(debounceTime(300)).subscribe(username => this.findUsers(username));
+    this.subject.pipe(debounceTime(300)).subscribe((username) => this.findUsers(username));
   }
 
-  public displayWith(user: User) {
+  public displayWith(user: UserModel) {
     return user?.username;
   }
 
   public async onFocusOut() {
     // Wait 100ms for autocomplete selection.
-    await new Promise(res => setTimeout(res, 100));
+    await new Promise((res) => setTimeout(res, 100));
 
     if (!this.control.value || !this.control.value.username) {
       this.control.setValue(null);
@@ -47,12 +46,10 @@ export class AutocompleteUserFieldComponent implements OnInit {
   private async findUsers(username: string) {
     this.isLoading = true;
 
-    this.$users = this.userQuery.selectAll({ filterBy: u => u.username.startsWith(username) });
+    this.$users = this.userQuery.selectAll({ filterBy: (u) => u.username.startsWith(username) });
     await this.userService.find({
       sort: 'username',
-      where: {
-        username: { $regex: `^${username}`, $options: 'i' },
-      },
+      where: { username: { $regex: `^${username}`, $options: 'i' } },
     });
 
     this.isLoading = false;

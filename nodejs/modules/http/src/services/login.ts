@@ -1,28 +1,59 @@
-import { apiUrl } from '../api-url';
-import * as request from '../request';
+import { EventEmitter } from 'events';
+import TypedEmitter from 'typed-emitter';
+
+import { ApiService } from './api';
+import { EnvironmentService } from './environment';
+
+export type LoginServiceEvents = {
+  login: (response: LoginServiceResponse) => void;
+  logout: () => void;
+  refresh: (response: LoginServiceResponse) => void;
+};
+
+export interface LoginServiceResponse {
+  accessToken: string;
+  refreshToken: string;
+}
 
 export class LoginService {
+  public get emitter() {
+    return this._emitter;
+  }
+
+  private _emitter = new EventEmitter() as TypedEmitter<LoginServiceEvents>;
+
+  constructor(private apiService: ApiService, private environmentService: EnvironmentService) {}
+
   /**
-   * Logs in with username and password.
+   * Logs in with a Username and Password.
    */
   public async createWithCredentials(username: string, password: string) {
+    const parameters = { password, username };
     const url = this.getUrl();
-    const response = await request.promise(url, { json: { password, username }, method: 'post' });
+    const response = await this.apiService.request({ data: parameters, method: 'post', url });
 
-    return { accessToken: response.accessToken, refreshToken: response.refreshToken };
+    const { accessToken, refreshToken } = response.data as LoginServiceResponse;
+    this.emitter.emit('login', { accessToken, refreshToken });
+
+    return { accessToken, refreshToken };
   }
 
   /**
-   * Logs in with a refresh token.
+   * Logs in with a Refresh Token.
    */
-  public async createWithRefreshToken(refreshToken: string) {
+  public async createWithRefreshToken(token: string) {
+    const parameters = { token };
     const url = this.getUrl();
-    const response = await request.promise(`${url}/refresh-token`, {
-      json: { token: refreshToken },
+    const response = await this.apiService.request({
+      data: parameters,
       method: 'post',
+      url: `${url}/refresh-token`,
     });
 
-    return { accessToken: response.accessToken, refreshToken: response.refreshToken };
+    const { accessToken, refreshToken } = response.data as LoginServiceResponse;
+    this.emitter.emit('refresh', { accessToken, refreshToken });
+
+    return { accessToken, refreshToken };
   }
 
   /**
@@ -30,12 +61,15 @@ export class LoginService {
    */
   public async delete() {
     const url = this.getUrl();
-    return request.promise(url, { json: true, method: 'delete' });
+    await this.apiService.request({ method: 'delete', url });
+
+    this.emitter.emit('logout');
   }
 
+  /**
+   * Returns the base URL for this Model.
+   */
   private getUrl() {
-    return `${apiUrl}/logins`;
+    return `${this.environmentService.apiUrl}/logins`;
   }
 }
-
-export const loginService = new LoginService();

@@ -1,15 +1,35 @@
-import { AuthenticationData, WebSocket } from '../web-socket-server';
-import { subscriptions } from './subscribe';
+import { Context, StatusCode, WebSocket } from '../definitions';
 
-export async function unsubscribe(auth: AuthenticationData, data: any, ws: WebSocket) {
-  if (!subscriptions.has(ws) || !subscriptions.get(ws).has(data._id)) {
+type UnsubscribeCallback = () => void;
+
+const unsubscribeCallbacks = new Map<WebSocket, Map<string, UnsubscribeCallback>>();
+
+export function deleteUnsubscribeCallback(_id: string, ws: WebSocket) {
+  if (!unsubscribeCallbacks.has(ws)) {
     return;
   }
 
-  // Disconnect the NATS subscription.
-  const subscription = subscriptions.get(ws).get(data._id);
-  subscription.unsubscribe();
+  unsubscribeCallbacks.get(ws).delete(_id);
 
-  // Remove the NATS subscription from memory.
-  subscriptions.get(ws).delete(data._id);
+  if (unsubscribeCallbacks.get(ws).size === 0) {
+    unsubscribeCallbacks.delete(ws);
+  }
+}
+
+export function setUnsubscribeCallback(_id: string, callback: UnsubscribeCallback, ws: WebSocket) {
+  if (!unsubscribeCallbacks.has(ws)) {
+    unsubscribeCallbacks.set(ws, new Map());
+  }
+
+  unsubscribeCallbacks.get(ws).set(_id, callback);
+}
+
+export async function unsubscribe(ctx: Context) {
+  const callback = unsubscribeCallbacks.get(ctx.ws)?.get(ctx.params._id);
+
+  if (callback) {
+    callback();
+  }
+
+  ctx.response.status = StatusCode.OK;
 }

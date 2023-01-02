@@ -1,2 +1,2 @@
+export * from './identity/identity.guard';
 export * from './login/login.guard';
-export * from './namespace/namespace.guard';

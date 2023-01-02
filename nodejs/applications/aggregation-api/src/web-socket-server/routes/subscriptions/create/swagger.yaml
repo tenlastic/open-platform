@@ -1,0 +1,70 @@
+paths:
+  /subscriptions/{collection}:
+    post:
+      summary: Create
+      tags: [Subscriptions]
+      description: Creates a new subscription.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: collection
+          schema:
+            type: string
+            enum:
+              - authorization-requests
+              - authorizations
+              - friends
+              - group-invitations
+              - groups
+              - ignorations
+              - match-invitations
+              - matches
+              - messages
+              - namespaces
+              - queue-members
+              - storefronts
+              - users
+              - web-sockets
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                operationType:
+                  type: string
+                  enum: ['delete', 'insert', 'replace', 'update']
+                resumeToken:
+                  type: string
+                where:
+                  type: object
+      responses:
+        200:
+          description: OK
+        202:
+          description: Accepted
+        206:
+          description: Partial Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fullDocument:
+                    type: object
+                  operationType:
+                    type: string
+                    enum: ['delete', 'insert', 'replace', 'update']
+                  resumeToken:
+                    type: string
+                  updateDescription:
+                    type: object
+                    properties:
+                      removedFields:
+                        type: array
+                        items:
+                          type: string
+                      updatedFields:
+                        type: object

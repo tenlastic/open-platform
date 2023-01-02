@@ -1,16 +1,17 @@
-apiVersion: helm.fluxcd.io/v1
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  annotations:
-    fluxcd.io/automated: "true"
   name: argo-workflows
   namespace: static
 spec:
   chart:
-    git: https://github.com/tenlastic/open-platform
-    path: kubernetes/helm/argo-workflows/
-    ref: master
-    skipDepUpdate: true
+    spec:
+      chart: argo-workflows
+      sourceRef:
+        kind: HelmRepository
+        name: argo
+      version: 0.20.1
+  interval: 5m
   releaseName: argo-workflows
   values:
     controller:
@@ -32,17 +33,28 @@ spec:
                       values:
                         - argo-workflows-workflow-controller
                 topologyKey: kubernetes.io/hostname
-      containerRuntimeExecutor: pns
-      image:
-        tag: v3.3.6
+      containerRuntimeExecutor: emissary
+      extraEnv:
+        - name: POD_NAMES
+          value: v1
       replicas: 1
       resources:
         requests:
           cpu: 25m
-          memory: 25Mi
+          memory: 25M
+      workflowNamespaces:
+        - dynamic
+        - static
     executor:
-      image:
-        tag: v3.3.6
+      resources:
+        requests:
+          cpu: 0
+          memory: 0
+    mainContainer:
+      resources:
+        requests:
+          cpu: 0
+          memory: 0
     server:
       affinity:
         nodeAffinity:
@@ -64,42 +76,31 @@ spec:
                 topologyKey: kubernetes.io/hostname
       extraArgs:
         - --auth-mode=server
-      image:
-        tag: v3.3.6
+      extraEnv:
+        - name: POD_NAMES
+          value: v1
       replicas: 3
       resources:
         requests:
           cpu: 25m
-          memory: 25Mi
-    singleNamespace: true
+          memory: 25M
+    workflow:
+      rbac:
+        create: false
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: argo-workflow
+  name: argo-workflows
   namespace: static
 rules:
   - apiGroups:
-      - ""
+      - argoproj.io
     resources:
-      - pods
-    verbs:
-      - get
-      - watch
-      - patch
-  - apiGroups:
-      - ""
-    resources:
-      - pods/exec
+      - workflowtaskresults
     verbs:
       - create
-  - apiGroups:
-      - ""
-    resources:
-      - pods/log
-    verbs:
-      - get
-      - watch
+      - patch
   - apiGroups:
       - ""
     resources:
@@ -110,19 +111,19 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: argo-workflow
+  name: argo-workflows
   namespace: static
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: argo-workflow
+  name: argo-workflows
 subjects:
   - kind: ServiceAccount
-    name: argo-workflow
+    name: argo-workflows
     namespace: static
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: argo-workflow
+  name: argo-workflows
   namespace: static

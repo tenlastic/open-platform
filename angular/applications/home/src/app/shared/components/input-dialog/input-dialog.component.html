@@ -1,30 +1,35 @@
-<form [formGroup]="form" autocomplete="off">
-  <div *ngIf="data.title" mat-dialog-title>{{ data.title }}</div>
+<form [formGroup]="form"
+      autocomplete="off">
+  <div *ngIf="data.title"
+       mat-dialog-title>{{ data.title }}</div>
   <div mat-dialog-content>
     <mat-form-field floatLabel="always">
       <mat-label>{{ data.label }}</mat-label>
-      <input
-        matInput
-        formControlName="input"
-        [matAutocomplete]="auto"
-        [type]="data.type ? data.type : 'text'"
-      />
+      <input matInput
+             formControlName="input"
+             [matAutocomplete]="auto"
+             [attr.maxlength]="data.maxlength"
+             [type]="data.type ? data.type : 'text'" />
       <mat-error>{{ data.error }}</mat-error>
     </mat-form-field>
 
     <mat-autocomplete #auto="matAutocomplete">
-      <mat-option *ngFor="let option of options" [value]="option.value">
+      <mat-option *ngFor="let option of options"
+                  [value]="option.value">
         {{ option.label }}
       </mat-option>
     </mat-autocomplete>
   </div>
 
   <div mat-dialog-actions>
-    <app-button color="accent" (click)="dialogRef.close()">
-      Cancel
+    <app-button color="accent"
+                (click)="dialogRef.close()">
+      <div>Cancel</div>
     </app-button>
-    <app-button color="primary" (click)="submit()">
-      Submit
+
+    <app-button color="primary"
+                (click)="submit()">
+      <div>Submit</div>
     </app-button>
   </div>
 </form>

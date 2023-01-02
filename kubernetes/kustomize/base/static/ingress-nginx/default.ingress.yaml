@@ -1,0 +1,171 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    certmanager.k8s.io/cluster-issuer: letsencrypt-production
+    kubernetes.io/ingress.allow-http: "false"
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: "true"
+    nginx.ingress.kubernetes.io/configuration-snippet: proxy_set_header  X-Forwarded-Proto https;
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "1G"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "3"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/server-snippet: rewrite /discord https://discord.gg/AXSfWq permanent;
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  name: default
+  namespace: static
+spec:
+  rules:
+    - host: api.tenlastic.com
+      http:
+        paths:
+          - path: /friends
+            pathType: Prefix
+            backend:
+              service:
+                name: social-api
+                port:
+                  number: 3000
+          - path: /group-invitations
+            pathType: Prefix
+            backend:
+              service:
+                name: social-api
+                port:
+                  number: 3000
+          - path: /groups
+            pathType: Prefix
+            backend:
+              service:
+                name: social-api
+                port:
+                  number: 3000
+          - path: /ignorations
+            pathType: Prefix
+            backend:
+              service:
+                name: social-api
+                port:
+                  number: 3000
+          - path: /match-invitations
+            pathType: Prefix
+            backend:
+              service:
+                name: aggregation-api
+                port:
+                  number: 3000
+          - path: /matches
+            pathType: Prefix
+            backend:
+              service:
+                name: aggregation-api
+                port:
+                  number: 3000
+          - path: /messages
+            pathType: Prefix
+            backend:
+              service:
+                name: social-api
+                port:
+                  number: 3000
+          - path: /queue-members
+            pathType: Prefix
+            backend:
+              service:
+                name: aggregation-api
+                port:
+                  number: 3000
+          - path: /storefronts
+            pathType: Prefix
+            backend:
+              service:
+                name: aggregation-api
+                port:
+                  number: 3000
+          - path: /swagger
+            pathType: Prefix
+            backend:
+              service:
+                name: documentation
+                port:
+                  number: 3000
+          - path: /web-sockets
+            pathType: Prefix
+            backend:
+              service:
+                name: aggregation-api
+                port:
+                  number: 3000
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: api
+                port:
+                  number: 3000
+    - host: docker-registry.tenlastic.com
+      http:
+        paths:
+          - path: /v2/
+            pathType: Prefix
+            backend:
+              service:
+                name: docker-registry
+                port:
+                  number: 5000
+    - host: minio.tenlastic.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: minio
+                port:
+                  number: 9000
+    - host: minio-console.tenlastic.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: minio
+                port:
+                  number: 9001
+    - host: verdaccio.tenlastic.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: verdaccio-internal
+                port:
+                  number: 4873
+    - host: wss.tenlastic.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: aggregation-api
+                port:
+                  number: 3000
+    - host: www.tenlastic.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: home-ui
+                port:
+                  number: 80
+  tls:
+    - hosts: ["*.tenlastic.com"]
+      secretName: default-tls

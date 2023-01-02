@@ -1,0 +1,65 @@
+<app-sidenav>
+  <ng-container *ngIf="$namespace | async as namespace">
+    <div *ngIf="$queue | async as queue"
+         appNav
+         class="nav">
+      <app-button color="accent"
+                  [disabled]="namespace.status.phase !== 'Running'"
+                  layout="vertical"
+                  [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
+                  matTooltipPosition="right"
+                  [ngClass]="{ active: isActive }"
+                  [routerLink]="namespace.status.phase === 'Running' ? ['./'] : null"
+                  text="left"
+                  width="full">
+        <mat-icon>hourglass_bottom</mat-icon>
+        <div>{{ queue.name }}</div>
+      </app-button>
+
+      <hr *ngIf="$hasRelated | async">
+
+      <app-button *ngIf="$hasPermission(IAuthorization.gameServerRoles) | async"
+                  color="accent"
+                  [disabled]="namespace.status.phase !== 'Running'"
+                  layout="vertical"
+                  [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
+                  matTooltipPosition="right"
+                  [routerLink]="namespace.status.phase === 'Running' ? ['game-servers'] : null"
+                  routerLinkActive="active"
+                  text="left"
+                  width="full">
+        <mat-icon>public</mat-icon>
+        <div>Game Servers</div>
+      </app-button>
+
+      <app-button *ngIf="$hasPermission(IAuthorization.matchRoles) | async"
+                  color="accent"
+                  [disabled]="namespace.status.phase !== 'Running'"
+                  layout="vertical"
+                  [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
+                  matTooltipPosition="right"
+                  [routerLink]="namespace.status.phase === 'Running' ? ['matches'] : null"
+                  routerLinkActive="active"
+                  text="left"
+                  width="full">
+        <mat-icon>local_fire_department</mat-icon>
+        <div>Matches</div>
+      </app-button>
+
+      <app-button color="accent"
+                  [disabled]="namespace.status.phase !== 'Running'"
+                  layout="vertical"
+                  [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
+                  matTooltipPosition="right"
+                  [routerLink]="namespace.status.phase === 'Running' ? ['queue-members'] : null"
+                  routerLinkActive="active"
+                  text="left"
+                  width="full">
+        <mat-icon>person</mat-icon>
+        <div>Users</div>
+      </app-button>
+    </div>
+
+    <router-outlet></router-outlet>
+  </ng-container>
+</app-sidenav>

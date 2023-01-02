@@ -1,4 +1,14 @@
-@import '../../../../../../../assets/scss/page.scss';
+@import 'src/assets/scss/form.scss';
+
+app-label {
+  display: block;
+  margin-top: 8px;
+}
+
+app-markdown {
+  display: block;
+  margin-top: 8px;
+}
 
 div.col-sm-6 {
   margin: 0px;
@@ -20,12 +30,6 @@ div.col-sm-6 {
 
   & > mat-label {
     font-size: 12px;
-  }
-}
-
-form {
-  app-button {
-    margin-right: 8px;
   }
 }
 

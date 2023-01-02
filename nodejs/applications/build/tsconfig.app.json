@@ -9,10 +9,11 @@
   "exclude": ["./src/**/*.spec.ts"],
   "include": ["./src"],
   "references": [
-    { "path": "../../modules/minio/tsconfig.app.json" },
-    { "path": "../../modules/mongoose-models/tsconfig.app.json" }
+    { "path": "../../modules/dependency-injection/tsconfig.app.json" },
+    { "path": "../../modules/http/tsconfig.app.json" },
+    { "path": "../../modules/minio/tsconfig.app.json" }
   ],
   "ts-node": {
-    "files": true,
-  },
+    "files": true
+  }
 }

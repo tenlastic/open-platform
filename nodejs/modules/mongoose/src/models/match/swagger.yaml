@@ -1,0 +1,47 @@
+components:
+  schemas:
+    Match:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ^[0-9a-f]{24}$
+        confirmationExpiresAt:
+          type: string
+          format: date-time
+        confirmedUserIds:
+          type: array
+          items:
+            type: string
+            format: ^[0-9a-f]{24}$
+        createdAt:
+          type: string
+          format: date-time
+        finishedAt:
+          type: string
+          format: date-time
+        gameServerTemplateId:
+          type: string
+          format: ^[0-9a-f]{24}$
+        invitationSeconds:
+          type: number
+          minimum: 0
+        namespaceId:
+          type: string
+          format: ^[0-9a-f]{24}$
+        queueId:
+          type: string
+          format: ^[0-9a-f]{24}$
+        teams:
+          type: array
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/MatchTeam'
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - gameServerTemplateId
+        - namespaceId
+        - teams

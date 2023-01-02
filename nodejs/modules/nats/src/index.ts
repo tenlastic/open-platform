@@ -1,5 +1,7 @@
-import { connect, getJetStream, getJetStreamManager } from './connect';
-import { publish } from './publish';
-import { subscribe } from './subscribe';
-
-export default { connect, getJetStream, getJetStreamManager, publish, subscribe };
+export * from './connect';
+export * from './delete-stream';
+export * from './get-consumer';
+export * from './publish';
+export * from './purge-stream';
+export * from './subscribe';
+export * from './upsert-stream';

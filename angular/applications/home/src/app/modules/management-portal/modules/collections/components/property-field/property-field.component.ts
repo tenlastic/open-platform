@@ -10,19 +10,26 @@ export class PropertyFieldComponent implements OnInit {
   @Input() public form: FormGroup;
   @Output() public remove = new EventEmitter();
 
+  public get array() {
+    return this.form.get('array').value;
+  }
+  public get type() {
+    return this.form.get('type').value;
+  }
+
   public ngOnInit() {
-    this.form.controls.type.valueChanges.subscribe(val => {
+    this.form.get('type').valueChanges.subscribe((val) => {
       switch (val) {
         case 'boolean':
-          this.form.controls.default.patchValue(false);
+          this.form.get('default').patchValue(false);
           break;
 
         case 'number':
-          this.form.controls.default.patchValue('');
+          this.form.get('default').patchValue('');
           break;
 
         case 'string':
-          this.form.controls.default.patchValue('');
+          this.form.get('default').patchValue('');
           break;
       }
     });

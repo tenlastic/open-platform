@@ -1,0 +1,99 @@
+@import 'src/assets/scss/theme.scss';
+
+:host {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  width: 100vw;
+}
+
+app-header-toolbar::ng-deep {
+  app-button a.mat-button span.mat-button-wrapper {
+    align-items: center;
+    display: flex;
+    height: 21px;
+
+    & > div {
+      vertical-align: inherit;
+
+      div {
+        margin-top: -4px;
+      }
+    }
+
+    img {
+      height: 32px;
+      max-height: initial;
+      margin: -10px 12px -10px 0px;
+      vertical-align: inherit;
+    }
+
+    mat-icon.mat-icon {
+      line-height: 18px;
+    }
+  }
+
+  mat-toolbar {
+    padding: 0px 8px;
+  }
+}
+
+app-button {
+  div.date {
+    color: #ffff55;
+    margin-right: 8px;
+    text-align: center;
+
+    div.day {
+      font-size: 14px;
+      font-weight: bold;
+      margin: -4px 0px -2px;
+    }
+
+    div.month {
+      font-size: 9px;
+      margin-top: -2px;
+    }
+
+    div.year {
+      font-size: 8px;
+    }
+  }
+}
+
+app-social {
+  div.content {
+    display: flex;
+    flex-direction: column;
+    padding: 0px;
+    position: relative;
+
+    ::ng-deep {
+      ng-component {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+      }
+    }
+  }
+}
+
+div.content {
+  flex: 1 1 auto;
+  overflow: hidden;
+  padding: 0px;
+  position: relative;
+
+  app-sidenav div.content {
+    overflow: auto;
+  }
+}
+
+div.nav {
+  box-shadow: $box-shadow-right;
+
+  img {
+    filter: $drop-shadow;
+    max-width: 192px;
+  }
+}

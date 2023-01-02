@@ -1,0 +1,30 @@
+components:
+  schemas:
+    GroupInvitation:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ^[0-9a-f]{24}$
+        createdAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+        fromUserId:
+          type: string
+          format: ^[0-9a-f]{24}$
+        groupId:
+          type: string
+          format: ^[0-9a-f]{24}$
+        toUserId:
+          type: string
+          format: ^[0-9a-f]{24}$
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - fromUserId
+        - groupId
+        - toUserId

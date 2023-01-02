@@ -1,32 +1,36 @@
-import { gameQuery } from '../stores/game';
 import { BaseModel } from './base';
 import { IWorkflow } from './workflow';
 
 export namespace IBuild {
   export interface File {
-    compressedBytes: number;
-    md5: string;
-    path: string;
-    uncompressedBytes: number;
+    compressedBytes?: number;
+    md5?: string;
+    path?: string;
+    uncompressedBytes?: number;
   }
 
   export interface Node {
-    _id?: string;
     children?: string[];
+    container?: string;
     displayName?: string;
     finishedAt?: Date;
+    id?: string;
     message?: string;
     name?: string;
     outboundNodes?: string[];
+    parent?: string;
     phase?: string;
+    pod?: string;
     startedAt?: Date;
     templatename?: string;
     type?: string;
   }
 
   export enum Platform {
-    Server64 = 'server64',
-    Windows64 = 'windows64',
+    Linux64 = 'Linux64',
+    Mac64 = 'Mac64',
+    Server64 = 'Server64',
+    Windows64 = 'Windows64',
   }
 
   export interface Reference {
@@ -40,10 +44,6 @@ export class BuildModel extends BaseModel {
   public createdAt: Date;
   public entrypoint: string;
   public files: IBuild.File[];
-  public get game() {
-    return gameQuery.getEntity(this.gameId);
-  }
-  public gameId: string;
   public name: string;
   public namespaceId: string;
   public platform: IBuild.Platform;
@@ -52,10 +52,10 @@ export class BuildModel extends BaseModel {
   public status: IWorkflow.Status;
   public updatedAt: Date;
 
-  constructor(parameters: Partial<BuildModel> = {}) {
+  constructor(parameters?: Partial<BuildModel>) {
     super(parameters);
 
-    this.publishedAt = parameters.publishedAt ? new Date(parameters.publishedAt) : null;
+    this.publishedAt = this.publishedAt ? new Date(this.publishedAt) : null;
   }
 
   public getNestedStatusNodes() {
@@ -64,17 +64,24 @@ export class BuildModel extends BaseModel {
     }
 
     const nodes = JSON.parse(JSON.stringify(this.status.nodes));
+    const sortedNodes: IBuild.Node[] = nodes.sort((a, b) => {
+      if (a.startedAt === b.startedAt) {
+        return 0;
+      }
 
-    for (const node of nodes) {
+      return a.startedAt > b.startedAt ? 1 : -1;
+    });
+
+    for (const node of sortedNodes) {
       if (node.children) {
         for (const childId of node.children) {
-          const child = nodes.find(n => n._id === childId);
-          child.parent = node._id;
+          const child = sortedNodes.find((n) => n.id === childId);
+          child.parent = node.id;
         }
       }
     }
 
-    const children = this.getChildren(nodes);
+    const children = this.getChildren(sortedNodes);
 
     return [
       {
@@ -88,12 +95,12 @@ export class BuildModel extends BaseModel {
     ];
   }
 
-  private getChildren(data, parent?) {
+  private getChildren(data: IBuild.Node[], parent?: string) {
     return data.reduce((previous, current) => {
       const obj = Object.assign({}, current);
 
       if (parent === current.parent) {
-        const children = this.getChildren(data, current._id);
+        const children = this.getChildren(data, current.id);
 
         if (children.length) {
           obj.children = children;
@@ -104,5 +111,13 @@ export class BuildModel extends BaseModel {
 
       return previous;
     }, []);
+  }
+
+  public getFilePath(path: string) {
+    return `namespaces/${this.namespaceId}/builds/${this._id}/${path}`;
+  }
+
+  public getZipPath() {
+    return `namespaces/${this.namespaceId}/builds/${this._id}/archive.zip`;
   }
 }

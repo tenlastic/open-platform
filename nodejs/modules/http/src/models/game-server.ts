@@ -1,5 +1,3 @@
-import { gameQuery } from '../stores/game';
-import { queueQuery } from '../stores/queue';
 import { BaseModel } from './base';
 
 export namespace IGameServer {
@@ -18,21 +16,91 @@ export namespace IGameServer {
     { label: '5 GB', value: 5 * 1000 * 1000 * 1000 },
   ];
 
-  export interface Endpoints {
-    tcp?: string;
-    udp?: string;
-    websocket?: string;
+  export enum Protocol {
+    Tcp = 'TCP',
+    Udp = 'UDP',
+  }
+
+  export enum HttpProbeScheme {
+    Http = 'Http',
+    Https = 'Https',
+  }
+
+  export enum StatusComponentName {
+    Application = 'Application',
+    Sidecar = 'Sidecar',
+  }
+
+  export interface ExecProbe {
+    command?: string[];
+  }
+
+  export interface HttpProbe {
+    headers?: HttpProbeHeader[];
+    path?: string;
+    port?: number;
+    scheme?: HttpProbeScheme;
+  }
+
+  export interface HttpProbeHeader {
+    name?: string;
+    value?: string;
+  }
+
+  export interface Port {
+    port?: number;
+    protocol?: Protocol;
+  }
+
+  export interface Probe {
+    exec?: ExecProbe;
+    failureThreshold?: number;
+    http?: HttpProbe;
+    initialDelaySeconds?: number;
+    periodSeconds?: number;
+    successThreshold?: number;
+    tcp?: TcpProbe;
+    timeoutSeconds?: number;
+  }
+
+  export interface Probes {
+    liveness?: Probe;
+    readiness?: Probe;
   }
 
   export interface Status {
-    endpoints?: Endpoints;
+    components?: StatusComponent[];
+    endpoints?: StatusEndpoint[];
+    message?: string;
     nodes?: StatusNode[];
     phase: string;
+    version?: string;
+  }
+
+  export interface StatusComponent {
+    current: number;
+    name: StatusComponentName;
+    phase: string;
+    total: number;
+  }
+
+  export interface StatusEndpoint {
+    externalIp?: string;
+    externalPort?: number;
+    internalIp?: string;
+    internalPort?: number;
+    protocol?: Protocol;
   }
 
   export interface StatusNode {
-    _id: string;
+    component: StatusComponentName;
+    container: string;
     phase: string;
+    pod: string;
+  }
+
+  export interface TcpProbe {
+    port?: number;
   }
 }
 
@@ -42,30 +110,38 @@ export class GameServerModel extends BaseModel {
   public cpu: number;
   public currentUserIds: string[];
   public description: string;
-  public get game() {
-    return gameQuery.getEntity(this.gameId);
-  }
-  public gameId: string;
+  public matchId: string;
   public memory: number;
   public metadata: any;
   public name: string;
   public namespaceId: string;
-  public persistent: boolean;
-  public port: number;
-  public preemptible: boolean;
-  public get queue() {
-    return queueQuery.getEntity(this.queueId);
+  public get persistent() {
+    return !this.matchId;
   }
+  public ports: IGameServer.Port[];
+  public preemptible: boolean;
+  public probes: IGameServer.Probes;
   public queueId: string;
+  public restartedAt: Date;
   public status: IGameServer.Status;
 
-  constructor(parameters: Partial<GameServerModel> = {}) {
+  constructor(parameters?: Partial<GameServerModel>) {
     super(parameters);
+
+    this.restartedAt = parameters?.restartedAt ? new Date(parameters.restartedAt) : null;
   }
 
   public static isRestartRequired(fields: string[]) {
-    const immutableFields = ['buildId', 'cpu', 'memory', 'preemptible'];
+    const immutableFields = [
+      'buildId',
+      'cpu',
+      'memory',
+      'ports',
+      'preemptible',
+      'probes',
+      'restartedAt',
+    ];
 
-    return immutableFields.some(i => fields.includes(i));
+    return immutableFields.some((i) => fields.includes(i));
   }
 }

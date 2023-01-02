@@ -1,6 +1,4 @@
 *.tsbuildinfo
-**/public/swagger.json
-**/public/swagger.yml
 .nyc_output
 lerna-debug.log
 npm-debug.log

@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: api-cdc
+  name: api-cdc
+  namespace: static
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-cdc
+  serviceName: api-cdc
+  template:
+    metadata:
+      labels:
+        app: api-cdc
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: tenlastic.com/low-priority
+                    operator: Exists
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - api-cdc
+                topologyKey: kubernetes.io/hostname
+      containers:
+        - name: cdc
+          image: tenlastic/cdc:0.0.315
+          env:
+            - name: MONGO_DATABASE_NAME
+              value: api
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          envFrom:
+            - secretRef:
+                name: nodejs
+          resources:
+            requests:
+              cpu: 25m
+              memory: 75M

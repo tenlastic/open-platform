@@ -10,7 +10,7 @@
           <div *ngSwitchCase="'Workflow'"
                class="node-name">Workflow</div>
           <div *ngSwitchDefault
-               class="node-name">{{ getDisplayName(node.displayName) }}</div>
+               class="node-name">{{ getLabel(node.displayName) }}</div>
      </ng-container>
 
      <div *ngIf="node.phase === 'Error'"
@@ -24,6 +24,11 @@
           phase="Failed">
           Failed at {{ node.finishedAt | date:'h:mm:ss a on MMM d, y' }}
           <ng-container *ngIf="node.message">({{ node.message }})</ng-container>
+     </div>
+     <div *ngIf="node.phase === 'Omitted'"
+          class="node-phase"
+          phase="Omitted">
+          Omitted
      </div>
      <div *ngIf="node.phase === 'Pending'"
           class="node-phase"
@@ -44,5 +49,5 @@
             layout="left"
             (OnClick)="showLogsDialog()">
      <mat-icon>subject</mat-icon>
-     Logs
+     <div>Logs</div>
 </app-button>

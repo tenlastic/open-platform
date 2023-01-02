@@ -1,0 +1,29 @@
+components:
+  schemas:
+    GameServerStatus:
+      type: object
+      properties:
+        components:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameServerStatusComponent'
+        endpoints:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameServerStatusEndpoint'
+        message:
+          type: string
+        nodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameServerStatusNode'
+        phase:
+          $ref: '#/components/schemas/GameServerStatusPhase'
+        version:
+          type: string
+    GameServerStatusComponentName:
+      type: string
+      enum: [Application, Sidecar]
+    GameServerStatusPhase:
+      type: string
+      enum: [Error, Failed, Pending, Running, Succeeded]

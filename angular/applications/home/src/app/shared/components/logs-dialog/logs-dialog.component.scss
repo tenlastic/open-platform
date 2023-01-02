@@ -71,18 +71,18 @@ div.log {
     cursor: pointer;
   }
 
-  &.collapsed span {
+  &.collapsed div {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  &.expanded span {
+  &.expanded div {
     white-space: pre-wrap;
     word-break: break-word;
   }
 
-  span.timestamp {
+  div.timestamp {
     margin-right: 8px;
     overflow: initial;
     text-overflow: initial;

@@ -1,0 +1,53 @@
+<div class="container">
+  <div *ngIf="!loadingMessage && $storefront | async as storefront"
+       class="page">
+    <div class="row">
+      <div *ngIf="mainMedia && storefront.images?.length || storefront.videos?.length"
+           class="col-sm-7">
+        <mat-grid-list class="main"
+                       cols="1"
+                       rowHeight="1920:1080">
+          <mat-grid-tile class="selected"
+                         [ngStyle]="{ 'background-image': mainMedia.type === 'image' ? 'url(' + mainMedia.src + ')' : null }">
+            <video #video
+                   *ngIf="mainMedia.type === 'video'"
+                   autoplay
+                   controls
+                   muted
+                   onloadedmetadata="this.muted=true">
+              <source [src]="mainMedia.src"
+                      type="video/mp4" />
+            </video>
+          </mat-grid-tile>
+        </mat-grid-list>
+
+        <mat-grid-list [cols]="columns"
+                       gutterSize="8"
+                       rowHeight="1920:1080">
+          <mat-grid-tile *ngFor="let video of videos; let i = index"
+                         [ngClass]="{ selected: mainMedia.src === video }"
+                         (click)="selectMedia(i, 'video')">
+            <video preload="metadata">
+              <source [src]="video"
+                      type="video/mp4" />
+            </video>
+            <mat-icon>play_arrow</mat-icon>
+          </mat-grid-tile>
+          <mat-grid-tile *ngFor="let image of images; let i = index"
+                         [ngClass]="{ selected: mainMedia.src === image }"
+                         [ngStyle]="{ 'background-image': 'url(' + image + ')' }"
+                         (click)="selectMedia(i, 'image')"></mat-grid-tile>
+        </mat-grid-list>
+      </div>
+
+      <div [ngClass]="{ 
+        'col-sm-5': storefront.images?.length || storefront.videos?.length,
+        'col-sm-12': !storefront.images?.length && !storefront.videos?.length 
+      }">
+        <app-markdown [markdown]="storefront.description"></app-markdown>
+      </div>
+    </div>
+  </div>
+
+  <app-loading-message *ngIf="!!loadingMessage">{{ loadingMessage }}</app-loading-message>
+</div>

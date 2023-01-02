@@ -25,7 +25,7 @@ export class WorkflowEnvironmentVariablesFormComponent {
     });
 
     // Transform name to uppercase and only allow alphanumeric characters and underscores.
-    group.valueChanges.subscribe(value => {
+    group.valueChanges.subscribe((value) => {
       const name = value.name.toUpperCase().replace(/[^A-Z0-9_]/g, '');
       group.get('name').setValue(name, { emitEvent: false });
     });

@@ -1,10 +1,12 @@
 <app-header-toolbar>
   <img src="/assets/images/logo.png" />
 
-  <span class="space"></span>
+  <div class="space"></div>
 
-  <app-button *ngIf="!electronService.isElectron" color="primary" [href]="launcherUrl">
-    <span>Download Launcher</span>
+  <app-button *ngIf="!isElectron"
+              color="primary"
+              [href]="launcherUrl">
+    <div>Download Launcher</div>
   </app-button>
 </app-header-toolbar>
 
@@ -12,26 +14,24 @@
   <app-social>
     <app-sidenav>
       <div class="nav">
-        <app-button
-          color="accent"
-          layout="vertical"
-          routerLink="/account"
-          routerLinkActive="active"
-          text="left"
-          width="full"
-        >
-          <span>Account Information</span>
+        <app-button color="accent"
+                    layout="vertical"
+                    routerLink="/account"
+                    routerLinkActive="active"
+                    text="left"
+                    width="full">
+          <mat-icon>manage_accounts</mat-icon>
+          <div>Account Information</div>
         </app-button>
 
-        <app-button
-          color="accent"
-          layout="vertical"
-          routerLink="/authentication/log-out"
-          routerLinkActive="active"
-          text="left"
-          width="full"
-        >
-          <span>Log Out</span>
+        <app-button color="accent"
+                    layout="vertical"
+                    routerLink="/authentication/log-out"
+                    routerLinkActive="active"
+                    text="left"
+                    width="full">
+          <mat-icon>logout</mat-icon>
+          <div>Log Out</div>
         </app-button>
       </div>
 

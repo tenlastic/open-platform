@@ -1,0 +1,30 @@
+.api-key-dialog {
+  div.mat-dialog-actions {
+    ::ng-deep {
+      app-button {
+        margin-left: 0px;
+        margin-right: 0px;
+
+        &:first-of-type {
+          margin-right: 4px;
+        }
+
+        &:last-of-type {
+          margin-left: 4px;
+        }
+      }
+    }
+  }
+
+  div.mat-dialog-content {
+    p {
+      text-align: center;
+      word-break: break-all;
+    }
+  }
+
+  div.mat-dialog-title {
+    font-family: 'Oswald';
+    margin-bottom: 4px;
+  }
+}

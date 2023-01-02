@@ -1,0 +1,23 @@
+<div class="hover-off">
+  <app-button color="accent"
+              text="left">
+    <mat-icon>person_add</mat-icon>
+
+    <div>
+      <div>Group Invitation</div>
+      <div>From {{ getUser(groupInvitation.fromUserId)?.username }}</div>
+    </div>
+  </app-button>
+</div>
+
+<div class="hover-on">
+  <app-button color="accent"
+              (OnClick)="reject()">
+    <div>Reject</div>
+  </app-button>
+
+  <app-button color="primary"
+              (OnClick)="accept()">
+    <div>Accept</div>
+  </app-button>
+</div>

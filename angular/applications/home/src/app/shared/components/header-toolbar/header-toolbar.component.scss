@@ -1,20 +1,23 @@
+@import 'src/assets/scss/theme.scss';
+
 mat-toolbar {
   background: rgba(0, 0, 0, 0.5);
-  box-shadow: 2px 2px 3px black;
-  height: 56px;
+  box-shadow: $box-shadow;
+  height: 48px;
   overflow: initial;
   position: relative;
   z-index: 2;
 
   &::ng-deep {
     img {
-      filter: drop-shadow(2px 3px black);
+      filter: $drop-shadow;
       height: 32px;
+      margin-left: -2px;
       margin-right: 16px;
-      margin-top: 3px;
+      margin-top: 2px;
     }
 
-    span.space {
+    div.space {
       flex: 1 1 auto;
     }
 

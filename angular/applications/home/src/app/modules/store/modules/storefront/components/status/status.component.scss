@@ -1,0 +1,49 @@
+@import 'src/assets/scss/theme.scss';
+
+:host {
+  align-items: center;
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: $box-shadow;
+  display: flex;
+  flex: 0 0 auto;
+  padding: 8px 8px;
+
+  div.action {
+    display: flex;
+    width: 100%;
+
+    app-button {
+      &:not(:first-of-type) {
+        margin-left: 8px;
+      }
+
+      &:not([matTooltip]) {
+        flex: 1;
+      }
+    }
+  }
+
+  div.status {
+    flex: 1 1 auto;
+
+    div {
+      display: flex;
+
+      div {
+        flex: 1 1 auto;
+
+        &:nth-of-type(2) {
+          text-align: right;
+        }
+      }
+    }
+
+    ::ng-deep {
+      mat-progress-bar.mat-progress-bar {
+        height: 16px;
+        margin-bottom: 2px;
+        margin-top: 4px;
+      }
+    }
+  }
+}

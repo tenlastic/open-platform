@@ -1,0 +1,31 @@
+paths:
+  /namespaces/{namespaceId}/collections/{collectionId}/records:
+    get:
+      summary: Find
+      tags: [Records]
+      description: Finds records matching the search criteria.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: collectionId
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: namespaceId
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  records:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Record'

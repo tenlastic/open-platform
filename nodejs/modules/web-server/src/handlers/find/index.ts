@@ -6,11 +6,10 @@ import { Context } from '../../context';
 export function find<TDocument extends mongoose.Document>(
   Permissions: MongoosePermissions<TDocument>,
 ) {
-  return async function(ctx: Context) {
-    const user = ctx.state.apiKey || ctx.state.user;
-
-    const results = await Permissions.find(ctx.request.query, { where: ctx.params }, user);
-    const records = await Promise.all(results.map(r => Permissions.read(r, user)));
+  return async function (ctx: Context) {
+    const credentials = { ...ctx.state };
+    const results = await Permissions.find(credentials, { where: ctx.params }, ctx.request.query);
+    const records = await Promise.all(results.map((r) => Permissions.read(credentials, r)));
 
     ctx.response.body = { records };
   };

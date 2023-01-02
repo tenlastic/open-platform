@@ -1,0 +1,17 @@
+paths:
+  /subscriptions/{collection}/naks:
+    post:
+      summary: NAK
+      tags: [Subscriptions]
+      description: NAKs the latest message on an existing subscription.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: collection
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK

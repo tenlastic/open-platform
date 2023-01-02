@@ -1,0 +1,99 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 32px);
+  overflow: hidden;
+  width: 100vw;
+}
+
+app-header-toolbar::ng-deep {
+  app-button a.mat-button span.mat-button-wrapper {
+    & > div {
+      margin-top: 0px;
+
+      div {
+        margin-top: -4px;
+      }
+    }
+
+    img {
+      height: 32px;
+      max-height: initial;
+      margin: -10px 12px -10px 0px;
+    }
+
+    mat-icon.mat-icon {
+      line-height: 18px;
+    }
+  }
+
+  mat-toolbar {
+    padding: 0px 8px;
+  }
+}
+
+app-social {
+  div.content {
+    display: flex;
+    flex-direction: column;
+    padding: 0px;
+    position: relative;
+
+    ::ng-deep {
+      ng-component {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+      }
+    }
+  }
+}
+
+div.content {
+  flex: 1 1 auto;
+  overflow: hidden;
+  padding: 0px;
+  position: relative;
+
+  app-button {
+    div.search {
+      margin-top: -2px;
+    }
+
+    div.title {
+      margin-top: -6px;
+
+      div {
+        display: block;
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        &:nth-child(2) {
+          font-size: 80%;
+          line-height: 80%;
+        }
+
+        &:only-child {
+          margin-top: 8px;
+        }
+      }
+    }
+
+    img {
+      max-height: 36px !important;
+    }
+
+    mat-icon.mat-icon {
+      font-size: 36px !important;
+      height: 34px !important;
+      line-height: 36px !important;
+      vertical-align: middle !important;
+      width: 34px !important;
+    }
+  }
+
+  app-sidenav div.content {
+    overflow: auto;
+  }
+}

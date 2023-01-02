@@ -1,20 +1,10 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { User, UserService } from '@tenlastic/ng-http';
+import { UserModel, UserService } from '@tenlastic/http';
 
-import {
-  IdentityService,
-  SelectedNamespaceService,
-  TextareaService,
-} from '../../../../../../core/services';
-import {
-  BreadcrumbsComponentBreadcrumb,
-  PromptComponent,
-} from '../../../../../../shared/components';
+import { FormService, TextareaService } from '../../../../../../core/services';
 import { jsonValidator } from '../../../../../../shared/validators';
 
 @Component({
@@ -22,35 +12,24 @@ import { jsonValidator } from '../../../../../../shared/validators';
   styleUrls: ['./json-page.component.scss'],
 })
 export class UsersJsonPageComponent implements OnInit {
-  public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
-  public data: User;
+  public data: UserModel;
   public errors: string[] = [];
   public form: FormGroup;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
-    public identityService: IdentityService,
-    private matDialog: MatDialog,
+    private formService: FormService,
     private matSnackBar: MatSnackBar,
     private router: Router,
-    private selectedNamespaceService: SelectedNamespaceService,
     private textareaService: TextareaService,
     private userService: UserService,
   ) {}
 
   public ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async (params) => {
-      const _id = params.get('_id');
-
-      this.breadcrumbs = [
-        { label: 'Users', link: '../../' },
-        { label: _id === 'new' ? 'Create User' : 'Edit User', link: '../' },
-        { label: _id === 'new' ? 'Create User as JSON' : 'Edit User as JSON' },
-      ];
-
-      if (_id !== 'new') {
-        this.data = await this.userService.findOne(_id);
+    this.activatedRoute.params.subscribe(async (params) => {
+      if (params.userId !== 'new') {
+        this.data = await this.userService.findOne(params.userId);
       }
 
       this.setupForm();
@@ -58,25 +37,7 @@ export class UsersJsonPageComponent implements OnInit {
   }
 
   public navigateToForm() {
-    if (this.form.dirty) {
-      const dialogRef = this.matDialog.open(PromptComponent, {
-        data: {
-          buttons: [
-            { color: 'primary', label: 'No' },
-            { color: 'accent', label: 'Yes' },
-          ],
-          message: 'Changes will not be saved. Is this OK?',
-        },
-      });
-
-      dialogRef.afterClosed().subscribe(async (result) => {
-        if (result === 'Yes') {
-          this.router.navigate([`../`], { relativeTo: this.activatedRoute });
-        }
-      });
-    } else {
-      this.router.navigate([`../`], { relativeTo: this.activatedRoute });
-    }
+    this.formService.navigateToForm(this.form);
   }
 
   public onKeyDown(event: any) {
@@ -88,36 +49,27 @@ export class UsersJsonPageComponent implements OnInit {
   }
 
   public async save() {
+    this.errors = [];
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
 
     const json = this.form.get('json').value;
-    const values = JSON.parse(json) as User;
+    const values = JSON.parse(json) as UserModel;
+
+    values._id = this.data._id;
 
     try {
-      await this.upsert(values);
+      this.data = await this.upsert(values);
     } catch (e) {
-      this.handleHttpError(e);
+      this.errors = this.formService.handleHttpError(e);
     }
   }
 
-  private async handleHttpError(err: HttpErrorResponse) {
-    this.errors = err.error.errors.map((e) => {
-      if (e.name === 'CastError' || e.name === 'ValidatorError') {
-        return `(${e.path}) ${e.message}`;
-      } else if (e.name === 'UniqueError') {
-        const combination = e.paths.length > 1 ? 'combination ' : '';
-        return `${e.paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
-      } else {
-        return e.message;
-      }
-    });
-  }
-
-  private setupForm(): void {
-    this.data ??= new User({ roles: [], username: '' });
+  private setupForm() {
+    this.data ??= new UserModel({ username: '' });
 
     const keys = ['email', 'roles', 'username'];
     const data = Object.keys(this.data)
@@ -132,17 +84,14 @@ export class UsersJsonPageComponent implements OnInit {
     this.form.valueChanges.subscribe(() => (this.errors = []));
   }
 
-  private async upsert(data: Partial<User>) {
-    let result: User;
+  private async upsert(values: Partial<UserModel>) {
+    const result = values._id
+      ? await this.userService.update(values._id, values)
+      : await this.userService.create(values);
 
-    if (this.data._id) {
-      data._id = this.data._id;
-      result = await this.userService.update(data);
-    } else {
-      result = await this.userService.create(data);
-    }
+    this.matSnackBar.open(`User saved successfully.`);
+    this.router.navigate(['../../', result._id], { relativeTo: this.activatedRoute });
 
-    this.matSnackBar.open('User saved successfully.');
-    this.router.navigate([`../../${result._id}`], { relativeTo: this.activatedRoute });
+    return result;
   }
 }

@@ -1,0 +1,106 @@
+@import 'src/assets/scss/theme.scss';
+
+app-markdown {
+  display: block;
+  text-align: justify;
+}
+
+app-title {
+  margin-bottom: 0px;
+}
+
+div.container {
+  flex: 1 1 auto;
+  height: 0px;
+  margin: 0px;
+  max-width: none;
+  overflow: auto;
+  padding: 8px;
+}
+
+h3 {
+  margin: 0px 0px -4px;
+}
+
+div.main-media {
+  background-position: center;
+  background-size: cover;
+  display: block;
+  filter: $drop-shadow;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+div.row {
+  margin: 0px;
+
+  div.col-sm-5,
+  div.col-sm-7,
+  div.col-sm-12 {
+    padding: 0px;
+  }
+
+  div.col-sm-5 {
+    padding-left: 4px;
+    padding-right: 0px;
+  }
+
+  div.col-sm-7 {
+    padding-left: 0px;
+    padding-right: 4px;
+  }
+}
+
+mat-grid-list.mat-grid-list {
+  margin-bottom: 8px;
+
+  mat-grid-tile.mat-grid-tile {
+    background-position: center;
+    background-size: cover;
+    filter: brightness(0.5) $drop-shadow;
+    cursor: pointer;
+
+    &:hover {
+      filter: brightness(1) $drop-shadow;
+    }
+
+    &.selected {
+      cursor: initial;
+      filter: brightness(1) $drop-shadow;
+    }
+
+    ::ng-deep {
+      .mat-figure {
+        align-items: flex-end;
+      }
+    }
+
+    mat-icon.mat-icon {
+      align-self: center;
+      cursor: pointer;
+      font-size: 32px;
+      height: 32px;
+      position: absolute;
+      user-select: none;
+      width: 32px;
+    }
+
+    app-button {
+      align-self: center;
+      margin-bottom: 8px;
+      margin-left: 8px;
+
+      &:nth-of-type(2) {
+        margin-right: 8px;
+      }
+    }
+
+    video {
+      align-self: center;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      width: 100%;
+    }
+  }
+}

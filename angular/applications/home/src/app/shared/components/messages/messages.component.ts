@@ -1,23 +1,24 @@
 import { Component, ElementRef, Input, OnChanges, OnDestroy, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import {
-  Friend,
+  FriendModel,
   FriendQuery,
   FriendService,
   GroupInvitationService,
   GroupQuery,
   GroupService,
-  Ignoration,
+  IgnorationModel,
   IgnorationQuery,
   IgnorationService,
-  Message,
+  MessageModel,
   MessageQuery,
   MessageService,
-  User,
+  UserModel,
+  UserQuery,
   UserStore,
-  WebSocket,
+  WebSocketModel,
   WebSocketQuery,
-} from '@tenlastic/ng-http';
+} from '@tenlastic/http';
 import { Subscription, Observable, combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 
@@ -29,7 +30,7 @@ import { IdentityService } from '../../../core/services';
   templateUrl: 'messages.component.html',
 })
 export class MessagesComponent implements OnChanges, OnDestroy {
-  @Input() public user: User;
+  @Input() public user: UserModel;
   @ViewChild('messagesScrollContainer')
   public messagesScrollContainer: ElementRef;
 
@@ -41,7 +42,7 @@ export class MessagesComponent implements OnChanges, OnDestroy {
         }
 
         return (
-          currentUserGroup.isOpen || currentUserGroup.userIds[0] === this.identityService.user._id
+          currentUserGroup.open || currentUserGroup.userIds[0] === this.identityService.user._id
         );
       }),
     );
@@ -62,21 +63,19 @@ export class MessagesComponent implements OnChanges, OnDestroy {
       .selectAll({ filterBy: (g) => g.userIds.includes(this.identityService.user._id) })
       .pipe(map((groups) => groups[0]));
   }
-  public $friends: Observable<Friend[]>;
+  public $friends: Observable<FriendModel[]>;
   public get $group() {
     return this.groupQuery
       .selectAll({ filterBy: (g) => g.userIds.includes(this.user._id) })
       .pipe(map((groups) => groups[0]));
   }
-  public $ignorations: Observable<Ignoration[]>;
-  public $messages: Observable<Message[]>;
+  public $ignorations: Observable<IgnorationModel[]>;
+  public $messages: Observable<MessageModel[]>;
   public $showJoinGroupButton: Observable<boolean>;
   public get $webSocket() {
-    return this.webSocketQuery.selectCount(
-      (ws) => !ws.disconnectedAt && ws.userId === this.user._id,
-    );
+    return this.webSocketQuery.selectCount((ws) => ws.userId === this.user._id);
   }
-  public $webSockets: Observable<WebSocket[]>;
+  public $webSockets: Observable<WebSocketModel[]>;
   public readUnreadMessages$ = new Subscription();
   public scrollToBottom$ = new Subscription();
   public loadingMessage: string;
@@ -93,6 +92,7 @@ export class MessagesComponent implements OnChanges, OnDestroy {
     private matSnackBar: MatSnackBar,
     private messageQuery: MessageQuery,
     private messageService: MessageService,
+    private userQuery: UserQuery,
     private userStore: UserStore,
     private webSocketQuery: WebSocketQuery,
   ) {}
@@ -110,6 +110,10 @@ export class MessagesComponent implements OnChanges, OnDestroy {
     this.userStore.removeActive(this.user._id);
   }
 
+  public getUser(_id: string) {
+    return this.userQuery.getEntity(_id);
+  }
+
   public async inviteToGroup() {
     const currentUserGroup = await this.$currentUserGroup.pipe(first()).toPromise();
 
@@ -121,7 +125,7 @@ export class MessagesComponent implements OnChanges, OnDestroy {
       });
     } catch {}
 
-    this.matSnackBar.open('Invitation sent.', null, { duration: 3000 });
+    this.matSnackBar.open('Group invitation sent.', null, { duration: 3000 });
   }
 
   public async joinGroup() {
@@ -197,9 +201,8 @@ export class MessagesComponent implements OnChanges, OnDestroy {
       this.identityService.user._id,
       this.user._id,
     );
-    this.$messages = this.messageQuery.populateUsers(this.$messages);
     this.$showJoinGroupButton = combineLatest([this.$currentUserGroup, this.$group]).pipe(
-      map(([currentUserGroup, group]) => !currentUserGroup && group && group.isOpen),
+      map(([currentUserGroup, group]) => !currentUserGroup && group?.open),
     );
 
     this.loadingMessage = 'Loading conversation...';
@@ -216,7 +219,7 @@ export class MessagesComponent implements OnChanges, OnDestroy {
 
     // Mark unread messages as read.
     this.readUnreadMessages$ = this.messageQuery
-      .selectAllUnreadInConversation(this.identityService.user._id, this.user._id)
+      .selectAllUnreadFromUser(this.user._id, this.identityService.user._id)
       .pipe(map((messages) => messages[0]))
       .subscribe((message) => (message ? this.messageService.read(message._id) : null));
 

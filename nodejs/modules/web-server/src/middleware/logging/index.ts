@@ -1,9 +1,11 @@
+import { Next } from 'koa';
+
 import { Context } from '../../context';
 
 /**
  * Logs information about the request and response.
  */
-export async function loggingMiddleware(ctx: Context, next: () => Promise<void>) {
+export async function loggingMiddleware(ctx: Context, next: Next) {
   if (process.env.NODE_ENV === 'test') {
     await next();
     return;
@@ -17,7 +19,10 @@ export async function loggingMiddleware(ctx: Context, next: () => Promise<void>)
   const { method, path } = ctx.request;
   const { status } = ctx.response;
 
-  if (duration > 250) {
-    console.log({ duration, method, path, status });
+  // Do not log liveness and readiness probes.
+  if (path.startsWith('/probes')) {
+    return;
   }
+
+  console.log({ duration, method, path, status });
 }

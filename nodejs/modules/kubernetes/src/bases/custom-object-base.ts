@@ -1,7 +1,8 @@
 import * as k8s from '@kubernetes/client-node';
 import * as deepmerge from 'deepmerge';
 
-import { BaseResponse, BaseWatchCallback, BaseWatchDoneCallback, BaseWatchOptions } from './base';
+import { BaseWatchCallback, BaseWatchDoneCallback, BaseWatchOptions, Watch } from '../watch';
+import { BaseListQuery, BaseListResponse, BaseResponse } from './base';
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
@@ -67,6 +68,49 @@ export abstract class CustomObjectBaseApiV1<T extends CustomObjectBaseBody> {
     } catch {}
   }
 
+  public async deleteCollection(
+    namespace: string,
+    query: BaseListQuery,
+  ): Promise<BaseResponse<k8s.V1Service>> {
+    const response = await this.list(namespace, query);
+    if (response.body.items.length === 0) {
+      return;
+    }
+
+    const promises = response.body.items.map((s) => this.delete(s.metadata.name, namespace));
+    await Promise.all(promises);
+
+    return this.deleteCollection(namespace, query);
+  }
+
+  public list(namespace: string, query: BaseListQuery) {
+    return customObjects.listNamespacedCustomObject(
+      this.group,
+      this.version,
+      namespace,
+      this.plural,
+      undefined,
+      undefined,
+      query.fieldSelector,
+      query.labelSelector,
+    ) as Promise<BaseResponse<BaseListResponse<T>>>;
+  }
+
+  public patch(name: string, namespace: string, body: Partial<T>) {
+    return customObjects.patchNamespacedCustomObject(
+      this.group,
+      this.version,
+      namespace,
+      this.plural,
+      name,
+      body,
+      undefined,
+      undefined,
+      undefined,
+      { headers: { 'Content-Type': 'application/merge-patch+json' } },
+    ) as Promise<BaseResponse<T>>;
+  }
+
   public read(name: string, namespace: string) {
     return customObjects.getNamespacedCustomObject(
       this.group,
@@ -100,15 +144,14 @@ export abstract class CustomObjectBaseApiV1<T extends CustomObjectBaseBody> {
     done?: BaseWatchDoneCallback,
   ) {
     const endpoint = this.getEndpoint(namespace);
-    const watch = new k8s.Watch(kc);
-    const req = await watch.watch(endpoint, options, callback, done);
 
-    // Abort the request after 15 minutes.
-    await new Promise(res => setTimeout(res, 15 * 60 * 1000));
-    req.abort();
+    const watch = new Watch(endpoint, options, callback, done);
+    await watch.start();
 
-    return this.watch(namespace, options, callback, done);
+    return watch;
   }
 
-  protected abstract getEndpoint(namespace: string): string;
+  protected getEndpoint(namespace: string) {
+    return `/apis/${this.group}/${this.version}/namespaces/${namespace}/${this.plural}`;
+  }
 }

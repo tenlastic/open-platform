@@ -1,0 +1,62 @@
+cli:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: tenlastic.com/low-priority
+                operator: Exists
+helmController:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: tenlastic.com/low-priority
+                operator: Exists
+  resources:
+    requests:
+      cpu: 100m
+      memory: 64Mi
+imageautomationcontroller:
+  create: false
+imagereflectorcontroller:
+  create: false
+kustomizecontroller:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: tenlastic.com/low-priority
+                operator: Exists
+  resources:
+    requests:
+      cpu: 100m
+      memory: 64Mi
+notificationcontroller:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: tenlastic.com/low-priority
+                operator: Exists
+  resources:
+    requests:
+      cpu: 100m
+      memory: 64Mi
+policies:
+  create: false
+sourcecontroller:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: tenlastic.com/low-priority
+                operator: Exists
+  resources:
+    requests:
+      cpu: 100m
+      memory: 64Mi

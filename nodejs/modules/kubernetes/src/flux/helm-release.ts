@@ -1,41 +1,34 @@
 import { CustomObjectBaseApiV1 } from '../bases';
 
-export interface ChartRepository {
-  name: string;
-  repository: string;
-  version: string;
-}
-
-export interface GitRepository {
-  git: string;
-  path: string;
-  ref: string;
-  skipDepUpdate?: boolean;
-}
-
 export interface V1HelmRelease {
   metadata: {
     annotations?: { [key: string]: string };
     labels?: { [key: string]: string };
     name: string;
+    namespace?: string;
     resourceVersion?: string;
   };
   spec: {
-    chart: ChartRepository | GitRepository;
+    chart: {
+      spec: {
+        chart: string;
+        sourceRef: {
+          kind: string;
+          name: string;
+        };
+      };
+    };
+    interval: string;
     releaseName: string;
     values?: any;
   };
 }
 
 export class HelmReleaseApiV1 extends CustomObjectBaseApiV1<V1HelmRelease> {
-  protected group = 'helm.fluxcd.io';
+  protected group = 'helm.toolkit.fluxcd.io';
   protected kind = 'HelmRelease';
   protected plural = 'helmreleases';
-  protected version = 'v1';
-
-  protected getEndpoint(namespace: string) {
-    return `/apis/helm.fluxcd.io/v1/namespaces/${namespace}/helmreleases`;
-  }
+  protected version = 'v2beta1';
 }
 
 export const helmReleaseApiV1 = new HelmReleaseApiV1();

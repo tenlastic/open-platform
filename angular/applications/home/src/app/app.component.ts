@@ -1,169 +1,234 @@
-import { Title } from '@angular/platform-browser';
 import { Component, HostListener, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
-import { resetStores } from '@datorama/akita';
 import {
-  ArticleQuery,
-  Build,
-  BuildQuery,
-  BuildService,
-  Database,
-  DatabaseService,
-  Game,
-  GameAuthorization,
-  GameAuthorizationService,
-  GameQuery,
-  GameServer,
-  GameServerQuery,
-  GameServerService,
-  GameService,
-  Group,
-  GroupInvitation,
+  AuthorizationModel,
+  AuthorizationQuery,
+  AuthorizationRequestModel,
+  AuthorizationRequestService,
+  AuthorizationRequestStore,
+  AuthorizationService,
+  AuthorizationStore,
+  BaseModel,
+  GroupInvitationModel,
   GroupInvitationService,
+  GroupInvitationStore,
+  GroupModel,
   GroupService,
+  GroupStore,
   LoginService,
-  Message,
+  LoginServiceResponse,
+  MatchInvitationModel,
+  MatchInvitationService,
+  MatchInvitationStore,
+  MatchModel,
+  MatchService,
+  MatchStore,
+  MessageModel,
   MessageService,
-  Queue,
-  QueueMember,
+  MessageStore,
+  NamespaceModel,
+  NamespaceService,
+  NamespaceStore,
+  QueueMemberModel,
   QueueMemberQuery,
   QueueMemberService,
-  QueueQuery,
-  QueueService,
+  QueueMemberStore,
+  StorefrontModel,
+  StorefrontService,
+  StorefrontStore,
+  StreamRequest,
+  StreamService,
+  TokenService,
+  UserModel,
   UserQuery,
   UserService,
-  WebSocket,
+  UserStore,
+  WebSocketModel,
+  WebSocketQuery,
   WebSocketService,
-  Workflow,
-  WorkflowService,
-} from '@tenlastic/ng-http';
+  WebSocketStore,
+} from '@tenlastic/http';
+import { v4 as uuid } from 'uuid';
 
 import { environment } from '../environments/environment';
-import { ElectronService, IdentityService, Socket, SocketService } from './core/services';
-import { TITLE } from './shared/constants';
+import { ElectronService, ResetService } from './core/services';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
 })
 export class AppComponent implements OnInit {
-  private socket: Socket;
-
   @HostListener('window:focus', ['$event'])
   private onFocus(event: any) {
     this.connectSocket();
   }
 
+  private subscriptions = [
+    {
+      Model: AuthorizationModel,
+      request: { _id: uuid(), path: '/subscriptions/authorizations' } as StreamRequest,
+      service: this.authorizationService,
+      store: this.authorizationStore,
+    },
+    {
+      Model: AuthorizationRequestModel,
+      request: { _id: uuid(), path: '/subscriptions/authorization-requests' } as StreamRequest,
+      service: this.authorizationRequestService,
+      store: this.authorizationRequestStore,
+    },
+    {
+      Model: GroupModel,
+      request: { _id: uuid(), path: '/subscriptions/groups' } as StreamRequest,
+      service: this.groupService,
+      store: this.groupStore,
+    },
+    {
+      Model: GroupInvitationModel,
+      request: { _id: uuid(), path: '/subscriptions/group-invitations' } as StreamRequest,
+      service: this.groupInvitationService,
+      store: this.groupInvitationStore,
+    },
+    {
+      Model: MatchInvitationModel,
+      request: { _id: uuid(), path: '/subscriptions/match-invitations' } as StreamRequest,
+      service: this.matchInvitationService,
+      store: this.matchInvitationStore,
+    },
+    {
+      Model: MatchModel,
+      request: { _id: uuid(), path: '/subscriptions/matches' } as StreamRequest,
+      service: this.matchService,
+      store: this.matchStore,
+    },
+    {
+      Model: MessageModel,
+      request: { _id: uuid(), path: '/subscriptions/messages' } as StreamRequest,
+      service: this.messageService,
+      store: this.messageStore,
+    },
+    {
+      Model: NamespaceModel,
+      request: { _id: uuid(), path: '/subscriptions/namespaces' } as StreamRequest,
+      service: this.namespaceService,
+      store: this.namespaceStore,
+    },
+    {
+      Model: QueueMemberModel,
+      request: { _id: uuid(), path: '/subscriptions/queue-members' } as StreamRequest,
+      service: this.queueMemberService,
+      store: this.queueMemberStore,
+    },
+    {
+      Model: StorefrontModel,
+      request: { _id: uuid(), path: '/subscriptions/storefronts' } as StreamRequest,
+      service: this.storefrontService,
+      store: this.storefrontStore,
+    },
+    {
+      Model: UserModel,
+      request: { _id: uuid(), path: '/subscriptions/users' } as StreamRequest,
+      service: this.userService,
+      store: this.userStore,
+    },
+    {
+      Model: WebSocketModel,
+      request: { _id: uuid(), path: '/subscriptions/web-sockets' } as StreamRequest,
+      service: this.webSocketService,
+      store: this.webSocketStore,
+    },
+  ];
+
   constructor(
-    private articleQuery: ArticleQuery,
-    private buildQuery: BuildQuery,
-    private buildService: BuildService,
-    private databaseService: DatabaseService,
+    private authorizationQuery: AuthorizationQuery,
+    private authorizationRequestService: AuthorizationRequestService,
+    private authorizationRequestStore: AuthorizationRequestStore,
+    private authorizationService: AuthorizationService,
+    private authorizationStore: AuthorizationStore,
     private electronService: ElectronService,
-    private gameAuthorizationService: GameAuthorizationService,
-    private gameQuery: GameQuery,
-    private gameServerQuery: GameServerQuery,
-    private gameServerService: GameServerService,
-    private gameService: GameService,
-    private groupService: GroupService,
     private groupInvitationService: GroupInvitationService,
-    private identityService: IdentityService,
+    private groupInvitationStore: GroupInvitationStore,
+    private groupService: GroupService,
+    private groupStore: GroupStore,
     private loginService: LoginService,
+    private matchInvitationService: MatchInvitationService,
+    private matchInvitationStore: MatchInvitationStore,
+    private matchService: MatchService,
+    private matchStore: MatchStore,
     private messageService: MessageService,
+    private messageStore: MessageStore,
+    private namespaceService: NamespaceService,
+    private namespaceStore: NamespaceStore,
     private queueMemberQuery: QueueMemberQuery,
     private queueMemberService: QueueMemberService,
-    private queueQuery: QueueQuery,
-    private queueService: QueueService,
+    private queueMemberStore: QueueMemberStore,
+    private resetService: ResetService,
     private router: Router,
-    private socketService: SocketService,
-    private titleService: Title,
+    private storefrontService: StorefrontService,
+    private storefrontStore: StorefrontStore,
+    private streamService: StreamService,
+    private tokenService: TokenService,
     private userQuery: UserQuery,
     private userService: UserService,
+    private userStore: UserStore,
+    private webSocketQuery: WebSocketQuery,
     private webSocketService: WebSocketService,
-    private workflowService: WorkflowService,
+    private webSocketStore: WebSocketStore,
   ) {}
 
   public async ngOnInit() {
-    this.titleService.setTitle(`${TITLE}`);
-
     // Navigate to login page on logout.
-    this.loginService.onLogout.subscribe(() => this.navigateToLogin());
+    this.loginService.emitter.on('logout', () => this.navigateToLogin());
+
+    // Set tokens on login and logout.
+    this.loginService.emitter.on('login', (response) => this.setTokens(response));
+    this.loginService.emitter.on('logout', () => this.tokenService.clear());
+    this.loginService.emitter.on('refresh', (response) => this.setTokens(response));
 
     // Handle websockets when logging in and out.
-    this.loginService.onLogin.subscribe(() => this.connectSocket());
-    this.loginService.onLogout.subscribe(() => this.socket?.close());
+    this.loginService.emitter.on('login', () => this.connectSocket());
+    this.loginService.emitter.on('logout', () => this.streamService.close(environment.wssUrl));
 
     // Handle websockets when access token is set.
-    this.identityService.OnAccessTokenSet.subscribe((accessToken) => {
+    this.tokenService.emitter.on('accessToken', (accessToken) => {
       if (accessToken) {
         this.connectSocket();
       }
     });
 
-    // Connect to websockets.
-    try {
-      await this.connectSocket();
-    } catch {}
-
-    // Load previous url if set.
-    const url = localStorage.getItem('url');
-    if (url && this.electronService.isElectron) {
-      this.router.navigateByUrl(url);
-    }
-
-    // Remember url when changing pages.
-    this.router.events.subscribe((event) => {
-      if (event instanceof NavigationEnd) {
-        localStorage.setItem('url', event.url);
-      }
-    });
-
-    // Clear stores on logout.
-    this.loginService.onLogout.subscribe(() => resetStores());
+    // Clear stores on login and logout.
+    this.loginService.emitter.on('login', () => this.resetService.reset());
+    this.loginService.emitter.on('logout', () => this.resetService.reset());
 
     this.fetchMissingRecords();
+
+    if (this.electronService.isElectron) {
+      // Remember URL when changing pages.
+      this.router.events.subscribe((event) => {
+        if (event instanceof NavigationEnd) {
+          localStorage.setItem('url', event.url);
+        }
+      });
+
+      // Return to the previous URL.
+      const url = localStorage.getItem('url');
+      if (url) {
+        await this.router.navigateByUrl(url);
+      }
+    }
   }
 
   public fetchMissingRecords() {
-    this.articleQuery.selectAll().subscribe((records) => {
-      const ids = records
-        .map((r) => r.gameId)
-        .filter((gameId) => !this.gameQuery.hasEntity(gameId));
-      if (ids.length > 0) {
-        this.gameService.find({ where: { _id: { $in: ids } } });
-      }
-    });
-    this.buildQuery.selectAll().subscribe((records) => {
-      const ids = records
-        .map((r) => r.gameId)
-        .filter((gameId) => !this.gameQuery.hasEntity(gameId));
-      if (ids.length > 0) {
-        this.gameService.find({ where: { _id: { $in: ids } } });
-      }
-    });
-    this.gameServerQuery.selectAll().subscribe((records) => {
-      const ids = records
-        .map((r) => r.gameId)
-        .filter((gameId) => !this.gameQuery.hasEntity(gameId));
-      if (ids.length > 0) {
-        this.gameService.find({ where: { _id: { $in: ids } } });
-      }
-    });
-    this.gameServerQuery.selectAll().subscribe((records) => {
-      const ids = records
-        .map((r) => r.queueId)
-        .filter((queueId) => !this.queueQuery.hasEntity(queueId));
-      if (ids.length > 0) {
-        this.queueService.find({ where: { _id: { $in: ids } } });
-      }
+    this.authorizationQuery.selectAll().subscribe((records) => {
+      const ids = records.map((r) => r.userId).filter((ui) => !this.userQuery.hasEntity(ui));
+      return ids.length > 0 ? this.userService.find({ where: { _id: { $in: ids } } }) : null;
     });
     this.queueMemberQuery.selectAll().subscribe((records) => {
-      const ids = records
-        .map((r) => r.userId)
-        .filter((userId) => !this.userQuery.hasEntity(userId));
-      if (ids.length > 0) {
-        this.userService.find({ where: { _id: { $in: ids } } });
-      }
+      const ids = records.map((r) => r.userId).filter((ui) => !this.userQuery.hasEntity(ui));
+      return ids.length > 0 ? this.userService.find({ where: { _id: { $in: ids } } }) : null;
+    });
+    this.webSocketQuery.selectAll().subscribe((records) => {
+      const ids = records.map((r) => r.userId).filter((ui) => !this.userQuery.hasEntity(ui));
+      return ids.length > 0 ? this.userService.find({ where: { _id: { $in: ids } } }) : null;
     });
   }
 
@@ -172,22 +237,29 @@ export class AppComponent implements OnInit {
   }
 
   private async connectSocket() {
-    this.socket = await this.socketService.connect(environment.apiBaseUrl);
-    this.socket.addEventListener('open', () => this.subscribe());
+    const accessToken = await this.tokenService.getAccessToken();
+    return Promise.all([
+      this.streamService.connect({ accessToken, url: environment.wssUrl }),
+      this.subscribe(),
+    ]);
+  }
+
+  private setTokens(response: LoginServiceResponse) {
+    this.tokenService.setAccessToken(response.accessToken);
+    this.tokenService.setRefreshToken(response.refreshToken);
   }
 
   private subscribe() {
-    this.socket.subscribe('builds', Build, this.buildService);
-    this.socket.subscribe('databases', Database, this.databaseService);
-    this.socket.subscribe('game-authorizations', GameAuthorization, this.gameAuthorizationService);
-    this.socket.subscribe('game-servers', GameServer, this.gameServerService);
-    this.socket.subscribe('games', Game, this.gameService);
-    this.socket.subscribe('groups', Group, this.groupService);
-    this.socket.subscribe('group-invitations', GroupInvitation, this.groupInvitationService);
-    this.socket.subscribe('messages', Message, this.messageService);
-    this.socket.subscribe('queue-members', QueueMember, this.queueMemberService);
-    this.socket.subscribe('queues', Queue, this.queueService);
-    this.socket.subscribe('workflows', Workflow, this.workflowService);
-    this.socket.subscribe('web-sockets', WebSocket, this.webSocketService);
+    const promises = this.subscriptions.map((s) =>
+      this.streamService.subscribe<BaseModel>(
+        s.Model,
+        { ...s.request },
+        s.service,
+        s.store,
+        environment.wssUrl,
+      ),
+    );
+
+    return Promise.all(promises);
   }
 }

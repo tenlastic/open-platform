@@ -1,0 +1,153 @@
+<div *ngIf="form"
+     class="page">
+  <div class="row">
+    <div class="col-sm-6">
+      <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Authorization Request</app-title>
+      <app-title *ngIf="!hasWriteAuthorization">View Authorization Request</app-title>
+    </div>
+  </div>
+
+  <form [formGroup]="form">
+    <div class="row">
+      <app-autocomplete-user-field [control]="form.get('user')"></app-autocomplete-user-field>
+    </div>
+
+    <app-toggle-section formGroupName="roles"
+                        title="Roles">
+      <h4>Articles</h4>
+      <div class="row">
+        <mat-checkbox formControlName="Articles:ReadPublished">Read (Published)</mat-checkbox>
+        <mat-checkbox formControlName="Articles:Read">Read</mat-checkbox>
+        <mat-checkbox formControlName="Articles:Write">Write</mat-checkbox>
+      </div>
+
+      <h4>Authorizations</h4>
+      <div class="row">
+        <mat-checkbox formControlName="Authorizations:Read">Read</mat-checkbox>
+        <mat-checkbox formControlName="Authorizations:Write">Write</mat-checkbox>
+      </div>
+
+      <h4>Builds</h4>
+      <div class="row">
+        <mat-checkbox formControlName="Builds:ReadPublished">Read (Published)</mat-checkbox>
+        <mat-checkbox formControlName="Builds:Read">Read</mat-checkbox>
+        <mat-checkbox formControlName="Builds:Write">Write</mat-checkbox>
+      </div>
+
+      <h4>Collections</h4>
+      <div class="row">
+        <mat-checkbox formControlName="Collections:Read">Read</mat-checkbox>
+        <mat-checkbox formControlName="Collections:Write">Write</mat-checkbox>
+      </div>
+
+      <h4>Game Servers</h4>
+      <div class="row">
+        <mat-checkbox formControlName="GameServers:ReadAuthorized">Read (Authorized)</mat-checkbox>
+        <mat-checkbox formControlName="GameServers:Read">Read</mat-checkbox>
+        <mat-checkbox formControlName="GameServers:Write">Write</mat-checkbox>
+      </div>
+
+      <h4>Matches</h4>
+      <div class="row">
+        <mat-checkbox formControlName="Matches:Read">Read</mat-checkbox>
+        <mat-checkbox formControlName="Matches:Write">Write</mat-checkbox>
+      </div>
+
+      <h4>Namespaces</h4>
+      <div class="row">
+        <mat-checkbox formControlName="Namespaces:Read">Read</mat-checkbox>
+        <mat-checkbox formControlName="Namespaces:Write">Write</mat-checkbox>
+      </div>
+
+      <h4>Queues</h4>
+      <div class="row">
+        <mat-checkbox formControlName="Queues:Read">Read</mat-checkbox>
+        <mat-checkbox formControlName="Queues:Write">Write</mat-checkbox>
+      </div>
+
+      <h4>Records</h4>
+      <div class="row">
+        <mat-checkbox formControlName="Records:Read">Read</mat-checkbox>
+        <mat-checkbox formControlName="Records:Write">Write</mat-checkbox>
+      </div>
+
+      <h4>Storefronts</h4>
+      <div class="row">
+        <mat-checkbox formControlName="Storefronts:Read">Read</mat-checkbox>
+        <mat-checkbox formControlName="Storefronts:Write">Write</mat-checkbox>
+      </div>
+
+      <h4>Users</h4>
+      <div class="row">
+        <mat-checkbox formControlName="Users:Read">Read</mat-checkbox>
+        <mat-checkbox formControlName="Users:Write">Write</mat-checkbox>
+      </div>
+
+      <h4>Web Sockets</h4>
+      <div class="row">
+        <mat-checkbox formControlName="WebSockets:Read">Read</mat-checkbox>
+        <mat-checkbox formControlName="WebSockets:Write">Write</mat-checkbox>
+      </div>
+
+      <h4>Workflows</h4>
+      <div class="row">
+        <mat-checkbox formControlName="Workflows:Read">Read</mat-checkbox>
+        <mat-checkbox formControlName="Workflows:Write">Write</mat-checkbox>
+      </div>
+    </app-toggle-section>
+
+    <app-toggle-section title="Status">
+      <mat-form-field *ngIf="data.deniedAt"
+                      floatLabel="always">
+        <mat-label>Denied At</mat-label>
+        <input matInput
+               disabled
+               [value]="data.deniedAt | date" />
+      </mat-form-field>
+
+      <mat-form-field *ngIf="data.grantedAt"
+                      floatLabel="always">
+        <mat-label>Granted At</mat-label>
+        <input matInput
+               disabled
+               [value]="data.grantedAt | date" />
+      </mat-form-field>
+
+      <mat-form-field *ngIf="!data.deniedAt && !data.grantedAt"
+                      floatLabel="always">
+        <mat-label>Requested At</mat-label>
+        <input matInput
+               disabled
+               [value]="data.updatedAt | date" />
+      </mat-form-field>
+    </app-toggle-section>
+  </form>
+</div>
+
+<div *ngIf="form"
+     class="page-actions">
+  <div *ngFor="let error of errors"
+       class="form-error">
+    {{ error }}
+  </div>
+
+  <div class="flex">
+    <div class="col-sm-6">
+      <app-button color="accent"
+                  size="large"
+                  (OnClick)="deny()">
+        <mat-icon>close</mat-icon>
+        <div>Deny</div>
+      </app-button>
+    </div>
+
+    <div class="col-sm-6">
+      <app-button color="primary"
+                  size="large"
+                  (OnClick)="grant()">
+        <mat-icon>check</mat-icon>
+        <div>Grant</div>
+      </app-button>
+    </div>
+  </div>
+</div>

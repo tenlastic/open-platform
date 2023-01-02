@@ -62,7 +62,7 @@ export class WorkflowSidecarsFormComponent {
     });
 
     // Only allow alphanumeric characters and dashes.
-    group.valueChanges.subscribe(value => {
+    group.valueChanges.subscribe((value) => {
       const name = value.name.replace(/[^A-Za-z0-9\-]/g, '');
       group.get('name').setValue(name, { emitEvent: false });
     });

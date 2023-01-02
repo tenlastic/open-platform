@@ -8,7 +8,7 @@
         <input matInput
                placeholder="mongo:latest"
                required
-               [formControl]="sidecar.controls.image | asAny" />
+               [formControl]="sidecar.controls.image" />
         <mat-error>Enter a valid image.</mat-error>
       </mat-form-field>
 
@@ -53,7 +53,7 @@
                       (removed)="removeStringFromFormArray(sidecar.controls.command, commandIndex)">
               {{commandValue}}
               <mat-icon *ngIf="!sidecar.controls.command.disabled"
-                        matChipRemove>close</mat-icon>
+                        matChipRemove>remove</mat-icon>
             </mat-chip>
           </mat-chip-list>
 
@@ -81,7 +81,7 @@
                       (removed)="removeStringFromFormArray(sidecar.controls.args, argsIndex)">
               {{argsValue}}
               <mat-icon *ngIf="!sidecar.controls.args.disabled"
-                        matChipRemove>close</mat-icon>
+                        matChipRemove>remove</mat-icon>
             </mat-chip>
           </mat-chip-list>
 
@@ -111,7 +111,7 @@
                 layout="left"
                 (OnClick)="addSidecar()">
       <mat-icon>add</mat-icon>
-      <span>Add Sidecar</span>
+      <div>Add Sidecar</div>
     </app-button>
   </div>
 </app-toggle-section>

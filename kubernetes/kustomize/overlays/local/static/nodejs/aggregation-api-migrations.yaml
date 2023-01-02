@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  labels:
+    app: aggregation-api-migrations
+  name: aggregation-api-migrations
+  namespace: static
+spec:
+  template:
+    metadata:
+      name: aggregation-api-migrations
+      labels:
+        app: aggregation-api-migrations
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: tenlastic.com/low-priority
+                    operator: Exists
+      containers:
+        - name: aggregation-api-migrations
+          image: tenlastic/aggregation-api-migrations:latest
+          envFrom:
+            - secretRef:
+                name: nodejs
+          resources:
+            requests:
+              cpu: 50m
+      restartPolicy: OnFailure
+  ttlSecondsAfterFinished: 0

@@ -1,5 +1,6 @@
+import axios from 'axios';
 import * as jsonwebtoken from 'jsonwebtoken';
-import * as requestPromiseNative from 'request-promise-native';
+import { Next } from 'koa';
 
 import { Context } from '../../context';
 
@@ -8,7 +9,7 @@ let jwtPublicKey = process.env.JWT_PUBLIC_KEY;
 /**
  * Extracts the user's information from a JWT.
  */
-export async function jwtMiddleware(ctx: Context, next: () => Promise<void>) {
+export async function jwtMiddleware(ctx: Context, next: Next) {
   let jwt: any;
 
   try {
@@ -17,14 +18,12 @@ export async function jwtMiddleware(ctx: Context, next: () => Promise<void>) {
 
     // If the public key is not specified via environment variables, fetch it from the API.
     if (!jwtPublicKey) {
-      const response = await requestPromiseNative.get({ json: true, url: process.env.JWK_URL });
-      const x5c = response.keys[0].x5c[0];
+      const response = await axios({ method: 'get', url: process.env.JWK_URL });
+      const x5c = response.data.keys[0].x5c[0];
       jwtPublicKey = `-----BEGIN PUBLIC KEY-----\n${x5c}\n-----END PUBLIC KEY-----`;
     }
 
-    jwt = jsonwebtoken.verify(token, jwtPublicKey.replace(/\\n/g, '\n'), {
-      algorithms: ['RS256'],
-    });
+    jwt = jsonwebtoken.verify(token, jwtPublicKey.replace(/\\n/g, '\n'), { algorithms: ['RS256'] });
   } catch {
     await next();
     return;
@@ -36,6 +35,7 @@ export async function jwtMiddleware(ctx: Context, next: () => Promise<void>) {
     return;
   }
 
+  ctx.state.authorization = jwt.authorization;
   ctx.state.jwt = jwt;
   ctx.state.user = jwt.user;
 

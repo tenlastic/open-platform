@@ -1,12 +1,10 @@
 <div class="billboard">
   Serverless Game Development
 
-  <app-button
-    *ngIf="!electronService.isElectron"
-    color="primary"
-    layout="vertical"
-    [href]="launcherUrl"
-  >
-    <span>Download Launcher</span>
+  <app-button *ngIf="!isElectron"
+              color="primary"
+              [href]="launcherUrl"
+              layout="vertical">
+    <div>Download Launcher</div>
   </app-button>
 </div>

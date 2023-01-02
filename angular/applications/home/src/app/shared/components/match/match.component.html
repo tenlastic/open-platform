@@ -1,0 +1,48 @@
+<div *ngFor="let match of $matches | async"
+     class="match">
+  <div class="hover-off">
+    <app-button color="accent"
+                text="left">
+      <mat-icon>local_fire_department</mat-icon>
+
+      <div *ngIf="match.queueId">
+        <div>
+          <div>{{ getStorefront(match.namespaceId)?.fullTitle }}</div>
+          <div>{{ getQueue(match.queueId)?.name }}</div>
+        </div>
+      </div>
+      <div *ngIf="!match.queueId">
+        {{ getStorefront(match.namespaceId)?.fullTitle }}
+      </div>
+    </app-button>
+  </div>
+
+  <div class="hover-on">
+    <app-button color="primary"
+                (OnClick)="joinMatch(match)">
+      <div>Join Match</div>
+    </app-button>
+  </div>
+</div>
+
+<div *ngFor="let queueMember of $queueMembers | async"
+     class="queue-member">
+  <div class="hover-off">
+    <app-button color="accent"
+                text="left">
+      <mat-icon>hourglass_bottom</mat-icon>
+
+      <div>
+        <div>{{ getStorefront(queueMember.namespaceId)?.fullTitle }}</div>
+        <div>{{ getQueue(queueMember.queueId)?.name }}</div>
+      </div>
+    </app-button>
+  </div>
+
+  <div class="hover-on">
+    <app-button color="primary"
+                (OnClick)="leaveQueue(queueMember)">
+      <div>Leave Queue</div>
+    </app-button>
+  </div>
+</div>

@@ -6,11 +6,13 @@ import { RouterModule } from '@angular/router';
 
 import { MaterialModule } from '../material.module';
 import {
+  ApiKeyDialogComponent,
   AutocompleteUserFieldComponent,
-  BreadcrumbsComponent,
+  BadgeComponent,
   ButtonComponent,
   DataSourceFilterComponent,
   FormMessageComponent,
+  GroupInvitationButtonComponent,
   GroupMessagesComponent,
   HeaderToolbarComponent,
   InputDialogComponent,
@@ -18,21 +20,24 @@ import {
   LoadingMessageComponent,
   LogsDialogComponent,
   MarkdownComponent,
+  MatchComponent,
   MatchPromptComponent,
   MessageGroupComponent,
   MessagesComponent,
   MetadataFieldComponent,
   MetadataFieldsComponent,
+  PortFieldsComponent,
+  ProbeFieldComponent,
   PromptComponent,
-  RefreshTokenPromptComponent,
   SidenavComponent,
   SocialComponent,
+  SwaggerComponent,
   TextAreaDialogComponent,
   TitleComponent,
   ToggleSectionComponent,
 } from './components';
+import { AutofocusDirective, HighlightDirective, NavDirective } from './directives';
 import {
-  AsAnyPipe,
   CamelCaseToTitleCasePipe,
   DurationPipe,
   FilesizePipe,
@@ -45,11 +50,13 @@ import {
 } from './pipes';
 
 const components = [
+  ApiKeyDialogComponent,
   AutocompleteUserFieldComponent,
-  BreadcrumbsComponent,
+  BadgeComponent,
   ButtonComponent,
   DataSourceFilterComponent,
   FormMessageComponent,
+  GroupInvitationButtonComponent,
   GroupMessagesComponent,
   HeaderToolbarComponent,
   InputDialogComponent,
@@ -57,19 +64,23 @@ const components = [
   LoadingMessageComponent,
   LogsDialogComponent,
   MarkdownComponent,
+  MatchComponent,
   MatchPromptComponent,
   MessageGroupComponent,
   MessagesComponent,
   MetadataFieldComponent,
   MetadataFieldsComponent,
+  PortFieldsComponent,
+  ProbeFieldComponent,
   PromptComponent,
-  RefreshTokenPromptComponent,
   SidenavComponent,
   SocialComponent,
+  SwaggerComponent,
   TextAreaDialogComponent,
   TitleComponent,
   ToggleSectionComponent,
 ];
+const directives = [AutofocusDirective, HighlightDirective, NavDirective];
 const modules = [
   CommonModule,
   FormsModule,
@@ -79,7 +90,6 @@ const modules = [
   RouterModule,
 ];
 const pipes = [
-  AsAnyPipe,
   CamelCaseToTitleCasePipe,
   DurationPipe,
   FilesizePipe,
@@ -92,16 +102,8 @@ const pipes = [
 ];
 
 @NgModule({
-  declarations: [...components, ...pipes],
-  entryComponents: [
-    InputDialogComponent,
-    LogsDialogComponent,
-    MatchPromptComponent,
-    PromptComponent,
-    RefreshTokenPromptComponent,
-    TextAreaDialogComponent,
-  ],
-  exports: [...components, ...modules, ...pipes],
+  declarations: [...components, ...directives, ...pipes],
+  exports: [...components, ...directives, ...modules, ...pipes],
   imports: [...modules],
 })
 export class SharedModule {}

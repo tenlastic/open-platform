@@ -1,0 +1,42 @@
+@import 'src/assets/scss/form.scss';
+
+div.col-sm-6 {
+  margin: 0px;
+  padding: 0px;
+
+  &:first-of-type {
+    padding-right: 4px;
+  }
+
+  &:nth-of-type(2) {
+    padding-left: 4px;
+  }
+
+  mat-form-field.mat-form-field {
+    display: block;
+  }
+
+  & > mat-label {
+    font-size: 12px;
+  }
+}
+
+div.row:last-of-type {
+  mat-radio-group {
+    margin-bottom: 0.75em;
+  }
+}
+
+mat-checkbox {
+  margin-bottom: 1.25em;
+  margin-right: 32px;
+}
+
+mat-form-field.mat-form-field {
+  display: inline-block;
+  margin-right: 16px;
+
+  input[disabled] {
+    text-overflow: ellipsis;
+  }
+}

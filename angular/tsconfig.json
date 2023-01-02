@@ -14,11 +14,11 @@
     "module": "es2020",
     "moduleResolution": "node",
     "paths": {
-      "@tenlastic/ng-http": ["./modules/http/src"],
-      "@tenlastic/ng-http/*": ["./modules/http/src/*"]
+      "@tenlastic/http": ["../nodejs/modules/http/src"],
+      "path": ["./node_modules/path-browserify"]
     },
     "resolveJsonModule": true,
-    "target": "es2015",
+    "target": "es2020",
     "typeRoots": ["./node_modules/@types"]
   },
   "angularCompilerOptions": {

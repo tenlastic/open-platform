@@ -4,35 +4,33 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
-import { Title } from '@angular/platform-browser';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Params } from '@angular/router';
 import { Order } from '@datorama/akita';
 import {
-  GameServer,
-  GameServerLog,
+  AuthorizationQuery,
+  BuildQuery,
+  BuildService,
+  GameServerLogModel,
   GameServerLogQuery,
   GameServerLogStore,
+  GameServerModel,
   GameServerQuery,
   GameServerService,
-  Queue,
-  QueueService,
-} from '@tenlastic/ng-http';
+  IAuthorization,
+  IGameServer,
+  GameServerLogService,
+  StreamService,
+} from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { environment } from '../../../../../../../environments/environment';
+import { IdentityService } from '../../../../../../core/services';
 import {
-  IdentityService,
-  SelectedNamespaceService,
-  SocketService,
-  VersionService,
-} from '../../../../../../core/services';
-import {
-  BreadcrumbsComponentBreadcrumb,
   LogsDialogComponent,
+  LogsDialogComponentData,
   PromptComponent,
 } from '../../../../../../shared/components';
-import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -41,67 +39,78 @@ import { TITLE } from '../../../../../../shared/constants';
 export class GameServersListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(MatTable, { static: true }) table: MatTable<GameServer>;
+  @ViewChild(MatTable, { static: true }) table: MatTable<GameServerModel>;
 
-  public $gameServers: Observable<GameServer[]>;
-  public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
-  public dataSource = new MatTableDataSource<GameServer>();
-  public displayedColumns: string[] = [
-    'game',
-    'name',
-    'description',
-    'status',
-    'createdAt',
-    'actions',
-  ];
-  public queue: Queue;
+  public dataSource = new MatTableDataSource<GameServerModel>();
+  public displayedColumns = ['name', 'description', 'build', 'status', 'actions'];
+  public hasWriteAuthorization: boolean;
+  public message: string;
   public get queueId() {
-    return this.activatedRoute.snapshot.paramMap.get('queueId');
+    return this.params?.queueId;
   }
 
+  private $gameServers: Observable<GameServerModel[]>;
   private updateDataSource$ = new Subscription();
+  private params: Params;
+  private get streamServiceUrl() {
+    return `${environment.wssUrl}/namespaces/${this.params.namespaceId}`;
+  }
 
   constructor(
     private activatedRoute: ActivatedRoute,
+    private authorizationQuery: AuthorizationQuery,
+    private buildQuery: BuildQuery,
+    private buildService: BuildService,
     private gameServerLogQuery: GameServerLogQuery,
+    private gameServerLogService: GameServerLogService,
     private gameServerLogStore: GameServerLogStore,
     private gameServerQuery: GameServerQuery,
     private gameServerService: GameServerService,
-    public identityService: IdentityService,
+    private identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
-    private queueService: QueueService,
-    private selectedNamespaceService: SelectedNamespaceService,
-    private socketService: SocketService,
-    private titleService: Title,
-    public versionService: VersionService,
+    private streamService: StreamService,
   ) {}
 
   public async ngOnInit() {
-    this.titleService.setTitle(`${TITLE} | Game Servers`);
+    this.activatedRoute.params.subscribe((params) => {
+      this.params = params;
 
-    await this.fetchQueue();
-    await this.fetchGameServers();
+      const roles = [IAuthorization.Role.GameServersWrite];
+      const userId = this.identityService.user?._id;
+      this.hasWriteAuthorization =
+        this.authorizationQuery.hasRoles(null, roles, userId) ||
+        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
-    if (this.queue) {
-      this.breadcrumbs = [
-        { label: 'Queues', link: '../../' },
-        { label: this.queue.name, link: '../' },
-        { label: 'Game Servers' },
-      ];
-    }
+      this.fetchGameServers(params);
+    });
   }
 
   public ngOnDestroy() {
     this.updateDataSource$.unsubscribe();
   }
 
-  public async restart(record: GameServer) {
-    await this.gameServerService.update({ _id: record._id, restartedAt: new Date() });
+  public getBuild(_id: string) {
+    return this.buildQuery.getEntity(_id);
+  }
+
+  public getStatus(record: GameServerModel) {
+    const current = record.status.components.reduce((a, b) => a + b.current, 0);
+    const total = record.status.components.reduce((a, b) => a + b.total, 0);
+
+    return `${record.status.phase} (${current} / ${total})`;
+  }
+
+  public async restart($event: Event, record: GameServerModel) {
+    $event.stopPropagation();
+
+    await this.gameServerService.restart(record.namespaceId, record._id);
     this.matSnackBar.open('Game Server is restarting...');
   }
 
-  public showDeletePrompt(record: GameServer) {
+  public showDeletePrompt($event: Event, record: GameServerModel) {
+    $event.stopPropagation();
+
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
         buttons: [
@@ -114,88 +123,94 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
 
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
-        await this.gameServerService.delete(record._id);
+        await this.gameServerService.delete(record.namespaceId, record._id);
         this.matSnackBar.open('Game Server deleted successfully.');
       }
     });
   }
 
-  public showLogsDialog(record: GameServer) {
-    const dialogRef = this.matDialog.open(LogsDialogComponent, {
-      autoFocus: false,
-      data: {
-        $logs: this.gameServerLogQuery.selectAll({
-          filterBy: (log) => log.gameServerId === record._id,
-          sortBy: 'unix',
-          sortByOrder: Order.DESC,
-        }),
-        $nodeIds: this.gameServerQuery
-          .selectEntity(record._id)
-          .pipe(map((gameServer) => this.getNodeIds(gameServer))),
-        find: (nodeId) => this.gameServerService.logs(record._id, nodeId, { tail: 500 }),
-        nodeIds: record.status?.nodes?.map((n) => n._id),
-        subscribe: async (nodeId, unix) => {
-          const socket = await this.socketService.connect(environment.apiBaseUrl);
-          return socket.logs(
-            GameServerLog,
-            { gameServerId: record._id, nodeId, since: unix ? new Date(unix) : new Date() },
-            this.gameServerService,
-          );
-        },
-      },
-    });
+  public showLogsDialog($event: Event, record: GameServerModel) {
+    $event.stopPropagation();
 
+    const data = {
+      $logs: this.gameServerLogQuery.selectAll({
+        filterBy: (log) => log.gameServerId === record._id,
+        sortBy: 'unix',
+        sortByOrder: Order.DESC,
+      }),
+      $nodes: this.gameServerQuery
+        .selectEntity(record._id)
+        .pipe(map((gameServer) => this.getNodes(gameServer))),
+      find: (container, pod) =>
+        this.gameServerLogService.find(record.namespaceId, record._id, pod, container, {
+          tail: 500,
+        }),
+      subscribe: (container, pod, unix) => {
+        return this.streamService.logs<GameServerLogModel>(
+          GameServerLogModel,
+          { container, gameServerId: record._id, pod },
+          {
+            body: { since: unix ? new Date(unix) : new Date() },
+            path: `/subscriptions/game-servers/${record._id}/logs/${pod}/${container}`,
+          },
+          this.gameServerLogStore,
+          this.streamServiceUrl,
+        );
+      },
+      wssUrl: this.streamServiceUrl,
+    } as LogsDialogComponentData;
+
+    const dialogRef = this.matDialog.open(LogsDialogComponent, { autoFocus: false, data });
     dialogRef.afterClosed().subscribe(() => this.gameServerLogStore.reset());
   }
 
-  private async fetchGameServers() {
-    const $gameServers = this.gameServerQuery.selectAll({
-      filterBy: (gs) =>
-        gs.namespaceId === this.selectedNamespaceService.namespaceId &&
-        ((this.queue && this.queue._id === gs.queueId) || (!this.queue && !gs.queueId)),
-    });
-    this.$gameServers = this.gameServerQuery.populate($gameServers);
+  private async fetchGameServers(params: Params) {
+    this.message = 'Loading...';
 
-    await this.gameServerService.find({
-      sort: 'name',
-      where: { namespaceId: this.selectedNamespaceService.namespaceId },
+    this.$gameServers = this.gameServerQuery.selectAll({
+      filterBy: (gs) =>
+        gs.namespaceId === params.namespaceId &&
+        (this.queueId ? this.queueId === gs.queueId : gs.persistent),
     });
 
     this.updateDataSource$ = this.$gameServers.subscribe(
       (gameServers) => (this.dataSource.data = gameServers),
     );
 
-    this.dataSource.filterPredicate = (data: GameServer, filter: string) => {
+    this.dataSource.filterPredicate = (data: GameServerModel, filter: string) => {
       const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
-
-      return (
-        regex.test(data.description) ||
-        regex.test(data.game?.fullTitle) ||
-        regex.test(data.name) ||
-        regex.test(data.status?.phase)
-      );
+      return regex.test(data.description) || regex.test(data.name) || regex.test(data.status.phase);
     };
 
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+
+    const gameServers = await this.gameServerService.find(params.namespaceId, { sort: 'name' });
+    await this.buildService.find(params.namespaceId, {
+      where: { _id: { $in: gameServers.map((gs) => gs.buildId) } },
+    });
+
+    this.message = null;
   }
 
-  private async fetchQueue() {
-    if (this.queueId) {
-      this.queue = await this.queueService.findOne(this.queueId);
-    }
-  }
-
-  private getNodeIds(gameServer: GameServer) {
-    return gameServer.status?.nodes
+  private getNodes(gameServer: GameServerModel) {
+    return gameServer.status.nodes
       .map((n) => {
-        let displayName = 'Game Server';
-        if (n._id.includes('sidecar')) {
-          displayName = 'Sidecar';
+        let label: string = 'Game Server';
+        if (
+          n.component === IGameServer.StatusComponentName.Sidecar &&
+          n.container === 'endpoints-sidecar'
+        ) {
+          label = `${IGameServer.StatusComponentName.Sidecar} (Endpoints)`;
+        } else if (
+          n.component === IGameServer.StatusComponentName.Sidecar &&
+          n.container === 'status-sidecar'
+        ) {
+          label = `${IGameServer.StatusComponentName.Sidecar} (Status)`;
         }
 
-        return { label: displayName, value: n._id };
+        return { container: n.container, label: label, pod: n.pod };
       })
-      .sort((a, b) => (a.label > b.label ? 1 : -1));
+      .sort((a, b) => (a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1));
   }
 }

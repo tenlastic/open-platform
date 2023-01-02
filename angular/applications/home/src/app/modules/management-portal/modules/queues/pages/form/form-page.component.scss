@@ -1,10 +1,10 @@
-@import '../../../../../../../assets/scss/page.scss';
+@import 'src/assets/scss/form.scss';
 
 ::ng-deep {
   app-toggle-section[title='Status'] {
     div.row:last-child div.row:last-child {
       mat-form-field.mat-form-field div.mat-form-field-wrapper {
-        margin-bottom: -10px;
+        margin-bottom: -8px;
       }
     }
   }
@@ -31,10 +31,8 @@ div.col-sm-6 {
   }
 }
 
-form {
-  app-button {
-    margin-right: 8px;
-  }
+div.row {
+  align-items: baseline;
 }
 
 mat-form-field.mat-form-field {

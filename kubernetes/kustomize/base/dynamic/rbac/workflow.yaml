@@ -7,24 +7,16 @@ rules:
   - apiGroups:
       - ""
     resources:
-      - pods
+      - secrets
     verbs:
       - get
-      - patch
-      - watch
   - apiGroups:
-      - ""
+      - argoproj.io
     resources:
-      - pods/exec
+      - workflowtaskresults
     verbs:
       - create
-  - apiGroups:
-      - ""
-    resources:
-      - pods/log
-    verbs:
-      - get
-      - watch
+      - patch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -45,3 +37,14 @@ kind: ServiceAccount
 metadata:
   name: workflow
   namespace: dynamic
+secrets:
+  - name: workflow
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: workflow
+  namespace: dynamic
+  annotations:
+    kubernetes.io/service-account.name: workflow
+type: kubernetes.io/service-account-token

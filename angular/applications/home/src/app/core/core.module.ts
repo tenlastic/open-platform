@@ -1,35 +1,23 @@
 import { CommonModule } from '@angular/common';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { NgModule, Optional, SkipSelf } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 
-import { TokenInterceptor, UnauthorizedInterceptor } from './interceptors';
-
+import { HttpModule } from '../http.module';
 import { MaterialModule } from '../material.module';
 
 @NgModule({
-  exports: [MaterialModule],
+  exports: [HttpModule, MaterialModule],
   imports: [
     BrowserAnimationsModule,
     BrowserModule,
     CommonModule,
     HttpClientModule,
+    HttpModule,
     MaterialModule,
     RouterModule,
-  ],
-  providers: [
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: TokenInterceptor,
-      multi: true,
-    },
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: UnauthorizedInterceptor,
-      multi: true,
-    },
   ],
 })
 export class CoreModule {

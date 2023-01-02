@@ -1,20 +1,10 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Queue, QueueService, IQueue, IGameServer } from '@tenlastic/ng-http';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import { QueueModel, QueueService, IQueue, IGameServer } from '@tenlastic/http';
 
-import {
-  IdentityService,
-  SelectedNamespaceService,
-  TextareaService,
-} from '../../../../../../core/services';
-import {
-  BreadcrumbsComponentBreadcrumb,
-  PromptComponent,
-} from '../../../../../../shared/components';
+import { FormService, TextareaService } from '../../../../../../core/services';
 import { jsonValidator } from '../../../../../../shared/validators';
 
 @Component({
@@ -22,35 +12,28 @@ import { jsonValidator } from '../../../../../../shared/validators';
   styleUrls: ['./json-page.component.scss'],
 })
 export class QueuesJsonPageComponent implements OnInit {
-  public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
-  public data: Queue;
+  public data: QueueModel;
   public errors: string[] = [];
   public form: FormGroup;
+
+  private params: Params;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
-    private gameServerService: QueueService,
-    public identityService: IdentityService,
-    private matDialog: MatDialog,
+    private formService: FormService,
     private matSnackBar: MatSnackBar,
+    private queueService: QueueService,
     private router: Router,
-    private selectedNamespaceService: SelectedNamespaceService,
     private textareaService: TextareaService,
   ) {}
 
   public ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async (params) => {
-      const _id = params.get('_id');
+    this.activatedRoute.params.subscribe(async (params) => {
+      this.params = params;
 
-      this.breadcrumbs = [
-        { label: 'Queues', link: '../../' },
-        { label: _id === 'new' ? 'Create Queue' : 'Edit Queue', link: '../' },
-        { label: _id === 'new' ? 'Create Queue as JSON' : 'Edit Queue as JSON' },
-      ];
-
-      if (_id !== 'new') {
-        this.data = await this.gameServerService.findOne(_id);
+      if (params.queueId !== 'new') {
+        this.data = await this.queueService.findOne(params.namespaceId, params.queueId);
       }
 
       this.setupForm();
@@ -58,25 +41,7 @@ export class QueuesJsonPageComponent implements OnInit {
   }
 
   public navigateToForm() {
-    if (this.form.dirty) {
-      const dialogRef = this.matDialog.open(PromptComponent, {
-        data: {
-          buttons: [
-            { color: 'primary', label: 'No' },
-            { color: 'accent', label: 'Yes' },
-          ],
-          message: 'Changes will not be saved. Is this OK?',
-        },
-      });
-
-      dialogRef.afterClosed().subscribe(async (result) => {
-        if (result === 'Yes') {
-          this.router.navigate([`../`], { relativeTo: this.activatedRoute });
-        }
-      });
-    } else {
-      this.router.navigate([`../`], { relativeTo: this.activatedRoute });
-    }
+    this.formService.navigateToForm(this.form);
   }
 
   public onKeyDown(event: any) {
@@ -88,70 +53,51 @@ export class QueuesJsonPageComponent implements OnInit {
   }
 
   public async save() {
+    this.errors = [];
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
 
     const json = this.form.get('json').value;
-    const values = JSON.parse(json) as Queue;
+    const values = JSON.parse(json) as QueueModel;
 
-    values.namespaceId = this.selectedNamespaceService.namespaceId;
+    values._id = this.data._id;
+    values.namespaceId = this.params.namespaceId;
 
     try {
-      await this.upsert(values);
+      this.data = await this.upsert(values);
     } catch (e) {
-      this.handleHttpError(e);
+      this.errors = this.formService.handleHttpError(e);
     }
   }
 
-  private async handleHttpError(err: HttpErrorResponse) {
-    this.errors = err.error.errors.map((e) => {
-      if (e.name === 'CastError' || e.name === 'ValidatorError') {
-        return `(${e.path}) ${e.message}`;
-      } else if (e.name === 'UniqueError') {
-        const combination = e.paths.length > 1 ? 'combination ' : '';
-        return `${e.paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
-      } else {
-        return e.message;
-      }
-    });
-  }
-
-  private setupForm(): void {
-    this.data ??= new Queue({
-      buildId: '',
+  private setupForm() {
+    this.data ??= new QueueModel({
+      confirmation: true,
       cpu: IQueue.Cpu[0].value,
       description: '',
-      gameId: '',
-      gameServerTemplate: {
-        buildId: '',
-        cpu: IGameServer.Cpu[0].value,
-        memory: IGameServer.Memory[0].value,
-        metadata: {},
-        preemptible: true,
-      },
+      gameServerTemplateId: '',
+      invitationSeconds: 30,
       memory: IQueue.Memory[0].value,
-      metadata: {},
       name: '',
       preemptible: true,
       replicas: IQueue.Replicas[0].value,
-      teams: 2,
-      usersPerTeam: 1,
+      usersPerTeam: [1, 1],
     });
 
     const keys = [
       'buildId',
+      'confirmation',
       'cpu',
       'description',
-      'gameId',
-      'gameServerTemplate',
+      'gameServerTemplateId',
+      'invitationSeconds',
       'memory',
-      'metadata',
       'name',
       'preemptible',
       'replicas',
-      'teams',
       'usersPerTeam',
     ];
     const data = Object.keys(this.data)
@@ -166,17 +112,14 @@ export class QueuesJsonPageComponent implements OnInit {
     this.form.valueChanges.subscribe(() => (this.errors = []));
   }
 
-  private async upsert(data: Partial<Queue>) {
-    let result: Queue;
+  private async upsert(values: Partial<QueueModel>) {
+    const result = values._id
+      ? await this.queueService.update(this.params.namespaceId, values._id, values)
+      : await this.queueService.create(this.params.namespaceId, values);
 
-    if (this.data._id) {
-      data._id = this.data._id;
-      result = await this.gameServerService.update(data);
-    } else {
-      result = await this.gameServerService.create(data);
-    }
+    this.matSnackBar.open(`Queue saved successfully.`);
+    this.router.navigate(['../../', result._id], { relativeTo: this.activatedRoute });
 
-    this.matSnackBar.open('Queue saved successfully.');
-    this.router.navigate([`../../${result._id}`], { relativeTo: this.activatedRoute });
+    return result;
   }
 }

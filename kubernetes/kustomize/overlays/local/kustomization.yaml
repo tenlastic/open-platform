@@ -8,9 +8,6 @@ images:
   - name: tenlastic/home-ui
     newName: tenlastic/home-ui
     newTag: latest
-  - name: tenlastic/wss
-    newName: tenlastic/wss
-    newTag: latest
 kind: Kustomization
 patches:
   - path: ./static/docker-registry/docker-registry.json
@@ -20,6 +17,20 @@ patches:
       name: docker-registry
       namespace: static
       version: v1
+  - path: ./static/ingress-nginx/basic-authentication.ingress.json
+    target:
+      group: networking.k8s.io
+      kind: Ingress
+      name: basic-authentication
+      namespace: static
+      version: v1
+  - path: ./static/ingress-nginx/default.ingress.json
+    target:
+      group: networking.k8s.io
+      kind: Ingress
+      name: default
+      namespace: static
+      version: v1
 patchesStrategicMerge:
   - ./cluster/storage-classes/balanced-expandable.yaml
   - ./cluster/storage-classes/ssd-expandable.yaml
@@ -27,31 +38,32 @@ patchesStrategicMerge:
   - ./static/angular/home-ui.yaml
   - ./static/argo/argo-workflows.yaml
   - ./static/docker-registry/docker-registry-ui.yaml
-  - ./static/grafana/grafana.yaml
   - ./static/ingress-nginx/ingress-nginx.yaml
+  - ./static/kubernetes-dashboard/kubernetes-dashboard.yaml
   - ./static/minio/minio.yaml
   - ./static/mongodb/mongodb.yaml
-  - ./static/mongodb/mongoku.yaml
+  - ./static/mongodb/mongodb-gui.yaml
   - ./static/nats/nats.yaml
+  - ./static/nodejs/aggregation-api.yaml
   - ./static/nodejs/api.yaml
-  - ./static/nodejs/provisioner.yaml
-  - ./static/nodejs/wss.yaml
-  - ./static/prometheus/prometheus.yaml
+  - ./static/nodejs/documentation.yaml
+  - ./static/nodejs/social-api.yaml
+  - ./static/redis/redis.yaml
 resources:
   - ./cluster/cluster-role-bindings/docker-for-desktop-binding.yaml
   - ./dynamic/secrets/docker-registry.secret.example.yaml
+  - ./dynamic/secrets/nodejs.secret.example.yaml
   - ./kube-system/metrics-server/metrics-server.yaml
   - ./static/docker-registry/docker-registry-image-pull-secret.secret.example.yaml
   - ./static/docker-registry/docker-registry.secret.example.yaml
-  - ./static/grafana/grafana.secret.example.yaml
-  - ./static/ingress-nginx/basic-authentication.ingress.yaml
-  - ./static/ingress-nginx/basic-authentication.secret.example.yaml
-  - ./static/ingress-nginx/default.ingress.yaml
   - ./static/minio/minio.secret.example.yaml
   - ./static/mongodb/mongodb.secret.example.yaml
-  - ./static/mongodb/mongoku.secret.example.yaml
+  - ./static/mongodb/mongodb-gui.secret.example.yaml
   - ./static/nats/nats.secret.example.yaml
+  - ./static/nodejs/aggregation-api-migrations.yaml
+  - ./static/nodejs/api-migrations.yaml
   - ./static/nodejs/e2e.secret.example.yaml
-  - ./static/nodejs/environment-variables.secret.example.yaml
-  - ./static/nodejs/migrations.yaml
+  - ./static/nodejs/nodejs.secret.example.yaml
+  - ./static/nodejs/social-api-migrations.yaml
+  - ./static/redis/redis.secret.example.yaml
   - ./static/verdaccio/verdaccio.secret.example.yaml

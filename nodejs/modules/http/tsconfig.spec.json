@@ -1,9 +1,10 @@
 {
   "extends": "../../tsconfig.json",
-  "include": [
-    "./src/**/*.spec.ts"
-  ],
-  "ts-node": {
-    "files": true,
+  "compilerOptions": {
+    "lib": ["dom", "es2015", "es2016", "es2017", "esnext"]
   },
+  "include": ["./src/**/*.spec.ts"],
+  "ts-node": {
+    "files": true
+  }
 }

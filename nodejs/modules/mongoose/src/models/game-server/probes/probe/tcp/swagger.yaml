@@ -1,0 +1,9 @@
+components:
+  schemas:
+    GameServerProbesProbeTcp:
+      type: object
+      properties:
+        port:
+          type: number
+      required:
+        - port

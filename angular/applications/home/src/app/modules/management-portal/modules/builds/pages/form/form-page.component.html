@@ -1,29 +1,34 @@
-<div class="page">
-  <app-breadcrumbs [breadcrumbs]="breadcrumbs"></app-breadcrumbs>
-
+<div *ngIf="form"
+     class="page">
   <div class="row">
     <div class="col-sm-6">
-      <app-title>{{ data?._id ? 'Edit' : 'Create' }} Build</app-title>
+      <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Build</app-title>
+      <app-title *ngIf="!hasWriteAuthorization">View Build</app-title>
     </div>
-    <div class="col-sm-6 align-right">
+
+    <div *ngIf="hasWriteAuthorization"
+         class="col-sm-6 align-right">
       <app-button *ngIf="data?._id"
                   color="accent"
                   (OnClick)="navigateToJson()">
         <mat-icon>code</mat-icon>
-        <span>{{ data?._id ? 'Edit' : 'Create' }} as JSON</span>
+        <div>{{ data?._id ? 'Edit' : 'Create' }} as JSON</div>
       </app-button>
     </div>
   </div>
 
-  <form *ngIf="form"
+  <form autocomplete="off"
         [formGroup]="form"
-        autocomplete="off">
+        id="form"
+        (ngSubmit)="save()">
     <div class="row">
       <mat-form-field floatLabel="always">
         <mat-label>Name</mat-label>
-        <input matInput
-               required
-               formControlName="name" />
+        <input appAutofocus
+               formControlName="name"
+               matInput
+               maxlength="64"
+               required />
         <mat-error>Enter a valid name.</mat-error>
       </mat-form-field>
 
@@ -39,29 +44,6 @@
         <mat-error>Select a platform.</mat-error>
       </mat-form-field>
     </div>
-
-    <div *ngIf="($games | async).length"
-         class="row">
-      <mat-form-field floatLabel="always">
-        <mat-label>Game</mat-label>
-        <mat-select formControlName="gameId"
-                    placeholder="No Game">
-          <mat-option>No Game</mat-option>
-          <mat-option *ngFor="let game of ($games | async)"
-                      [value]="game._id">
-            {{ game.fullTitle }}
-          </mat-option>
-        </mat-select>
-        <mat-error>Select a game.</mat-error>
-      </mat-form-field>
-    </div>
-
-    <ng-container *ngIf="data._id">
-      <app-button color="primary"
-                  (OnClick)="save()">Save</app-button>
-      <app-button color="accent"
-                  routerLink="../">Cancel</app-button>
-    </ng-container>
 
     <app-toggle-section *ngIf="form.get('platform').value"
                         title="Files">
@@ -99,36 +81,34 @@
       </mat-tree>
     </app-toggle-section>
 
-    <div *ngFor="let error of errors"
-         class="form-error">
-      {{ error }}
-    </div>
-
-    <ng-container *ngIf="
-                    !data._id && 
-                    (
-                      form.get('files').enabled && form.get('files').value.length > 0 && status === Status.Ready ||
-                      form.get('reference').get('_id').value && status === Status.Ready
-                    )
-                  ">
-      <app-button color="primary"
-                  (OnClick)="save()">Save</app-button>
-      <app-button color="accent"
-                  routerLink="../">Cancel</app-button>
-    </ng-container>
-
     <ng-container *ngIf="status !== Status.Ready">
       <app-button color="primary"
                   [disabled]="status">
         <mat-spinner *ngIf="status"
                      [diameter]="20"></mat-spinner>
-        <span *ngIf="status === Status.Uploading">
+        <div *ngIf="status === Status.Uploading">
           Uploading Files ({{ progress?.current | filesize }} / {{ progress?.total | filesize }})
-        </span>
-        <span *ngIf="status === Status.Zipping">
+        </div>
+        <div *ngIf="status === Status.Zipping">
           Zipping Files ({{ progress?.current }} / {{ progress?.total }})
-        </span>
+        </div>
       </app-button>
     </ng-container>
   </form>
+</div>
+
+<div *ngIf="form && !form.disabled"
+     class="page-actions">
+  <div *ngFor="let error of errors"
+       class="form-error">
+    {{ error }}
+  </div>
+
+  <app-button color="primary"
+              form="form"
+              size="large"
+              width="full">
+    <mat-icon>save</mat-icon>
+    <div>Save</div>
+  </app-button>
 </div>

@@ -1,16 +1,24 @@
 import { ENTER } from '@angular/cdk/keycodes';
 import { NestedTreeControl } from '@angular/cdk/tree';
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
-import { ActivatedRoute, Router } from '@angular/router';
-import { IWorkflow, Workflow, WorkflowQuery, WorkflowService } from '@tenlastic/ng-http';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import {
+  AuthorizationQuery,
+  IAuthorization,
+  IWorkflow,
+  NamespaceModel,
+  NamespaceService,
+  WorkflowModel,
+  WorkflowQuery,
+  WorkflowService,
+} from '@tenlastic/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
+import { FormService, IdentityService } from '../../../../../../core/services';
 
 interface StatusNode {
   children?: StatusNode[];
@@ -28,52 +36,63 @@ interface StatusNode {
   styleUrls: ['./form-page.component.scss'],
 })
 export class WorkflowsFormPageComponent implements OnInit {
-  public $data: Observable<Workflow>;
+  public $data: Observable<WorkflowModel>;
   public get cpus() {
-    const limits = this.selectedNamespaceService.namespace.limits.workflows;
-    const limit = limits.cpu ? limits.cpu : Infinity;
-    return limits.cpu ? IWorkflow.Cpu.filter(r => r.value <= limit) : IWorkflow.Cpu;
+    return this.namespace.limits.cpu
+      ? IWorkflow.Cpu.filter((r) => r.value <= this.namespace.limits.cpu)
+      : IWorkflow.Cpu;
   }
-  public data: Workflow;
+  public data: WorkflowModel;
   public dataSource = new MatTreeNestedDataSource<StatusNode>();
   public errors: string[] = [];
   public form: FormGroup;
+  public hasWriteAuthorization: boolean;
   public get memories() {
-    const limits = this.selectedNamespaceService.namespace.limits.workflows;
-    const limit = limits.memory ? limits.memory : Infinity;
-    return limits.memory ? IWorkflow.Memory.filter(r => r.value <= limit) : IWorkflow.Memory;
+    return this.namespace.limits.memory
+      ? IWorkflow.Memory.filter((r) => r.value <= this.namespace.limits.memory)
+      : IWorkflow.Memory;
   }
   public get parallelisms() {
-    const limits = this.selectedNamespaceService.namespace.limits.workflows;
-    const limit = limits.parallelism ? limits.parallelism : Infinity;
-    return limits.parallelism
-      ? IWorkflow.Parallelisms.filter(r => r.value <= limit)
-      : IWorkflow.Parallelisms;
+    return IWorkflow.Parallelisms;
   }
   public readonly separatorKeysCodes: number[] = [ENTER];
   public get storages() {
-    const limits = this.selectedNamespaceService.namespace.limits.workflows;
-    const limit = limits.storage ? limits.storage : Infinity;
-    return limits.storage ? IWorkflow.Storage.filter(r => r.value <= limit) : IWorkflow.Storage;
+    return this.namespace.limits.storage
+      ? IWorkflow.Storage.filter((r) => r.value <= this.namespace.limits.storage)
+      : IWorkflow.Storage;
   }
-  public treeControl = new NestedTreeControl<StatusNode>(node => node.children);
+  public treeControl = new NestedTreeControl<StatusNode>((node) => node.children);
+
+  private namespace: NamespaceModel;
+  private params: Params;
 
   constructor(
     private activatedRoute: ActivatedRoute,
+    private authorizationQuery: AuthorizationQuery,
     private formBuilder: FormBuilder,
-    public identityService: IdentityService,
+    private formService: FormService,
+    private identityService: IdentityService,
     private matSnackBar: MatSnackBar,
+    private namespaceService: NamespaceService,
+    private router: Router,
     private workflowQuery: WorkflowQuery,
     private workflowService: WorkflowService,
-    private router: Router,
-    public selectedNamespaceService: SelectedNamespaceService,
   ) {}
 
   public ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async params => {
-      const _id = params.get('_id');
-      if (_id !== 'new') {
-        this.data = await this.workflowService.findOne(_id);
+    this.activatedRoute.params.subscribe(async (params) => {
+      this.params = params;
+
+      const roles = [IAuthorization.Role.QueuesWrite];
+      const userId = this.identityService.user?._id;
+      this.hasWriteAuthorization =
+        this.authorizationQuery.hasRoles(null, roles, userId) ||
+        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
+
+      this.namespace = await this.namespaceService.findOne(params.namespaceId);
+
+      if (params.workflowId !== 'new') {
+        this.data = await this.workflowService.findOne(params.namespaceId, params.workflowId);
       }
 
       this.setupForm();
@@ -104,6 +123,10 @@ export class WorkflowsFormPageComponent implements OnInit {
     roles.insert(index + change, role);
   }
 
+  public navigateToJson() {
+    this.formService.navigateToJson(this.form);
+  }
+
   public removeTemplate(index: number) {
     const formArray = this.form.get('templates') as FormArray;
     formArray.removeAt(index);
@@ -128,8 +151,8 @@ export class WorkflowsFormPageComponent implements OnInit {
 
       return task;
     });
-    const templates = raw.templates.map(t => {
-      const sidecars = t.sidecars.map(s => {
+    const templates = raw.templates.map((t) => {
+      const sidecars = t.sidecars.map((s) => {
         const sidecar: IWorkflow.Sidecar = {
           env: s.env,
           image: s.image,
@@ -169,7 +192,8 @@ export class WorkflowsFormPageComponent implements OnInit {
       return template;
     });
 
-    const values: Partial<Workflow> = {
+    const values: Partial<WorkflowModel> = {
+      _id: this.data._id,
       cpu: raw.cpu,
       memory: raw.memory,
       name: raw.name,
@@ -190,21 +214,14 @@ export class WorkflowsFormPageComponent implements OnInit {
     };
 
     try {
-      await this.create(values);
+      this.data = await this.upsert(values);
     } catch (e) {
-      this.handleHttpError(e, { name: 'Name', namespaceId: 'Namespace' });
+      this.errors = this.formService.handleHttpError(e, { name: 'Name', namespaceId: 'Namespace' });
     }
   }
 
   public showStatusNode(node: StatusNode) {
     return ['Pod', 'Workflow'].includes(node.type);
-  }
-
-  private async create(data: Partial<Workflow>) {
-    const result = await this.workflowService.create(data);
-
-    this.matSnackBar.open('Workflow saved successfully.');
-    this.router.navigate(['../', result._id], { relativeTo: this.activatedRoute });
   }
 
   private getDefaultTemplateFormGroup() {
@@ -221,7 +238,7 @@ export class WorkflowsFormPageComponent implements OnInit {
     });
 
     // Only allow alphanumeric characters and dashes.
-    group.valueChanges.subscribe(value => {
+    group.valueChanges.subscribe((value) => {
       const name = value.name.replace(/[^A-Za-z0-9\-]/g, '');
       group.get('name').setValue(name, { emitEvent: false });
     });
@@ -230,53 +247,48 @@ export class WorkflowsFormPageComponent implements OnInit {
   }
 
   private getEnvFormArray(env: IWorkflow.Env[]) {
-    const formArray = this.formBuilder.array([]);
     if (!env) {
-      return formArray;
+      return this.formBuilder.array([]);
     }
 
-    for (const e of env) {
-      const formGroup = this.formBuilder.group({
+    const groups = env.map((e) =>
+      this.formBuilder.group({
         name: [e.name, Validators.required],
         value: [e.value, Validators.required],
-      });
-      formArray.push(formGroup);
-    }
+      }),
+    );
 
-    return formArray;
+    return this.formBuilder.array(groups);
   }
 
   private getSidecarsFormArray(sidecars: IWorkflow.Sidecar[]) {
-    const formArray = this.formBuilder.array([]);
     if (!sidecars) {
-      return formArray;
+      return this.formBuilder.array([]);
     }
 
-    for (const sidecar of sidecars) {
-      const formGroup = this.formBuilder.group({
-        args: this.formBuilder.array(sidecar.args || []),
-        command: this.formBuilder.array(sidecar.command || []),
-        env: this.getEnvFormArray(sidecar.env),
-        image: [sidecar.image, Validators.required],
-        name: [sidecar.name],
-      });
-      formArray.push(formGroup);
-    }
+    const groups = sidecars.map((s) =>
+      this.formBuilder.group({
+        args: this.formBuilder.array(s.args || []),
+        command: this.formBuilder.array(s.command || []),
+        env: this.getEnvFormArray(s.env),
+        image: [s.image, Validators.required],
+        name: [s.name],
+      }),
+    );
 
-    return formArray;
+    return this.formBuilder.array(groups);
   }
 
   private getTemplatesFormArray(templates: IWorkflow.Template[]) {
-    const formArray = this.formBuilder.array([]);
     if (!templates) {
-      formArray.push(this.getDefaultTemplateFormGroup());
-      return formArray;
+      const group = this.getDefaultTemplateFormGroup();
+      return this.formBuilder.array([group]);
     }
 
-    this.data.spec.templates
-      .filter(t => t.script)
-      .forEach(t => {
-        const template = this.formBuilder.group({
+    const groups = this.data.spec.templates
+      .filter((t) => t.script)
+      .map((t) =>
+        this.formBuilder.group({
           name: [t.name, Validators.required],
           script: this.formBuilder.group({
             args: this.formBuilder.array(t.script.args || []),
@@ -287,46 +299,35 @@ export class WorkflowsFormPageComponent implements OnInit {
             workingDir: [t.script.workingDir],
           }),
           sidecars: this.getSidecarsFormArray(t.sidecars),
-        });
-        formArray.push(template);
-      });
+        }),
+      );
 
-    return formArray;
+    return this.formBuilder.array(groups);
   }
 
-  private async handleHttpError(err: HttpErrorResponse, pathMap: any) {
-    this.errors = err.error.errors.map(e => {
-      if (e.name === 'UniqueError') {
-        const combination = e.paths.length > 1 ? 'combination ' : '';
-        const paths = e.paths.map(p => pathMap[p]);
-        return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
-      } else {
-        return e.message;
-      }
-    });
-  }
-
-  private setupForm(): void {
-    this.data = this.data || new Workflow();
+  private setupForm() {
+    this.data ??= new WorkflowModel();
 
     this.form = this.formBuilder.group({
       cpu: [this.data.cpu || this.cpus[0].value],
       memory: [this.data.memory || this.memories[0].value],
       name: [this.data.name, Validators.required],
-      namespaceId: [this.selectedNamespaceService.namespaceId, Validators.required],
+      namespaceId: [this.params.namespaceId, Validators.required],
       parallelism: [(this.data.spec && this.data.spec.parallelism) || this.parallelisms[0].value],
       preemptible: [this.data.preemptible === false ? false : true],
       storage: [this.data.storage || this.storages[0].value],
       templates: this.getTemplatesFormArray(this.data.spec && this.data.spec.templates),
     });
 
+    if (!this.hasWriteAuthorization) {
+      this.form.disable({ emitEvent: false });
+    }
+
     if (this.data._id) {
       this.form.disable({ emitEvent: false });
 
-      this.$data = this.workflowQuery.selectAll({ filterBy: w => w._id === this.data._id }).pipe(
-        map(workflows => {
-          const workflow = new Workflow(workflows[0]);
-          workflow.status = workflow.status || { nodes: [], phase: 'Pending' };
+      this.$data = this.workflowQuery.selectAll({ filterBy: (w) => w._id === this.data._id }).pipe(
+        map(([workflow]) => {
           this.dataSource.data = workflow.getNestedStatusNodes();
           return workflow;
         }),
@@ -334,5 +335,16 @@ export class WorkflowsFormPageComponent implements OnInit {
     }
 
     this.form.valueChanges.subscribe(() => (this.errors = []));
+  }
+
+  private async upsert(values: Partial<WorkflowModel>) {
+    const result = values._id
+      ? await this.workflowService.update(this.params.namespaceId, values._id, values)
+      : await this.workflowService.create(this.params.namespaceId, values);
+
+    this.matSnackBar.open(`Workflow saved successfully.`);
+    this.router.navigate(['../', result._id], { relativeTo: this.activatedRoute });
+
+    return result;
   }
 }

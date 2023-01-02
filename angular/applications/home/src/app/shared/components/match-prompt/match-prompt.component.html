@@ -1,31 +1,34 @@
-<ng-container *ngIf="accepted">
+<ng-container *ngIf="message">
   <div mat-dialog-content>
-    <app-loading-message>Waiting for Game Server...</app-loading-message>
+    <app-loading-message>{{ message }}</app-loading-message>
   </div>
 </ng-container>
 
-<ng-container *ngIf="!accepted">
+<ng-container *ngIf="!message">
   <div mat-dialog-title>Match Found</div>
 
   <div mat-dialog-content>
-    <p>Game: {{ game.fullTitle }}</p>
-    <p>
-      Queue: {{ queue.name }}
-      <ng-container *ngIf="queue.description">- {{ queue.description }}</ng-container>
-    </p>
+    <h2 *ngIf="storefront">{{ storefront.fullTitle }}</h2>
+
+    <h3 *ngIf="queue">
+      {{ queue.name }} <ng-container *ngIf="queue.description">- {{ queue.description }}</ng-container>
+    </h3>
+
+    <mat-progress-bar mode="determinate"
+                      [value]="progress * 100"></mat-progress-bar>
   </div>
 
   <div mat-dialog-actions>
-    <app-button mat-button
-                color="accent"
-                (OnClick)="decline()">
-      Decline
+    <app-button color="accent"
+                layout="left"
+                (OnClick)="declineMatchInvitation()">
+      <div>Decline</div>
     </app-button>
 
-    <app-button mat-button
-                color="primary"
-                (OnClick)="accept()">
-      Accept
+    <app-button color="primary"
+                layout="left"
+                (OnClick)="acceptMatchInvitation()">
+      <div>Accept</div>
     </app-button>
   </div>
 </ng-container>

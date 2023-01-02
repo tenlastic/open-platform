@@ -1,0 +1,18 @@
+components:
+  schemas:
+    QueueStatusComponent:
+      type: object
+      properties:
+        current:
+          type: number
+        name:
+          $ref: '#/components/schemas/QueueStatusComponentName'
+        phase:
+          $ref: '#/components/schemas/QueueStatusPhase'
+        total:
+          type: number
+      required:
+        - current
+        - name
+        - phase
+        - total

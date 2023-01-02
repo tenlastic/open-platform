@@ -1,5 +1,0 @@
-<ng-container *ngFor="let breadcrumb of breadcrumbs">
-  <a *ngIf="breadcrumb.link"
-     [routerLink]="breadcrumb.link">{{ breadcrumb.label }}</a>
-  <span *ngIf="!breadcrumb.link">{{ breadcrumb.label }}</span>
-</ng-container>

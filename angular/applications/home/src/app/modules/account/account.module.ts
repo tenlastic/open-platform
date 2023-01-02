@@ -11,6 +11,7 @@ export const ROUTES: Routes = [
     component: LayoutComponent,
     path: '',
     pathMatch: 'full',
+    title: `Account Information`,
   },
 ];
 

@@ -1,15 +1,25 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
+import { FormResolver } from '../../../../core/resolvers';
 import { SharedModule } from '../../../../shared/shared.module';
-
 import { BuildStatusNodeComponent, FilesFormComponent } from './components';
 import { BuildsFormPageComponent, BuildsJsonPageComponent, BuildsListPageComponent } from './pages';
 
 export const ROUTES: Routes = [
-  { path: '', component: BuildsListPageComponent },
-  { path: ':_id', component: BuildsFormPageComponent },
-  { path: ':_id/json', component: BuildsJsonPageComponent },
+  { component: BuildsListPageComponent, path: '', title: 'Builds' },
+  {
+    component: BuildsFormPageComponent,
+    data: { param: 'buildId', title: 'Build' },
+    path: ':buildId',
+    title: FormResolver,
+  },
+  {
+    component: BuildsJsonPageComponent,
+    data: { param: 'buildId', title: 'Build' },
+    path: ':buildId/json',
+    title: FormResolver,
+  },
 ];
 
 @NgModule({

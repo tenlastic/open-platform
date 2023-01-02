@@ -8,6 +8,7 @@ export interface InputDialogComponentData {
   autocomplete?: (value: string) => Promise<any>;
   error: string;
   label: string;
+  maxlength: number;
   title?: string;
   type?: string;
   validators?: Validator[];
@@ -45,8 +46,8 @@ export class InputDialogComponent implements OnInit {
     this.setupForm();
 
     if (this.data.autocomplete) {
-      this.form.get('input').valueChanges.subscribe(value => this.subject.next(value));
-      this.subject.pipe(debounceTime(300)).subscribe(async value => {
+      this.form.get('input').valueChanges.subscribe((value) => this.subject.next(value));
+      this.subject.pipe(debounceTime(300)).subscribe(async (value) => {
         this.options = await this.data.autocomplete(value);
       });
     }
@@ -62,7 +63,7 @@ export class InputDialogComponent implements OnInit {
     this.dialogRef.close(this.form.get('input').value);
   }
 
-  private setupForm(): void {
+  private setupForm() {
     this.form = this.formBuilder.group({
       input: [this.data.value || '', this.data.validators || []],
     });

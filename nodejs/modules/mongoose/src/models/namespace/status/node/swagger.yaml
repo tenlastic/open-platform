@@ -1,0 +1,18 @@
+components:
+  schemas:
+    NamespaceStatusNode:
+      type: object
+      properties:
+        component:
+          $ref: '#/components/schemas/NamespaceStatusComponentName'
+        container:
+          type: string
+        phase:
+          $ref: '#/components/schemas/NamespaceStatusPhase'
+        pod:
+          type: string
+      required:
+        - component
+        - container
+        - phase
+        - pod

@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
+import { FormResolver } from '../../../../core/resolvers';
 import { SharedModule } from '../../../../shared/shared.module';
-
 import {
   ArticlesFormPageComponent,
   ArticlesJsonPageComponent,
@@ -10,9 +10,19 @@ import {
 } from './pages';
 
 export const ROUTES: Routes = [
-  { path: '', component: ArticlesListPageComponent },
-  { path: ':_id', component: ArticlesFormPageComponent },
-  { path: ':_id/json', component: ArticlesJsonPageComponent },
+  { component: ArticlesListPageComponent, path: '', title: 'Articles' },
+  {
+    component: ArticlesFormPageComponent,
+    data: { param: 'articleId', title: 'Article' },
+    path: ':articleId',
+    title: FormResolver,
+  },
+  {
+    component: ArticlesJsonPageComponent,
+    data: { param: 'articleId', title: 'Article' },
+    path: ':articleId/json',
+    title: FormResolver,
+  },
 ];
 
 @NgModule({

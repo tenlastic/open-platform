@@ -1,9 +1,8 @@
 import { Component, ViewChild } from '@angular/core';
-import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
-import { LoginService, UserService } from '@tenlastic/ng-http';
+import { LoginService, UserService } from '@tenlastic/http';
 
-import { TITLE } from '../../../../shared/constants';
+import { ElectronService } from '../../../../core/services';
 import { IOnRegister, RegistrationFormComponent } from '../../components';
 
 @Component({
@@ -20,23 +19,40 @@ export class CreateAccountPageComponent {
   public loadingMessage: string;
 
   constructor(
+    private electronService: ElectronService,
     private loginService: LoginService,
     private router: Router,
-    private titleService: Title,
     private userService: UserService,
-  ) {
-    this.titleService.setTitle(`${TITLE} | Create Account`);
-  }
+  ) {}
 
   public async onRegister(data: IOnRegister) {
     try {
       await this.userService.create(data);
     } catch (e) {
-      this.registrationForm.error = 'Email address has already been registered.';
+      const error = e.errors && e.errors[0];
+      const emailError = e.errors?.find(
+        (e) => e.name === 'DuplicateKeyError' && e.paths.includes('email'),
+      );
+      const usernameError = e.errors?.find(
+        (e) => e.name === 'DuplicateKeyError' && e.paths.includes('username'),
+      );
+
+      if (emailError && usernameError) {
+        this.registrationForm.error = 'Email Address and Username are already taken.';
+      } else if (emailError) {
+        this.registrationForm.error = 'Email Address is already taken.';
+      } else if (usernameError) {
+        this.registrationForm.error = 'Username is already taken.';
+      } else if (error) {
+        this.registrationForm.error = error.message;
+      } else {
+        this.registrationForm.error = JSON.stringify(e);
+      }
+
       return;
     }
 
     await this.loginService.createWithCredentials(data.username, data.password);
-    this.router.navigateByUrl('/');
+    this.router.navigateByUrl(this.electronService.isElectron ? '/store' : '/');
   }
 }

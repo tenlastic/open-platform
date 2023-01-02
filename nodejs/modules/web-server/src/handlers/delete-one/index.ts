@@ -7,16 +7,15 @@ import { RecordNotFoundError } from '../../errors';
 export function deleteOne<TDocument extends mongoose.Document>(
   Permissions: MongoosePermissions<TDocument>,
 ) {
-  return async function(ctx: Context) {
-    const user = ctx.state.apiKey || ctx.state.user;
-
-    const existing = await Permissions.findOne({}, { where: ctx.params }, user);
+  return async function (ctx: Context) {
+    const credentials = { ...ctx.state };
+    const existing = await Permissions.findOne(credentials, { where: ctx.params }, {});
     if (!existing) {
       throw new RecordNotFoundError('Record');
     }
 
-    const result = await Permissions.delete(existing, user);
-    const record = await Permissions.read(result, user);
+    const result = await Permissions.delete(credentials, existing);
+    const record = await Permissions.read(credentials, result);
 
     ctx.response.body = { record };
   };

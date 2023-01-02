@@ -1,35 +1,36 @@
-import { queueMemberService, queueMemberStore } from '@tenlastic/http';
-import * as Redis from 'ioredis';
+import { QueueModel, QueueMemberModel } from '@tenlastic/http';
+import * as redis from '@tenlastic/redis';
+import { Redis } from 'ioredis';
+
+import dependencies from '../dependencies';
 
 const podName = process.env.POD_NAME;
-const queue = JSON.parse(process.env.QUEUE_JSON);
-const redisSentinelPassword = process.env.REDIS_SENTINEL_PASSWORD;
-const sentinels = process.env.SENTINELS.split(',');
+const redisConnectionString = process.env.REDIS_CONNECTION_STRING;
+const redisPassword = process.env.REDIS_PASSWORD;
 
-export async function start() {
+export function remove(client: Redis, queueMember: QueueMemberModel) {
+  const score = getScore(queueMember._id);
+  return client.zremrangebyscore(podName, score, score);
+}
+
+export async function start(queue: QueueModel) {
   // Connect to Sentinel.
-  const client = new Redis({
+  const client = await redis.connect({
+    connectionString: redisConnectionString,
     name: 'mymaster',
-    password: redisSentinelPassword,
-    retryStrategy: times => Math.min(times * 1000, 5000),
-    sentinelPassword: redisSentinelPassword,
-    sentinels: sentinels.map(s => {
-      const [host, port] = s.split(':');
-      return { host, port: Number(port) };
-    }),
+    password: redisPassword,
   });
-  client.on('connect', () => console.log('Connected to Redis.'));
-  client.on('error', err => console.error(err.message));
+  console.log('Connected to Redis.');
 
   // Deterministically get keys that do not have a replica.
   const keys = await client.keys('*');
   const results = keys
-    .filter(k => {
+    .filter((k) => {
       const index = podName.replace(`queue-${queue._id}-`, '');
       const key = k.replace(`queue-${queue._id}-`, '');
       return Number(key) % queue.replicas === Number(index);
     })
-    .filter(k => k !== podName);
+    .filter((k) => k !== podName);
 
   // Merge orphan keys.
   console.log(`Merging ${results.length} orphans...`);
@@ -46,20 +47,15 @@ export async function start() {
   // Add existing QueueMembers to the store.
   for (const queueMember of queueMembers) {
     const json = JSON.parse(queueMember);
-    queueMemberStore.upsert(json._id, json);
+    dependencies.queueMemberStore.upsertMany([new QueueMemberModel(json)]);
   }
 
-  // Sync QueueMembers with Redis.
-  queueMemberService.emitter.on('create', qm =>
-    client.zadd(podName, getScore(qm._id), JSON.stringify(qm)),
-  );
-  queueMemberService.emitter.on('delete', _id => {
-    const score = getScore(_id);
-    return client.zremrangebyscore(podName, score, score);
-  });
-  queueMemberService.emitter.on('update', qm =>
-    client.zadd(podName, getScore(qm._id), JSON.stringify(qm)),
-  );
+  return client;
+}
+
+export async function upsert(client: Redis, queueMember: QueueMemberModel) {
+  const score = getScore(queueMember._id);
+  return client.zadd(podName, score, JSON.stringify(queueMember));
 }
 
 function getScore(_id: string) {

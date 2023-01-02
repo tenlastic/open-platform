@@ -1,4 +1,4 @@
-import { CopyConditions } from 'minio';
+import { BucketItemCopy, CopyConditions } from 'minio';
 
 import { client } from './connect';
 import { TIMEOUT, TIMEOUT_LIMIT } from './constants';
@@ -9,19 +9,15 @@ export async function copyObject(
   sourceObject: string,
   copyConditions: CopyConditions,
   timeout = TIMEOUT,
-) {
-  let result: any;
-
+): Promise<BucketItemCopy> {
   try {
-    result = await client.copyObject(bucketName, objectName, sourceObject, copyConditions);
+    return await client.copyObject(bucketName, objectName, sourceObject, copyConditions);
   } catch (e) {
-    if (timeout > TIMEOUT_LIMIT || !e.code || e.code !== 'SlowDown') {
+    if (e?.code !== 'SlowDown' || timeout > TIMEOUT_LIMIT) {
       throw e;
     }
 
-    await new Promise(res => setTimeout(res, timeout));
+    await new Promise((res) => setTimeout(res, timeout));
     return copyObject(bucketName, objectName, sourceObject, copyConditions, timeout * timeout);
   }
-
-  return result;
 }

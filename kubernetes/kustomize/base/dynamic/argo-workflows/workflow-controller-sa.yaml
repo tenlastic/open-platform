@@ -1,7 +1,0 @@
----
-# Source: argo-workflows/templates/controller/workflow-controller-sa.yaml
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: argo
-  namespace: dynamic

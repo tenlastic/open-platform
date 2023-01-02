@@ -1,6 +1,5 @@
-<div class="page">
-  <app-breadcrumbs [breadcrumbs]="breadcrumbs"></app-breadcrumbs>
-
+<div *ngIf="form"
+     class="page">
   <div class="row">
     <div class="col-sm-6">
       <app-title>{{ data?._id ? 'Edit' : 'Create' }} Collection</app-title>
@@ -9,18 +8,20 @@
       <app-button color="accent"
                   (OnClick)="navigateToForm()">
         <mat-icon>format_list_bulleted</mat-icon>
-        <span>{{ data?._id ? 'Edit' : 'Create' }} as Form</span>
+        <div>{{ data?._id ? 'Edit' : 'Create' }} as Form</div>
       </app-button>
     </div>
   </div>
 
-  <form *ngIf="form"
+  <form autocomplete="off"
         [formGroup]="form"
-        autocomplete="off">
+        id="form"
+        (ngSubmit)="save()">
     <div class="row">
       <mat-form-field floatLabel="always">
         <mat-label>JSON</mat-label>
         <textarea matInput
+                  appAutofocus
                   cdkTextareaAutosize
                   formControlName="json"
                   spellcheck="false"
@@ -30,15 +31,21 @@
         <mat-error>JSON is not valid.</mat-error>
       </mat-form-field>
     </div>
-
-    <div *ngFor="let error of errors"
-         class="form-error">
-      {{ error }}
-    </div>
-
-    <app-button color="primary"
-                (OnClick)="save()">Save</app-button>
-    <app-button color="accent"
-                routerLink="../">Cancel</app-button>
   </form>
+</div>
+
+<div *ngIf="!form?.disabled"
+     class="page-actions">
+  <div *ngFor="let error of errors"
+       class="form-error">
+    {{ error }}
+  </div>
+
+  <app-button color="primary"
+              form="form"
+              size="large"
+              width="full">
+    <mat-icon>save</mat-icon>
+    <div>Save</div>
+  </app-button>
 </div>

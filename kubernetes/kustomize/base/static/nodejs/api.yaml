@@ -1,3 +1,62 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: api
+rules:
+  - apiGroups:
+      - scheduling.k8s.io
+    resources:
+      - priorityclasses
+    verbs:
+      - create
+      - delete
+      - deletecollection
+      - get
+      - list
+      - patch
+      - update
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: api
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: api
+subjects:
+  - kind: ServiceAccount
+    name: api
+    namespace: static
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: api
+  namespace: static
+rules:
+  - apiGroups:
+      - networking.k8s.io
+    resources:
+      - ingresses
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: api
+  namespace: static
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: api
+subjects:
+  - kind: ServiceAccount
+    name: api
+    namespace: static
+---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -41,13 +100,13 @@ spec:
                 topologyKey: kubernetes.io/hostname
       containers:
         - name: api
-          image: tenlastic/api:0.0.314
+          image: tenlastic/api:0.0.315
           envFrom:
             - secretRef:
-                name: nodejs-environment-variables
+                name: nodejs
           livenessProbe:
             httpGet:
-              path: /articles
+              path: /probes/liveness
               port: 3000
             initialDelaySeconds: 30
             periodSeconds: 30
@@ -56,7 +115,7 @@ spec:
           resources:
             requests:
               cpu: 25m
-              memory: 75Mi
+              memory: 75M
       serviceAccountName: api
 ---
 apiVersion: v1
@@ -64,12 +123,11 @@ kind: Service
 metadata:
   labels:
     app: api
-    service: api
   name: api
   namespace: static
 spec:
   ports:
-    - port: 3000
-      name: http
+    - name: http
+      port: 3000
   selector:
     app: api

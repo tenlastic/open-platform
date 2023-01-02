@@ -4,10 +4,9 @@ import { Routes, RouterModule } from '@angular/router';
 import { SharedModule } from '../../../../shared/shared.module';
 import { HomeComponent } from './home.component';
 
-export const ROUTES: Routes = [{ path: '', component: HomeComponent }];
+export const ROUTES: Routes = [{ component: HomeComponent, path: '', title: 'Home' }];
 
 @NgModule({
-  entryComponents: [],
   declarations: [HomeComponent],
   imports: [SharedModule, RouterModule.forChild(ROUTES)],
 })

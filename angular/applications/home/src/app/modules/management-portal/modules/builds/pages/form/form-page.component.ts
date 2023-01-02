@@ -1,25 +1,23 @@
 import { NestedTreeControl } from '@angular/cdk/tree';
-import { HttpErrorResponse, HttpEventType } from '@angular/common/http';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Build, BuildQuery, BuildService, Game, GameQuery, GameService } from '@tenlastic/ng-http';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import {
+  ApiError,
+  AuthorizationQuery,
+  BuildModel,
+  BuildQuery,
+  BuildService,
+  IAuthorization,
+  IBuild,
+} from '@tenlastic/http';
 import JSZip from 'jszip';
-import { EMPTY, Observable } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
-import {
-  FileReaderService,
-  IdentityService,
-  SelectedNamespaceService,
-} from '../../../../../../core/services';
-import {
-  BreadcrumbsComponentBreadcrumb,
-  PromptComponent,
-} from '../../../../../../shared/components';
+import { FileReaderService, FormService, IdentityService } from '../../../../../../core/services';
 import { UpdatedFile } from '../../components';
 
 enum Status {
@@ -49,56 +47,51 @@ interface StatusNode {
   styleUrls: ['./form-page.component.scss'],
 })
 export class BuildsFormPageComponent implements OnInit {
-  public $data: Observable<Build>;
-  public $games: Observable<Game[]>;
+  public $data: Observable<BuildModel>;
   public Status = Status;
-  public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
-  public data: Build;
+  public data: BuildModel;
   public dataSource = new MatTreeNestedDataSource<StatusNode>();
   public errors: string[] = [];
   public form: FormGroup;
+  public hasWriteAuthorization: boolean;
   public platforms = [
-    { label: 'Linux Server (x64)', value: 'server64' },
-    { label: 'Windows Client (x64)', value: 'windows64' },
+    { label: 'Linux Server (x64)', value: IBuild.Platform.Server64 },
+    { label: 'Windows Client (x64)', value: IBuild.Platform.Windows64 },
   ];
   public progress: Progress;
   public status = Status.Ready;
   public treeControl = new NestedTreeControl<StatusNode>((node) => node.children);
 
+  private params: Params;
+
   constructor(
     private activatedRoute: ActivatedRoute,
+    private authorizationQuery: AuthorizationQuery,
     private buildQuery: BuildQuery,
     private buildService: BuildService,
     private changeDetectorRef: ChangeDetectorRef,
     private fileReaderService: FileReaderService,
     private formBuilder: FormBuilder,
-    private gameQuery: GameQuery,
-    private gameService: GameService,
-    public identityService: IdentityService,
-    private matDialog: MatDialog,
+    private formService: FormService,
+    private identityService: IdentityService,
     private matSnackBar: MatSnackBar,
     private router: Router,
-    private selectedNamespaceService: SelectedNamespaceService,
   ) {}
 
   public ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async (params) => {
-      const _id = params.get('_id');
+    this.activatedRoute.params.subscribe(async (params) => {
+      this.params = params;
 
-      this.breadcrumbs = [
-        { label: 'Builds', link: '../' },
-        { label: _id === 'new' ? 'Create Build' : 'Edit Build' },
-      ];
+      const roles = [IAuthorization.Role.BuildsWrite];
+      const userId = this.identityService.user?._id;
+      this.hasWriteAuthorization =
+        this.authorizationQuery.hasRoles(null, roles, userId) ||
+        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
-      if (_id !== 'new') {
-        this.data = await this.buildService.findOne(_id);
+      if (params.buildId !== 'new') {
+        this.data = await this.buildService.findOne(params.namespaceId, params.buildId);
         this.dataSource.data = this.data.getNestedStatusNodes();
       }
-
-      this.$games = this.gameQuery
-        .selectAll({ filterBy: (g) => g.namespaceId === this.selectedNamespaceService.namespaceId })
-        .pipe(map((games) => games.map((g) => new Game(g))));
-      this.gameService.find({ where: { namespaceId: this.selectedNamespaceService.namespaceId } });
 
       this.setupForm();
     });
@@ -109,28 +102,12 @@ export class BuildsFormPageComponent implements OnInit {
   }
 
   public navigateToJson() {
-    if (this.form.dirty) {
-      const dialogRef = this.matDialog.open(PromptComponent, {
-        data: {
-          buttons: [
-            { color: 'primary', label: 'No' },
-            { color: 'accent', label: 'Yes' },
-          ],
-          message: 'Changes will not be saved. Is this OK?',
-        },
-      });
-
-      dialogRef.afterClosed().subscribe(async (result) => {
-        if (result === 'Yes') {
-          this.router.navigate([`json`], { relativeTo: this.activatedRoute });
-        }
-      });
-    } else {
-      this.router.navigate([`json`], { relativeTo: this.activatedRoute });
-    }
+    this.formService.navigateToJson(this.form);
   }
 
   public async save() {
+    this.errors = [];
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -140,9 +117,8 @@ export class BuildsFormPageComponent implements OnInit {
     const unmodifiedFiles = this.form.get('files').value.filter((f) => f.status === 'unmodified');
     const reference = { _id: referenceId, files: unmodifiedFiles.map((uf) => uf.path) };
 
-    const values: Partial<Build> = {
+    const values: Partial<BuildModel> = {
       entrypoint: this.form.get('entrypoint').value,
-      gameId: this.form.get('gameId').value || null,
       name: this.form.get('name').value,
       namespaceId: this.form.get('namespaceId').value,
       platform: this.form.get('platform').value,
@@ -165,7 +141,7 @@ export class BuildsFormPageComponent implements OnInit {
     return ['Pod', 'Workflow'].includes(node.type);
   }
 
-  private async create(data: Partial<Build>) {
+  private async create(data: Partial<BuildModel>) {
     this.form.disable({ emitEvent: false });
 
     const files: UpdatedFile[] = this.form.get('files').value;
@@ -186,7 +162,6 @@ export class BuildsFormPageComponent implements OnInit {
         {
           compression: 'DEFLATE',
           compressionOptions: { level: 1 },
-          streamFiles: true,
           type: 'blob',
         },
         (metadata) => {
@@ -207,47 +182,31 @@ export class BuildsFormPageComponent implements OnInit {
     // Upload files.
     this.progress = { current: 0, total: zipBlob?.size };
     this.status = Status.Uploading;
-    const result = await new Promise<Build>((resolve, reject) => {
-      this.buildService
-        .create(data, zipBlob)
-        .pipe(
-          catchError((err: HttpErrorResponse) => {
-            reject(err);
-            return EMPTY;
-          }),
-        )
-        .subscribe((event) => {
-          const file = new File([zipBlob], 'file');
 
-          switch (event.type) {
-            case HttpEventType.Sent:
-              this.progress = { current: 0, total: file.size };
-              return;
+    const formData = new FormData();
+    formData.append('record', JSON.stringify(data));
+    formData.append('zip', zipBlob);
 
-            case HttpEventType.UploadProgress:
-              this.progress = { current: event.loaded, total: event.total };
-              return;
-
-            case HttpEventType.Response:
-              return resolve(event.body.record);
-          }
-        });
+    const result = await this.buildService.create(data.namespaceId, formData, {
+      onUploadProgress: (progressEvent) => {
+        this.progress = { current: progressEvent.loaded * 100, total: progressEvent.total };
+      },
     });
 
     this.form.enable({ emitEvent: false });
     this.progress = null;
     this.status = Status.Ready;
 
-    return new Build(result);
+    return result;
   }
 
-  private async handleHttpError(err: HttpErrorResponse, pathMap: any) {
-    if (err.error.errors) {
-      this.errors = err.error.errors.map((e) => {
-        if (e.name === 'UniqueError') {
+  private async handleHttpError(err: ApiError, pathMap: any) {
+    if (err.errors) {
+      this.errors = err.errors.map((e) => {
+        if (e.name === 'DuplicateKeyError') {
           const combination = e.paths.length > 1 ? 'combination ' : '';
           const paths = e.paths.map((p) => pathMap[p]);
-          return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
+          return `${paths.join(' / ')} ${combination}is not unique.`;
         } else {
           return e.message;
         }
@@ -261,18 +220,21 @@ export class BuildsFormPageComponent implements OnInit {
     this.status = Status.Ready;
   }
 
-  private setupForm(): void {
-    this.data = this.data || new Build();
+  private setupForm() {
+    this.data ??= new BuildModel();
 
     this.form = this.formBuilder.group({
       entrypoint: [this.data.entrypoint, Validators.required],
       files: [this.data.files || []],
-      gameId: [this.data.gameId],
       name: [this.data.name, Validators.required],
-      namespaceId: [this.selectedNamespaceService.namespaceId, Validators.required],
+      namespaceId: [this.params.namespaceId, Validators.required],
       platform: [this.data.platform || this.platforms[0].value, Validators.required],
       reference: this.formBuilder.group({ _id: [null], files: [[]] }),
     });
+
+    if (!this.hasWriteAuthorization) {
+      this.form.disable({ emitEvent: false });
+    }
 
     this.form.valueChanges.subscribe(() => (this.errors = []));
 
@@ -283,9 +245,7 @@ export class BuildsFormPageComponent implements OnInit {
       this.form.get('reference').disable({ emitEvent: false });
 
       this.$data = this.buildQuery.selectAll({ filterBy: (b) => b._id === this.data._id }).pipe(
-        map((builds) => {
-          const build = new Build(builds[0]);
-          build.status = build.status || { nodes: [], phase: 'Pending' };
+        map(([build]) => {
           this.dataSource.data = build.getNestedStatusNodes();
           this.form.get('files').setValue(build.files);
           return build;
@@ -294,15 +254,15 @@ export class BuildsFormPageComponent implements OnInit {
     }
   }
 
-  private async upsert(data: Partial<Build>) {
+  private async upsert(data: Partial<BuildModel>) {
     if (this.data._id) {
       data._id = this.data._id;
-      this.data = await this.buildService.update(data);
+      this.data = await this.buildService.update(data.namespaceId, data._id, data);
     } else {
       this.data = await this.create(data);
-      this.router.navigate(['../', this.data._id], { relativeTo: this.activatedRoute });
     }
 
     this.matSnackBar.open('Build saved successfully.');
+    this.router.navigate(['../', this.data._id], { relativeTo: this.activatedRoute });
   }
 }

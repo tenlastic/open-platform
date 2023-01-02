@@ -1,25 +1,50 @@
-import { apiUrl } from '../api-url';
 import { WorkflowLogModel } from '../models/workflow-log';
-import { BaseService, ServiceEventEmitter } from './base';
+import { WorkflowLogStore } from '../states/workflow-log';
+import { ApiService } from './api';
+import { EnvironmentService } from './environment';
+
+export interface WorkflowLogsQuery {
+  since?: string;
+  tail?: number;
+}
 
 export class WorkflowLogService {
-  public emitter = new ServiceEventEmitter<WorkflowLogModel>();
-  private baseService = new BaseService<WorkflowLogModel>(this.emitter, WorkflowLogModel);
+  constructor(
+    private apiService: ApiService,
+    private environmentService: EnvironmentService,
+    private workflowLogStore: WorkflowLogStore,
+  ) {}
 
   /**
    * Returns an array of Records satisfying the query.
    */
-  public async find(workflowId: string, nodeId: string, query: any) {
-    const url = this.getUrl(workflowId);
-    return this.baseService.find(query, `${url}/${nodeId}`);
+  public async find(
+    namespaceId: string,
+    workflowId: string,
+    pod: string,
+    container: string,
+    query: WorkflowLogsQuery,
+  ) {
+    const url = this.getUrl(namespaceId, workflowId);
+    const response = await this.apiService.request({
+      method: 'get',
+      params: query,
+      url: `${url}/${pod}/${container}`,
+    });
+
+    const records = response.data.records.map(
+      (record) => new WorkflowLogModel({ ...record, container, pod, workflowId }),
+    );
+    this.workflowLogStore.upsertMany(records);
+
+    return records;
   }
 
   /**
    * Returns the base URL for this Model.
    */
-  private getUrl(workflowId: string) {
-    return `${apiUrl}/workflows/${workflowId}/logs`;
+  private getUrl(namespaceId: string, workflowId: string) {
+    const { apiUrl } = this.environmentService;
+    return `${apiUrl}/namespaces/${namespaceId}/workflows/${workflowId}/logs`;
   }
 }
-
-export const workflowLogService = new WorkflowLogService();

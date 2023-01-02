@@ -21,22 +21,17 @@ export function createWindow() {
     webPreferences: {
       allowRunningInsecureContent: serve,
       contextIsolation: false,
-      enableRemoteModule: true,
       nodeIntegration: true,
       webSecurity: false,
     },
-    width: 1280,
+    width: serve ? 1780 : 1280,
     x: 0,
     y: 0,
   });
   window.center();
 
   if (serve) {
-    require('electron-reload')(__dirname, {
-      electron: require(`${__dirname}/../../node_modules/electron`),
-    });
-    window.loadURL('http://www.localhost');
-
+    window.loadURL('http://www.local.tenlastic.com');
     window.webContents.openDevTools();
   } else {
     window.loadURL(
@@ -65,11 +60,10 @@ export function createWindow() {
       return;
     }
 
+    createTray();
     event.preventDefault();
     event.returnValue = false;
     window.hide();
-
-    createTray();
   });
 
   return window;

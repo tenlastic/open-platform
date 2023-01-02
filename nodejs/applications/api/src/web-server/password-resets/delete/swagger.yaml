@@ -1,0 +1,15 @@
+paths:
+  /password-resets/{hash}:
+    delete:
+      summary: Reset User's Password
+      tags: [Password Resets]
+      description: Deletes a Password Request, resets the User's password, and removes all User's refresh tokens.
+      parameters:
+        - in: path
+          name: hash
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK

@@ -1,0 +1,22 @@
+components:
+  schemas:
+    WorkflowStatus:
+      type: object
+      properties:
+        finishedAt:
+          type: string
+          format: date-time
+        message:
+          type: string
+        nodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowStatusNode'
+        phase:
+          type: string
+          enum: [Error]
+        startedAt:
+          type: string
+          format: date-time
+        version:
+          type: string

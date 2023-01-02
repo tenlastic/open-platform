@@ -30,7 +30,7 @@ spec:
   entrypoint: entrypoint
   podGC:
     strategy: OnWorkflowSuccess
-  serviceAccountName: argo-workflow
+  serviceAccountName: argo-workflows
   ttlStrategy:
     secondsAfterSuccess: 86400
   volumeClaimTemplates:
@@ -40,13 +40,15 @@ spec:
         accessModes: ["ReadWriteOnce"]
         resources:
           requests:
-            storage: 10Gi
+            storage: 10G
         storageClassName: balanced-expandable
   volumes:
-    - name: cd-ssh-keys
+    - name: continuous-deployment
       secret:
-        secretName: cd-ssh-keys
-        defaultMode: 0600
+        secretName: continuous-deployment
+        items:
+          - key: GITHUB_PRIVATE_KEY
+            path: id_rsa
   templates:
     - name: entrypoint
       inputs:
@@ -137,7 +139,7 @@ spec:
 
     - name: bootstrap
       container:
-        image: tenlastic/node-chrome-lerna:latest
+        image: tenlastic/node-development:latest
         command: [bash]
         args:
           - /workspace/open-platform/ci-cd/bootstrap.sh
@@ -152,7 +154,7 @@ spec:
 
     - name: build-docker-image
       container:
-        image: tenlastic/node-chrome-lerna:latest
+        image: tenlastic/node-development:latest
         command: [bash]
         args:
           - /workspace/open-platform/ci-cd/build-docker-image.sh
@@ -179,7 +181,7 @@ spec:
           # Add Host Key for Github.
           mkdir -p /root/.ssh/
           ssh-keyscan -t rsa github.com > /root/.ssh/known_hosts
-          cp /tmp/secrets/cd-ssh-keys/id_rsa /root/.ssh/id_rsa
+          cp /tmp/secrets/continuous-deployment/id_rsa /root/.ssh/id_rsa
 
           # Use SSH instead of HTTPS.
           git config --global url."ssh://git@github.com".insteadOf "https://github.com" || true
@@ -192,8 +194,8 @@ spec:
           git reset --hard {{inputs.parameters.revision}}
         imagePullPolicy: IfNotPresent
         volumeMounts:
-          - name: cd-ssh-keys
-            mountPath: /tmp/secrets/cd-ssh-keys/
+          - name: continuous-deployment
+            mountPath: /tmp/secrets/continuous-deployment/
             readonly: true
           - name: workspace
             mountPath: /workspace/
@@ -204,13 +206,13 @@ spec:
 
     - name: continuous-integration
       container:
-        image: tenlastic/node-chrome-lerna:latest
+        image: tenlastic/node-development:latest
         command: [bash]
         args:
           - /workspace/open-platform/ci-cd/continuous-integration-nodejs.sh
         envFrom:
           - secretRef:
-              name: ci-environment-variables
+              name: continuous-integration
         imagePullPolicy: IfNotPresent
         volumeMounts:
           - name: workspace
@@ -261,7 +263,7 @@ spec:
 
     - name: get-docker-images
       script:
-        image: tenlastic/node-chrome-lerna:latest
+        image: tenlastic/node-development:latest
         command: [bash]
         source: |
           npm i -g json &> /dev/null
@@ -280,22 +282,23 @@ spec:
 
     - name: migrations
       container:
-        image: tenlastic/node-chrome-lerna:latest
+        image: tenlastic/node-development:latest
         command: [bash]
         args:
           - /workspace/open-platform/ci-cd/migrations.sh
         envFrom:
           - secretRef:
-              name: cd-environment-variables
+              name: continuous-deployment
         imagePullPolicy: IfNotPresent
         volumeMounts:
           - name: workspace
             mountPath: /workspace/
-        workingDir: /workspace/open-platform/nodejs/applications/migrations/
+        workingDir: /workspace/open-platform/nodejs/
 
     - name: publish-docker-image
       container:
         image: gcr.io/kaniko-project/executor:v1.8.0
+        command: [/kaniko/executor]
         args:
           - --context=dir://{{inputs.parameters.context}}
           - --dockerfile={{inputs.parameters.dockerfile}}
@@ -322,21 +325,21 @@ spec:
             items:
               - key: KANIKO
                 path: config.json
-            secretName: cd-environment-variables
+            secretName: continuous-deployment
 
     - name: publish-npm-modules
       container:
-        image: tenlastic/node-chrome-lerna:latest
+        image: tenlastic/node-development:latest
         command: [bash]
         args:
           - /workspace/open-platform/ci-cd/publish-npm-modules.sh
         envFrom:
           - secretRef:
-              name: cd-environment-variables
+              name: continuous-deployment
         imagePullPolicy: IfNotPresent
         volumeMounts:
-          - name: cd-ssh-keys
-            mountPath: /tmp/secrets/cd-ssh-keys/
+          - name: continuous-deployment
+            mountPath: /tmp/secrets/continuous-deployment/
             readonly: true
           - name: workspace
             mountPath: /workspace/

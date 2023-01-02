@@ -1,6 +1,8 @@
+@import 'src/assets/scss/theme.scss';
+
 mat-toolbar.mat-toolbar {
   background: rgba(0, 0, 0, 0.75);
-  box-shadow: 2px 2px 3px black;
+  box-shadow: $box-shadow;
   height: 32px;
   overflow: initial;
   padding: 4px;
@@ -15,7 +17,7 @@ mat-toolbar.mat-toolbar {
     }
   }
 
-  span.space {
+  div.space {
     color: white;
     flex: 1 1 auto;
     font-size: 12px;
@@ -28,7 +30,7 @@ mat-toolbar.mat-toolbar {
   }
 
   &::ng-deep {
-    a.mat-button[color='accent'] {
+    button.mat-button[color='accent'] {
       font-size: 12px;
       height: 24px;
       line-height: 24px;
@@ -40,9 +42,13 @@ mat-toolbar.mat-toolbar {
         box-shadow: none;
       }
 
+      span.mat-button-wrapper > div {
+        margin-top: 0px;
+      }
+
       mat-icon.mat-icon {
         font-size: 14px;
-        height: 14px;
+        height: 19px;
         width: 14px;
       }
     }

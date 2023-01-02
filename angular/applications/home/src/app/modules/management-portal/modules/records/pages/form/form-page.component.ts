@@ -1,21 +1,17 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
-  Collection,
+  AuthorizationQuery,
+  CollectionModel,
   CollectionService,
-  DatabaseService,
-  Record,
+  IAuthorization,
+  RecordModel,
   RecordService,
-} from '@tenlastic/ng-http';
+} from '@tenlastic/http';
 
-import {
-  BreadcrumbsComponentBreadcrumb,
-  PromptComponent,
-} from '../../../../../../shared/components';
+import { FormService, IdentityService } from '../../../../../../core/services';
 import { CamelCaseToTitleCasePipe } from '../../../../../../shared/pipes';
 
 @Component({
@@ -23,45 +19,47 @@ import { CamelCaseToTitleCasePipe } from '../../../../../../shared/pipes';
   styleUrls: ['./form-page.component.scss'],
 })
 export class RecordsFormPageComponent implements OnInit {
-  public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
-  public collection: Collection;
-  public data: Record;
+  public collection: CollectionModel;
+  public data: RecordModel;
   public errors: string[] = [];
   public form: FormGroup;
+  public hasWriteAuthorization: boolean;
 
-  private collectionId: string;
-  private databaseId: string;
+  private params: Params;
 
   constructor(
     private activatedRoute: ActivatedRoute,
+    private authorizationQuery: AuthorizationQuery,
     private collectionService: CollectionService,
-    private databaseService: DatabaseService,
     private formBuilder: FormBuilder,
-    private matDialog: MatDialog,
+    private formService: FormService,
+    private identityService: IdentityService,
     private matSnackBar: MatSnackBar,
     private recordService: RecordService,
     private router: Router,
   ) {}
 
   public ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async (params) => {
-      const _id = params.get('_id');
-      this.collectionId = params.get('collectionId');
-      this.databaseId = params.get('databaseId');
+    this.activatedRoute.params.subscribe(async (params) => {
+      this.params = params;
 
-      this.collection = await this.collectionService.findOne(this.databaseId, this.collectionId);
-      const database = await this.databaseService.findOne(this.databaseId);
-      this.breadcrumbs = [
-        { label: 'Databases', link: '../../../../../' },
-        { label: database.name, link: '../../../../' },
-        { label: 'Collections', link: '../../../' },
-        { label: this.collection.name, link: '../../' },
-        { label: 'Records', link: '../' },
-        { label: _id === 'new' ? 'Create Record' : 'Edit Record' },
-      ];
+      const roles = [IAuthorization.Role.RecordsWrite];
+      const userId = this.identityService.user?._id;
+      this.hasWriteAuthorization =
+        this.authorizationQuery.hasRoles(null, roles, userId) ||
+        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
-      if (_id !== 'new') {
-        this.data = await this.recordService.findOne(this.databaseId, this.collectionId, _id);
+      this.collection = await this.collectionService.findOne(
+        params.namespaceId,
+        params.collectionId,
+      );
+
+      if (params.recordId !== 'new') {
+        this.data = await this.recordService.findOne(
+          params.namespaceId,
+          params.collectionId,
+          params.recordId,
+        );
       }
 
       this.setupForm();
@@ -87,25 +85,7 @@ export class RecordsFormPageComponent implements OnInit {
   }
 
   public navigateToJson() {
-    if (this.form.dirty) {
-      const dialogRef = this.matDialog.open(PromptComponent, {
-        data: {
-          buttons: [
-            { color: 'primary', label: 'No' },
-            { color: 'accent', label: 'Yes' },
-          ],
-          message: 'Changes will not be saved. Is this OK?',
-        },
-      });
-
-      dialogRef.afterClosed().subscribe(async (result) => {
-        if (result === 'Yes') {
-          this.router.navigate([`json`], { relativeTo: this.activatedRoute });
-        }
-      });
-    } else {
-      this.router.navigate([`json`], { relativeTo: this.activatedRoute });
-    }
+    this.formService.navigateToJson(this.form);
   }
 
   public removeArrayItem(key: string, index: number) {
@@ -114,6 +94,8 @@ export class RecordsFormPageComponent implements OnInit {
   }
 
   public async save() {
+    this.errors = [];
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -129,7 +111,7 @@ export class RecordsFormPageComponent implements OnInit {
       {},
     );
 
-    const values = { properties };
+    const values = { _id: this.data._id, properties };
 
     try {
       await this.upsert(values);
@@ -137,26 +119,14 @@ export class RecordsFormPageComponent implements OnInit {
       const camelCaseToTitleCasePipe = new CamelCaseToTitleCasePipe();
       const pathMap = Object.keys(this.collection.jsonSchema.properties).reduce(
         (previous, current) => {
-          previous[current] = camelCaseToTitleCasePipe.transform(current);
+          previous[`properties.${current}`] = camelCaseToTitleCasePipe.transform(current);
           return previous;
         },
         {},
       );
 
-      this.handleHttpError(e, pathMap);
+      this.errors = this.formService.handleHttpError(e, { ...pathMap, userId: 'User ID' });
     }
-  }
-
-  private async handleHttpError(err: HttpErrorResponse, pathMap: any) {
-    this.errors = err.error.errors.map((e) => {
-      if (e.name === 'UniqueError') {
-        const combination = e.paths.length > 1 ? 'combination ' : '';
-        const paths = e.paths.map((p) => pathMap[p]);
-        return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
-      } else {
-        return e.message;
-      }
-    });
   }
 
   private getValue(type: string, value: any) {
@@ -175,8 +145,8 @@ export class RecordsFormPageComponent implements OnInit {
     }
   }
 
-  private setupForm(): void {
-    this.data = this.data || new Record();
+  private setupForm() {
+    this.data ??= new RecordModel();
 
     const arrays = {};
     const options = {};
@@ -207,18 +177,20 @@ export class RecordsFormPageComponent implements OnInit {
     Object.keys(arrays).forEach((key) => (options[key] = arrays[key]));
     this.form = this.formBuilder.group(options);
 
+    if (!this.hasWriteAuthorization) {
+      this.form.disable({ emitEvent: false });
+    }
+
     this.form.valueChanges.subscribe(() => (this.errors = []));
   }
 
-  private async upsert(data: Partial<Record>) {
-    if (this.data._id) {
-      data._id = this.data._id;
-      await this.recordService.update(this.databaseId, this.collectionId, data);
-    } else {
-      await this.recordService.create(this.databaseId, this.collectionId, data);
-    }
+  private async upsert(values: Partial<RecordModel>) {
+    const { collectionId, namespaceId } = this.params;
+    const result = values._id
+      ? await this.recordService.update(namespaceId, collectionId, values._id, values)
+      : await this.recordService.create(namespaceId, collectionId, values);
 
     this.matSnackBar.open('Record saved successfully.');
-    this.router.navigate(['../'], { relativeTo: this.activatedRoute });
+    this.router.navigate(['../', result._id], { relativeTo: this.activatedRoute });
   }
 }

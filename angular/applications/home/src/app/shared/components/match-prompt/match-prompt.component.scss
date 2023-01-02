@@ -1,9 +1,16 @@
 ::ng-deep {
   app-match-prompt {
     app-button {
-      margin-left: 8px !important;
-      margin-right: 8px !important;
+      flex: 1 1 auto !important;
       margin-top: 8px !important;
+
+      &:not(:first-of-type) {
+        margin-left: 8px !important;
+      }
+
+      &:not(:last-of-type) {
+        margin-right: 8px !important;
+      }
     }
 
     app-loading-message {
@@ -14,13 +21,16 @@
       transform: none !important;
     }
 
-    a {
+    button {
       font-size: 24px !important;
       padding: 8px 24px !important;
       text-transform: uppercase;
+      width: 100%;
     }
 
-    p {
+    h2,
+    h3 {
+      margin: 8px 0px;
       text-align: center;
       white-space: pre;
     }
@@ -34,4 +44,10 @@ div.mat-dialog-title {
   margin-bottom: 4px;
   padding: 16px 16px;
   text-align: center;
+}
+
+mat-progress-bar.mat-progress-bar {
+  height: 8px;
+  margin-bottom: 16px;
+  margin-top: 18px;
 }

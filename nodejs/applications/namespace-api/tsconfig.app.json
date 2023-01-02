@@ -1,0 +1,26 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "outDir": "./dist",
+    "rootDir": "./"
+  },
+  "exclude": ["./src/**/*.spec.ts"],
+  "include": ["./package.json", "./src"],
+  "references": [
+    { "path": "../../modules/kubernetes/tsconfig.app.json" },
+    { "path": "../../modules/logging/tsconfig.app.json" },
+    { "path": "../../modules/mailgun/tsconfig.app.json" },
+    { "path": "../../modules/minio/tsconfig.app.json" },
+    { "path": "../../modules/mongoose/tsconfig.app.json" },
+    { "path": "../../modules/mongoose-nats/tsconfig.app.json" },
+    { "path": "../../modules/mongoose-permissions/tsconfig.app.json" },
+    { "path": "../../modules/nats/tsconfig.app.json" },
+    { "path": "../../modules/web-server/tsconfig.app.json" },
+    { "path": "../../modules/web-socket-server/tsconfig.app.json" }
+  ],
+  "ts-node": {
+    "files": true
+  }
+}

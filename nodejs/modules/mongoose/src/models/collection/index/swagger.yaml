@@ -1,0 +1,13 @@
+components:
+  schemas:
+    CollectionIndex:
+      type: object
+      properties:
+        keys:
+          type: array
+          items:
+            $ref: '#/components/schemas/CollectionIndexKey'
+        options:
+          $ref: '#/components/schemas/CollectionIndexOptions'
+      required:
+        - key

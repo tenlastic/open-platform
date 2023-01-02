@@ -1,14 +1,18 @@
-<div class="row"
-     *ngFor="let property of formArray['controls']; let i = index">
-  <app-metadata-field [form]="property"
-                      (remove)="removeProperty(i)"></app-metadata-field>
-</div>
+<ng-container *ngFor="let property of formArray['controls']; let i = index">
+  <h4>Property {{ i + 1 }}</h4>
 
-<div class="row">
+  <div class="row">
+    <app-metadata-field [form]="property"
+                        (remove)="removeProperty(i)"></app-metadata-field>
+  </div>
+</ng-container>
+
+<div *ngIf="!formArray?.disabled"
+     class="row">
   <app-button color="accent"
               layout="left"
               (OnClick)="addProperty()">
     <mat-icon>add</mat-icon>
-    <span>Add Property</span>
+    <div>Add Property</div>
   </app-button>
 </div>

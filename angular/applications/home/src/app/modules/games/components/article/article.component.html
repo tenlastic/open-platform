@@ -1,8 +1,0 @@
-<app-title>{{ article.title }}</app-title>
-<h3 *ngIf="article.caption">{{ article.caption }}</h3>
-<div class="type-date">
-  {{ article.publishedAt | date: 'longDate' }} at
-  {{ article.publishedAt | date: 'shortTime' }}
-</div>
-
-<app-markdown [markdown]="article.body"></app-markdown>

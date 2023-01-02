@@ -1,0 +1,54 @@
+<app-header-toolbar>
+  <img src="/assets/images/logo.png" />
+
+  <div class="space"></div>
+
+  <app-button *ngIf="!isElectron"
+              color="primary"
+              [href]="launcherUrl">
+    <div>Download Launcher</div>
+  </app-button>
+</app-header-toolbar>
+
+<div class="content">
+  <app-social>
+    <app-sidenav *ngIf="$storefronts | async as storefronts">
+      <div *ngIf="storefronts.length > 1"
+           appNav
+           class="nav">
+        <div class="scroll">
+          <app-button *ngIf="storefronts.length > 5"
+                      color="accent"
+                      layout="vertical"
+                      [routerLink]="['./']"
+                      routerLinkActive="active"
+                      [routerLinkActiveOptions]="{ exact: true }"
+                      text="left"
+                      width="full">
+            <mat-icon>search</mat-icon>
+            <div class="search">Search</div>
+          </app-button>
+
+          <app-button *ngFor="let storefront of storefronts"
+                      color="accent"
+                      layout="vertical"
+                      [routerLink]="[storefront.namespaceId]"
+                      routerLinkActive="active"
+                      text="left"
+                      width="full">
+            <img *ngIf="storefront.icon"
+                 [src]="storefront.icon">
+            <mat-icon *ngIf="!storefront.icon">storefront</mat-icon>
+
+            <div>
+              <div>{{ storefront.title }}</div>
+              <div *ngIf="storefront.subtitle">{{ storefront.subtitle }}</div>
+            </div>
+          </app-button>
+        </div>
+      </div>
+
+      <router-outlet></router-outlet>
+    </app-sidenav>
+  </app-social>
+</div>

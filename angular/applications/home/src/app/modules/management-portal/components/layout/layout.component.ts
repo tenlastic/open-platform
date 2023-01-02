@@ -1,47 +1,35 @@
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { AuthorizationQuery, AuthorizationService, IAuthorization } from '@tenlastic/http';
 
 import { environment } from '../../../../../environments/environment';
-import {
-  ElectronService,
-  IdentityService,
-  SelectedNamespaceService,
-} from '../../../../core/services';
+import { ElectronService, IdentityService } from '../../../../core/services';
 
 @Component({
-  selector: 'app-layout',
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
 })
-export class LayoutComponent {
-  public get hasInfrastructureButtons() {
-    return (
-      this.hasPermission('builds') ||
-      this.hasPermission('databases') ||
-      this.hasPermission('game-servers') ||
-      this.hasPermission('workflows') ||
-      this.hasPermission('queues')
-    );
+export class LayoutComponent implements OnInit {
+  public IAuthorization = IAuthorization;
+  public get isElectron() {
+    return this.electronService.isElectron;
   }
-  public get hasLauncherButtons() {
-    return this.hasPermission('articles') || this.hasPermission('games');
-  }
+  public isLoading = false;
   public launcherUrl = environment.launcherUrl;
-  public showInfrastructureButtons = true;
-  public showLauncherButtons = true;
 
   constructor(
-    public electronService: ElectronService,
-    public identityService: IdentityService,
-    public router: Router,
-    public selectedNamespaceService: SelectedNamespaceService,
+    private authorizationQuery: AuthorizationQuery,
+    private authorizationService: AuthorizationService,
+    private electronService: ElectronService,
+    private identityService: IdentityService,
   ) {}
 
-  public hasPermission(role: string) {
-    const namespace = this.selectedNamespaceService.namespace;
-    const namespaceUser = namespace.users?.find((u) => u._id === this.identityService.user._id);
-    const user = this.identityService.user;
+  public async ngOnInit() {
+    this.isLoading = true;
+    await this.authorizationService.findUserAuthorizations(null, this.identityService.user?._id);
+    this.isLoading = false;
+  }
 
-    return namespaceUser?.roles.includes(role) || user.roles.includes(role);
+  public $hasPermission(roles: IAuthorization.Role[]) {
+    return this.authorizationQuery.selectHasRoles(null, roles, this.identityService.user?._id);
   }
 }

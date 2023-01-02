@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
-import { User, UserService } from '@tenlastic/ng-http';
+import { UserModel, UserService } from '@tenlastic/http';
 
 import { IdentityService } from '../../../../core/services';
 
@@ -11,8 +11,8 @@ import { IdentityService } from '../../../../core/services';
   templateUrl: 'information-page.component.html',
 })
 export class InformationPageComponent implements OnInit {
-  public data: User;
-  public error: string;
+  public data: UserModel;
+  public errors: string[] = [];
   public form: FormGroup;
   public loadingMessage: string;
 
@@ -20,12 +20,12 @@ export class InformationPageComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
     public identityService: IdentityService,
-    private matSnackbar: MatSnackBar,
+    private matSnackBar: MatSnackBar,
     private userService: UserService,
   ) {}
 
   public ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async params => {
+    this.activatedRoute.paramMap.subscribe(async (params) => {
       this.loadingMessage = 'Loading User...';
 
       const _id = this.identityService.user._id;
@@ -38,6 +38,8 @@ export class InformationPageComponent implements OnInit {
   }
 
   public async save() {
+    this.errors = [];
+
     if (this.form.invalid) {
       this.form.get('email').markAsTouched();
       this.form.get('username').markAsTouched();
@@ -45,7 +47,7 @@ export class InformationPageComponent implements OnInit {
       return;
     }
 
-    const values: Partial<User> = {
+    const values: Partial<UserModel> = {
       email: this.form.get('email').value,
       username: this.form.get('username').value,
     };
@@ -57,34 +59,34 @@ export class InformationPageComponent implements OnInit {
     }
   }
 
-  private async create(data: Partial<User>) {
+  private async create(data: Partial<UserModel>) {
     try {
       await this.userService.create(data);
-      this.matSnackbar.open('User created successfully.');
+      this.matSnackBar.open('User created successfully.');
     } catch (e) {
-      this.error = 'That email is already taken.';
+      this.errors = ['That email is already taken.'];
     }
   }
 
-  private setupForm(): void {
-    this.data = this.data || new User();
+  private setupForm() {
+    this.data ??= new UserModel();
 
     this.form = this.formBuilder.group({
       email: [this.data.email],
       username: [this.data.username, Validators.required],
     });
 
-    this.form.valueChanges.subscribe(() => (this.error = null));
+    this.form.valueChanges.subscribe(() => (this.errors = []));
   }
 
-  private async update(data: Partial<User>) {
+  private async update(data: Partial<UserModel>) {
     data._id = this.data._id;
 
     try {
-      await this.userService.update(data);
-      this.matSnackbar.open('User updated successfully.');
+      await this.userService.update(data._id, data);
+      this.matSnackBar.open('User updated successfully.');
     } catch (e) {
-      this.error = 'That email is already taken.';
+      this.errors = ['That email is already taken.'];
     }
   }
 }

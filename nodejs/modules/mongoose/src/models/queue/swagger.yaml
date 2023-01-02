@@ -1,0 +1,56 @@
+components:
+  schemas:
+    Queue:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ^[0-9a-f]{24}$
+        confirmation:
+          type: boolean
+        cpu:
+          type: number
+          minimum: 0.1
+        createdAt:
+          type: string
+          format: date-time
+        description:
+          type: string
+        gameServerTemplateId:
+          type: string
+          format: ^[0-9a-f]{24}$
+        invitationSeconds:
+          type: number
+          minimum: 0
+        memory:
+          type: number
+          minimum: 100000000
+        metadata:
+          type: object
+        name:
+          type: string
+        namespaceId:
+          type: string
+          format: ^[0-9a-f]{24}$
+        preemptible:
+          type: boolean
+        replicas:
+          type: number
+          enum: [1, 3, 5]
+        status:
+          $ref: '#/components/schemas/QueueStatus'
+        thresholds:
+          type: array
+          items:
+            $ref: '$/components/schemas/QueueThreshold'
+        updatedAt:
+          type: string
+          format: date-time
+        usersPerTeam:
+          type: array
+          items:
+            type: integer
+            minimum: 1
+      required:
+        - name
+        - usersPerTeam

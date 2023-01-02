@@ -1,80 +1,61 @@
-<div class="page">
-  <app-breadcrumbs [breadcrumbs]="breadcrumbs"></app-breadcrumbs>
-
+<div *ngIf="form"
+     class="page">
   <div class="row">
     <div class="col-sm-6">
-      <app-title>{{ data?._id ? 'Edit' : 'Create' }} Queue</app-title>
+      <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Queue</app-title>
+      <app-title *ngIf="!hasWriteAuthorization">View Queue</app-title>
     </div>
-    <div class="col-sm-6 align-right">
+
+    <div *ngIf="hasWriteAuthorization"
+         class="col-sm-6 align-right">
       <app-button color="accent"
                   (OnClick)="navigateToJson()">
         <mat-icon>code</mat-icon>
-        <span>{{ data?._id ? 'Edit' : 'Create' }} as JSON</span>
+        <div>{{ data?._id ? 'Edit' : 'Create' }} as JSON</div>
       </app-button>
     </div>
   </div>
 
-  <form *ngIf="form"
+  <form autocomplete="off"
         [formGroup]="form"
-        autocomplete="off">
+        id="form"
+        (ngSubmit)="save()">
     <div class="row">
       <mat-form-field floatLabel="always">
         <mat-label>Name</mat-label>
-        <input matInput
-               required
-               formControlName="name" />
+        <input appAutofocus
+               formControlName="name"
+               matInput
+               maxlength="64"
+               required />
         <mat-error>Enter a valid name.</mat-error>
       </mat-form-field>
 
       <mat-form-field floatLabel="always">
         <mat-label>Description</mat-label>
-        <input matInput
-               formControlName="description" />
+        <input formControlName="description"
+               matInput
+               maxlength="128" />
         <mat-error>Enter a valid description.</mat-error>
       </mat-form-field>
     </div>
 
     <div class="row">
       <mat-form-field floatLabel="always">
-        <mat-label>Teams</mat-label>
-        <input matInput
-               required
-               formControlName="teams"
-               min="1"
-               step="1"
-               type="number" />
-        <mat-error>Enter a valid amount of teams.</mat-error>
-      </mat-form-field>
-
-      <mat-form-field floatLabel="always">
-        <mat-label>Players Per Team</mat-label>
-        <input matInput
-               required
-               formControlName="usersPerTeam"
-               min="1"
-               step="1"
-               type="number" />
-        <mat-error>Enter a valid amount of players per team.</mat-error>
+        <mat-label>Game Server Template</mat-label>
+        <mat-select formControlName="gameServerTemplateId"
+                    placeholder="None"
+                    required>
+          <mat-option *ngFor="let gameServerTemplate of gameServerTemplates"
+                      [value]="gameServerTemplate._id">
+            {{ gameServerTemplate.name }}
+          </mat-option>
+        </mat-select>
+        <mat-error>Select a valid Game Server Template.</mat-error>
       </mat-form-field>
     </div>
 
     <div class="row">
-      <mat-form-field floatLabel="always">
-        <mat-label>Preemptible</mat-label>
-        <mat-select formControlName="preemptible">
-          <mat-option [value]="true">Yes</mat-option>
-          <mat-option [value]="false">No</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field floatLabel="always">
-        <mat-label>Replicas</mat-label>
-        <mat-select formControlName="replicas">
-          <mat-option *ngFor="let replica of replicas"
-                      [value]="replica.value">{{ replica.label }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-
       <mat-form-field floatLabel="always">
         <mat-label>CPU</mat-label>
         <mat-select formControlName="cpu">
@@ -90,122 +71,131 @@
                       [value]="memory.value">{{ memory.label }}</mat-option>
         </mat-select>
       </mat-form-field>
+
+      <mat-form-field floatLabel="always">
+        <mat-label>Preemptible</mat-label>
+        <mat-select formControlName="preemptible">
+          <mat-option [value]="true">Yes</mat-option>
+          <mat-option [value]="false">No</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field floatLabel="always">
+        <mat-label>Replicas</mat-label>
+        <mat-select formControlName="replicas">
+          <mat-option *ngFor="let replica of replicas"
+                      [value]="replica.value">{{ replica.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
     </div>
 
     <div class="row">
       <mat-form-field floatLabel="always">
-        <mat-label>Build</mat-label>
-        <mat-select formControlName="buildId"
-                    placeholder="No Build">
-          <mat-option [value]="null">No Build</mat-option>
-          <mat-option *ngFor="let build of builds"
-                      [value]="build._id">
-            {{ build.name }}
-            <ng-container *ngIf="!build.publishedAt">(Unpublished)</ng-container>
-          </mat-option>
+        <mat-label>Confirmation</mat-label>
+        <mat-select formControlName="confirmation">
+          <mat-option [value]="true">Yes</mat-option>
+          <mat-option [value]="false">No</mat-option>
         </mat-select>
       </mat-form-field>
 
-      <mat-form-field *ngIf="games.length"
-                      floatLabel="always">
-        <mat-label>Game</mat-label>
-        <mat-select formControlName="gameId"
-                    placeholder="No Game">
-          <mat-option [value]="null">No Game</mat-option>
-          <mat-option *ngFor="let game of games"
-                      [value]="game._id">
-            {{ game.fullTitle }}
-          </mat-option>
-        </mat-select>
+      <mat-form-field floatLabel="always">
+        <mat-label>Invitation Seconds</mat-label>
+        <input formControlName="invitationSeconds"
+               matInput
+               min="0"
+               type="number" />
+        <mat-error>Enter a valid duration for invitations.</mat-error>
       </mat-form-field>
     </div>
 
-    <app-toggle-section title="Queue Metadata"
-                        [isVisible]="false">
-      <app-metadata-fields [formArray]="form['controls'].metadata"></app-metadata-fields>
-    </app-toggle-section>
+    <app-toggle-section formArrayName="usersPerTeam"
+                        [isVisible]="isNew"
+                        title="Players Per Team">
+      <mat-form-field *ngFor="let control of usersPerTeam.controls; let i = index"
+                      floatLabel="always">
+        <mat-label>Team {{ i + 1 }}</mat-label>
 
-    <app-toggle-section formGroupName="gameServerTemplate"
-                        title="Game Server Template"
-                        [isVisible]="!data._id">
+        <input autocomplete="off"
+               [formControlName]="i"
+               matInput
+               min="1"
+               step="1"
+               type="number" />
+        <app-button *ngIf="usersPerTeam.length > 1"
+                    color="accent"
+                    mat-icon-button
+                    matSuffix
+                    matTooltip="Remove Team"
+                    (OnClick)="usersPerTeam.removeAt(i)">
+          <mat-icon>remove</mat-icon>
+        </app-button>
+
+        <mat-error>Enter a valid number of players.</mat-error>
+      </mat-form-field>
+
       <div class="row">
-        <mat-form-field floatLabel="always">
-          <mat-label>Build</mat-label>
-          <mat-select required
-                      formControlName="buildId"
-                      placeholder="No Builds Available">
-            <mat-option *ngFor="let build of builds"
-                        [value]="build._id">
-              {{ build.name }}
-            </mat-option>
-          </mat-select>
-          <mat-error>Select a Build.</mat-error>
-        </mat-form-field>
-      </div>
-
-      <div class="row">
-        <mat-form-field floatLabel="always">
-          <mat-label>Preemptible</mat-label>
-          <mat-select formControlName="preemptible">
-            <mat-option [value]="true">Yes</mat-option>
-            <mat-option [value]="false">No</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>CPU</mat-label>
-          <mat-select formControlName="cpu">
-            <mat-option *ngFor="let cpu of gameServerCpus"
-                        [value]="cpu.value">{{ cpu.label }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Memory</mat-label>
-          <mat-select formControlName="memory">
-            <mat-option *ngFor="let memory of gameServerMemories"
-                        [value]="memory.value">{{ memory.label }}</mat-option>
-          </mat-select>
-        </mat-form-field>
+        <app-button color="accent"
+                    layout="left"
+                    (OnClick)="pushUsersPerTeam(usersPerTeam)">
+          <mat-icon>add</mat-icon>
+          <div>Add Team</div>
+        </app-button>
       </div>
     </app-toggle-section>
 
-    <app-toggle-section formGroupName="gameServerTemplate"
-                        title="Game Server Metadata"
-                        [isVisible]="false">
-      <app-metadata-fields [formArray]="form['controls'].gameServerTemplate['controls'].metadata"></app-metadata-fields>
+    <app-toggle-section [isVisible]="isNew"
+                        title="Thresholds">
+      <app-threshold-fields [formArray]="form.get('thresholds')"></app-threshold-fields>
     </app-toggle-section>
 
-    <app-toggle-section *ngIf="data._id"
+    <app-toggle-section *ngIf="data.status"
                         title="Status">
       <div class="row">
         <mat-form-field floatLabel="always">
           <mat-label>Phase</mat-label>
           <input matInput
                  disabled
-                 [value]="data.status?.phase || 'Pending'" />
+                 [value]="data.status.phase" />
+        </mat-form-field>
+
+        <mat-form-field *ngIf="data.status.message"
+                        floatLabel="always"
+                        [matTooltip]="data.status.message.length >= 30 ? data.status.message : null"
+                        matTooltipPosition="right">
+          <mat-label>Message</mat-label>
+          <input matInput
+                 disabled
+                 [value]="data.status.message" />
         </mat-form-field>
       </div>
 
+      <h4>Components</h4>
+
       <div class="row">
-        <mat-form-field *ngFor="let component of data.status?.components"
+        <mat-form-field *ngFor="let component of data.status.components"
                         floatLabel="always">
-          <mat-label>{{ components[component.name] }}</mat-label>
+          <mat-label>{{ component.name }}</mat-label>
           <input matInput
                  disabled
                  [value]="component.phase + ' (' + component.current + ' / ' + component.total + ')'" />
         </mat-form-field>
       </div>
     </app-toggle-section>
-
-    <div *ngFor="let error of errors"
-         class="form-error">
-      {{ error }}
-    </div>
-
-    <app-button color="primary"
-                (OnClick)="save()">Save</app-button>
-    <app-button color="accent"
-                routerLink="../">Cancel</app-button>
   </form>
+</div>
+
+<div *ngIf="form && !form.disabled"
+     class="page-actions">
+  <div *ngFor="let error of errors"
+       class="form-error">
+    {{ error }}
+  </div>
+
+  <app-button color="primary"
+              form="form"
+              size="large"
+              width="full">
+    <mat-icon>save</mat-icon>
+    <div>Save</div>
+  </app-button>
 </div>

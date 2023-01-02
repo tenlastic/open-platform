@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "exclude": ["./src/**/*.spec.ts"],
+  "include": ["./src"],
+  "references": [
+    { "path": "../../modules/dependency-injection/tsconfig.app.json" },
+    { "path": "../../modules/http/tsconfig.app.json" },
+    { "path": "../../modules/pcap/tsconfig.app.json" },
+    { "path": "../../modules/web-server/tsconfig.app.json" }
+  ],
+  "ts-node": {
+    "files": true
+  }
+}

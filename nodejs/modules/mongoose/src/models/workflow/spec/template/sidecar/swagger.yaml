@@ -1,0 +1,24 @@
+components:
+  schemas:
+    WorkflowSpecTemplateSidecar:
+      type: object
+      properties:
+        args:
+          type: array
+          items:
+            type: string
+        command:
+          type: array
+          items:
+            type: string
+        env:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowSpecEnv'
+        image:
+          type: string
+        name:
+          type: string
+      required:
+        - image
+        - name

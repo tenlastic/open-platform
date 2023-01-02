@@ -8,7 +8,7 @@ metadata:
 spec:
   containers:
     - name: workspace
-      image: tenlastic/node-chrome-lerna:latest
+      image: tenlastic/node-development:latest
       command:
         - /bin/bash
         - -c
@@ -16,35 +16,13 @@ spec:
         - while true; do sleep 30; done;
       envFrom:
         - secretRef:
-            name: workspace-environment-variables
+            name: workspace
       ports:
         - containerPort: 3000
       volumeMounts:
         - name: workspace
           mountPath: /usr/src/
       workingDir: /usr/src/
-    - name: mongodb
-      image: bitnami/mongodb:5.0.9
-      env:
-        - name: MONGODB_ADVERTISED_HOSTNAME
-          value: localhost
-        - name: MONGODB_REPLICA_SET_KEY
-          value: "1234567890"
-        - name: MONGODB_REPLICA_SET_MODE
-          value: primary
-        - name: MONGODB_ROOT_PASSWORD
-          value: password
-    - name: minio
-      image: bitnami/minio:2022
-      env:
-        - name: MINIO_ROOT_PASSWORD
-          value: minioadmin
-        - name: MINIO_ROOT_USER
-          value: minioadmin
-    - name: nats
-      image: nats:2.8.4-alpine
-      args:
-        - --js
   volumes:
     - name: workspace
       hostPath:

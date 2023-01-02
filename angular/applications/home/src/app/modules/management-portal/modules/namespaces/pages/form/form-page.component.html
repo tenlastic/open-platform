@@ -1,385 +1,97 @@
-<div class="page">
-  <app-breadcrumbs [breadcrumbs]="breadcrumbs"></app-breadcrumbs>
-
+<div *ngIf="form"
+     class="page">
   <div class="row">
     <div class="col-sm-6">
-      <app-title>{{ data?._id ? 'Edit' : 'Create' }} Namespace</app-title>
+      <app-title *ngIf="hasWriteAuthorization || hasWriteAuthorizationForNamespace">
+        {{ data?._id ? 'Edit' : 'Create' }} Namespace
+      </app-title>
+      <app-title *ngIf="!hasWriteAuthorization && !hasWriteAuthorizationForNamespace">View Namespace</app-title>
     </div>
-    <div class="col-sm-6 align-right">
+
+    <div *ngIf="hasWriteAuthorization || hasWriteAuthorizationForNamespace"
+         class="col-sm-6 align-right">
       <app-button color="accent"
                   (OnClick)="navigateToJson()">
         <mat-icon>code</mat-icon>
-        <span>{{ data?._id ? 'Edit' : 'Create' }} as JSON</span>
+        <div>{{ data?._id ? 'Edit' : 'Create' }} as JSON</div>
       </app-button>
     </div>
   </div>
 
-  <form *ngIf="form"
+  <form autocomplete="off"
         [formGroup]="form"
-        autocomplete="off">
+        id="form"
+        (ngSubmit)="save()">
     <div class="row">
       <mat-form-field floatLabel="always">
         <mat-label>Name</mat-label>
-        <input matInput
-               required
-               formControlName="name" />
+        <input appAutofocus
+               formControlName="name"
+               matInput
+               maxlength="64"
+               required />
         <mat-error>Enter a valid name.</mat-error>
       </mat-form-field>
     </div>
 
-    <app-toggle-section title="Users"
-                        formArrayName="users">
-      <div class="row"
-           *ngFor="
-          let user of users.controls;
-          let i = index
-        ">
-        <app-namespace-user-field [form]="user"
-                                  [roles]="roles"
-                                  (remove)="removeUser(i)"></app-namespace-user-field>
-      </div>
-
-      <div class="row">
-        <app-button color="accent"
-                    layout="left"
-                    (OnClick)="addUser()">
-          <mat-icon>add</mat-icon>
-          <span>Add User</span>
-        </app-button>
-      </div>
-    </app-toggle-section>
-
-    <app-toggle-section title="API Keys"
-                        formArrayName="keys"
-                        [isVisible]="false">
-      <div class="row"
-           *ngFor="
-          let key of keys.controls;
-          let i = index
-        "
-           [formGroupName]="i">
-        <mat-form-field floatLabel="always">
-          <mat-label>Value</mat-label>
-          <input matInput
-                 formControlName="value" />
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Description</mat-label>
-          <input matInput
-                 formControlName="description" />
-          <mat-error>Enter a valid name.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Roles</mat-label>
-          <mat-select placeholder="None"
-                      multiple
-                      formControlName="roles">
-            <mat-option *ngFor="let role of roles"
-                        [value]="role.value">{{ role.label }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <app-button color="accent"
-                    layout="left"
-                    (OnClick)="copyToClipboard(i)">
-          <mat-icon>content_paste</mat-icon>
-          <span>Copy to Clipboard</span>
-        </app-button>
-
-        <app-button color="accent"
-                    layout="left"
-                    (OnClick)="removeKey(i)">
-          <mat-icon>close</mat-icon>
-          <span>Remove</span>
-        </app-button>
-      </div>
-
-      <div class="row">
-        <app-button color="accent"
-                    layout="left"
-                    (OnClick)="addKey()">
-          <mat-icon>add</mat-icon>
-          <span>Add API Key</span>
-        </app-button>
-      </div>
-    </app-toggle-section>
-
     <app-toggle-section title="Limits"
-                        formArrayName="limits"
-                        [isVisible]="false">
-      <div class="row"
-           formGroupName="builds">
+                        formArrayName="limits">
+      <div class="row">
         <mat-form-field floatLabel="always">
-          <mat-label>Total Builds</mat-label>
+          <mat-label>Total Bandwidth (GB) / Month</mat-label>
           <input matInput
                  required
-                 formControlName="count"
-                 step="1"
+                 formControlName="bandwidth"
                  type="number" />
           <mat-error>Enter a valid value.</mat-error>
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
-          <mat-label>Maximum Build Size (B)</mat-label>
-          <input matInput
-                 required
-                 formControlName="size"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-      </div>
-
-      <div class="row"
-           formGroupName="databases">
-        <mat-form-field floatLabel="always">
-          <mat-label>Total Database CPU</mat-label>
+          <mat-label>Total CPUs</mat-label>
           <input matInput
                  required
                  formControlName="cpu"
-                 step="1"
                  type="number" />
           <mat-error>Enter a valid value.</mat-error>
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
-          <mat-label>Total Database Memory (B)</mat-label>
-          <input matInput
-                 required
-                 formControlName="memory"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Only Preemptible Databases</mat-label>
-          <input *ngIf="form.get('limits').get('databases').get('preemptible').disabled"
+          <mat-label>Default Authorization</mat-label>
+          <input *ngIf="form.get('limits').get('defaultAuthorization').disabled"
                  disabled
                  matInput
-                 [value]="form.get('limits').get('databases').get('preemptible').value ? 'Yes' : 'No'" />
-          <mat-select *ngIf="!form.get('limits').get('databases').get('preemptible').disabled"
-                      formControlName="preemptible">
+                 [value]="form.get('limits').get('defaultAuthorization').value ? 'Yes' : 'No'" />
+          <mat-select *ngIf="!form.get('limits').get('defaultAuthorization').disabled"
+                      formControlName="defaultAuthorization">
             <mat-option [value]="true">Yes</mat-option>
             <mat-option [value]="false">No</mat-option>
           </mat-select>
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
-          <mat-label>Total Database Replicas</mat-label>
-          <input matInput
-                 required
-                 formControlName="replicas"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Total Database Storage (B)</mat-label>
-          <input matInput
-                 required
-                 formControlName="storage"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-      </div>
-
-      <div class="row"
-           formGroupName="games">
-        <mat-form-field floatLabel="always">
-          <mat-label>Total Games</mat-label>
-          <input matInput
-                 required
-                 formControlName="count"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Total Public Games</mat-label>
-          <input matInput
-                 required
-                 formControlName="public"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Maximum Images Per Game</mat-label>
-          <input matInput
-                 required
-                 formControlName="images"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Maximum Videos Per Game</mat-label>
-          <input matInput
-                 required
-                 formControlName="videos"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Maximum Game Image / Video Size (B)</mat-label>
-          <input matInput
-                 required
-                 formControlName="size"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-      </div>
-
-      <div class="row"
-           formGroupName="gameServers">
-        <mat-form-field floatLabel="always">
-          <mat-label>Total Game Server CPU</mat-label>
-          <input matInput
-                 required
-                 formControlName="cpu"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Total Game Server Memory (B)</mat-label>
+          <mat-label>Total Memory (GB)</mat-label>
           <input matInput
                  required
                  formControlName="memory"
-                 step="1"
                  type="number" />
           <mat-error>Enter a valid value.</mat-error>
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
-          <mat-label>Only Preemptible Game Servers</mat-label>
-          <input *ngIf="form.get('limits').get('gameServers').get('preemptible').disabled"
+          <mat-label>Non-Preemptible Nodes</mat-label>
+          <input *ngIf="form.get('limits').get('nonPreemptible').disabled"
                  disabled
                  matInput
-                 [value]="form.get('limits').get('gameServers').get('preemptible').value ? 'Yes' : 'No'" />
-          <mat-select *ngIf="!form.get('limits').get('gameServers').get('preemptible').disabled"
-                      formControlName="preemptible">
-            <mat-option [value]="true">Yes</mat-option>
-            <mat-option [value]="false">No</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-
-      <div class="row"
-           formGroupName="queues">
-        <mat-form-field floatLabel="always">
-          <mat-label>Total Queue CPU</mat-label>
-          <input matInput
-                 required
-                 formControlName="cpu"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Total Queue Memory (B)</mat-label>
-          <input matInput
-                 required
-                 formControlName="memory"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Only Preemptible Queues</mat-label>
-          <input *ngIf="form.get('limits').get('queues').get('preemptible').disabled"
-                 disabled
-                 matInput
-                 [value]="form.get('limits').get('queues').get('preemptible').value ? 'Yes' : 'No'" />
-          <mat-select *ngIf="!form.get('limits').get('queues').get('preemptible').disabled"
-                      formControlName="preemptible">
+                 [value]="form.get('limits').get('nonPreemptible').value ? 'Yes' : 'No'" />
+          <mat-select *ngIf="!form.get('limits').get('nonPreemptible').disabled"
+                      formControlName="nonPreemptible">
             <mat-option [value]="true">Yes</mat-option>
             <mat-option [value]="false">No</mat-option>
           </mat-select>
         </mat-form-field>
 
         <mat-form-field floatLabel="always">
-          <mat-label>Total Queue Replicas</mat-label>
-          <input matInput
-                 required
-                 formControlName="replicas"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-      </div>
-
-      <div class="row"
-           formGroupName="workflows">
-        <mat-form-field floatLabel="always">
-          <mat-label>Parallel Workflows</mat-label>
-          <input matInput
-                 required
-                 formControlName="count"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Maximum CPU Per Workflow</mat-label>
-          <input matInput
-                 required
-                 formControlName="cpu"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Maximum Memory Per Workflow (B)</mat-label>
-          <input matInput
-                 required
-                 formControlName="memory"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Parallel Workflow Tasks</mat-label>
-          <input matInput
-                 required
-                 formControlName="parallelism"
-                 step="1"
-                 type="number" />
-          <mat-error>Enter a valid value.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Only Preemptible Workflows</mat-label>
-          <input *ngIf="form.get('limits').get('workflows').get('preemptible').disabled"
-                 disabled
-                 matInput
-                 [value]="form.get('limits').get('workflows').get('preemptible').value ? 'Yes' : 'No'" />
-          <mat-select *ngIf="!form.get('limits').get('workflows').get('preemptible').disabled"
-                      formControlName="preemptible">
-            <mat-option [value]="true">Yes</mat-option>
-            <mat-option [value]="false">No</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Maximum Storage Per Workflow</mat-label>
+          <mat-label>Total Storage (GB)</mat-label>
           <input matInput
                  required
                  formControlName="storage"
@@ -390,14 +102,69 @@
       </div>
     </app-toggle-section>
 
-    <div *ngFor="let error of errors"
-         class="form-error">
-      {{ error }}
-    </div>
+    <app-toggle-section *ngIf="data.status"
+                        title="Status">
+      <div class="row">
+        <mat-form-field floatLabel="always">
+          <mat-label>Phase</mat-label>
+          <input matInput
+                 disabled
+                 [value]="data.status.phase" />
+        </mat-form-field>
+      </div>
 
-    <app-button color="primary"
-                (click)="save()">Save</app-button>
-    <app-button color="accent"
-                routerLink="../">Cancel</app-button>
+      <h4>Components</h4>
+
+      <div class="row">
+        <mat-form-field *ngFor="let component of data.status.components"
+                        floatLabel="always">
+          <mat-label>{{ component.name }}</mat-label>
+          <input matInput
+                 disabled
+                 [value]="component.phase + ' (' + component.current + ' / ' + component.total + ')'" />
+        </mat-form-field>
+      </div>
+
+      <h4>Limits</h4>
+
+      <div class="row">
+        <mat-form-field floatLabel="always">
+          <mat-label>Total CPUs</mat-label>
+          <input matInput
+                 disabled
+                 [value]="data.status.limits.cpu | number:'1.0':'en-US'" />
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>Total Memory</mat-label>
+          <input matInput
+                 disabled
+                 [value]="data.status.limits.memory | filesize" />
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>Total Storage</mat-label>
+          <input matInput
+                 disabled
+                 [value]="data.status.limits.storage | filesize" />
+        </mat-form-field>
+      </div>
+    </app-toggle-section>
   </form>
+</div>
+
+<div *ngIf="form && !form.disabled"
+     class="page-actions">
+  <div *ngFor="let error of errors"
+       class="form-error">
+    {{ error }}
+  </div>
+
+  <app-button color="primary"
+              form="form"
+              size="large"
+              width="full">
+    <mat-icon>save</mat-icon>
+    <div>Save</div>
+  </app-button>
 </div>

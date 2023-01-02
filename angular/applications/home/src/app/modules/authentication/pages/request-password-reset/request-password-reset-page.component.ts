@@ -1,8 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
-import { Title } from '@angular/platform-browser';
-import { PasswordResetService } from '@tenlastic/ng-http';
+import { PasswordResetService } from '@tenlastic/http';
 
-import { TITLE } from '../../../../shared/constants';
 import { IPasswordResetRequested, PasswordResetRequestFormComponent } from '../../components';
 
 @Component({
@@ -18,9 +16,7 @@ export class RequestPasswordResetPageComponent {
   public isLoggingIn = false;
   public loadingMessage: string;
 
-  constructor(private passwordResetService: PasswordResetService, private titleService: Title) {
-    this.titleService.setTitle(`${TITLE} | Reset Password`);
-  }
+  constructor(private passwordResetService: PasswordResetService) {}
 
   public async onPasswordResetRequested(data: IPasswordResetRequested) {
     try {

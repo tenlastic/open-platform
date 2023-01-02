@@ -1,12 +1,18 @@
-@import '../../../../../../../assets/scss/page.scss';
+@import 'src/assets/scss/page.scss';
+@import 'src/assets/scss/theme.scss';
 
 app-button {
   margin-bottom: 8px;
   margin-right: 8px;
 }
 
+button.mat-button[centered] {
+  margin-bottom: 0px;
+}
+
 mat-hint.mat-hint {
   margin-bottom: 16px;
+  margin-top: -2px;
 }
 
 mat-list.mat-list {
@@ -44,11 +50,11 @@ mat-list.mat-list {
     }
 
     ::ng-deep {
-      div.mat-list-item-content {
+      span.mat-list-item-content {
         justify-content: space-between;
         padding: 4px 8px;
 
-        span {
+        div {
           white-space: nowrap;
 
           &:first-of-type {
@@ -58,7 +64,7 @@ mat-list.mat-list {
           }
         }
 
-        span:only-of-type {
+        div:only-of-type {
           text-align: center;
           width: 100%;
         }
@@ -68,13 +74,9 @@ mat-list.mat-list {
 }
 
 mat-spinner.mat-spinner {
-  filter: drop-shadow(1px 1px 1px black);
+  filter: $drop-shadow;
   margin-right: 8px;
   margin-top: -3px;
-}
-
-button.mat-button[centered] {
-  margin-bottom: 0px;
 }
 
 mat-form-field.mat-form-field {

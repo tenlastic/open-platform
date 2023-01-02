@@ -1,8 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Title } from '@angular/platform-browser';
-
-import { TITLE } from '../../../../shared/constants';
 
 @Component({
   styleUrls: ['./contact-us.component.scss'],
@@ -12,11 +9,9 @@ export class ContactUsComponent implements OnInit {
   public form: FormGroup;
   public isSubmitted: boolean;
 
-  constructor(private formBuilder: FormBuilder, private titleService: Title) {}
+  constructor(private formBuilder: FormBuilder) {}
 
   public ngOnInit() {
-    this.titleService.setTitle(`${TITLE} | Contact Us`);
-
     this.setupForm();
   }
 
@@ -32,7 +27,7 @@ export class ContactUsComponent implements OnInit {
     this.isSubmitted = true;
   }
 
-  private setupForm(): void {
+  private setupForm() {
     this.form = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
       message: [''],

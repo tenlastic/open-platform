@@ -1,0 +1,18 @@
+components:
+  schemas:
+    NamespaceStatusComponent:
+      type: object
+      properties:
+        current:
+          type: number
+        name:
+          $ref: '#/components/schemas/NamespaceStatusComponentName'
+        phase:
+          $ref: '#/components/schemas/NamespaceStatusPhase'
+        total:
+          type: number
+      required:
+        - current
+        - name
+        - phase
+        - total

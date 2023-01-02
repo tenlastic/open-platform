@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  labels:
+    app: api-migrations
+  name: api-migrations
+  namespace: static
+spec:
+  template:
+    metadata:
+      name: api-migrations
+      labels:
+        app: api-migrations
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: tenlastic.com/low-priority
+                    operator: Exists
+      containers:
+        - name: api-migrations
+          image: tenlastic/api-migrations:latest
+          envFrom:
+            - secretRef:
+                name: nodejs
+          resources:
+            requests:
+              cpu: 50m
+      restartPolicy: OnFailure
+  ttlSecondsAfterFinished: 0

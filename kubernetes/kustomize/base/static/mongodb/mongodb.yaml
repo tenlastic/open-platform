@@ -1,16 +1,17 @@
-apiVersion: helm.fluxcd.io/v1
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  annotations:
-    fluxcd.io/automated: "true"
   name: mongodb
   namespace: static
 spec:
   chart:
-    git: https://github.com/tenlastic/open-platform
-    path: kubernetes/helm/mongodb/
-    ref: master
-    skipDepUpdate: true
+    spec:
+      chart: mongodb
+      sourceRef:
+        kind: HelmRepository
+        name: bitnami
+      version: 13.1.7
+  interval: 5m
   releaseName: mongodb
   values:
     affinity:
@@ -53,19 +54,19 @@ spec:
       resources:
         requests:
           cpu: 50m
-          memory: 250Mi
+          memory: 250M
     architecture: replicaset
     auth:
       existingSecret: mongodb
-    image:
-      tag: 5.0.6
+    livenessProbe:
+      periodSeconds: 30
     persistence:
-      size: 8Gi
+      size: 8G
       storageClass: balanced-expandable
-    podLabels:
-      release: mongodb
+    readinessProbe:
+      periodSeconds: 30
     replicaCount: 3
     resources:
       requests:
-        cpu: 50m
-        memory: 250Mi
+        cpu: 200m
+        memory: 250M

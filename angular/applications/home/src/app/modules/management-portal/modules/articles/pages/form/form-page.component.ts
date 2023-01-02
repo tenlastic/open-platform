@@ -1,150 +1,131 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Article, ArticleService, Game, GameQuery, GameService } from '@tenlastic/ng-http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-
-import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
+import { ActivatedRoute, Data, Params, Router } from '@angular/router';
 import {
-  BreadcrumbsComponentBreadcrumb,
-  PromptComponent,
-} from '../../../../../../shared/components';
+  ArticleModel,
+  ArticleService,
+  AuthorizationQuery,
+  IArticle,
+  IAuthorization,
+} from '@tenlastic/http';
+
+import { FormService, IdentityService } from '../../../../../../core/services';
 
 @Component({
   templateUrl: 'form-page.component.html',
   styleUrls: ['./form-page.component.scss'],
 })
 export class ArticlesFormPageComponent implements OnInit {
-  public $games: Observable<Game[]>;
-  public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
-  public data: Article;
+  public data: ArticleModel;
   public errors: string[] = [];
   public form: FormGroup;
+  public hasWriteAuthorization: boolean;
+  public get singular() {
+    switch (this.type) {
+      case IArticle.Type.Guide:
+        return 'Guide';
+      case IArticle.Type.News:
+        return 'News';
+      case IArticle.Type.PatchNotes:
+        return 'Patch Notes';
+      default:
+        return 'Article';
+    }
+  }
+  public type: IArticle.Type;
   public types = [
-    { label: 'Guide', value: 'Guide' },
-    { label: 'News', value: 'News' },
-    { label: 'Patch Notes', value: 'Patch Notes' },
+    { label: 'Guide', value: IArticle.Type.Guide },
+    { label: 'News', value: IArticle.Type.News },
+    { label: 'Patch Notes', value: IArticle.Type.PatchNotes },
   ];
+
+  private params: Params;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private articleService: ArticleService,
+    private authorizationQuery: AuthorizationQuery,
     private formBuilder: FormBuilder,
-    private gameQuery: GameQuery,
-    private gameService: GameService,
-    public identityService: IdentityService,
-    private matDialog: MatDialog,
+    private formService: FormService,
+    private identityService: IdentityService,
     private matSnackBar: MatSnackBar,
     private router: Router,
-    public selectedNamespaceService: SelectedNamespaceService,
   ) {}
 
   public ngOnInit() {
-    this.activatedRoute.paramMap.subscribe(async (params) => {
-      const _id = params.get('_id');
+    this.activatedRoute.data.subscribe((data) => (this.type = data.type));
+    this.activatedRoute.params.subscribe(async (params) => {
+      this.params = params;
 
-      this.breadcrumbs = [
-        { label: 'Articles', link: '../' },
-        { label: _id === 'new' ? 'Create Article' : 'Edit Article' },
-      ];
+      const roles = [IAuthorization.Role.ArticlesWrite];
+      const userId = this.identityService.user?._id;
+      this.hasWriteAuthorization =
+        this.authorizationQuery.hasRoles(null, roles, userId) ||
+        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
-      if (_id !== 'new') {
-        this.data = await this.articleService.findOne(_id);
+      if (params.articleId !== 'new') {
+        this.data = await this.articleService.findOne(params.namespaceId, params.articleId);
       }
-
-      this.$games = this.gameQuery
-        .selectAll({ filterBy: (g) => g.namespaceId === this.selectedNamespaceService.namespaceId })
-        .pipe(map((games) => games.map((g) => new Game(g))));
-      this.gameService.find({ where: { namespaceId: this.selectedNamespaceService.namespaceId } });
 
       this.setupForm();
     });
   }
 
   public navigateToJson() {
-    if (this.form.dirty) {
-      const dialogRef = this.matDialog.open(PromptComponent, {
-        data: {
-          buttons: [
-            { color: 'primary', label: 'No' },
-            { color: 'accent', label: 'Yes' },
-          ],
-          message: 'Changes will not be saved. Is this OK?',
-        },
-      });
-
-      dialogRef.afterClosed().subscribe(async (result) => {
-        if (result === 'Yes') {
-          this.router.navigate([`json`], { relativeTo: this.activatedRoute });
-        }
-      });
-    } else {
-      this.router.navigate([`json`], { relativeTo: this.activatedRoute });
-    }
+    this.formService.navigateToJson(this.form);
   }
 
   public async save() {
+    this.errors = [];
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
 
-    const values: Partial<Article> = {
+    const values: Partial<ArticleModel> = {
+      _id: this.data._id,
       body: this.form.get('body').value,
-      caption: this.form.get('caption').value,
-      gameId: this.form.get('gameId').value,
       namespaceId: this.form.get('namespaceId').value,
+      subtitle: this.form.get('subtitle').value,
       title: this.form.get('title').value,
       type: this.form.get('type').value,
     };
 
     try {
-      await this.upsert(values);
+      this.data = await this.upsert(values);
     } catch (e) {
-      this.handleHttpError(e, { name: 'Name' });
+      this.errors = this.formService.handleHttpError(e, { name: 'Name' });
     }
   }
 
-  private async handleHttpError(err: HttpErrorResponse, pathMap: any) {
-    this.errors = err.error.errors.map((e) => {
-      if (e.name === 'UniqueError') {
-        const combination = e.paths.length > 1 ? 'combination ' : '';
-        const paths = e.paths.map((p) => pathMap[p]);
-        return `${paths.join(' / ')} ${combination}is not unique: ${e.values.join(' / ')}.`;
-      } else {
-        return e.message;
-      }
-    });
-  }
-
-  private setupForm(): void {
-    this.data = this.data || new Article();
+  private setupForm() {
+    this.data ??= new ArticleModel();
 
     this.form = this.formBuilder.group({
       body: [this.data.body, Validators.required],
-      caption: [this.data.caption],
-      gameId: [this.data.gameId, Validators.required],
-      namespaceId: [this.selectedNamespaceService.namespaceId, Validators.required],
+      namespaceId: [this.params.namespaceId, Validators.required],
+      subtitle: [this.data.subtitle],
       title: [this.data.title, Validators.required],
-      type: [this.data.type || this.types[0].value, Validators.required],
+      type: [this.type || this.types[0].value, Validators.required],
     });
+
+    if (!this.hasWriteAuthorization) {
+      this.form.disable({ emitEvent: false });
+    }
 
     this.form.valueChanges.subscribe(() => (this.errors = []));
   }
 
-  private async upsert(data: Partial<Article>) {
-    if (this.data._id) {
-      data._id = this.data._id;
-      await this.articleService.update(data);
-    } else {
-      await this.articleService.create(data);
-    }
+  private async upsert(values: Partial<ArticleModel>) {
+    const result = values._id
+      ? await this.articleService.update(this.params.namespaceId, values._id, values)
+      : await this.articleService.create(this.params.namespaceId, values);
 
-    this.matSnackBar.open('Article saved successfully.');
-    this.router.navigate(['../'], { relativeTo: this.activatedRoute });
+    this.matSnackBar.open(`Article saved successfully.`);
+    this.router.navigate(['../', result._id], { relativeTo: this.activatedRoute });
+
+    return result;
   }
 }

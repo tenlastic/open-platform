@@ -1,10 +1,27 @@
-import { apiUrl } from '../api-url';
 import { NamespaceModel } from '../models/namespace';
-import { BaseService, ServiceEventEmitter } from './base';
+import { NamespaceStore } from '../states/namespace';
+import { ApiService } from './api';
+import { BaseService, BaseServiceFindQuery } from './base';
+import { EnvironmentService } from './environment';
 
 export class NamespaceService {
-  public emitter = new ServiceEventEmitter<NamespaceModel>();
-  private baseService = new BaseService<NamespaceModel>(this.emitter, NamespaceModel);
+  public get emitter() {
+    return this.baseService.emitter;
+  }
+
+  private baseService: BaseService<NamespaceModel>;
+
+  constructor(
+    private apiService: ApiService,
+    private environmentService: EnvironmentService,
+    private namespaceStore: NamespaceStore,
+  ) {
+    this.baseService = new BaseService<NamespaceModel>(
+      this.apiService,
+      NamespaceModel,
+      this.namespaceStore,
+    );
+  }
 
   /**
    * Returns the number of Records satisfying the query.
@@ -33,7 +50,7 @@ export class NamespaceService {
   /**
    * Returns an array of Records satisfying the query.
    */
-  public async find(query: any) {
+  public async find(query: BaseServiceFindQuery) {
     const url = this.getUrl();
     return this.baseService.find(query, url);
   }
@@ -58,8 +75,6 @@ export class NamespaceService {
    * Returns the base URL for this Model.
    */
   private getUrl() {
-    return `${apiUrl}/namespaces`;
+    return `${this.environmentService.apiUrl}/namespaces`;
   }
 }
-
-export const namespaceService = new NamespaceService();

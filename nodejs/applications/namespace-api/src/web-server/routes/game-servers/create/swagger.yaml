@@ -1,0 +1,29 @@
+paths:
+  /namespaces/{namespaceId}/game-servers:
+    post:
+      summary: Create
+      tags: [Game Servers]
+      description: Creates a new record.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: namespaceId
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GameServer'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  record:
+                    $ref: '#/components/schemas/GameServer'

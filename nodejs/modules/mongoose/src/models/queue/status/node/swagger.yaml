@@ -1,0 +1,18 @@
+components:
+  schemas:
+    QueueStatusNode:
+      type: object
+      properties:
+        component:
+          $ref: '#/components/schemas/QueueStatusComponentName'
+        container:
+          type: string
+        phase:
+          $ref: '#/components/schemas/QueueStatusPhase'
+        pod:
+          type: string
+      required:
+        - component
+        - container
+        - phase
+        - pod

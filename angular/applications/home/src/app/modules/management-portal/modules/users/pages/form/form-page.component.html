@@ -1,64 +1,62 @@
-<div class="page">
-  <app-breadcrumbs [breadcrumbs]="breadcrumbs"></app-breadcrumbs>
-
+<div *ngIf="form"
+     class="page">
   <div class="row">
     <div class="col-sm-6">
-      <app-title>{{ data?._id ? 'Edit' : 'Create' }} User</app-title>
+      <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} User</app-title>
+      <app-title *ngIf="!hasWriteAuthorization">View User</app-title>
     </div>
-    <div class="col-sm-6 align-right">
+
+    <div *ngIf="hasWriteAuthorization"
+         class="col-sm-6 align-right">
       <app-button color="accent"
                   (OnClick)="navigateToJson()">
         <mat-icon>code</mat-icon>
-        <span>{{ data?._id ? 'Edit' : 'Create' }} as JSON</span>
+        <div>{{ data?._id ? 'Edit' : 'Create' }} as JSON</div>
       </app-button>
     </div>
   </div>
 
-  <app-loading-message *ngIf="loadingMessage">{{ loadingMessage }}</app-loading-message>
-
-  <form *ngIf="form"
+  <form autocomplete="off"
         [formGroup]="form"
-        autocomplete="off">
+        id="form"
+        (ngSubmit)="save()">
     <div class="row">
       <mat-form-field floatLabel="always">
         <mat-label>Email Address</mat-label>
-        <input matInput
-               type="email"
-               formControlName="email" />
+        <input appAutofocus
+               formControlName="email"
+               matInput
+               maxlength="256"
+               type="email" />
         <mat-error>Enter a valid email address.</mat-error>
-      </mat-form-field>
-    </div>
-
-    <div class="row">
-      <mat-form-field *ngIf="identityService.user.roles.includes('users')"
-                      floatLabel="always">
-        <mat-label>Roles</mat-label>
-        <mat-select placeholder="None"
-                    formControlName="roles"
-                    multiple>
-          <mat-option *ngFor="let role of roles"
-                      [value]="role.value">{{ role.label }}</mat-option>
-        </mat-select>
       </mat-form-field>
     </div>
 
     <div class="row">
       <mat-form-field floatLabel="always">
         <mat-label>Username</mat-label>
-        <input matInput
-               required
-               formControlName="username"
-               maxlength="20" />
+        <input formControlName="username"
+               matInput
+               maxlength="24"
+               required />
         <mat-error>Enter a valid alphanumeric username.</mat-error>
       </mat-form-field>
     </div>
-
-    <div *ngFor="let error of errors"
-         class="form-error">
-      {{ error }}
-    </div>
-
-    <app-button color="primary"
-                (OnClick)="save()">Save</app-button>
   </form>
+</div>
+
+<div *ngIf="form && !form.disabled"
+     class="page-actions">
+  <div *ngFor="let error of errors"
+       class="form-error">
+    {{ error }}
+  </div>
+
+  <app-button color="primary"
+              form="form"
+              size="large"
+              width="full">
+    <mat-icon>save</mat-icon>
+    <div>Save</div>
+  </app-button>
 </div>

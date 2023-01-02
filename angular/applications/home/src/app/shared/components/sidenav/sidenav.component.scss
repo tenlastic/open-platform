@@ -1,3 +1,5 @@
+@import 'src/assets/scss/theme.scss';
+
 :host {
   display: flex;
   height: 100%;
@@ -11,17 +13,63 @@
 
     div.nav {
       background: rgba(0, 0, 0, 0.5);
-      box-shadow: 2px 2px 3px black, -2px 0px 3px black;
+      box-shadow: $box-shadow;
       display: flex;
       flex: 0 0 auto;
       flex-direction: column;
-      min-width: 200px;
       overflow: auto;
       padding: 8px;
       z-index: 2;
 
-      > * {
+      &[appNav]:not(.last):not(:hover) {
+        min-width: 0px;
+
+        app-button span.mat-button-wrapper {
+          div > div {
+            display: none !important;
+          }
+
+          img {
+            margin-right: 0px;
+          }
+
+          mat-icon {
+            margin-right: 0px;
+          }
+
+          div {
+            display: none !important;
+          }
+        }
+      }
+
+      > *:not(:last-child) {
         margin-bottom: 4px;
+      }
+
+      app-button {
+        min-height: 36.8px;
+      }
+
+      div.scroll {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        height: 0px;
+        margin: -8px;
+        overflow: hidden auto;
+        padding: 8px;
+
+        > *:not(:last-child) {
+          margin-bottom: 4px;
+        }
+      }
+
+      hr {
+        background: rgba(255, 255, 255, 0.25);
+        border-color: rgba(255, 255, 255, 0.25);
+        border-width: 0.5px;
+        margin-top: 0px;
       }
     }
   }

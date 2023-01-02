@@ -1,0 +1,31 @@
+paths:
+  /logins:
+    post:
+      summary: Log In with Username and Password
+      tags: [Logins]
+      description: Returns an access and refresh token.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                  format: password
+                username:
+                  type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                  record:
+                    $ref: '#/components/schemas/Login'
+                  refreshToken:
+                    type: string

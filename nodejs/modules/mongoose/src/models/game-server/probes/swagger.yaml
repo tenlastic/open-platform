@@ -1,0 +1,11 @@
+components:
+  schemas:
+    GameServerProbes:
+      type: object
+      properties:
+        liveness:
+          $ref: '#/components/schemas/GameServerProbesProbe'
+        readiness:
+          $ref: '#/components/schemas/GameServerProbesProbe'
+      required:
+        - liveness

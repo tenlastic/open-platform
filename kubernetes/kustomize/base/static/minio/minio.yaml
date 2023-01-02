@@ -1,16 +1,17 @@
-apiVersion: helm.fluxcd.io/v1
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  annotations:
-    fluxcd.io/automated: "true"
   name: minio
   namespace: static
 spec:
   chart:
-    git: https://github.com/tenlastic/open-platform
-    path: kubernetes/helm/minio/
-    ref: master
-    skipDepUpdate: true
+    spec:
+      chart: minio
+      sourceRef:
+        kind: HelmRepository
+        name: bitnami
+      version: 11.10.7
+  interval: 5m
   releaseName: minio
   values:
     affinity:
@@ -31,29 +32,31 @@ spec:
                     values:
                       - minio
               topologyKey: kubernetes.io/hostname
-    buckets:
-      - name: api
-        policy: none
-        purge: "false"
-      - name: argo
-        policy: none
-        purge: "false"
-      - name: docker-registry
-        policy: none
-        purge: "false"
-      - name: launcher
-        policy: download
-        purge: "false"
-    drivesPerNode: 2
-    existingSecret: minio
+    auth:
+      existingSecret: minio
     mode: distributed
     persistence:
-      size: 8Gi
+      size: 8G
       storageClass: balanced-expandable
-    podLabels:
-      release: minio
-    replicas: 3
+    provisioning:
+      buckets:
+        - name: api
+          policy: none
+          purge: "false"
+        - name: argo
+          policy: none
+          purge: "false"
+        - name: docker-registry
+          policy: none
+          purge: "false"
+        - name: launcher
+          policy: download
+          purge: "false"
+      enabled: true
+    statefulset:
+      drivesPerNode: 2
+      replicaCount: 3
     resources:
       requests:
         cpu: 200m
-        memory: 100Mi
+        memory: 100M

@@ -1,0 +1,140 @@
+@import 'src/assets/scss/form.scss';
+@import 'src/assets/scss/theme.scss';
+
+app-label {
+  display: block;
+  margin-top: 8px;
+}
+
+app-markdown {
+  display: block;
+  margin-top: 8px;
+}
+
+app-toggle-section {
+  ::ng-deep {
+    app-button {
+      margin-right: 8px;
+    }
+
+    mat-spinner.mat-spinner {
+      align-self: center;
+    }
+  }
+
+  div.row {
+    align-items: center;
+
+    app-button {
+      margin-bottom: 8px;
+    }
+  }
+}
+
+div.col-sm-6 {
+  padding: 0px 8px 0px 0px;
+
+  &:nth-of-type(2) {
+    margin-top: -8px;
+    padding-left: 8px;
+    padding-right: 0px;
+  }
+
+  & > mat-label {
+    font-size: 12px;
+  }
+}
+
+div.row {
+  div.col-sm-3,
+  div.col-sm-4 {
+    &:first-of-type {
+      padding-left: 0px;
+    }
+
+    &:last-of-type {
+      padding-right: 0px;
+    }
+
+    &:not(:first-of-type) {
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+
+    &:not(:last-of-type) {
+      padding-right: 8px;
+    }
+
+    mat-label {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+  }
+
+  div.col-sm-6 {
+    &:not(:last-of-type) {
+      padding-right: 8px;
+    }
+
+    &:not(:first-of-type) {
+      padding-left: 8px;
+    }
+
+    mat-form-field.mat-form-field {
+      width: 100%;
+    }
+  }
+}
+
+form > app-button {
+  margin-bottom: 16px;
+}
+
+mat-form-field.mat-form-field {
+  margin-right: 16px;
+}
+
+mat-grid-list.mat-grid-list {
+  margin-bottom: 16px;
+
+  mat-grid-tile.mat-grid-tile {
+    background-position: center;
+    background-size: cover;
+    filter: $drop-shadow;
+
+    ::ng-deep {
+      .mat-figure {
+        align-items: flex-end;
+      }
+    }
+
+    app-button {
+      margin-bottom: 8px;
+      margin-left: initial;
+      margin-right: 0px;
+
+      &:first-of-type {
+        margin-right: 8px;
+      }
+    }
+
+    video {
+      align-self: center;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      width: 100%;
+    }
+
+    &.icon {
+      background-repeat: no-repeat;
+      background-size: contain;
+    }
+
+    &.pending {
+      background-color: rgba(0, 0, 0, 0.2);
+      box-shadow: $box-shadow;
+    }
+  }
+}

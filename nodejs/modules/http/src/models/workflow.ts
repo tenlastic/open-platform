@@ -21,6 +21,10 @@ export namespace IWorkflow {
     { label: '5', value: 5 },
   ];
   export const Storage = [
+    { label: '100 MB', value: 100 * 1000 * 1000 },
+    { label: '250 MB', value: 250 * 1000 * 1000 },
+    { label: '500 MB', value: 500 * 1000 * 1000 },
+    { label: '1 GB', value: 1 * 1000 * 1000 * 1000 },
     { label: '5 GB', value: 5 * 1000 * 1000 * 1000 },
     { label: '10 GB', value: 10 * 1000 * 1000 * 1000 },
     { label: '20 GB', value: 20 * 1000 * 1000 * 1000 },
@@ -36,14 +40,17 @@ export namespace IWorkflow {
   }
 
   export interface Node {
-    _id?: string;
     children?: string[];
+    container?: string;
     displayName?: string;
     finishedAt?: Date;
+    id?: string;
     message?: string;
     name?: string;
     outboundNodes?: string[];
+    parent?: string;
     phase?: string;
+    pod?: string;
     startedAt?: Date;
     templatename?: string;
     type?: string;
@@ -78,7 +85,7 @@ export namespace IWorkflow {
 
   export interface Spec {
     entrypoint: string;
-    parallelism: number;
+    parallelism?: number;
     templates?: Template[];
   }
 
@@ -88,6 +95,7 @@ export namespace IWorkflow {
     nodes?: Node[];
     phase?: string;
     startedAt?: Date;
+    version?: string;
   }
 
   export interface Task {
@@ -118,23 +126,30 @@ export class WorkflowModel extends BaseModel {
   public storage: number;
   public updatedAt: Date;
 
-  constructor(parameters: Partial<WorkflowModel> = {}) {
+  constructor(parameters?: Partial<WorkflowModel>) {
     super(parameters);
   }
 
   public getNestedStatusNodes() {
     const nodes = JSON.parse(JSON.stringify(this.status.nodes));
+    const sortedNodes: IWorkflow.Node[] = nodes.sort((a, b) => {
+      if (a.startedAt === b.startedAt) {
+        return 0;
+      }
 
-    for (const node of nodes) {
+      return a.startedAt > b.startedAt ? 1 : -1;
+    });
+
+    for (const node of sortedNodes) {
       if (node.children) {
         for (const childId of node.children) {
-          const child = nodes.find(n => n._id === childId);
-          child.parent = node._id;
+          const child = sortedNodes.find((n) => n.id === childId);
+          child.parent = node.id;
         }
       }
     }
 
-    const children = this.getChildren(nodes);
+    const children = this.getChildren(sortedNodes);
 
     return [
       {
@@ -148,12 +163,12 @@ export class WorkflowModel extends BaseModel {
     ];
   }
 
-  private getChildren(data, parent?) {
+  private getChildren(data: IWorkflow.Node[], parent?: string) {
     return data.reduce((previous, current) => {
       const obj = Object.assign({}, current);
 
       if (parent === current.parent) {
-        const children = this.getChildren(data, current._id);
+        const children = this.getChildren(data, current.id);
 
         if (children.length) {
           obj.children = children;

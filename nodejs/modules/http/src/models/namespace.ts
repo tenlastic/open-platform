@@ -1,88 +1,59 @@
 import { BaseModel } from './base';
 
 export namespace INamespace {
-  export enum Role {
-    Articles = 'articles',
-    Builds = 'builds',
-    Databases = 'databases',
-    GameServers = 'game-servers',
-    Games = 'games',
-    Namespaces = 'namespaces',
-    Queues = 'queues',
-    Workflows = 'workflows',
-  }
-
-  export interface BuildLimits {
-    count: number;
-    size: number;
-  }
-
-  export interface DatabaseLimits {
-    cpu: number;
-    memory: number;
-    preemptible: boolean;
-    replicas: number;
-    storage: number;
-  }
-
-  export interface GameLimits {
-    count: number;
-    images: number;
-    public: number;
-    size: number;
-    videos: number;
-  }
-
-  export interface GameServerLimits {
-    cpu: number;
-    memory: number;
-    preemptible: boolean;
-  }
-
-  export interface Key {
-    description: string;
-    roles: string[];
-    value: string;
+  export enum StatusComponentName {
+    API = 'API',
+    CDC = 'CDC',
+    Connector = 'Connector',
+    Metrics = 'Metrics',
+    Sidecar = 'Sidecar',
   }
 
   export interface Limits {
-    builds: BuildLimits;
-    databases: DatabaseLimits;
-    gameServers: GameServerLimits;
-    games: GameLimits;
-    queues: QueueLimits;
-    workflows: WorkflowLimits;
+    bandwidth?: number;
+    cpu?: number;
+    defaultAuthorization?: boolean;
+    memory?: number;
+    nonPreemptible?: boolean;
+    storage?: number;
   }
 
-  export interface QueueLimits {
-    cpu: number;
-    memory: number;
-    preemptible: boolean;
-    replicas: number;
+  export interface Status {
+    components?: StatusComponent[];
+    limits?: StatusLimits;
+    nodes?: StatusNode[];
+    phase: string;
+    version?: string;
   }
 
-  export interface User {
-    _id: string;
-    roles: string[];
+  export interface StatusComponent {
+    current: number;
+    name: StatusComponentName;
+    phase: string;
+    total: number;
   }
 
-  export interface WorkflowLimits {
-    count: number;
-    cpu: number;
-    memory: number;
-    parallelism: number;
-    preemptible: boolean;
-    storage: number;
+  export interface StatusLimits {
+    bandwidth?: number;
+    cpu?: number;
+    memory?: number;
+    storage?: number;
+  }
+
+  export interface StatusNode {
+    component: StatusComponentName;
+    container: string;
+    phase: string;
+    pod: string;
   }
 }
 
 export class NamespaceModel extends BaseModel {
-  public keys: INamespace.Key[];
   public limits: INamespace.Limits;
   public name: string;
-  public users: INamespace.User[];
+  public status: INamespace.Status;
 
-  constructor(parameters: Partial<NamespaceModel> = {}) {
+  constructor(parameters?: Partial<NamespaceModel>) {
     super(parameters);
   }
 }

@@ -2,9 +2,9 @@ import { Component, Output, EventEmitter, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 export interface IOnRegister {
-  email: string;
-  password: string;
-  username: string;
+  email?: string;
+  password?: string;
+  username?: string;
 }
 
 @Component({
@@ -31,11 +31,15 @@ export class RegistrationFormComponent implements OnInit {
       return;
     }
 
-    const values = {
-      email: this.form.get('email').value,
+    const values: IOnRegister = {
       password: this.form.get('passwords').get('password').value,
       username: this.form.get('username').value,
     };
+
+    if (this.form.get('email').value) {
+      values.email = this.form.get('email').value;
+    }
+
     this.register.emit(values);
   }
 
@@ -47,7 +51,7 @@ export class RegistrationFormComponent implements OnInit {
     return form.get('confirmPassword').errors;
   }
 
-  private setupForm(): void {
+  private setupForm() {
     this.form = new FormGroup({
       email: new FormControl('', [Validators.email]),
       passwords: new FormGroup(
@@ -58,7 +62,7 @@ export class RegistrationFormComponent implements OnInit {
         this.confirmPassword,
       ),
       username: new FormControl('', [
-        Validators.pattern(/^[A-Za-z0-9]{0,20}$/),
+        Validators.pattern(/^[A-Za-z0-9]{0,24}$/),
         Validators.required,
       ]),
     });

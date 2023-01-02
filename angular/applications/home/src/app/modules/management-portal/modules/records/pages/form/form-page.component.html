@@ -1,65 +1,69 @@
-<div class="page">
-  <app-breadcrumbs [breadcrumbs]="breadcrumbs"></app-breadcrumbs>
-
+<div *ngIf="form"
+     class="page">
   <div class="row">
     <div class="col-sm-6">
-      <app-title>{{ data?._id ? 'Edit' : 'Create' }} Record</app-title>
+      <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Record</app-title>
+      <app-title *ngIf="!hasWriteAuthorization">View Record</app-title>
     </div>
-    <div class="col-sm-6 align-right">
+
+    <div *ngIf="hasWriteAuthorization"
+         class="col-sm-6 align-right">
       <app-button color="accent"
                   (OnClick)="navigateToJson()">
         <mat-icon>code</mat-icon>
-        <span>{{ data?._id ? 'Edit' : 'Create' }} as JSON</span>
+        <div>{{ data?._id ? 'Edit' : 'Create' }} as JSON</div>
       </app-button>
     </div>
   </div>
 
-  <form *ngIf="form"
+  <form autocomplete="off"
         [formGroup]="form"
-        autocomplete="off">
+        id="form"
+        (ngSubmit)="save()">
     <ng-container *ngFor="let key of form.controls | keys; let i = index">
       <app-toggle-section *ngIf="collection.jsonSchema.properties[key].type === 'array'"
                           [title]="key | camelCaseToTitleCase">
-        <div class="row"
-             [formArrayName]="key"
-             *ngFor="let item of form['controls'][key]['controls']; let i = index">
-          <mat-form-field floatLabel="always">
-            <mat-label>Element #{{ i + 1 }}</mat-label>
+        <mat-form-field *ngFor="let item of form['controls'][key]['controls']; let i = index"
+                        floatLabel="always"
+                        [formArrayName]="key">
+          <mat-label>Element {{ i + 1 }}</mat-label>
 
-            <ng-container [ngSwitch]="collection.jsonSchema.properties[key].items.type">
-              <mat-select *ngSwitchCase="'boolean'"
-                          [formControlName]="i | asAny">
-                <mat-option [value]="true">True</mat-option>
-                <mat-option [value]="false">False</mat-option>
-              </mat-select>
+          <ng-container [ngSwitch]="collection.jsonSchema.properties[key].items.type">
+            <mat-select *ngSwitchCase="'boolean'"
+                        [formControlName]="i">
+              <mat-option [value]="true">True</mat-option>
+              <mat-option [value]="false">False</mat-option>
+            </mat-select>
 
-              <input *ngSwitchCase="'number'"
-                     matInput
-                     type="number"
-                     [formControlName]="i | asAny" />
+            <input *ngSwitchCase="'number'"
+                   matInput
+                   type="number"
+                   [formControlName]="i" />
 
-              <input *ngSwitchCase="'string'"
-                     matInput
-                     [formControlName]="i | asAny" />
-            </ng-container>
+            <input *ngSwitchCase="'string'"
+                   matInput
+                   [formControlName]="i" />
+          </ng-container>
 
-            <mat-error>Enter a valid {{ key }}.</mat-error>
-          </mat-form-field>
-
-          <app-button color="accent"
-                      layout="left"
+          <app-button *ngIf="!form.disabled"
+                      color="accent"
+                      mat-icon-button
+                      matSuffix
+                      matTooltip="Remove Element"
                       (OnClick)="removeArrayItem(key, i)">
             <mat-icon>remove</mat-icon>
-            <span>Remove Item</span>
           </app-button>
-        </div>
 
-        <div class="row">
+          <mat-error>Enter a valid {{ key }}.</mat-error>
+        </mat-form-field>
+
+        <div *ngIf="!form.disabled"
+             class="row">
           <app-button color="accent"
                       layout="left"
                       (OnClick)="addArrayItem(key)">
             <mat-icon>add</mat-icon>
-            <span>Add Item</span>
+            <div>Add Element</div>
           </app-button>
         </div>
       </app-toggle-section>
@@ -90,15 +94,21 @@
         </mat-form-field>
       </div>
     </ng-container>
-
-    <div *ngFor="let error of errors"
-         class="form-error">
-      {{ error }}
-    </div>
-
-    <app-button color="primary"
-                (click)="save()">Save</app-button>
-    <app-button color="accent"
-                routerLink="../">Cancel</app-button>
   </form>
+</div>
+
+<div *ngIf="form && !form.disabled"
+     class="page-actions">
+  <div *ngFor="let error of errors"
+       class="form-error">
+    {{ error }}
+  </div>
+
+  <app-button color="primary"
+              form="form"
+              size="large"
+              width="full">
+    <mat-icon>save</mat-icon>
+    <div>Save</div>
+  </app-button>
 </div>

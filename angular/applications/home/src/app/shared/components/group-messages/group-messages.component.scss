@@ -1,9 +1,11 @@
+@import 'src/assets/scss/theme.scss';
+
 :host {
   background: url('/assets/images/background.jpg');
   background-attachment: fixed;
   background-position: center;
   background-size: cover;
-  box-shadow: -2px 2px 3px rgba(0, 0, 0, 0.5);
+  box-shadow: $box-shadow-left, $box-shadow-top;
   bottom: 0px;
   display: flex;
   flex-direction: column;
@@ -19,18 +21,48 @@
 div.information-container {
   align-items: center;
   background: rgba(0, 0, 0, 0.5);
-  box-shadow: 0px 3px 5px black;
+  box-shadow: $box-shadow-bottom;
   display: flex;
   flex: 0 0 auto;
   padding: 8px;
   z-index: 1;
 
+  > div {
+    flex: 1 1 auto;
+    text-align: right;
+
+    app-button {
+      margin-left: 8px;
+    }
+  }
+
+  > mat-icon.mat-icon {
+    color: #ffff55;
+    display: inline-block;
+    font-size: 20px;
+    height: 20px;
+    margin-left: 4px;
+    margin-right: 12px;
+    width: 20px;
+  }
+
+  app-button {
+    margin-left: 0px;
+    margin-right: 0px;
+  }
+
   div.label {
     display: inline-block;
+    flex: 0 0 auto;
+    text-align: left;
+
+    div.name {
+      margin-top: -4px;
+    }
 
     div.status {
-      color: #ffff55;
       font-size: 12px;
+      margin: -2px 0px;
     }
   }
 
@@ -43,32 +75,12 @@ div.information-container {
   mat-icon.mat-icon.grey {
     color: #aaaaaa !important;
   }
-
-  app-button {
-    margin-left: 0px;
-    margin-right: 0px;
-  }
-
-  > mat-icon.mat-icon {
-    color: #ffff55;
-    display: inline-block;
-    font-size: 20px;
-    height: 18px;
-    margin-left: 4px;
-    margin-right: 8px;
-    width: 20px;
-  }
-
-  > span {
-    flex: 1 1 auto;
-    text-align: right;
-  }
 }
 
 div.input-container {
   align-items: center;
   background: rgba(0, 0, 0, 0.5);
-  box-shadow: 3px -3px 5px black;
+  box-shadow: $box-shadow-top;
   display: flex;
   flex: 0 0 auto;
   padding: 6px 8px 8px;
@@ -104,6 +116,10 @@ div.messages-container {
       padding-top: 4px;
     }
 
+    div {
+      display: inline;
+    }
+
     div.timestamp {
       color: rgba(255, 255, 255, 0.75);
       font-size: 12px;
@@ -111,7 +127,7 @@ div.messages-container {
       white-space: nowrap;
     }
 
-    span.sender {
+    div.sender {
       font-weight: 500;
       margin-right: 2px;
       white-space: nowrap;

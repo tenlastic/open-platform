@@ -1,0 +1,41 @@
+paths:
+  /namespaces/{namespaceId}/storefronts/{storefrontId}/{field}:
+    post:
+      summary: Upload Image / Video
+      tags: [Storefront]
+      description: Uploads the image or video for a Storefront.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: field
+          schema:
+            type: string
+            enum: [background, icon, images, logo, videos]
+          required: true
+        - in: path
+          name: namespaceId
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: storefrontId
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: string
+              format: binary
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  record:
+                    $ref: '#/components/schemas/Storefront'

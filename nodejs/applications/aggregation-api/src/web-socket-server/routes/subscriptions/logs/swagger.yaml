@@ -1,0 +1,56 @@
+paths:
+  /subscriptions/{collection}/{_id}/logs/{container}/{pod}:
+    post:
+      summary: Logs
+      tags: [Subscriptions]
+      description: Creates a new subscription for a record's logs.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: _id
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: collection
+          schema:
+            type: string
+            enum:
+              - namespaces
+          required: true
+        - in: path
+          name: container
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: pod
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                since:
+                  type: string
+                  format: date-time
+                tail:
+                  type: number
+      responses:
+        200:
+          description: OK
+        202:
+          description: OK
+        206:
+          description: Partial Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fullDocument:
+                    type: object

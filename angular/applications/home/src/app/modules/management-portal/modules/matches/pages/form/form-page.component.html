@@ -1,0 +1,126 @@
+<div *ngIf="form"
+     class="page">
+  <div class="row">
+    <div class="col-sm-6">
+      <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Match</app-title>
+      <app-title *ngIf="!hasWriteAuthorization">View Match</app-title>
+    </div>
+
+    <div *ngIf="hasWriteAuthorization && isNew"
+         class="col-sm-6 align-right">
+      <app-button color="accent"
+                  (OnClick)="navigateToJson()">
+        <mat-icon>code</mat-icon>
+        <div>{{ data?._id ? 'Edit' : 'Create' }} as JSON</div>
+      </app-button>
+    </div>
+  </div>
+
+  <form autocomplete="off"
+        [formGroup]="form"
+        id="form"
+        (ngSubmit)="save()">
+    <div class="row">
+      <mat-form-field floatLabel="always">
+        <mat-label>Game Server Template</mat-label>
+        <mat-select formControlName="gameServerTemplateId"
+                    placeholder="None"
+                    required>
+          <mat-option *ngFor="let gameServerTemplate of gameServerTemplates"
+                      [value]="gameServerTemplate._id">
+            {{ gameServerTemplate.name }}
+          </mat-option>
+        </mat-select>
+        <mat-error>Select a valid Game Server Template.</mat-error>
+      </mat-form-field>
+
+      <mat-form-field *ngIf="!isNew"
+                      floatLabel="always">
+        <mat-label>Queue</mat-label>
+        <mat-select formControlName="queueId"
+                    placeholder="None">
+          <mat-option>None</mat-option>
+          <mat-option *ngFor="let queue of queues"
+                      [value]="queue._id">
+            {{ queue.name }}
+          </mat-option>
+        </mat-select>
+        <mat-error>Select a valid Queue.</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="row">
+      <mat-form-field floatLabel="always">
+        <mat-label>Confirmation</mat-label>
+        <mat-select formControlName="confirmation">
+          <mat-option [value]="true">Yes</mat-option>
+          <mat-option [value]="false">No</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field floatLabel="always">
+        <mat-label>Invitation Seconds</mat-label>
+        <input formControlName="invitationSeconds"
+               matInput
+               min="0"
+               type="number" />
+        <mat-error>Enter a valid duration for invitations.</mat-error>
+      </mat-form-field>
+    </div>
+
+    <app-toggle-section title="Teams">
+      <ng-container *ngFor="let team of teams.controls; let i = index">
+        <h4>Team {{ i + 1}}</h4>
+
+        <div class="row">
+          <ng-container *ngFor="let user of getTeamUsers(i).controls; let j = index">
+            <app-autocomplete-user-field [control]="user"
+                                         [removeButton]="getTeamUsers(i).length > 1"
+                                         removeButtonTooltip="Remove Player"
+                                         (OnRemove)="getTeamUsers(i).removeAt(j)"></app-autocomplete-user-field>
+          </ng-container>
+
+          <app-button *ngIf="!form.disabled"
+                      color="accent"
+                      layout="left"
+                      (OnClick)="pushUserToTeam(getTeamUsers(i))">
+            <mat-icon>add</mat-icon>
+            <div>Add Player</div>
+          </app-button>
+
+          <app-button *ngIf="!form.disabled && teams.length > 1"
+                      color="accent"
+                      layout="left"
+                      (OnClick)="teams.removeAt(i)">
+            <mat-icon>remove</mat-icon>
+            <div>Remove Team</div>
+          </app-button>
+        </div>
+      </ng-container>
+
+      <app-button *ngIf="!form.disabled"
+                  color="accent"
+                  layout="left"
+                  (OnClick)="pushTeam()">
+        <mat-icon>add</mat-icon>
+        <div>Add Team</div>
+      </app-button>
+    </app-toggle-section>
+  </form>
+</div>
+
+<div *ngIf="form && !form.disabled"
+     class="page-actions">
+  <div *ngFor="let error of errors"
+       class="form-error">
+    {{ error }}
+  </div>
+
+  <app-button color="primary"
+              form="form"
+              size="large"
+              width="full">
+    <mat-icon>save</mat-icon>
+    <div>Save</div>
+  </app-button>
+</div>

@@ -4,13 +4,19 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
-import { Title } from '@angular/platform-browser';
-import { Article, ArticleQuery, ArticleService } from '@tenlastic/ng-http';
+import { ActivatedRoute, Params } from '@angular/router';
+import {
+  ArticleModel,
+  ArticleQuery,
+  ArticleService,
+  AuthorizationQuery,
+  IArticle,
+  IAuthorization,
+} from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 
-import { IdentityService, SelectedNamespaceService } from '../../../../../../core/services';
+import { IdentityService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
-import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -19,45 +25,85 @@ import { TITLE } from '../../../../../../shared/constants';
 export class ArticlesListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(MatTable, { static: true }) table: MatTable<Article>;
+  @ViewChild(MatTable, { static: true }) table: MatTable<ArticleModel>;
 
-  public $articles: Observable<Article[]>;
-  public dataSource = new MatTableDataSource<Article>();
-  public displayedColumns: string[] = [
-    'game',
-    'type',
-    'title',
-    'publishedAt',
-    'createdAt',
-    'actions',
-  ];
+  public dataSource = new MatTableDataSource<ArticleModel>();
+  public get displayedColumns() {
+    return this.type
+      ? ['title', 'publishedAt', 'createdAt', 'actions']
+      : ['type', 'title', 'publishedAt', 'createdAt', 'actions'];
+  }
+  public hasWriteAuthorization: boolean;
+  public get plural() {
+    switch (this.type) {
+      case IArticle.Type.Guide:
+        return 'Guides';
+      case IArticle.Type.News:
+        return 'News';
+      case IArticle.Type.PatchNotes:
+        return 'Patch Notes';
+      default:
+        return 'Articles';
+    }
+  }
+  public get singular() {
+    switch (this.type) {
+      case IArticle.Type.Guide:
+        return 'Guide';
+      case IArticle.Type.News:
+        return 'News';
+      case IArticle.Type.PatchNotes:
+        return 'Patch Notes';
+      default:
+        return 'Article';
+    }
+  }
 
+  private $articles: Observable<ArticleModel[]>;
+  private type: IArticle.Type;
   private updateDataSource$ = new Subscription();
 
   constructor(
+    private activatedRoute: ActivatedRoute,
     private articleQuery: ArticleQuery,
     private articleService: ArticleService,
-    public identityService: IdentityService,
+    private authorizationQuery: AuthorizationQuery,
+    private identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
-    private selectedNamespaceService: SelectedNamespaceService,
-    private titleService: Title,
   ) {}
 
   public ngOnInit() {
-    this.titleService.setTitle(`${TITLE} | Articles`);
-    this.fetchArticles();
+    this.activatedRoute.data.subscribe((data) => (this.type = data.type));
+    this.activatedRoute.params.subscribe((params) => {
+      const roles = [IAuthorization.Role.ArticlesWrite];
+      const userId = this.identityService.user?._id;
+      this.hasWriteAuthorization =
+        this.authorizationQuery.hasRoles(null, roles, userId) ||
+        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
+
+      this.fetchArticles(params);
+    });
   }
 
   public ngOnDestroy() {
     this.updateDataSource$.unsubscribe();
   }
 
-  public async publish(article: Article) {
-    return this.articleService.update({ ...article, publishedAt: new Date() });
+  public async publish($event: Event, article: ArticleModel) {
+    $event.stopPropagation();
+
+    await this.articleService.update(article.namespaceId, article._id, {
+      ...article,
+      publishedAt: new Date(),
+    });
+
+    this.matSnackBar.open('Article published successfully.');
   }
 
-  public showDeletePrompt(record: Article) {
+  public showDeletePrompt($event: Event, record: ArticleModel) {
+    $event.stopPropagation();
+
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
         buttons: [
@@ -70,32 +116,39 @@ export class ArticlesListPageComponent implements OnDestroy, OnInit {
 
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
-        await this.articleService.delete(record._id);
+        await this.articleService.delete(record.namespaceId, record._id);
         this.matSnackBar.open('Article deleted successfully.');
       }
     });
   }
 
-  public async unpublish(article: Article) {
-    return this.articleService.update({ ...article, publishedAt: null });
+  public async unpublish($event: Event, article: ArticleModel) {
+    $event.stopPropagation();
+
+    await this.articleService.update(article.namespaceId, article._id, {
+      ...article,
+      publishedAt: null,
+    });
+
+    this.matSnackBar.open('Article unpublished successfully.');
   }
 
-  private async fetchArticles() {
-    const $articles = this.articleQuery.selectAll({
-      filterBy: (article) => article.namespaceId === this.selectedNamespaceService.namespaceId,
+  private async fetchArticles(params: Params) {
+    this.$articles = this.articleQuery.selectAll({
+      filterBy: (article) =>
+        article.namespaceId === params.namespaceId && article.type === this.type,
     });
-    this.$articles = this.articleQuery.populate($articles);
 
-    await this.articleService.find({
+    await this.articleService.find(params.namespaceId, {
       sort: '-createdAt',
-      where: { namespaceId: this.selectedNamespaceService.namespaceId },
+      where: { namespaceId: params.namespaceId, type: this.type },
     });
 
     this.updateDataSource$ = this.$articles.subscribe(
       (articles) => (this.dataSource.data = articles),
     );
 
-    this.dataSource.filterPredicate = (data: Article, filter: string) => {
+    this.dataSource.filterPredicate = (data: ArticleModel, filter: string) => {
       filter = filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
 
       const regex = new RegExp(filter, 'i');
@@ -103,12 +156,7 @@ export class ArticlesListPageComponent implements OnDestroy, OnInit {
 
       const published = data.publishedAt ? 'Published' : 'Unpublished';
 
-      return (
-        regex.test(data.game?.fullTitle) ||
-        regex.test(data.title) ||
-        regex.test(data.type) ||
-        exactRegex.test(published)
-      );
+      return regex.test(data.title) || regex.test(data.type) || exactRegex.test(published);
     };
 
     this.dataSource.paginator = this.paginator;

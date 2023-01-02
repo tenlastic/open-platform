@@ -1,0 +1,34 @@
+components:
+  schemas:
+    Article:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ^[0-9a-f]{24}$
+        body:
+          type: string
+        caption:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        namespaceId:
+          type: string
+          format: ^[0-9a-f]{24}$
+        publishedAt:
+          type: string
+          format: date-time
+        title:
+          type: string
+          format: ^.{2,40}$
+        type:
+          type: string
+          enum: [Guide, News, PatchNotes]
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - body
+        - namespaceId
+        - title

@@ -4,7 +4,7 @@ export class WebSocketModel extends BaseModel {
   public namespaceId: string;
   public userId: string;
 
-  constructor(parameters: Partial<WebSocketModel> = {}) {
+  constructor(parameters?: Partial<WebSocketModel>) {
     super(parameters);
   }
 }

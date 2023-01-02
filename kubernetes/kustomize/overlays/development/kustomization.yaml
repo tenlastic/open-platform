@@ -10,6 +10,41 @@ patches:
       name: home-ui
       namespace: static
       version: v1
+  - path: ./static/argo/cron-workflows/e2e.json
+    target:
+      group: argoproj.io
+      kind: CronWorkflow
+      name: e2e
+      namespace: static
+      version: v1alpha1
+  - path: ./static/nodejs/aggregation-api.json
+    target:
+      group: apps
+      kind: StatefulSet
+      name: aggregation-api
+      namespace: static
+      version: v1
+  - path: ./static/nodejs/aggregation-api-cdc.json
+    target:
+      group: apps
+      kind: StatefulSet
+      name: aggregation-api-cdc
+      namespace: static
+      version: v1
+  - path: ./static/nodejs/aggregation-api-connector.json
+    target:
+      group: apps
+      kind: StatefulSet
+      name: aggregation-api-connector
+      namespace: static
+      version: v1
+  - path: ./static/nodejs/aggregation-api-migrations.json
+    target:
+      group: batch
+      kind: Job
+      name: aggregation-api-migrations
+      namespace: static
+      version: v1
   - path: ./static/nodejs/api.json
     target:
       group: apps
@@ -17,27 +52,48 @@ patches:
       name: api
       namespace: static
       version: v1
-  - path: ./static/nodejs/migrations.json
-    target:
-      group: batch
-      kind: Job
-      name: migrations
-      namespace: static
-      version: v1
-  - path: ./static/nodejs/provisioner.json
-    target:
-      group: apps
-      kind: Deployment
-      name: provisioner
-      namespace: static
-      version: v1
-  - path: ./static/nodejs/wss.json
+  - path: ./static/nodejs/api-cdc.json
     target:
       group: apps
       kind: StatefulSet
-      name: wss
+      name: api-cdc
+      namespace: static
+      version: v1
+  - path: ./static/nodejs/api-migrations.json
+    target:
+      group: batch
+      kind: Job
+      name: api-migrations
+      namespace: static
+      version: v1
+  - path: ./static/nodejs/documentation.json
+    target:
+      group: apps
+      kind: Deployment
+      name: documentation
+      namespace: static
+      version: v1
+  - path: ./static/nodejs/social-api.json
+    target:
+      group: apps
+      kind: Deployment
+      name: social-api
+      namespace: static
+      version: v1
+  - path: ./static/nodejs/social-api-cdc.json
+    target:
+      group: apps
+      kind: StatefulSet
+      name: social-api-cdc
+      namespace: static
+      version: v1
+  - path: ./static/nodejs/social-api-migrations.json
+    target:
+      group: batch
+      kind: Job
+      name: social-api-migrations
       namespace: static
       version: v1
 resources:
-  - ./static/workspace/environment-variables.secret.example.yaml
+  - ./static/workspace/workspace.secret.example.yaml
   - ./static/workspace/workspace.pod.yaml

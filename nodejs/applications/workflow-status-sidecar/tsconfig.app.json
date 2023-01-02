@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "outDir": "./dist",
+    "rootDir": "./"
+  },
+  "exclude": ["./src/**/*.spec.ts"],
+  "include": ["package.json", "./src"],
+  "references": [{ "path": "../../modules/kubernetes/tsconfig.app.json" }],
+  "ts-node": {
+    "files": true
+  }
+}

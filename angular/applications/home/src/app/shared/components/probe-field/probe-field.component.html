@@ -1,0 +1,51 @@
+<div class="row"
+     [formGroup]="form">
+  <mat-form-field floatLabel="always">
+    <mat-label>Type</mat-label>
+    <mat-select formControlName="type"
+                required>
+      <mat-option [value]="ProbeType.Exec">Command</mat-option>
+      <mat-option [value]="ProbeType.Http">HTTP</mat-option>
+      <mat-option [value]="ProbeType.None">None</mat-option>
+      <mat-option [value]="ProbeType.Tcp">TCP</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <ng-container *ngIf="type === ProbeType.Exec">
+    <mat-form-field floatLabel="always">
+      <mat-label>Command</mat-label>
+      <input formControlName="command"
+             matInput
+             maxlength="256" />
+      <mat-error>Enter a valid command.</mat-error>
+    </mat-form-field>
+  </ng-container>
+
+  <ng-container *ngIf="type === ProbeType.Http">
+    <mat-form-field floatLabel="always">
+      <mat-label>Path</mat-label>
+      <input formControlName="path"
+             matInput
+             maxlength="128" />
+      <mat-error>Enter a valid path.</mat-error>
+    </mat-form-field>
+
+    <mat-form-field floatLabel="always">
+      <mat-label>Port</mat-label>
+      <input formControlName="port"
+             matInput
+             type="number" />
+      <mat-error>Enter a valid port.</mat-error>
+    </mat-form-field>
+  </ng-container>
+
+  <ng-container *ngIf="type === ProbeType.Tcp">
+    <mat-form-field floatLabel="always">
+      <mat-label>Port</mat-label>
+      <input formControlName="port"
+             matInput
+             type="number" />
+      <mat-error>Enter a valid port.</mat-error>
+    </mat-form-field>
+  </ng-container>
+</div>

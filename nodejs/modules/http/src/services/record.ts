@@ -1,48 +1,61 @@
-import { apiUrl } from '../api-url';
 import { RecordModel } from '../models/record';
-import { BaseService, ServiceEventEmitter } from './base';
+import { RecordStore } from '../states/record';
+import { ApiService } from './api';
+import { BaseService, BaseServiceFindQuery } from './base';
+import { EnvironmentService } from './environment';
 
 export class RecordService {
-  public emitter = new ServiceEventEmitter<RecordModel>();
-  private baseService = new BaseService<RecordModel>(this.emitter, RecordModel);
+  public get emitter() {
+    return this.baseService.emitter;
+  }
+
+  private baseService: BaseService<RecordModel>;
+
+  constructor(
+    private apiService: ApiService,
+    private environmentService: EnvironmentService,
+    private recordStore: RecordStore,
+  ) {
+    this.baseService = new BaseService<RecordModel>(this.apiService, RecordModel, this.recordStore);
+  }
 
   /**
    * Returns the number of Records satisfying the query.
    */
-  public async count(databaseId: string, collectionId: string, query: any) {
-    const url = this.getUrl(databaseId, collectionId);
+  public async count(namespaceId: string, collectionId: string, query: any) {
+    const url = this.getUrl(namespaceId, collectionId);
     return this.baseService.count(query, url);
   }
 
   /**
    * Creates a Record.
    */
-  public async create(databaseId: string, collectionId: string, json: Partial<RecordModel>) {
-    const url = this.getUrl(databaseId, collectionId);
+  public async create(namespaceId: string, collectionId: string, json: Partial<RecordModel>) {
+    const url = this.getUrl(namespaceId, collectionId);
     return this.baseService.create(json, url);
   }
 
   /**
    * Deletes a Record.
    */
-  public async delete(databaseId: string, collectionId: string, _id: string) {
-    const url = this.getUrl(databaseId, collectionId);
+  public async delete(namespaceId: string, collectionId: string, _id: string) {
+    const url = this.getUrl(namespaceId, collectionId);
     return this.baseService.delete(_id, url);
   }
 
   /**
    * Returns an array of Records satisfying the query.
    */
-  public async find(databaseId: string, collectionId: string, query: any) {
-    const url = this.getUrl(databaseId, collectionId);
+  public async find(namespaceId: string, collectionId: string, query: BaseServiceFindQuery) {
+    const url = this.getUrl(namespaceId, collectionId);
     return this.baseService.find(query, url);
   }
 
   /**
    * Returns a Record by ID.
    */
-  public async findOne(databaseId: string, collectionId: string, _id: string) {
-    const url = this.getUrl(databaseId, collectionId);
+  public async findOne(namespaceId: string, collectionId: string, _id: string) {
+    const url = this.getUrl(namespaceId, collectionId);
     return this.baseService.findOne(_id, url);
   }
 
@@ -50,21 +63,20 @@ export class RecordService {
    * Updates a Record.
    */
   public async update(
-    databaseId: string,
+    namespaceId: string,
     collectionId: string,
     _id: string,
     json: Partial<RecordModel>,
   ) {
-    const url = this.getUrl(databaseId, collectionId);
+    const url = this.getUrl(namespaceId, collectionId);
     return this.baseService.update(_id, json, url);
   }
 
   /**
    * Returns the base URL for this Model.
    */
-  private getUrl(databaseId: string, collectionId: string) {
-    return `${apiUrl}/databases/${databaseId}/collections/${collectionId}/records`;
+  private getUrl(namespaceId: string, collectionId: string) {
+    const { apiUrl } = this.environmentService;
+    return `${apiUrl}/namespaces/${namespaceId}/collections/${collectionId}/records`;
   }
 }
-
-export const recordService = new RecordService();

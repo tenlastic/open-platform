@@ -1,4 +1,5 @@
 @import '~bootstrap/scss/bootstrap-grid.scss';
+@import './theme.scss';
 
 a.mat-list-item {
   mat-icon.mat-icon {
@@ -92,17 +93,16 @@ div.mat-sort-header-sorted {
 }
 
 div.mat-tooltip {
-  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
-    url('/assets/images/background.jpg');
+  background: rgba(0, 0, 0, 0.5);
   background-attachment: fixed;
   background-position: center;
   background-size: cover;
   border-radius: 0px;
-  box-shadow: 2px 2px 3px black;
+  box-shadow: $box-shadow;
   font-family: 'Oswald', sans-serif;
   font-size: 14px;
   padding: 6px 12px;
-  text-shadow: 2px 3px 3px black;
+  text-shadow: $text-shadow;
   white-space: pre;
 }
 
@@ -111,10 +111,53 @@ input.mat-chip-input {
   margin-top: 0px !important;
 }
 
+mat-checkbox.mat-checkbox.mat-accent {
+  &.mat-checkbox-checked {
+    span.mat-checkbox-background {
+      background-color: white;
+    }
+  }
+
+  &.mat-checkbox-disabled {
+    span.mat-checkbox-frame {
+      border-style: dashed;
+    }
+  }
+
+  span.mat-checkbox-background {
+    border-radius: 0px;
+    bottom: 4px;
+    filter: $drop-shadow;
+    left: 4px;
+    right: 4px;
+    top: 4px;
+
+    svg {
+      display: none;
+    }
+  }
+
+  span.mat-checkbox-frame {
+    border-color: white;
+    border-radius: 0px;
+    filter: $drop-shadow;
+  }
+
+  span.mat-checkbox-inner-container {
+    height: 20px;
+    width: 20px;
+  }
+
+  span.mat-checkbox-label {
+    color: white;
+    line-height: 19px;
+  }
+}
+
 mat-chip.mat-chip.mat-standard-chip {
   background-color: rgba(0, 0, 0, 0.25);
   border-radius: 0px;
-  box-shadow: 2px 2px 3px black;
+  box-shadow: $box-shadow;
   color: white;
 
   &:focus::after,
@@ -205,7 +248,7 @@ mat-dialog-container.mat-dialog-container {
   background-position: center;
   background-size: cover;
   border-radius: 0px;
-  box-shadow: 2px 2px 3px black;
+  box-shadow: $box-shadow;
   color: white;
   padding: 16px 24px;
 }
@@ -261,6 +304,18 @@ mat-form-field.mat-form-field {
     padding-bottom: 16px;
   }
 
+  div.mat-form-field-infix {
+    width: 180px;
+
+    &:not(:only-child) {
+      width: 148px;
+    }
+  }
+
+  div.mat-form-field-suffix {
+    margin-left: 4px;
+  }
+
   .mat-input-element:disabled {
     color: white;
   }
@@ -283,6 +338,10 @@ mat-form-field.mat-form-field {
       font-weight: 300;
       opacity: 0.5;
     }
+
+    & + span label {
+      line-height: 24px;
+    }
   }
 }
 
@@ -290,6 +349,10 @@ mat-form-field.mat-form-field-appearance-legacy {
   div.mat-form-field-suffix .mat-icon-button {
     color: white;
   }
+}
+
+mat-icon.mat-icon {
+  overflow: visible;
 }
 
 mat-nav-list.mat-nav-list {
@@ -368,7 +431,45 @@ mat-pseudo-checkbox.mat-pseudo-checkbox {
   color: rgba(255, 255, 255, 0.5);
 }
 
+mat-radio-button.mat-radio-button.mat-accent {
+  &.mat-radio-checked {
+    span.mat-radio-inner-circle {
+      background-color: white;
+      border-radius: 2px;
+      filter: $drop-shadow;
+    }
+
+    span.mat-radio-outer-circle {
+      border-color: white;
+      border-radius: 2px;
+      filter: $drop-shadow;
+    }
+
+    span.mat-ripple {
+      display: none;
+    }
+  }
+
+  &.mat-radio-disabled {
+    span.mat-radio-label-content {
+      color: white;
+    }
+
+    span.mat-radio-outer-circle {
+      border-style: dashed;
+    }
+  }
+
+  span.mat-radio-outer-circle {
+    border-color: white;
+    border-radius: 4px;
+    filter: $drop-shadow;
+  }
+}
+
 mat-select.mat-select {
+  margin-bottom: -2px;
+
   &.mat-select-disabled {
     div.mat-select-arrow {
       color: white !important;
@@ -511,9 +612,19 @@ table.mat-table {
 
   .mat-row:nth-child(odd) {
     background: rgba(0, 0, 0, 0.125);
+
+    &.highlight {
+      background: rgba(255, 255, 255, 0.125);
+      cursor: pointer;
+    }
   }
 
   .mat-row:nth-child(even) {
     background: rgba(0, 0, 0, 0.25);
+
+    &.highlight {
+      background: rgba(255, 255, 255, 0.125);
+      cursor: pointer;
+    }
   }
 }

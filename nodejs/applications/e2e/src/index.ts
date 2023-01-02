@@ -1,17 +1,24 @@
-import { loginService, setAccessToken, setApiUrl, setRefreshToken } from '@tenlastic/http';
+import dependencies from './dependencies';
 
-const apiUrl = process.env.E2E_API_URL;
-setApiUrl(apiUrl);
+export let administratorAccessToken: string;
+export let administratorRefreshToken: string;
 
-before(async function() {
+before(async function () {
   const password = process.env.E2E_ADMINISTRATOR_PASSWORD;
   const username = process.env.E2E_ADMINISTRATOR_USERNAME;
 
-  const response = await loginService.createWithCredentials(username, password);
-  setAccessToken(response.accessToken);
-  setRefreshToken(response.refreshToken);
+  const { accessToken, refreshToken } = await dependencies.loginService.createWithCredentials(
+    username,
+    password,
+  );
+
+  dependencies.tokenService.setAccessToken(accessToken);
+  dependencies.tokenService.setRefreshToken(refreshToken);
+
+  administratorAccessToken = accessToken;
+  administratorRefreshToken = refreshToken;
 });
 
-after(async function() {
-  await loginService.delete();
+after(async function () {
+  await dependencies.loginService.delete();
 });

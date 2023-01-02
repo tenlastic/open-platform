@@ -1,0 +1,55 @@
+paths:
+  /namespaces/{namespaceId}/workflows/{_id}/logs/{pod}/{container}:
+    get:
+      summary: Logs
+      tags: [Workflows]
+      description: Returns the most recent logs of the requested node.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: _id
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: container
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: namespaceId
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: pod
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: since
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: tail
+          schema:
+            type: integer
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  records:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        body:
+                          type: string
+                        unix:
+                          type: number

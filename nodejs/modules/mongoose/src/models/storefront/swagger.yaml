@@ -1,0 +1,42 @@
+components:
+  schemas:
+    Storefront:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ^[0-9a-f]{24}$
+        createdAt:
+          type: string
+          format: date-time
+        description:
+          type: string
+        icon:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+        logo:
+          type: string
+        metadata:
+          type: object
+        namespaceId:
+          type: string
+          format: ^[0-9a-f]{24}$
+        subtitle:
+          type: string
+          format: ^.{2,40}$
+        title:
+          type: string
+          format: ^.{2,40}$
+        updatedAt:
+          type: string
+          format: date-time
+        videos:
+          type: array
+          items:
+            type: string
+      required:
+        - namespaceId
+        - title

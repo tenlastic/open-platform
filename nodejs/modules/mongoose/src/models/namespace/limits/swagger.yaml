@@ -1,0 +1,17 @@
+components:
+  schemas:
+    NamespaceLimits:
+      type: object
+      properties:
+        bandwidth:
+          type: number
+        cpu:
+          type: number
+        defaultAuthorization:
+          type: boolean
+        memory:
+          type: number
+        preemptible:
+          type: boolean
+        storage:
+          type: number

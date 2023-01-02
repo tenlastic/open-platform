@@ -1,3 +1,4 @@
+/.angular/cache
 *.tsbuildinfo
 .nyc_output
 lerna-debug.log

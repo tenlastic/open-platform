@@ -1,0 +1,23 @@
+components:
+  schemas:
+    Group:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ^[0-9a-f]{24}$
+        createdAt:
+          type: string
+          format: date-time
+        name:
+          type: string
+        open:
+          type: string
+        updatedAt:
+          type: string
+          format: date-time
+        userIds:
+          type: array
+          items:
+            type: string
+            format: ^[0-9a-f]{24}$

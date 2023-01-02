@@ -163,7 +163,7 @@ spec:
           resources:
             requests:
               cpu: 100m
-              memory: 200Mi
+              memory: 200M
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true

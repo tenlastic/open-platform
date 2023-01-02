@@ -1,36 +1,22 @@
+import { BuildModel } from '@tenlastic/http';
 import * as minio from '@tenlastic/minio';
-import {
-  BuildDocument,
-  BuildMock,
-  NamespaceMock,
-  NamespaceUserMock,
-  UserDocument,
-  UserMock,
-} from '@tenlastic/mongoose-models';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
+import * as Chance from 'chance';
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as JSZip from 'jszip';
 
 import { unzip } from './';
 
+const chance = new Chance();
 use(chaiAsPromised);
 
 describe('unzip', function () {
-  let build: BuildDocument;
-  let user: UserDocument;
+  let build: BuildModel;
 
   beforeEach(async function () {
-    user = await UserMock.create();
-
-    const namespaceUser = NamespaceUserMock.create({
-      _id: user._id,
-      roles: ['builds'],
-    });
-    const namespace = await NamespaceMock.create({ users: [namespaceUser] });
-
-    build = await BuildMock.create({ namespaceId: namespace._id });
+    build = new BuildModel({ namespaceId: chance.hash() });
 
     // Upload zip to Minio.
     const zip = new JSZip();

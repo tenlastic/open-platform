@@ -1,0 +1,18 @@
+div.row {
+  align-items: baseline;
+
+  &:not(:last-of-type) {
+    app-button {
+      margin-bottom: 16px;
+    }
+  }
+}
+
+h4 {
+  margin: 0px 0px 16px;
+}
+
+mat-form-field.mat-form-field {
+  display: inline-block;
+  margin-right: 16px;
+}

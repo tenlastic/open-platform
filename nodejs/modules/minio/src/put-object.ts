@@ -11,18 +11,14 @@ export async function putObject(
   metadata?: ItemBucketMetadata,
   timeout = TIMEOUT,
 ): Promise<string> {
-  let result: any;
-
   try {
-    result = await client.putObject(bucketName, objectName, stream, metadata);
+    return await client.putObject(bucketName, objectName, stream, metadata);
   } catch (e) {
-    if (timeout > TIMEOUT_LIMIT || !e.code || e.code !== 'SlowDown') {
+    if (e?.code !== 'SlowDown' || timeout > TIMEOUT_LIMIT) {
       throw e;
     }
 
-    await new Promise(res => setTimeout(res, timeout));
+    await new Promise((res) => setTimeout(res, timeout));
     return putObject(bucketName, objectName, stream, metadata, timeout * timeout);
   }
-
-  return result;
 }

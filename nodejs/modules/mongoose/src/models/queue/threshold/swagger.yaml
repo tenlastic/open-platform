@@ -1,0 +1,16 @@
+components:
+  schemas:
+    QueueThreshold:
+      type: object
+      properties:
+        seconds:
+          type: number
+          minimum: 1
+        usersPerTeam:
+          type: array
+          items:
+            type: number
+            minimum: 1
+      required:
+        - seconds
+        - usersPerTeam

@@ -1,34 +1,52 @@
-<div class="page">
-  <app-title>{{ data && data._id ? 'Edit' : 'Create' }} Workflow</app-title>
+<div *ngIf="form"
+     class="page">
+  <div class="row">
+    <div class="col-sm-6">
+      <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Workflow</app-title>
+      <app-title *ngIf="!hasWriteAuthorization">View Workflow</app-title>
+    </div>
 
-  <form *ngIf="form"
+    <div *ngIf="hasWriteAuthorization"
+         class="col-sm-6 align-right">
+      <app-button color="accent"
+                  (OnClick)="navigateToJson()">
+        <mat-icon>code</mat-icon>
+        <div>{{ data?._id ? 'Edit' : 'Create' }} as JSON</div>
+      </app-button>
+    </div>
+  </div>
+
+  <form autocomplete="off"
         [formGroup]="form"
-        autocomplete="off">
+        id="form"
+        (ngSubmit)="save()">
     <div class="row">
       <mat-form-field floatLabel="always">
         <mat-label>Name</mat-label>
-        <input matInput
+        <input appAutofocus
+               formControlName="name"
+               matInput
+               maxlength="64"
                placeholder="Hello World"
-               required
-               formControlName="name" />
+               required />
         <mat-error>Enter a valid name.</mat-error>
       </mat-form-field>
     </div>
 
     <div class="row">
       <mat-form-field floatLabel="always">
-        <mat-label>Preemptible</mat-label>
-        <mat-select formControlName="preemptible">
-          <mat-option [value]="true">Yes</mat-option>
-          <mat-option [value]="false">No</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field floatLabel="always">
         <mat-label>Parallel Tasks</mat-label>
         <mat-select formControlName="parallelism">
           <mat-option *ngFor="let parallelism of parallelisms"
                       [value]="parallelism.value">{{ parallelism.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field floatLabel="always">
+        <mat-label>Preemptible</mat-label>
+        <mat-select formControlName="preemptible">
+          <mat-option [value]="true">Yes</mat-option>
+          <mat-option [value]="false">No</mat-option>
         </mat-select>
       </mat-form-field>
     </div>
@@ -61,20 +79,20 @@
 
     <app-toggle-section title="Templates"
                         [isVisible]="!$data">
-      <div class="row template"
-           formArrayName="templates"
-           *ngFor="let template of form['controls'].templates['controls']; let i = index">
+      <div *ngFor="let template of form['controls'].templates['controls']; let i = index"
+           class="row template"
+           formArrayName="templates">
         <div class="name">
           <mat-form-field floatLabel="always">
             <mat-label>Name</mat-label>
             <input matInput
                    placeholder="Echo"
                    required
-                   [formControl]="template.controls.name | asAny" />
+                   [formControl]="template.controls.name" />
             <mat-error>Enter a valid name.</mat-error>
           </mat-form-field>
 
-          <div *ngIf="!form.disabled"
+          <div *ngIf="form && !form.disabled"
                class="row">
             <app-button *ngIf="i > 0"
                         color="accent"
@@ -107,13 +125,13 @@
         </div>
       </div>
 
-      <div *ngIf="!form.disabled"
+      <div *ngIf="form && !form.disabled"
            class="row">
         <app-button color="accent"
                     layout="left"
                     (OnClick)="addTemplate()">
           <mat-icon>add</mat-icon>
-          <span>Add Template</span>
+          <div>Add Template</div>
         </app-button>
       </div>
     </app-toggle-section>
@@ -148,17 +166,21 @@
         </mat-tree>
       </app-toggle-section>
     </ng-container>
-
-    <div *ngFor="let error of errors"
-         class="form-error">
-      {{ error }}
-    </div>
-
-    <ng-container *ngIf="!form.disabled">
-      <app-button color="primary"
-                  (OnClick)="save()">Save</app-button>
-      <app-button color="accent"
-                  routerLink="../">Cancel</app-button>
-    </ng-container>
   </form>
+</div>
+
+<div *ngIf="form && !form.disabled"
+     class="page-actions">
+  <div *ngFor="let error of errors"
+       class="form-error">
+    {{ error }}
+  </div>
+
+  <app-button color="primary"
+              form="form"
+              size="large"
+              width="full">
+    <mat-icon>save</mat-icon>
+    <div>Save</div>
+  </app-button>
 </div>

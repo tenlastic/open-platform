@@ -1,0 +1,65 @@
+components:
+  schemas:
+    Authorization:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ^[0-9a-f]{24}$
+        apiKey:
+          type: string
+        bannedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        name:
+          type: string
+        namespaceId:
+          type: string
+          format: ^[0-9a-f]{24}$
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuthorizationRole'
+        updatedAt:
+          type: string
+          format: date-time
+        userId:
+          type: string
+          format: ^[0-9a-f]{24}$
+    AuthorizationRole:
+      type: string
+      enum:
+        - Articles:Read
+        - Articles:ReadPublished
+        - Articles:ReadWrite
+        - Authorizations:Read
+        - Authorizations:ReadWrite
+        - Builds:Read
+        - Builds:ReadPublished
+        - Builds:ReadWrite
+        - Collections:Read
+        - Collections:ReadWrite
+        - GameServers:Read
+        - GameServers:ReadAuthorized
+        - GameServers:ReadWrite
+        - Logins:Read
+        - Matches:Read
+        - Matches:ReadStarted
+        - Matches:ReadWrite
+        - Namespaces:Read
+        - Namespaces:ReadWrite
+        - Queues:Read
+        - Queues:ReadWrite
+        - Records:Read
+        - Records:ReadWrite
+        - Storefronts:Read
+        - Storefronts:ReadWrite
+        - Users:Read
+        - Users:ReadWrite
+        - WebSockets:Read
+        - WebSockets:ReadWrite
+        - Workflows:Read
+        - Workflows:ReadWrite

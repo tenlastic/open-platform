@@ -1,0 +1,21 @@
+components:
+  schemas:
+    WorkflowSpecTemplate:
+      type: object
+      properties:
+        dag:
+          $ref: '#/components/schemas/WorkflowSpecTemplateDag'
+        inputs:
+          $ref: '#/components/schemas/WorkflowSpecTemplateInputs'
+        name:
+          type: string
+        retryStrategy:
+          $ref: '#/components/schemas/WorkflowSpecTemplateRetryStrategy'
+        script:
+          $ref: '#/components/schemas/WorkflowSpecTemplateScript'
+        sidecars:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowSpecTemplateSidecar'
+      required:
+        - name

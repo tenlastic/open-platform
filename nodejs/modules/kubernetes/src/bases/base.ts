@@ -1,6 +1,7 @@
-import * as k8s from '@kubernetes/client-node';
 import * as deepmerge from 'deepmerge';
 import { IncomingMessage } from 'http';
+
+import { BaseWatchCallback, BaseWatchDoneCallback, BaseWatchOptions, Watch } from '../watch';
 
 export interface BaseBody {
   metadata?: {
@@ -12,7 +13,6 @@ export interface BaseBody {
 export interface BaseListQuery {
   fieldSelector?: string;
   labelSelector?: string;
-  limit?: number;
 }
 
 export interface BaseListResponse<T> {
@@ -22,16 +22,6 @@ export interface BaseListResponse<T> {
 export interface BaseResponse<T> {
   body: T;
   response: IncomingMessage;
-}
-
-export type BaseWatchAction = 'ADDED' | 'DELETED' | 'MODIFIED';
-export type BaseWatchCallback<T> = (action: BaseWatchAction, object: T) => void | Promise<void>;
-export type BaseWatchDoneCallback = (err: any) => void;
-
-export interface BaseWatchOptions {
-  fieldSelector?: string;
-  labelSelector?: string;
-  resourceVersion?: string;
 }
 
 export abstract class BaseApiV1<T extends BaseBody> {
@@ -74,6 +64,19 @@ export abstract class BaseApiV1<T extends BaseBody> {
     } catch {}
   }
 
+  public async deleteCollection(namespace: string, query: BaseListQuery): Promise<BaseResponse<T>> {
+    const method = `deleteCollectionNamespaced${this.singular}`;
+    return this.api[method](
+      namespace,
+      undefined,
+      undefined,
+      undefined,
+      query.fieldSelector,
+      undefined,
+      query.labelSelector,
+    );
+  }
+
   public list(namespace: string, query: BaseListQuery): Promise<BaseResponse<BaseListResponse<T>>> {
     const method = `listNamespaced${this.singular}`;
     return this.api[method](
@@ -83,7 +86,6 @@ export abstract class BaseApiV1<T extends BaseBody> {
       undefined,
       query.fieldSelector,
       query.labelSelector,
-      query.limit,
     );
   }
 
@@ -115,18 +117,12 @@ export abstract class BaseApiV1<T extends BaseBody> {
     callback: BaseWatchCallback<T>,
     done?: BaseWatchDoneCallback,
   ) {
-    const kc = new k8s.KubeConfig();
-    kc.loadFromDefault();
-
     const endpoint = this.getEndpoint(namespace);
-    const watch = new k8s.Watch(kc);
-    const req = await watch.watch(endpoint, options, callback, done);
 
-    // Abort the request after 15 minutes.
-    await new Promise((res) => setTimeout(res, 15 * 60 * 1000));
-    req.abort();
+    const watch = new Watch(endpoint, options, callback, done);
+    await watch.start();
 
-    return this.watch(namespace, options, callback, done);
+    return watch;
   }
 
   protected abstract getEndpoint(namespace: string): string;

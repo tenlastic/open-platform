@@ -1,9 +1,28 @@
+import * as remote from '@electron/remote/main';
 import { app, globalShortcut, protocol } from 'electron';
 import log from 'electron-log';
+import * as fs from 'fs';
 import * as path from 'path';
 
-import './update';
+import { update } from './update';
 import { createWindow, getWindow, setIsQuitting } from './window';
+
+// ==================
+// DEVTOOLS
+// ==================
+const userDataPath = app.getPath('userData');
+const preferencesPath = path.join(userDataPath, 'Preferences');
+const preferences = JSON.parse(fs.readFileSync(preferencesPath, 'utf-8'));
+const size = 500;
+preferences.electron.devtools = {
+  preferences: {
+    'InspectorView.splitViewState': JSON.stringify({
+      vertical: { size },
+      horizontal: { size },
+    }),
+  },
+};
+fs.writeFileSync(preferencesPath, JSON.stringify(preferences));
 
 // ==================
 // GLOBAL SHORTCUTS
@@ -46,8 +65,6 @@ app.on('ready', () => {
 // ==================
 // RELOADS
 // ==================
-app.allowRendererProcessReuse = false;
-
 const instanceLock = app.requestSingleInstanceLock();
 if (instanceLock) {
   app.on('activate', createWindow);
@@ -76,3 +93,14 @@ if (instanceLock) {
 } else {
   app.quit();
 }
+
+// ==================
+// REMOVE
+// ==================
+app.on('browser-window-created', (event, window) => remote.enable(window.webContents));
+remote.initialize();
+
+// ==================
+// UPDATE
+// ==================
+update();

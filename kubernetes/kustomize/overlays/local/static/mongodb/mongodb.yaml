@@ -1,8 +1,10 @@
-apiVersion: helm.fluxcd.io/v1
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
   name: mongodb
   namespace: static
 spec:
   values:
+    arbiter:
+      enabled: false
     replicaCount: 1

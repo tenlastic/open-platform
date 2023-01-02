@@ -4,13 +4,10 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
-import { Title } from '@angular/platform-browser';
-import { RefreshToken, RefreshTokenQuery, RefreshTokenService } from '@tenlastic/ng-http';
+import { RefreshTokenModel, RefreshTokenQuery, RefreshTokenService } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 
-import { IdentityService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
-import { TITLE } from '../../../../../../shared/constants';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -19,34 +16,32 @@ import { TITLE } from '../../../../../../shared/constants';
 export class RefreshTokensListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(MatTable, { static: true }) table: MatTable<RefreshToken>;
+  @ViewChild(MatTable, { static: true }) table: MatTable<RefreshTokenModel>;
 
-  public $refreshTokens: Observable<RefreshToken[]>;
-  public dataSource = new MatTableDataSource<RefreshToken>();
-  public displayedColumns: string[] = ['_id', 'createdAt', 'updatedAt', 'expiresAt', 'actions'];
+  public $refreshTokens: Observable<RefreshTokenModel[]>;
+  public dataSource = new MatTableDataSource<RefreshTokenModel>();
+  public displayedColumns = ['_id', 'createdAt', 'updatedAt', 'expiresAt', 'actions'];
 
   private updateDataSource$ = new Subscription();
 
   constructor(
-    public identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private refreshTokenQuery: RefreshTokenQuery,
     private refreshTokenService: RefreshTokenService,
-    private titleService: Title,
   ) {}
 
   public async ngOnInit() {
-    this.titleService.setTitle(`${TITLE} | Refresh Tokens`);
-
-    await this.fetchRefreshTokens();
+    this.fetchRefreshTokens();
   }
 
   public ngOnDestroy() {
     this.updateDataSource$.unsubscribe();
   }
 
-  public showDeletePrompt(record: RefreshToken) {
+  public showDeletePrompt($event: Event, record: RefreshTokenModel) {
+    $event.stopPropagation();
+
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
         buttons: [
@@ -57,11 +52,9 @@ export class RefreshTokensListPageComponent implements OnDestroy, OnInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe(async result => {
+    dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
         await this.refreshTokenService.delete(record._id);
-        this.deleteRefreshToken(record);
-
         this.matSnackBar.open('Refresh Token deleted successfully.');
       }
     });
@@ -73,18 +66,10 @@ export class RefreshTokensListPageComponent implements OnDestroy, OnInit {
     await this.refreshTokenService.find({});
 
     this.updateDataSource$ = this.$refreshTokens.subscribe(
-      refreshTokens => (this.dataSource.data = refreshTokens),
+      (refreshTokens) => (this.dataSource.data = refreshTokens),
     );
 
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
-  }
-
-  private deleteRefreshToken(record: RefreshToken) {
-    const index = this.dataSource.data.findIndex(u => u._id === record._id);
-    this.dataSource.data.splice(index, 1);
-
-    this.dataSource.data = [].concat(this.dataSource.data);
-    this.table.renderRows();
   }
 }

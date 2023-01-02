@@ -1,0 +1,42 @@
+components:
+  securitySchemes:
+    AccessToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+info:
+  version: 1.0.0
+  title: 'Tenlastic API Documentation'
+  description: |
+    ## Using the API
+
+    ### API Key Authentication
+    Many API endpoints regarding Namespace resources accept token-based authentication. 
+    Provide the API Key in the 'X-Api-Key' header.
+
+    ### User Authentication
+    Many API endpoints accept JWT-based authentication. To authenticate to the API,
+    provide the user's access token in the 'Authorization' header with the following
+    format:
+    ```
+    Bearer [token]
+    ```
+    If an invalid token is given, you will receive a 401 (Unauthorized) HTTP status
+    with a JSON response containing an error message.
+
+    ### Errors
+    Most errors will return a 400 (Bad Request) HTTP status and a JSON response
+    containing the error messages. An example error response would be:
+    ```json
+    {"errors":[{"message":"Missing required query parameters: name.","name":"RequiredFieldError"}]}
+    ```
+
+    ### GET Parameters
+    GET parameters must each be JSON-encoded.
+openapi: '3.0.0'
+paths: {}
+servers:
+  - description: Production
+    url: https://api.tenlastic.com
+  - description: Development
+    url: http://api.local.tenlastic.com

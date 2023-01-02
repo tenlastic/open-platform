@@ -1,19 +1,21 @@
+import { BucketItemStat } from 'minio';
+
 import { client } from './connect';
 import { TIMEOUT, TIMEOUT_LIMIT } from './constants';
 
-export async function statObject(bucketName: string, objectName: string, timeout = TIMEOUT) {
-  let result: any;
-
+export async function statObject(
+  bucketName: string,
+  objectName: string,
+  timeout = TIMEOUT,
+): Promise<BucketItemStat> {
   try {
-    result = await client.statObject(bucketName, objectName);
+    return await client.statObject(bucketName, objectName);
   } catch (e) {
-    if (timeout > TIMEOUT_LIMIT || !e.code || e.code !== 'SlowDown') {
+    if (e?.code !== 'SlowDown' || timeout > TIMEOUT_LIMIT) {
       throw e;
     }
 
-    await new Promise(res => setTimeout(res, timeout));
+    await new Promise((res) => setTimeout(res, timeout));
     return statObject(bucketName, objectName, timeout * timeout);
   }
-
-  return result;
 }

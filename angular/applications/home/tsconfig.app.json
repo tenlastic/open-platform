@@ -9,6 +9,7 @@
   "exclude": [
     "node_modules/**",
     "src/environments/environment.electron.ts",
+    "src/environments/environment.prod.ts",
     "src/test.ts",
     "src/**/*.mock.ts",
     "src/**/*.spec.ts",

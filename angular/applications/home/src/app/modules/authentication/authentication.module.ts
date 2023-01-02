@@ -21,24 +21,29 @@ export const ROUTES: Routes = [
   {
     children: [
       {
-        path: 'create-account',
         component: CreateAccountPageComponent,
+        path: 'create-account',
+        title: 'Create Account',
       },
       {
-        path: 'log-in',
         component: LoginPageComponent,
+        path: 'log-in',
+        title: 'Log In',
       },
       {
-        path: 'log-out',
         component: LogoutPageComponent,
+        path: 'log-out',
+        title: 'Log Out',
       },
       {
-        path: 'reset-password',
         component: RequestPasswordResetPageComponent,
+        path: 'reset-password',
+        title: 'Reset Password',
       },
       {
-        path: 'reset-password/:hash',
         component: ResetPasswordPageComponent,
+        path: 'reset-password/:hash',
+        title: 'Reset Password',
       },
     ],
     component: LayoutComponent,

@@ -4,25 +4,20 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
-import { Title } from '@angular/platform-browser';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Params } from '@angular/router';
 import {
-  Collection,
+  AuthorizationQuery,
+  CollectionModel,
   CollectionService,
-  DatabaseService,
-  Record,
+  IAuthorization,
+  RecordModel,
   RecordQuery,
   RecordService,
-} from '@tenlastic/ng-http';
+} from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 
-import { environment } from '../../../../../../../environments/environment';
-import {
-  BreadcrumbsComponentBreadcrumb,
-  PromptComponent,
-} from '../../../../../../shared/components';
-import { Socket, SocketService } from '../../../../../../core/services';
-import { TITLE } from '../../../../../../shared/constants';
+import { PromptComponent } from '../../../../../../shared/components';
+import { IdentityService } from '../../../../../../core/services';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -31,73 +26,61 @@ import { TITLE } from '../../../../../../shared/constants';
 export class RecordsListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(MatTable, { static: true }) table: MatTable<Record>;
+  @ViewChild(MatTable, { static: true }) table: MatTable<RecordModel>;
 
-  public $records: Observable<Record[]>;
-  public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
-  public collection: Collection;
-  public dataSource = new MatTableDataSource<Record>();
+  public collection: CollectionModel;
+  public dataSource = new MatTableDataSource<RecordModel>();
   public displayedColumns: string[];
+  public hasWriteAuthorization: boolean;
   public propertyColumns: string[];
 
+  private $records: Observable<RecordModel[]>;
   private updateDataSource$ = new Subscription();
-  private get collectionId() {
-    return this.activatedRoute.snapshot.paramMap.get('collectionId');
-  }
-  private get databaseId() {
-    return this.activatedRoute.snapshot.paramMap.get('databaseId');
-  }
-  private socket: Socket;
+  private params: Params;
 
   constructor(
     private activatedRoute: ActivatedRoute,
+    private authorizationQuery: AuthorizationQuery,
     private collectionService: CollectionService,
-    private databaseService: DatabaseService,
+    private identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private recordQuery: RecordQuery,
     private recordService: RecordService,
-    private socketService: SocketService,
-    private titleService: Title,
   ) {}
 
   public async ngOnInit() {
-    this.titleService.setTitle(`${TITLE} | Records`);
+    this.activatedRoute.params.subscribe(async (params) => {
+      this.params = params;
 
-    this.collection = await this.collectionService.findOne(this.databaseId, this.collectionId);
-    const database = await this.databaseService.findOne(this.databaseId);
-    this.breadcrumbs = [
-      { label: 'Databases', link: '../../../../' },
-      { label: database.name, link: '../../../' },
-      { label: 'Collections', link: '../../' },
-      { label: this.collection.name, link: '../' },
-      { label: 'Records' },
-    ];
+      const roles = [IAuthorization.Role.CollectionsWrite];
+      const userId = this.identityService.user?._id;
+      this.hasWriteAuthorization =
+        this.authorizationQuery.hasRoles(null, roles, userId) ||
+        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
-    this.propertyColumns = Object.entries(this.collection.jsonSchema.properties)
-      .map(([key, value]) => (value.type === 'array' || value.type === 'object' ? null : key))
-      .filter((p) => p)
-      .slice(0, 4);
-    this.displayedColumns = this.propertyColumns.concat(['createdAt', 'updatedAt', 'actions']);
+      this.collection = await this.collectionService.findOne(
+        params.namespaceId,
+        params.collectionId,
+      );
 
-    const url = `${environment.databaseApiBaseUrl}/${this.databaseId}/web-sockets`;
-    this.socket = await this.socketService.connect(url);
-    this.socket.addEventListener('open', () => {
-      this.socket.subscribe('collections', Collection, this.collectionService);
-      this.socket.subscribe('records', Record, this.recordService, {
-        collectionId: this.collectionId,
-      });
+      this.propertyColumns = Object.entries(this.collection.jsonSchema.properties)
+        .map(([key, value]) => (value.type === 'array' || value.type === 'object' ? null : key))
+        .filter((p) => p)
+        .slice(0, 4);
+      this.displayedColumns = this.propertyColumns.concat(['createdAt', 'updatedAt', 'actions']);
+
+      await this.fetchRecords(params);
     });
-
-    await this.fetchRecords();
   }
 
   public ngOnDestroy() {
     this.updateDataSource$.unsubscribe();
-    this.socket.close();
   }
 
-  public showDeletePrompt(record: Record) {
+  public showDeletePrompt($event: Event, record: RecordModel) {
+    $event.stopPropagation();
+
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
         buttons: [
@@ -110,24 +93,26 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
 
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
-        await this.recordService.delete(this.databaseId, this.collectionId, record._id);
+        await this.recordService.delete(
+          this.params.namespaceId,
+          this.params.collectionId,
+          record._id,
+        );
         this.matSnackBar.open('Record deleted successfully.');
       }
     });
   }
 
-  private async fetchRecords() {
+  private async fetchRecords(params: Params) {
     this.$records = this.recordQuery.selectAll({
-      filterBy: (gs) => gs.collectionId === this.collectionId && gs.databaseId === this.databaseId,
+      filterBy: (gs) => gs.collectionId === params.collectionId,
     });
 
-    await this.recordService.find(this.databaseId, this.collectionId, {
-      sort: 'name',
-    });
+    await this.recordService.find(params.namespaceId, params.collectionId, { sort: 'name' });
 
     this.updateDataSource$ = this.$records.subscribe((records) => (this.dataSource.data = records));
 
-    this.dataSource.filterPredicate = (data: Record, filter: string) => {
+    this.dataSource.filterPredicate = (data: RecordModel, filter: string) => {
       const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
       const json = JSON.stringify(data);
 

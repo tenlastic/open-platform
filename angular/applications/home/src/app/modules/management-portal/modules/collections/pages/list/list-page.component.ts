@@ -4,28 +4,18 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
-import { Title } from '@angular/platform-browser';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Params } from '@angular/router';
 import {
-  Collection,
+  AuthorizationQuery,
+  CollectionModel,
   CollectionQuery,
   CollectionService,
-  DatabaseService,
-} from '@tenlastic/ng-http';
+  IAuthorization,
+} from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 
-import { environment } from '../../../../../../../environments/environment';
-import {
-  IdentityService,
-  SelectedNamespaceService,
-  Socket,
-  SocketService,
-} from '../../../../../../core/services';
-import {
-  BreadcrumbsComponentBreadcrumb,
-  PromptComponent,
-} from '../../../../../../shared/components';
-import { TITLE } from '../../../../../../shared/constants';
+import { IdentityService } from '../../../../../../core/services';
+import { PromptComponent } from '../../../../../../shared/components';
 
 @Component({
   templateUrl: 'list-page.component.html',
@@ -34,57 +24,44 @@ import { TITLE } from '../../../../../../shared/constants';
 export class CollectionsListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(MatTable, { static: true }) table: MatTable<Collection>;
+  @ViewChild(MatTable, { static: true }) table: MatTable<CollectionModel>;
 
-  public $collections: Observable<Collection[]>;
-  public breadcrumbs: BreadcrumbsComponentBreadcrumb[] = [];
-  public dataSource = new MatTableDataSource<Collection>();
-  public displayedColumns: string[] = ['name', 'createdAt', 'updatedAt', 'actions'];
+  public dataSource = new MatTableDataSource<CollectionModel>();
+  public displayedColumns = ['name', 'properties', 'roles', 'createdAt', 'updatedAt', 'actions'];
+  public hasWriteAuthorization: boolean;
 
+  private $collections: Observable<CollectionModel[]>;
   private updateDataSource$ = new Subscription();
-  private get databaseId() {
-    return this.activatedRoute.snapshot.paramMap.get('databaseId');
-  }
-  private socket: Socket;
 
   constructor(
     private activatedRoute: ActivatedRoute,
+    private authorizationQuery: AuthorizationQuery,
     private collectionQuery: CollectionQuery,
     private collectionService: CollectionService,
-    private databaseService: DatabaseService,
-    public identityService: IdentityService,
+    private identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
-    private selectedNamespaceService: SelectedNamespaceService,
-    private socketService: SocketService,
-    private titleService: Title,
   ) {}
 
   public async ngOnInit() {
-    this.titleService.setTitle(`${TITLE} | Collections`);
+    this.activatedRoute.params.subscribe((params) => {
+      const roles = [IAuthorization.Role.CollectionsWrite];
+      const userId = this.identityService.user?._id;
+      this.hasWriteAuthorization =
+        this.authorizationQuery.hasRoles(null, roles, userId) ||
+        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
-    const database = await this.databaseService.findOne(this.databaseId);
-    this.breadcrumbs = [
-      { label: 'Databases', link: '../../../' },
-      { label: database.name, link: '../../' },
-      { label: 'Collections' },
-    ];
-
-    const url = `${environment.databaseApiBaseUrl}/${this.databaseId}/web-sockets`;
-    this.socket = await this.socketService.connect(url);
-    this.socket.addEventListener('open', () =>
-      this.socket.subscribe('collections', Collection, this.collectionService),
-    );
-
-    await this.fetchCollections();
+      this.fetchCollections(params);
+    });
   }
 
   public ngOnDestroy() {
     this.updateDataSource$.unsubscribe();
-    this.socket.close();
   }
 
-  public showDeletePrompt(record: Collection) {
+  public showDeletePrompt($event: Event, record: CollectionModel) {
+    $event.stopPropagation();
+
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
         buttons: [
@@ -97,29 +74,24 @@ export class CollectionsListPageComponent implements OnDestroy, OnInit {
 
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
-        await this.collectionService.delete(this.databaseId, record._id);
+        await this.collectionService.delete(record.namespaceId, record._id);
         this.matSnackBar.open('Collection deleted successfully.');
       }
     });
   }
 
-  private async fetchCollections() {
+  private async fetchCollections(params: Params) {
     this.$collections = this.collectionQuery.selectAll({
-      filterBy: (gs) =>
-        gs.databaseId === this.databaseId &&
-        gs.namespaceId === this.selectedNamespaceService.namespaceId,
+      filterBy: (gs) => gs.namespaceId === params.namespaceId,
     });
 
-    await this.collectionService.find(this.databaseId, {
-      sort: 'name',
-      where: { namespaceId: this.selectedNamespaceService.namespaceId },
-    });
+    await this.collectionService.find(params.namespaceId, { sort: 'name' });
 
     this.updateDataSource$ = this.$collections.subscribe(
       (collections) => (this.dataSource.data = collections),
     );
 
-    this.dataSource.filterPredicate = (data: Collection, filter: string) => {
+    this.dataSource.filterPredicate = (data: CollectionModel, filter: string) => {
       const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
       return regex.test(data.name);
     };

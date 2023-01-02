@@ -6,41 +6,36 @@
               routerLinkActive="active"
               [routerLinkActiveOptions]="{ exact: true }">
     <mat-icon>home</mat-icon>
-    <span>Home</span>
+    <div>Home</div>
   </app-button>
 
   <app-button color="accent"
-              [matMenuTriggerFor]="for_developers">
-    <mat-icon>code</mat-icon>
-    <span>For Developers</span>
-    <mat-icon>keyboard_arrow_down</mat-icon>
+              routerLink="api-documentation"
+              routerLinkActive="active">
+    <mat-icon>description</mat-icon>
+    <div>API Documentation</div>
   </app-button>
-  <mat-menu #for_developers="matMenu"
-            xPosition="before">
-    <app-button color="accent"
-                layout="vertical"
-                routerLink="api-documentation"
-                target="_blank"
-                text="left"
-                width="full">
-      <span>API Documentation</span>
-    </app-button>
-    <app-button color="accent"
-                href="https://github.com/tenlastic/open-platform"
-                layout="vertical"
-                target="_blank"
-                text="left"
-                width="full">
-      <span>Github Repository</span>
-    </app-button>
-  </mat-menu>
 
-  <span class="space"></span>
+  <app-button color="accent"
+              href="https://github.com/tenlastic/open-platform"
+              target="_blank">
+    <mat-icon>code</mat-icon>
+    <div>Github Repository</div>
+  </app-button>
 
-  <app-button *ngIf="!electronService.isElectron"
+  <app-button color="accent"
+              routerLink="web-socket-documentation"
+              routerLinkActive="active">
+    <mat-icon>description</mat-icon>
+    <div>Web Socket Documentation</div>
+  </app-button>
+
+  <div class="space"></div>
+
+  <app-button *ngIf="!isElectron"
               color="primary"
               [href]="launcherUrl">
-    <span>Download Launcher</span>
+    <div>Download Launcher</div>
   </app-button>
 </app-header-toolbar>
 

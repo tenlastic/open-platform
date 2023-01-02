@@ -1,15 +1,23 @@
+import { Next } from 'koa';
+
 import { Context } from '../../context';
 
 /**
  * Catches all errors and returns the message in the body.
  */
-export async function errorMiddleware(ctx: Context, next: () => Promise<void>) {
+export async function errorMiddleware(ctx: Context, next: Next) {
   try {
     await next();
   } catch (e) {
     const status = e.status || 400;
 
     switch (e.name) {
+      case 'DuplicateKeyError':
+      case 'DuplicateKeyIndexError':
+        ctx.response.status = status;
+        ctx.response.body = getDuplicateKeyError(e);
+        break;
+
       case 'NamespaceLimitError':
         ctx.response.status = status;
         ctx.response.body = getNamespaceLimitError(e);
@@ -25,9 +33,9 @@ export async function errorMiddleware(ctx: Context, next: () => Promise<void>) {
         ctx.response.body = getQueueMemberAuthorizationError(e);
         break;
 
-      case 'QueueMemberUniqueError':
+      case 'QueueMemberDuplicateKeyError':
         ctx.response.status = status;
-        ctx.response.body = getQueueMemberUniqueError(e);
+        ctx.response.body = getQueueMemberDuplicateKeyError(e);
         break;
 
       case 'RecordNotFoundError':
@@ -35,9 +43,9 @@ export async function errorMiddleware(ctx: Context, next: () => Promise<void>) {
         ctx.response.body = getError(e);
         break;
 
-      case 'UniqueError':
+      case 'RefreshTokenError':
         ctx.response.status = status;
-        ctx.response.body = getUniqueError(e);
+        ctx.response.body = getError(e);
         break;
 
       case 'ValidationError':
@@ -69,12 +77,12 @@ function getQueueMemberAuthorizationError(err: any) {
   return { errors: [{ message, name, userIds }] };
 }
 
-function getQueueMemberUniqueError(err: any) {
+function getQueueMemberDuplicateKeyError(err: any) {
   const { message, name, userIds } = err;
   return { errors: [{ message, name, userIds }] };
 }
 
-function getUniqueError(err: any) {
+function getDuplicateKeyError(err: any) {
   const { message, name, paths, values } = err;
   return { errors: [{ message, name, paths, values }] };
 }

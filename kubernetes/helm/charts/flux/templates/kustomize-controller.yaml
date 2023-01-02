@@ -1,0 +1,144 @@
+{{- if and .Values.kustomizecontroller.create }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Namespace | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote  }}
+    app.kubernetes.io/part-of: flux
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    control-plane: controller
+  name: kustomize-controller
+spec:
+  {{- if kindIs "invalid" .Values.kustomizecontroller.replicas }}
+  replicas: 1
+  {{- else }}
+  replicas: {{ .Values.kustomizecontroller.replicas  }}
+  {{- end}}
+  selector:
+    matchLabels:
+      app: kustomize-controller
+  template:
+    metadata:
+      {{- with .Values.kustomizecontroller.annotations }}
+      annotations: {{ toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app: kustomize-controller
+{{ with .Values.kustomizecontroller.labels }}{{ toYaml . | indent 8 }}{{ end }}
+    spec:
+      {{- if .Values.kustomizecontroller.initContainers}}
+      initContainers:
+        {{- toYaml .Values.kustomizecontroller.initContainers | nindent 8}}
+      {{- end}}
+      containers:
+      - args:
+        {{- if .Values.multitenancy.enabled }}
+        - --no-cross-namespace-refs=true
+        - --default-service-account={{ .Values.multitenancy.defaultServiceAccount | default "default"  }}
+        {{- end}}
+        - --events-addr={{ .Values.eventsaddr }}
+        - --watch-all-namespaces={{ .Values.watchallnamespaces }}
+        - --log-level={{ .Values.loglevel | default "info" }}
+        - --log-encoding=json
+        - --enable-leader-election
+        {{- range .Values.kustomizecontroller.container.additionalargs }}
+        - {{ . }}
+        {{- end}}
+        env:
+        - name: RUNTIME_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        {{- if or (.Values.kustomizecontroller.envFrom.map.name) (.Values.kustomizecontroller.envFrom.secret.name) }}
+        envFrom:
+          {{- if .Values.kustomizecontroller.envFrom.map.name }}
+          - configMapRef:
+              name: {{ .Values.kustomizecontroller.envFrom.map.name }}
+          {{- end }}
+          {{- if .Values.kustomizecontroller.envFrom.secret.name }}
+          - secretRef:
+              name: {{ .Values.kustomizecontroller.envFrom.secret.name }}
+          {{- end }}
+        {{- end }}
+        image: {{ template "template.image" .Values.kustomizecontroller }}
+        {{- if .Values.kustomizecontroller.imagePullPolicy }}
+        imagePullPolicy: {{ .Values.kustomizecontroller.imagePullPolicy }}
+        {{- else }}
+        imagePullPolicy: IfNotPresent
+        {{- end }}
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: healthz
+        name: manager
+        ports:
+        - containerPort: 8080
+          name: http-prom
+        - containerPort: 9440
+          name: healthz
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: healthz
+        {{- with .Values.kustomizecontroller.resources }}
+        resources: {{ toYaml . | nindent 10 }}
+        {{- end }}
+        {{- if .Values.kustomizecontroller.securityContext }}
+        securityContext: {{ toYaml .Values.kustomizecontroller.securityContext | nindent 10 }}
+        {{- else }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
+        {{- end}}
+        volumeMounts:
+        - mountPath: /tmp
+          name: temp
+        {{- if .Values.kustomizecontroller.volumeMounts }}
+        {{- toYaml .Values.kustomizecontroller.volumeMounts | nindent 8 }}
+        {{- end}}
+      {{- if .Values.kustomizecontroller.priorityClassName }}
+      priorityClassName: {{ .Values.kustomizecontroller.priorityClassName | quote }}
+      {{- end }}
+      {{- range .Values.kustomizecontroller.extraSecretMounts }}
+        - name: {{ .name }}
+          mountPath: {{ .mountPath }}
+          subPath: {{ .subPath }}
+          readOnly: {{ .readOnly }}
+      {{- end }}
+      securityContext:
+        fsGroup: 1337
+      serviceAccountName: kustomize-controller
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets: {{ toYaml .Values.imagePullSecrets | nindent 6 }}
+      {{- end }}
+      terminationGracePeriodSeconds: 60
+      volumes:
+      - emptyDir: {}
+        name: temp
+      {{- if .Values.kustomizecontroller.volumes }}
+      {{- toYaml .Values.kustomizecontroller.volumes | nindent 6 }}
+      {{- end}}
+      {{- range .Values.kustomizecontroller.extraSecretMounts }}
+      - name: {{ .name }}
+        secret:
+          secretName: {{ .secretName }}
+      {{- end }}
+      {{- with .Values.kustomizecontroller.nodeSelector }}
+      nodeSelector: {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.kustomizecontroller.affinity }}
+      affinity: {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.kustomizecontroller.tolerations }}
+      tolerations: {{ toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

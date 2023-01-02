@@ -1,10 +1,11 @@
 // Karma configuration file, see link for more information
 // https://karma-runner.github.io/1.0/config/configuration-file.html
 
-module.exports = function(config) {
+module.exports = function (config) {
   config.set({
     autoWatch: true,
     basePath: '',
+    browserNoActivityTimeout: 5 * 60 * 1000,
     browsers: ['ChromeHeadless'],
     client: {
       clearContext: false, // leave Jasmine Spec Runner output visible in browser
@@ -14,7 +15,7 @@ module.exports = function(config) {
       dir: require('path').join(__dirname, './coverage'),
       reporters: [
         { type: 'html', subdir: 'report-html' },
-        { type: 'lcov', subdir: 'report-lcov' }
+        { type: 'lcov', subdir: 'report-lcov' },
       ],
       fixWebpackSourcePaths: true,
     },

@@ -6,19 +6,15 @@ export async function fGetObject(
   objectName: string,
   filePath: string,
   timeout = TIMEOUT,
-) {
-  let result: any;
-
+): Promise<void> {
   try {
-    result = await client.fGetObject(bucketName, objectName, filePath);
+    return await client.fGetObject(bucketName, objectName, filePath);
   } catch (e) {
-    if (timeout > TIMEOUT_LIMIT || !e.code || e.code !== 'SlowDown') {
+    if (e?.code !== 'SlowDown' || timeout > TIMEOUT_LIMIT) {
       throw e;
     }
 
-    await new Promise(res => setTimeout(res, timeout));
+    await new Promise((res) => setTimeout(res, timeout));
     return fGetObject(bucketName, objectName, filePath, timeout * timeout);
   }
-
-  return result;
 }
