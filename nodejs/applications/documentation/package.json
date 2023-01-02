@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "main": "./dist/index.js",
   "name": "@tenlastic/documentation",
-  "version": "0.0.314",
+  "version": "0.0.315",
   "scripts": {
     "build": "./scripts/build.sh",
     "start": "./scripts/start.sh",

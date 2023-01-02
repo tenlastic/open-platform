@@ -7,7 +7,7 @@ export PROJECT="production-303220"
 kubectl config set-context --current --namespace=static
 
 # Download Service Account credentials for CertManager.
-gcloud iam service-accounts keys create "../../../gcp/service-accounts/dns-admin.json" \
+gcloud iam service-accounts keys create "../../../../gcp/service-accounts/dns-admin.json" \
   --iam-account "dns-admin@${PROJECT}.iam.gserviceaccount.com"
 
 # Install Flux and the Helm Controller.
@@ -16,7 +16,7 @@ helm install \
   -f ../../../helm/values/base/flux.yaml \
   -n static \
   flux \
-  ../../../helm/flux/
+  ../../../helm/charts/flux/
 ```
 
 Don't worry if the `kustomize` command fails, Flux will take care of the rest.

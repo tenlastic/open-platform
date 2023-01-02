@@ -17,5 +17,5 @@
   "npmClient": "npm",
   "packages": ["applications/*", "modules/*"],
   "tagVersionPrefix": "angular-v",
-  "version": "0.0.299"
+  "version": "0.0.300"
 }
