@@ -43,7 +43,6 @@ describe('/nodejs/namespace/workflows', function () {
       cpu: 0.1,
       memory: 100 * 1000 * 1000,
       name: chance.hash({ length: 64 }),
-      namespaceId: namespace._id,
       preemptible: true,
       spec: {
         entrypoint: 'entrypoint',

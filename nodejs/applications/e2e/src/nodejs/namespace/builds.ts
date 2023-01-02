@@ -63,7 +63,6 @@ describe('/nodejs/namespace/builds', function () {
       JSON.stringify({
         entrypoint: 'Dockerfile',
         name: chance.hash({ length: 64 }),
-        namespaceId: namespace._id,
         platform: IBuild.Platform.Server64,
       } as BuildModel),
     );

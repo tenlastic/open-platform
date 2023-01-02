@@ -50,16 +50,15 @@ describe('/nodejs/namespace/collections', function () {
         type: 'object',
       },
       name: chance.hash({ length: 64 }),
-      namespaceId: namespace._id,
       permissions: {
-        create: { default: ['properties.*'] },
-        delete: { default: true },
-        find: { default: {} },
+        create: { public: ['properties.*'] },
+        delete: { public: true },
+        find: { public: {} },
         read: {
-          default: ['_id', 'collectionId', 'createdAt', 'properties.*', 'namespaceId', 'updatedAt'],
+          public: ['_id', 'collectionId', 'createdAt', 'properties.*', 'namespaceId', 'updatedAt'],
         },
-        roles: [],
-        update: { default: ['properties.*'] },
+        roles: { public: {} },
+        update: { public: ['properties.*'] },
       },
     });
 

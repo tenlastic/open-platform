@@ -75,6 +75,11 @@ export class LayoutComponent implements OnInit {
         const currentUrl = this.getUrl(e.url);
         const previousUrl = this.getUrl(this.previousUrl);
 
+        // Don't affect authentication pages.
+        if (currentUrl === 'authentication') {
+          return;
+        }
+
         if (currentUrl !== previousUrl) {
           this.urls.set(previousUrl, this.previousUrl);
 

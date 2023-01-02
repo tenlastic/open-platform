@@ -80,7 +80,7 @@ describe('/angular/namespace/builds', () => {
     ];
 
     await helpers.waitForXPath(page, `//mat-form-field[${criteria.join(' and ')}]`, {
-      timeout: 30 * 1000,
+      timeout: 60 * 1000,
     });
   });
 
@@ -108,7 +108,7 @@ describe('/angular/namespace/builds', () => {
     ]);
     await fileChooser.accept(['./fixtures/Dockerfile']);
 
-    const dockerfileInput = await helpers.getInputByLabel('Dockerfile', page);
+    const dockerfileInput = await helpers.getInputByLabel('Entrypoint', page);
     await helpers.type(dockerfileInput, page, 'Dockerfile');
 
     await helpers.sleep(1000);

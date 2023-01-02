@@ -3,7 +3,6 @@ import { expect } from 'chai';
 import * as Chance from 'chance';
 import * as fs from 'fs';
 import * as puppeteer from 'puppeteer';
-import { URL } from 'url';
 
 import dependencies from '../../dependencies';
 import { step } from '../../step';
@@ -85,7 +84,7 @@ describe('/angular/namespace/game-servers', () => {
     ];
 
     await helpers.waitForXPath(page, `//mat-form-field[${criteria.join(' and ')}]`, {
-      timeout: 30 * 1000,
+      timeout: 60 * 1000,
     });
   });
 
@@ -137,7 +136,7 @@ describe('/angular/namespace/game-servers', () => {
     const button = await helpers.getButtonByText(page, 'Builds');
     await helpers.clickAndNavigate(button, page, 'Builds | Tenlastic');
 
-    const publishButton = await helpers.getButtonByIcon('visibility', page);
+    const publishButton = await helpers.getButtonByTooltip(page, 'Publish');
     await publishButton.click();
   });
 
@@ -166,18 +165,19 @@ describe('/angular/namespace/game-servers', () => {
     ];
 
     await helpers.waitForXPath(page, `//mat-form-field[${criteria.join(' and ')}]`, {
-      timeout: 30 * 1000,
+      timeout: 60 * 1000,
     });
   });
 
   step('allows connections', async function () {
-    const tcpInput = await helpers.getInputByLabel('TCP', page);
-    const tcpValue = await page.evaluate((ti) => ti.value, tcpInput);
-    const http = tcpValue.replace('tcp', 'http');
-    const url = new URL(http);
-    url.hostname = url.hostname === '127.0.0.1' ? 'kubernetes.local.tenlastic.com' : url.hostname;
+    const externalIpInput = await helpers.getInputByLabel('External IP', page);
+    const externalIp = await page.evaluate((ti) => ti.value, externalIpInput);
+    const externalPortInput = await helpers.getInputByLabel('External Port', page);
+    const externalPort = await page.evaluate((ti) => ti.value, externalPortInput);
 
-    const response = await axios({ method: 'get', url: url.href });
+    const hostname = externalIp === '127.0.0.1' ? 'kubernetes.local.tenlastic.com' : externalIp;
+
+    const response = await axios({ method: 'get', url: `http://${hostname}:${externalPort}` });
     expect(response.data).to.include('Welcome to echo-server!');
   });
 
@@ -185,7 +185,7 @@ describe('/angular/namespace/game-servers', () => {
     const button = await helpers.getButtonByText(page, 'Game Servers');
     await helpers.clickAndNavigate(button, page, 'Game Servers | Tenlastic');
 
-    const logsButton = await helpers.getButtonByIcon('subject', page);
+    const logsButton = await helpers.getButtonByTooltip(page, 'Logs');
     await logsButton.click();
 
     await helpers.waitForXPath(

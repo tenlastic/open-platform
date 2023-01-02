@@ -1,6 +1,7 @@
 import {
   BuildModel,
   GameServerModel,
+  GameServerTemplateModel,
   IBuild,
   IGameServer,
   Jwt,
@@ -26,8 +27,9 @@ use(chaiAsPromised);
 
 describe('/nodejs/namespace/queues', function () {
   let build: BuildModel;
-  let queue: QueueModel;
+  let gameServerTemplate: GameServerTemplateModel;
   let namespace: NamespaceModel;
+  let queue: QueueModel;
 
   after(async function () {
     await dependencies.namespaceService.delete(namespace._id);
@@ -92,17 +94,22 @@ describe('/nodejs/namespace/queues', function () {
     expect(phase).to.eql('Succeeded');
   });
 
-  step('creates a Queue', async function () {
-    const name = chance.hash({ length: 64 });
-
-    const gameServerTemplate = await dependencies.gameServerTemplateService.create(namespace._id, {
+  step('creates a Game Server Template', async function () {
+    gameServerTemplate = await dependencies.gameServerTemplateService.create(namespace._id, {
       buildId: build._id,
       cpu: 0.1,
-      memory: 100 * 1000 * 1000,
-      name,
+      memory: 500 * 1000 * 1000,
+      name: chance.hash({ length: 64 }),
       ports: [{ port: 7777, protocol: IGameServer.Protocol.Tcp }],
       preemptible: true,
     });
+
+    expect(gameServerTemplate).to.exist;
+  });
+
+  step('creates a Queue', async function () {
+    const name = chance.hash({ length: 64 });
+
     queue = await dependencies.queueService.create(namespace._id, {
       cpu: 0.1,
       gameServerTemplateId: gameServerTemplate._id,
@@ -168,9 +175,7 @@ describe('/nodejs/namespace/queues', function () {
       });
 
       expect(gameServer.buildId).to.eql(build._id);
-      expect(gameServer.metadata.teamAssignments).to.eql(user._id);
-      expect(gameServer.metadata.teams).to.eql(1);
-      expect(gameServer.metadata.usersPerTeam).to.eql(1);
+      expect(gameServer.matchId).to.exist;
       expect(gameServer.queueId).to.eql(queue._id);
 
       const queueMembers = await dependencies.queueMemberService.find(namespace._id, {

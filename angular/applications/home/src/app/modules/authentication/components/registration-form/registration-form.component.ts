@@ -62,7 +62,7 @@ export class RegistrationFormComponent implements OnInit {
         this.confirmPassword,
       ),
       username: new FormControl('', [
-        Validators.pattern(/^[A-Za-z0-9]{0,20}$/),
+        Validators.pattern(/^[A-Za-z0-9]{0,24}$/),
         Validators.required,
       ]),
     });

@@ -64,7 +64,6 @@ describe('/nodejs/namespace/game-servers', function () {
       JSON.stringify({
         entrypoint: 'Dockerfile',
         name: chance.hash({ length: 64 }),
-        namespaceId: namespace._id,
         platform: IBuild.Platform.Server64,
       } as BuildModel),
     );
@@ -89,9 +88,8 @@ describe('/nodejs/namespace/game-servers', function () {
       cpu: 0.1,
       memory: 500 * 1000 * 1000,
       name: chance.hash({ length: 64 }),
-      namespaceId: namespace._id,
-      preemptible: true,
       ports: [{ port: 7777, protocol: IGameServer.Protocol.Tcp }],
+      preemptible: true,
     });
 
     expect(gameServer).to.exist;

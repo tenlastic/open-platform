@@ -80,7 +80,7 @@ describe('/angular/namespace/workflows', () => {
     ];
 
     await helpers.waitForXPath(page, `//mat-form-field[${criteria.join(' and ')}]`, {
-      timeout: 30 * 1000,
+      timeout: 60 * 1000,
     });
   });
 

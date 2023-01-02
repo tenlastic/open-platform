@@ -18,7 +18,7 @@ export async function handler(ctx: Context) {
   namespace.checkStorageLimit(0);
   const limit = namespace.limits.storage - namespace.status.limits.storage;
 
-  const build = new BuildModel();
+  const build = new BuildModel({ ...ctx.params });
   await new Promise((resolve, reject) => {
     const busboy = Busboy({ headers: ctx.request.headers, limits: { files: 1, fileSize: limit } });
     let promise = Promise.resolve('');
@@ -63,7 +63,11 @@ export async function handler(ctx: Context) {
 
   try {
     const credentials = { ...ctx.state };
-    const result = await BuildPermissions.create(credentials, { _id: build._id }, build.toObject());
+    const result = await BuildPermissions.create(
+      credentials,
+      { ...ctx.params, _id: build._id },
+      build.toObject(),
+    );
     const record = await BuildPermissions.read(credentials, result);
 
     ctx.response.body = { record };

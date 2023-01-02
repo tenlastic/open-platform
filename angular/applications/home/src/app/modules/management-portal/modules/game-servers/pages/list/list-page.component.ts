@@ -44,6 +44,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
   public dataSource = new MatTableDataSource<GameServerModel>();
   public displayedColumns = ['name', 'description', 'build', 'status', 'actions'];
   public hasWriteAuthorization: boolean;
+  public message: string;
   public get queueId() {
     return this.params?.queueId;
   }
@@ -164,6 +165,8 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
   }
 
   private async fetchGameServers(params: Params) {
+    this.message = 'Loading...';
+
     this.$gameServers = this.gameServerQuery.selectAll({
       filterBy: (gs) =>
         gs.namespaceId === params.namespaceId &&
@@ -186,6 +189,8 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
     await this.buildService.find(params.namespaceId, {
       where: { _id: { $in: gameServers.map((gs) => gs.buildId) } },
     });
+
+    this.message = null;
   }
 
   private getNodes(gameServer: GameServerModel) {

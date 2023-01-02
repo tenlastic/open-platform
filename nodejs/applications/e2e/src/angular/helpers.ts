@@ -16,14 +16,21 @@ export async function clickAndNavigate(element: ElementHandle, page: Page, title
 }
 
 export async function getButtonByIcon(icon: string, page: Page, timeout = 2500) {
-  const selector = `//app-button//a[not(@disabled) and .//mat-icon[text() = '${icon}']]`;
+  const selector = `//app-button//button[not(@disabled) and .//mat-icon[text() = '${icon}']]`;
   await waitForXPath(page, selector, { timeout });
   const elements = await page.$x(selector);
   return elements[0];
 }
 
 export async function getButtonByText(page: Page, text: string, timeout = 2500) {
-  const selector = `//app-button//a[not(@disabled) and .//div[contains(text(), '${text}')]]`;
+  const selector = `//app-button//button[not(@disabled) and .//div[contains(text(), '${text}')]]`;
+  await waitForXPath(page, selector, { timeout });
+  const elements = await page.$x(selector);
+  return elements[0];
+}
+
+export async function getButtonByTooltip(page: Page, tooltip: string, timeout = 2500) {
+  const selector = `//app-button[@matTooltip='${tooltip}']//button[not(@disabled)]`;
   await waitForXPath(page, selector, { timeout });
   const elements = await page.$x(selector);
   return elements[0];

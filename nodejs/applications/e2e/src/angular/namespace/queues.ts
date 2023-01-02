@@ -82,7 +82,7 @@ describe('/angular/namespace/queues', () => {
     ];
 
     await helpers.waitForXPath(page, `//mat-form-field[${criteria.join(' and ')}]`, {
-      timeout: 30 * 1000,
+      timeout: 60 * 1000,
     });
   });
 
@@ -134,8 +134,26 @@ describe('/angular/namespace/queues', () => {
     const button = await helpers.getButtonByText(page, 'Builds');
     await helpers.clickAndNavigate(button, page, 'Builds | Tenlastic');
 
-    const publishButton = await helpers.getButtonByIcon('visibility', page);
+    const publishButton = await helpers.getButtonByTooltip(page, 'Publish');
     await publishButton.click();
+  });
+
+  step('navigates to the Game Server Templates page', async function () {
+    const button = await helpers.getButtonByText(page, 'Game Server Templates');
+    await helpers.clickAndNavigate(button, page, 'Game Server Templates | Tenlastic');
+  });
+
+  step('navigates to the New Game Server Template page', async function () {
+    const button = await helpers.getButtonByText(page, 'New Game Server Template');
+    await helpers.clickAndNavigate(button, page, 'New Game Server Template | Tenlastic');
+  });
+
+  step('creates a Game Server Template', async function () {
+    const nameInput = await helpers.getInputByLabel('Name', page);
+    await helpers.type(nameInput, page, queue);
+
+    const button = await helpers.getButtonByText(page, 'Save');
+    await helpers.clickAndNavigate(button, page, 'Edit Game Server Template | Tenlastic');
   });
 
   step('navigates to the Queues page', async function () {
@@ -151,6 +169,18 @@ describe('/angular/namespace/queues', () => {
   step('creates a Queue', async function () {
     const nameInput = await helpers.getInputByLabel('Name', page);
     await helpers.type(nameInput, page, queue);
+
+    const gameServerTemplateDropdown = await helpers.getDropdownByLabel(
+      'Game Server Template',
+      page,
+    );
+    await gameServerTemplateDropdown.click();
+
+    const gameServerTemplateOption = await helpers.getElementByXPath(
+      page,
+      `//mat-option[span[contains(text(), '${queue}')]]`,
+    );
+    await gameServerTemplateOption.click();
 
     const button = await helpers.getButtonByText(page, 'Save');
     await helpers.clickAndNavigate(button, page, 'Edit Queue | Tenlastic');
@@ -171,13 +201,11 @@ describe('/angular/namespace/queues', () => {
     const button = await helpers.getButtonByText(page, 'Queues');
     await helpers.clickAndNavigate(button, page, 'Queues | Tenlastic');
 
-    const logsButton = await helpers.getButtonByIcon('subject', page);
+    const logsButton = await helpers.getButtonByTooltip(page, 'Logs');
     await logsButton.click();
 
-    await helpers.waitForXPath(
-      page,
-      `//app-logs-dialog//div[contains(., 'Koa server running on port 3000.')]`,
-      { timeout: 2500 },
-    );
+    await helpers.waitForXPath(page, `//app-logs-dialog//div[contains(., 'Connected to Redis.')]`, {
+      timeout: 2500,
+    });
   });
 });
