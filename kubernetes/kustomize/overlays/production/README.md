@@ -17,6 +17,13 @@ helm install \
   -n static \
   flux \
   ../../../helm/charts/flux/
+
+# Apply the Open Platform repository and kustomization.
+kubectl apply -f ../../base/static/flux/open-platform.gitrepository.yaml
+kubectl apply -f ./static/flux/open-platform.kustomization.yaml
+
+# Apply initial kustomization.
+kustomize build ./ | kubectl apply -f -
 ```
 
 Don't worry if the `kustomize` command fails, Flux will take care of the rest.
