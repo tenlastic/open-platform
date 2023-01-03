@@ -1,4 +1,4 @@
-FROM nginx:latest
+FROM nginx:alpine
 
 # Redirect all paths to index.html to enable Angular routing.
 RUN sed -i \

@@ -39,11 +39,11 @@ spec:
           livenessProbe:
             httpGet:
               path: /swagger/api.json
-              port: 3000
+              port: 80
             initialDelaySeconds: 30
             periodSeconds: 30
           ports:
-            - containerPort: 3000
+            - containerPort: 80
           resources:
             requests:
               cpu: 25m
