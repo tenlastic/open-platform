@@ -17,6 +17,7 @@ import {
   StorefrontModel,
   syncIndexes,
   UserModel,
+  WebSocketModel,
 } from '@tenlastic/mongoose';
 import { getModelForClass } from '@typegoose/typegoose';
 
@@ -45,6 +46,7 @@ const SchemaModel = getModelForClass(SchemaSchema);
       syncIndexes(SchemaModel),
       syncIndexes(StorefrontModel),
       syncIndexes(UserModel),
+      syncIndexes(WebSocketModel),
     ]);
     console.log('Indexes synced successfully!');
 
@@ -62,6 +64,7 @@ const SchemaModel = getModelForClass(SchemaSchema);
       SchemaModel.sync(QueueMemberModel),
       SchemaModel.sync(StorefrontModel),
       SchemaModel.sync(UserModel),
+      SchemaModel.sync(WebSocketModel),
     ]);
     console.log('Schemas synced successfully!');
 
@@ -83,6 +86,7 @@ const SchemaModel = getModelForClass(SchemaSchema);
       enablePrePostImages(QueueMemberModel),
       enablePrePostImages(StorefrontModel),
       enablePrePostImages(UserModel),
+      enablePrePostImages(WebSocketModel),
     ]);
     console.log('Document Pre- and Post-Images enabled successfully!');
 
