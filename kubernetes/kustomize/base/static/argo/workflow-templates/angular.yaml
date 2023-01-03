@@ -87,12 +87,18 @@ spec:
           - name: branch
       parallelism: 5
       steps:
-        - - name: bootstrap
+        - - name: bootstrap-angular
             template: bootstrap
             arguments:
               parameters:
                 - name: workingDir
                   value: /workspace/open-platform/angular/
+        - - name: bootstrap-nodejs
+            template: bootstrap
+            arguments:
+              parameters:
+                - name: workingDir
+                  value: /workspace/open-platform/nodejs/
         - - name: continuous-integration
             template: continuous-integration
         - - name: publish-npm-modules
