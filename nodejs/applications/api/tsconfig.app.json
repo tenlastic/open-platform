@@ -7,7 +7,7 @@
     "rootDir": "./"
   },
   "exclude": ["./src/**/*.spec.ts"],
-  "include": ["package.json", "./src"],
+  "include": ["./package.json", "./src"],
   "references": [
     { "path": "../../modules/kubernetes/tsconfig.app.json" },
     { "path": "../../modules/logging/tsconfig.app.json" },

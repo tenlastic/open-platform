@@ -11,4 +11,4 @@ RUN npm i --production --registry "https://verdaccio.tenlastic.com"
 COPY ./dist/ ./dist/
 
 EXPOSE 3000
-CMD [ "node", "./dist/src/index.js" ]
+CMD ["node", "./dist/src/entrypoint.js"]

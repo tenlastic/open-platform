@@ -10,4 +10,4 @@ COPY ./package*.json ./
 RUN npm i --production --registry "https://verdaccio.tenlastic.com"
 COPY ./dist/ ./dist/
 
-CMD [ "node", "./dist/entrypoint.js" ]
+CMD ["node", "./dist/entrypoint.js"]

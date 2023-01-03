@@ -11,4 +11,4 @@ tsc -p ./tsconfig.app.json
 
 # Copy non-Typescript files.
 cd ./src/
-find . -type f -not -name \*.ts -exec cp --parents '{}' '../dist' ';'
+find . -type f -not -name \*.ts -exec cp --parents '{}' '../dist/src/' ';'
