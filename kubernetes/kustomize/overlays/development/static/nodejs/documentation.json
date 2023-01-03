@@ -18,13 +18,13 @@
       "livenessProbe": {
         "httpGet": {
           "path": "/swagger/api.json",
-          "port": 3000
+          "port": 80
         },
         "initialDelaySeconds": 30,
         "periodSeconds": 30
       },
       "name": "documentation",
-      "ports": [{ "containerPort": 3000 }],
+      "ports": [{ "containerPort": 80 }],
       "resources": {
         "limits": { "cpu": "1000m" },
         "requests": { "cpu": "100m" }

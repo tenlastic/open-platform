@@ -91,7 +91,7 @@ spec:
               service:
                 name: documentation
                 port:
-                  number: 3000
+                  number: 80
           - path: /web-sockets
             pathType: Prefix
             backend:
