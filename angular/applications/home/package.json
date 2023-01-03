@@ -1,7 +1,7 @@
 {
   "main": "./dist/electron/main.js",
   "name": "@tenlastic/home-ui",
-  "version": "0.0.300",
+  "version": "0.0.301",
   "scripts": {
     "build": "ng build --configuration production --preserve-symlinks home",
     "build:electron": "ng build --base-href ./ --configuration electron --preserve-symlinks home",
