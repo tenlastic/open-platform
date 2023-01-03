@@ -43,9 +43,6 @@ spec:
         - name: api
           policy: none
           purge: "false"
-        - name: argo
-          policy: none
-          purge: "false"
         - name: docker-registry
           policy: none
           purge: "false"

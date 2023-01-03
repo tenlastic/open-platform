@@ -89,7 +89,6 @@ spec:
               cpu: 50m
           source: |
             if [ "$(kubectl get pods -n static --field-selector status.phase=Failed)" -ge 1 ]; then
-              kubectl get pods -n static --field-selector status.phase=Failed | \
-                awk '{print $2}' | \
-                xargs kubectl delete pod -n static
+              kubectl get pods -n static -o name --field-selector status.phase=Failed | \
+                xargs kubectl delete -n static
             fi
