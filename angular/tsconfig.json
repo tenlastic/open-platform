@@ -15,6 +15,7 @@
     "moduleResolution": "node",
     "paths": {
       "@tenlastic/http": ["../nodejs/modules/http/src"],
+      "@tenlastic/wait": ["../nodejs/modules/wait/src"],
       "path": ["./node_modules/path-browserify"]
     },
     "resolveJsonModule": true,
