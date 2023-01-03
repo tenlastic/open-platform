@@ -85,7 +85,7 @@ describe('CollectionsFormPageComponent', () => {
         expect(formGroup.get('operator').value).toEqual('$eq');
         expect(formGroup.get('type').value).toEqual('value');
         expect(formGroup.get('value.boolean').value).toEqual(false);
-        expect(formGroup.get('value.number').value).toEqual('0');
+        expect(formGroup.get('value.number').value).toEqual(0);
         expect(formGroup.get('value.string').value).toEqual('test');
       });
     });
