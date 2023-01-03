@@ -5,6 +5,7 @@ set -e
 mkdir -p /root/.ssh/
 ssh-keyscan -t rsa github.com > /root/.ssh/known_hosts
 cp /tmp/secrets/continuous-deployment/id_rsa /root/.ssh/id_rsa
+chmod 600 /root/.ssh/id_rsa
 
 # Update Git Credentials.
 git config --global url."ssh://git@github.com".insteadOf "https://github.com" || true
@@ -15,7 +16,7 @@ git config user.name $GITHUB_USER_NAME
 # Publish Node Modules to NPM.
 echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
 npm config set unsafe-perm true
-lerna publish --no-push --yes patch
+lerna publish --concurrency 1 --no-push --yes patch
 
 # Commit changes to Git.
 git pull origin master

@@ -40,8 +40,6 @@ export namespace IBuild {
 }
 
 export class BuildModel extends BaseModel {
-  public _id: string;
-  public createdAt: Date;
   public entrypoint: string;
   public files: IBuild.File[];
   public name: string;
@@ -50,7 +48,6 @@ export class BuildModel extends BaseModel {
   public publishedAt: Date;
   public reference: IBuild.Reference;
   public status: IWorkflow.Status;
-  public updatedAt: Date;
 
   constructor(parameters?: Partial<BuildModel>) {
     super(parameters);

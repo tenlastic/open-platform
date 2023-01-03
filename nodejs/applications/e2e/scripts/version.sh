@@ -1,8 +1,7 @@
 #!/bin/bash
 set -e
 
-DIRECTORY="${1}"
-FILE="../../../kubernetes/kustomize/base/static/nodejs/${DIRECTORY}.yaml"
+FILE="../../../kubernetes/kustomize/overlays/production/static/argo/cron-workflows/e2e.yaml"
 VERSION=$(node -p "require('./package.json').version")
 
 # Bump image to the most recent version.

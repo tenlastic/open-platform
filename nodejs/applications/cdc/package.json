@@ -3,25 +3,25 @@
     "node": "^14"
   },
   "license": "Apache-2.0",
-  "main": "./dist/index.js",
   "name": "@tenlastic/cdc",
-  "version": "0.0.315",
+  "private": true,
+  "version": "0.0.318",
   "scripts": {
     "build": "../../scripts/build.sh",
     "lint": "../../scripts/lint.sh",
     "start": "../../scripts/start.sh --watch",
     "test": "../../scripts/test.sh",
     "test:watch": "../../scripts/test.sh --watch",
-    "version": "../../scripts/version.sh cdc"
+    "version": "./scripts/version.sh"
   },
   "dependencies": {
-    "@tenlastic/mongoose": "0.0.315",
-    "@tenlastic/nats": "0.0.315",
-    "@tenlastic/redis": "0.0.315",
+    "@tenlastic/mongoose": "0.0.318",
+    "@tenlastic/nats": "0.0.318",
+    "@tenlastic/redis": "0.0.318",
     "source-map-support": "0.5.12"
   },
   "devDependencies": {
-    "@tenlastic/mongoose-nats": "0.0.315",
+    "@tenlastic/mongoose-nats": "0.0.318",
     "eslint": "^7.26.0",
     "mocha": "7.1.2",
     "nyc": "15.0.0",

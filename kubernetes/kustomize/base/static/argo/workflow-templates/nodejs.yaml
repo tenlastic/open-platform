@@ -182,6 +182,7 @@ spec:
           mkdir -p /root/.ssh/
           ssh-keyscan -t rsa github.com > /root/.ssh/known_hosts
           cp /tmp/secrets/continuous-deployment/id_rsa /root/.ssh/id_rsa
+          chmod 600 /root/.ssh/id_rsa
 
           # Use SSH instead of HTTPS.
           git config --global url."ssh://git@github.com".insteadOf "https://github.com" || true
@@ -220,7 +221,7 @@ spec:
         workingDir: /workspace/open-platform/nodejs/
       sidecars:
         - name: mongodb
-          image: bitnami/mongodb:5.0.9
+          image: bitnami/mongodb:6.0.2
           imagePullPolicy: IfNotPresent
           env:
             - name: MONGODB_ADVERTISED_HOSTNAME
@@ -246,6 +247,18 @@ spec:
             - /bin/sh
             - -c
             - trap "exit 0" SIGKILL && docker-entrypoint.sh --js
+        - name: redis
+          image: bitnami/redis:6.2.7
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: REDIS_PASSWORD
+              value: password
+        - name: redis-sentinel
+          image: bitnami/redis-sentinel:6.2.7
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: REDIS_MASTER_HOST
+              value: localhost
 
     - name: get-branch
       script:

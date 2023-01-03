@@ -114,9 +114,7 @@ export namespace IWorkflow {
 }
 
 export class WorkflowModel extends BaseModel {
-  public _id: string;
   public cpu: number;
-  public createdAt: Date;
   public preemptible: boolean;
   public memory: number;
   public name: string;
@@ -124,7 +122,6 @@ export class WorkflowModel extends BaseModel {
   public spec: IWorkflow.Spec;
   public status: IWorkflow.Status;
   public storage: number;
-  public updatedAt: Date;
 
   constructor(parameters?: Partial<WorkflowModel>) {
     super(parameters);

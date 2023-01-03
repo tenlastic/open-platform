@@ -1,5 +1,4 @@
 import { BaseModel } from './base';
-import { IGameServer } from './game-server';
 
 export namespace IQueue {
   export const Cpu = [
@@ -25,16 +24,6 @@ export namespace IQueue {
   export enum StatusComponentName {
     Application = 'Application',
     Sidecar = 'Sidecar',
-  }
-
-  export interface GameServerTemplate {
-    buildId: string;
-    cpu: number;
-    memory: number;
-    metadata?: any;
-    ports?: IGameServer.Port[];
-    preemptible: boolean;
-    probes?: IGameServer.Probes;
   }
 
   export interface Status {

@@ -99,6 +99,7 @@ spec:
           mkdir -p /root/.ssh/
           ssh-keyscan -t rsa github.com > /root/.ssh/known_hosts
           cp /tmp/secrets/continuous-deployment/id_rsa /root/.ssh/id_rsa
+          chmod 600 /root/.ssh/id_rsa
 
           # Use SSH instead of HTTPS.
           git config --global url."ssh://git@github.com".insteadOf "https://github.com" || true
