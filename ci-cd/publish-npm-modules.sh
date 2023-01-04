@@ -18,6 +18,11 @@ echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
 npm config set unsafe-perm true
 lerna publish --concurrency 1 --no-push --yes patch
 
+# Update package locks.
+lerna exec -- npm install --package-lock-only
+git add .
+git commit --amend --no-edit --no-verify
+
 # Commit changes to Git.
 git pull origin master
 git push --atomic --follow-tags --no-verify origin master
