@@ -19,6 +19,7 @@
     "version": "../../scripts/version.sh home-ui"
   },
   "dependencies": {
+    "@electron/remote": "2.0.8",
     "@tenlastic/http": "^0.0.320",
     "axios": "0.27.2",
     "electron-log": "4.0.2",

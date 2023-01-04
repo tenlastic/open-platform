@@ -32,6 +32,7 @@
   text-align: center;
   width: max-content;
 
+  &[alert='info'] a.mat-button,
   &[alert='info'] button.mat-button {
     padding: 6px 12px;
 
@@ -53,11 +54,13 @@
     display: block;
   }
 
+  &[mat-icon-button] a.mat-button,
   &[mat-icon-button] button.mat-button {
     min-width: 0px;
     padding: 2px 8px;
   }
 
+  &[text='left'] a.mat-button,
   &[text='left'] button.mat-button {
     text-align: left;
 
@@ -75,12 +78,15 @@
   &[width='full'] {
     width: 100%;
 
+    a.mat-button,
     button.mat-button {
       width: 100%;
     }
   }
 
   &.active {
+    a.mat-button[color='accent'],
+    a.mat-button[color='accent']:hover,
     button.mat-button[color='accent'],
     button.mat-button[color='accent']:hover {
       background: rgba(255, 255, 255, 0.2);
@@ -96,6 +102,7 @@
     }
   }
 
+  a.mat-button,
   button.mat-button {
     border-radius: 0px;
     display: block;

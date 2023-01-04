@@ -1,12 +1,28 @@
-<button [attr.color]="color"
-        [attr.form]="form"
-        [attr.href]="href"
-        [attr.layout]="layout"
-        [attr.size]="size"
-        [attr.target]="target"
-        (click)="OnClick.emit($event)"
-        [disabled]="disabled"
-        mat-button
-        [type]="form ? 'submit' : 'button'">
-  <ng-content></ng-content>
-</button>
+<ng-container *ngIf="href">
+  <a [attr.color]="color"
+     [attr.form]="form"
+     [attr.href]="href"
+     [attr.layout]="layout"
+     [attr.size]="size"
+     [attr.target]="target"
+     (click)="OnClick.emit($event)"
+     [disabled]="disabled"
+     mat-button>
+    <ng-container *ngTemplateOutlet="content"></ng-container>
+  </a>
+</ng-container>
+
+<ng-container *ngIf="!href">
+  <button [attr.color]="color"
+          [attr.form]="form"
+          [attr.layout]="layout"
+          [attr.size]="size"
+          (click)="OnClick.emit($event)"
+          [disabled]="disabled"
+          mat-button
+          [type]="form ? 'submit' : 'button'">
+    <ng-container *ngTemplateOutlet="content"></ng-container>
+  </button>
+</ng-container>
+
+<ng-template #content><ng-content></ng-content></ng-template>
