@@ -7,7 +7,7 @@ RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key
   apt-get install -qy google-chrome-stable
 
 # Install Lerna.
-RUN npm i -g lerna
+RUN npm install -g lerna
 
 # Install mc (minio client).
 RUN wget https://dl.min.io/client/mc/release/linux-amd64/mc -O mc && \

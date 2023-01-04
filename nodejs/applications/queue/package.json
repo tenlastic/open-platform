@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "name": "@tenlastic/queue",
   "private": true,
-  "version": "0.0.324",
+  "version": "0.0.325",
   "scripts": {
     "build": "../../scripts/build.sh",
     "lint": "../../scripts/lint.sh",
@@ -14,9 +14,9 @@
     "test:watch": "../../scripts/test.sh --watch"
   },
   "dependencies": {
-    "@tenlastic/dependency-injection": "0.0.324",
-    "@tenlastic/http": "0.0.324",
-    "@tenlastic/redis": "0.0.324",
+    "@tenlastic/dependency-injection": "0.0.325",
+    "@tenlastic/http": "0.0.325",
+    "@tenlastic/redis": "0.0.325",
     "axios": "0.27.2",
     "source-map-support": "0.5.12"
   },
