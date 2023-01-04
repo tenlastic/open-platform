@@ -1,41 +1,16 @@
 {
   "$schema": "node_modules/@angular/cli/lib/config/schema.json",
-  "version": 1,
-  "newProjectRoot": "modules",
+  "cli": {
+    "analytics": "fb2676a1-46f6-433b-8d97-92756ca071fe",
+    "schematicCollections": ["@angular-eslint/schematics"]
+  },
+  "newProjectRoot": "applications",
   "projects": {
     "home": {
-      "projectType": "application",
-      "schematics": {
-        "@schematics/angular:component": {
-          "style": "scss"
-        }
-      },
-      "root": "applications/home",
-      "sourceRoot": "applications/home/src",
-      "prefix": "app",
       "architect": {
         "build": {
           "builder": "@angular-builders/custom-webpack:browser",
           "options": {
-            "outputPath": "applications/home/dist/angular/",
-            "index": "applications/home/src/index.html",
-            "main": "applications/home/src/main.ts",
-            "polyfills": "applications/home/src/polyfills.ts",
-            "tsConfig": "applications/home/tsconfig.app.json",
-            "aot": true,
-            "assets": ["applications/home/src/favicon.ico", "applications/home/src/assets"],
-            "styles": [
-              "node_modules/swagger-ui-dist/swagger-ui.css",
-              "applications/home/src/assets/scss/index.scss",
-              {
-                "input": "node_modules/@angular/material/prebuilt-themes/indigo-pink.css"
-              }
-            ],
-            "scripts": ["node_modules/marked/lib/marked.js"],
-            "customWebpackConfig": {
-              "path": "applications/home/electron.webpack.js"
-            },
-            "webWorkerTsConfig": "applications/home/tsconfig.worker.json",
             "allowedCommonJsDependencies": [
               "@tenlastic/wait",
               "events",
@@ -43,74 +18,99 @@
               "marked",
               "path",
               "spark-md5"
-            ]
+            ],
+            "aot": true,
+            "assets": ["applications/home/src/favicon.ico", "applications/home/src/assets"],
+            "index": "applications/home/src/index.html",
+            "main": "applications/home/src/main.ts",
+            "outputPath": "applications/home/dist/angular/",
+            "polyfills": "applications/home/src/polyfills.ts",
+            "scripts": ["node_modules/marked/lib/marked.js"],
+            "styles": [
+              "node_modules/swagger-ui-dist/swagger-ui.css",
+              "applications/home/src/assets/scss/index.scss",
+              {
+                "input": "node_modules/@angular/material/prebuilt-themes/indigo-pink.css"
+              }
+            ],
+            "tsConfig": "applications/home/tsconfig.app.json",
+            "webWorkerTsConfig": "applications/home/tsconfig.worker.json"
           },
           "configurations": {
             "development": {
+              "aot": true,
+              "buildOptimizer": false,
+              "extractLicenses": false,
+              "namedChunks": false,
               "optimization": false,
               "sourceMap": true,
-              "namedChunks": false,
-              "aot": true,
-              "extractLicenses": false,
-              "vendorChunk": false,
-              "buildOptimizer": false
+              "vendorChunk": false
             },
             "electron": {
+              "aot": true,
+              "budgets": [
+                {
+                  "maximumError": "10kb",
+                  "maximumWarning": "6kb",
+                  "type": "anyComponentStyle"
+                },
+                {
+                  "maximumError": "5mb",
+                  "maximumWarning": "3mb",
+                  "type": "initial"
+                }
+              ],
+              "buildOptimizer": true,
+              "customWebpackConfig": {
+                "path": "applications/home/electron.webpack.js"
+              },
+              "extractLicenses": true,
               "fileReplacements": [
                 {
                   "replace": "applications/home/src/environments/environment.ts",
                   "with": "applications/home/src/environments/environment.electron.ts"
                 }
               ],
+              "namedChunks": false,
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
-              "namedChunks": false,
-              "aot": true,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "3mb",
-                  "maximumError": "5mb"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
-                }
-              ]
+              "vendorChunk": false
             },
             "production": {
+              "aot": true,
+              "budgets": [
+                {
+                  "maximumError": "10kb",
+                  "maximumWarning": "6kb",
+                  "type": "anyComponentStyle"
+                },
+                {
+                  "maximumError": "5mb",
+                  "maximumWarning": "3mb",
+                  "type": "initial"
+                }
+              ],
+              "buildOptimizer": true,
+              "extractLicenses": true,
               "fileReplacements": [
                 {
                   "replace": "applications/home/src/environments/environment.ts",
                   "with": "applications/home/src/environments/environment.prod.ts"
                 }
               ],
+              "namedChunks": false,
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
-              "namedChunks": false,
-              "aot": true,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "3mb",
-                  "maximumError": "5mb"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
-                }
-              ]
+              "vendorChunk": false
             }
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": ["applications/home/**/*.ts", "applications/home/**/*.html"]
           }
         },
         "serve": {
@@ -125,35 +125,29 @@
           },
           "defaultConfiguration": "development"
         },
-        "extract-i18n": {
-          "builder": "@angular-devkit/build-angular:extract-i18n",
-          "options": {
-            "browserTarget": "home:build"
-          }
-        },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
+            "assets": ["applications/home/src/favicon.ico", "applications/home/src/assets"],
+            "karmaConfig": "applications/home/karma.conf.js",
             "main": "applications/home/src/test.ts",
             "polyfills": "applications/home/src/polyfills.ts",
-            "tsConfig": "applications/home/tsconfig.spec.json",
-            "karmaConfig": "applications/home/karma.conf.js",
-            "assets": ["applications/home/src/favicon.ico", "applications/home/src/assets"],
+            "scripts": [],
             "styles": ["applications/home/src/assets/scss/index.scss"],
-            "scripts": []
-          }
-        },
-        "lint": {
-          "builder": "@angular-eslint/builder:lint",
-          "options": {
-            "lintFilePatterns": ["applications/home/**/*.ts", "applications/home/**/*.html"]
+            "tsConfig": "applications/home/tsconfig.spec.json"
           }
         }
-      }
+      },
+      "prefix": "app",
+      "projectType": "application",
+      "root": "applications/home",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "sourceRoot": "applications/home/src"
     }
   },
-  "cli": {
-    "schematicCollections": ["@angular-eslint/schematics"],
-    "analytics": "fb2676a1-46f6-433b-8d97-92756ca071fe"
-  }
+  "version": 1
 }
