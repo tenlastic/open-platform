@@ -7,7 +7,7 @@ ENTRYPOINT ["/sbin/tini", "--"]
 # Set up NodeJS.
 WORKDIR /usr/src/
 COPY ./package*.json ./
-RUN npm i --production --registry "https://verdaccio.tenlastic.com"
+RUN npm ci --production --registry "https://verdaccio.tenlastic.com"
 COPY ./dist/ ./dist/
 
 CMD ["node", "./dist/entrypoint.js"]

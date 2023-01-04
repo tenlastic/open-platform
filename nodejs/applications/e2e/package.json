@@ -1,6 +1,6 @@
 {
   "engines": {
-    "node": "^14"
+    "node": "^16"
   },
   "license": "Apache-2.0",
   "name": "@tenlastic/e2e",

@@ -10,11 +10,10 @@
   "include": ["./src"],
   "references": [
     { "path": "../kubernetes/tsconfig.app.json" },
-    { "path": "../mongoose/tsconfig.app.json" },
     { "path": "../mongoose-nats/tsconfig.app.json" },
     { "path": "../mongoose-permissions/tsconfig.app.json" },
-    { "path": "../web-server/tsconfig.app.json" },
-    { "path": "../nats/tsconfig.app.json" }
+    { "path": "../nats/tsconfig.app.json" },
+    { "path": "../web-server/tsconfig.app.json" }
   ],
   "ts-node": {
     "files": true

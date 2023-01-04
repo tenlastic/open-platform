@@ -3,7 +3,7 @@ FROM node:16-alpine
 WORKDIR /usr/src/
 
 COPY ./package*.json ./
-RUN npm i --production --registry "https://verdaccio.tenlastic.com"
+RUN npm ci --production --registry "https://verdaccio.tenlastic.com"
 
 COPY ./dist/ ./dist/
 COPY ./fixtures/ ./fixtures/

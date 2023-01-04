@@ -8,12 +8,7 @@
   },
   "exclude": ["./src/**/*.spec.ts"],
   "include": ["./src"],
-  "references": [
-    { "path": "../../modules/dependency-injection/tsconfig.app.json" },
-    { "path": "../../modules/http/tsconfig.app.json" },
-    { "path": "../../modules/kubernetes/tsconfig.app.json" },
-    { "path": "../../modules/web-server/tsconfig.app.json" }
-  ],
+  "references": [{ "path": "../../modules/kubernetes/tsconfig.app.json" }],
   "ts-node": {
     "files": true
   }

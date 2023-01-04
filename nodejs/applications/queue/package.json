@@ -1,6 +1,6 @@
 {
   "engines": {
-    "node": "^14"
+    "node": "^16"
   },
   "license": "Apache-2.0",
   "name": "@tenlastic/queue",
@@ -17,7 +17,6 @@
     "@tenlastic/dependency-injection": "0.0.323",
     "@tenlastic/http": "0.0.323",
     "@tenlastic/redis": "0.0.323",
-    "@tenlastic/web-server": "0.0.323",
     "axios": "0.27.2",
     "source-map-support": "0.5.12"
   },

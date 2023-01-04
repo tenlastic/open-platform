@@ -1,6 +1,5 @@
 import 'source-map-support/register';
 
-import '@tenlastic/logging';
 import * as minio from '@tenlastic/minio';
 import * as mongoose from '@tenlastic/mongoose';
 import * as nats from '@tenlastic/mongoose-nats';

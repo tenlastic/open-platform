@@ -2,9 +2,6 @@ import * as cors from '@koa/cors';
 import { Server } from 'http';
 import * as koa from 'koa';
 import * as bodyParser from 'koa-bodyparser';
-import * as mount from 'koa-mount';
-import * as Router from 'koa-router';
-import * as serve from 'koa-static';
 
 import { apiKeyMiddleware, errorMiddleware, jwtMiddleware, queryMiddleware } from '../middleware';
 
@@ -30,16 +27,6 @@ export class WebServer {
     this.app.use(queryMiddleware);
     this.app.use(jwtMiddleware);
     this.app.use(apiKeyMiddleware);
-  }
-
-  public serve(directory = 'public', path = '/', root = 'index.html') {
-    // Redirect naked root URL to root document.
-    const router = new Router();
-    router.get(path, (ctx) => ctx.redirect(`${root}`));
-    this.app.use(router.routes());
-
-    // Serve static files from specified directory.
-    this.app.use(mount(path, serve(directory)));
   }
 
   public start(port = 3000) {
