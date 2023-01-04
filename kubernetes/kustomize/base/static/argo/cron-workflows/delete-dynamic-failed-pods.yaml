@@ -1,51 +1,3 @@
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: delete-dynamic-failed-pods
-  namespace: static
-rules:
-  - apiGroups:
-      - ""
-    resources:
-      - pods
-    verbs:
-      - get
-      - patch
-      - watch
-  - apiGroups:
-      - ""
-    resources:
-      - pods/exec
-    verbs:
-      - create
-  - apiGroups:
-      - ""
-    resources:
-      - pods/log
-    verbs:
-      - get
-      - watch
-  - apiGroups:
-      - ""
-    resources:
-      - secrets
-    verbs:
-      - get
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: delete-dynamic-failed-pods
-  namespace: static
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: delete-dynamic-failed-pods
-subjects:
-  - kind: ServiceAccount
-    name: delete-dynamic-failed-pods
-    namespace: static
----
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -86,7 +38,5 @@ spec:
             requests:
               cpu: 50m
           source: |
-            if [ "$(kubectl get pods -n dynamic --field-selector status.phase=Failed)" -ge 1 ]; then
-              kubectl get pods -n dynamic -o name --field-selector status.phase=Failed | \
-                xargs kubectl delete -n dynamic
-            fi
+            kubectl get pods -n dynamic -o name --field-selector status.phase=Failed | \
+              xargs kubectl delete -n dynamic

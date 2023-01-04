@@ -14,25 +14,6 @@ rules:
       - list
       - watch
       - patch
-  - apiGroups:
-      - ""
-    resources:
-      - pods/exec
-    verbs:
-      - create
-  - apiGroups:
-      - ""
-    resources:
-      - pods/log
-    verbs:
-      - get
-      - watch
-  - apiGroups:
-      - ""
-    resources:
-      - secrets
-    verbs:
-      - get
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -88,7 +69,5 @@ spec:
             requests:
               cpu: 50m
           source: |
-            if [ "$(kubectl get pods -n static --field-selector status.phase=Failed)" -ge 1 ]; then
-              kubectl get pods -n static -o name --field-selector status.phase=Failed | \
-                xargs kubectl delete -n static
-            fi
+            kubectl get pods -n static -o name --field-selector status.phase=Failed | \
+              xargs kubectl delete -n static
