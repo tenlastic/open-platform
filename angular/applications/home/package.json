@@ -1,6 +1,7 @@
 {
   "main": "./dist/electron/main.js",
   "name": "@tenlastic/home-ui",
+  "private": true,
   "version": "0.0.301",
   "scripts": {
     "build": "ng build --configuration production --preserve-symlinks home",
@@ -17,7 +18,6 @@
     "test:watch": "ng test --poll 5000 home",
     "version": "../../scripts/version.sh home-ui"
   },
-  "private": true,
   "dependencies": {
     "@tenlastic/http": "^0.0.320",
     "axios": "0.27.2",
