@@ -1,5 +1,11 @@
 @import 'src/assets/scss/theme.scss';
 
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
 mat-toolbar.mat-toolbar {
   background: rgba(0, 0, 0, 0.75);
   box-shadow: $box-shadow;
