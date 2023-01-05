@@ -6,7 +6,7 @@
     "type": "git",
     "url": "ssh://git@github.com/tenlastic/open-platform.git"
   },
-  "version": "0.0.326",
+  "version": "0.0.327",
   "publishConfig": {
     "access": "public"
   },
@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@datorama/akita": "6.2.4",
-    "@tenlastic/wait": "0.0.326",
+    "@tenlastic/wait": "0.0.327",
     "events": "3.3.0",
     "isomorphic-ws": "5.0.0",
     "uuid": "8.3.0"

@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "name": "@tenlastic/bandwidth-sidecar",
   "private": true,
-  "version": "0.0.326",
+  "version": "0.0.327",
   "scripts": {
     "build": "../../scripts/build.sh",
     "lint": "../../scripts/lint.sh",
@@ -14,10 +14,10 @@
     "test:watch": "../../scripts/test.sh --watch"
   },
   "dependencies": {
-    "@tenlastic/dependency-injection": "0.0.326",
-    "@tenlastic/http": "0.0.326",
-    "@tenlastic/pcap": "0.0.326",
-    "@tenlastic/web-server": "0.0.326",
+    "@tenlastic/dependency-injection": "0.0.327",
+    "@tenlastic/http": "0.0.327",
+    "@tenlastic/pcap": "0.0.327",
+    "@tenlastic/web-server": "0.0.327",
     "axios": "0.27.2"
   },
   "devDependencies": {
