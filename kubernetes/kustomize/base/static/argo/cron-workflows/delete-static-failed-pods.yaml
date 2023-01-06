@@ -69,5 +69,7 @@ spec:
             requests:
               cpu: 50m
           source: |
-            kubectl get pods -n static -o name --field-selector status.phase=Failed | \
-              xargs kubectl delete -n static
+            COMMAND="kubectl get pods -n static -o name --field-selector status.phase=Failed"
+            if [ "$($COMMAND | wc -l)" -gt 0 ]; then
+              $COMMAND | xargs kubectl delete -n static
+            fi

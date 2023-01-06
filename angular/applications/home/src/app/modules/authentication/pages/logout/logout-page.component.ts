@@ -1,7 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { Component, OnInit, Inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { LoginService, TokenService } from '@tenlastic/http';
+import { LoginService } from '@tenlastic/http';
 
 @Component({
   templateUrl: 'logout-page.component.html',
@@ -13,7 +13,6 @@ export class LogoutPageComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private loginService: LoginService,
     private router: Router,
-    private tokenService: TokenService,
   ) {}
 
   public ngOnInit() {
@@ -21,7 +20,6 @@ export class LogoutPageComponent implements OnInit {
   }
 
   private async logOut() {
-    this.tokenService.clear();
     await this.loginService.delete();
 
     const { snapshot } = this.activatedRoute;
