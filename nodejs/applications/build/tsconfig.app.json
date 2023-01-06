@@ -11,6 +11,7 @@
   "references": [
     { "path": "../../modules/dependency-injection/tsconfig.app.json" },
     { "path": "../../modules/http/tsconfig.app.json" },
+    { "path": "../../modules/logging/tsconfig.app.json" },
     { "path": "../../modules/minio/tsconfig.app.json" }
   ],
   "ts-node": {

@@ -1,11 +1,7 @@
-import { BaseModel } from './base';
+import { BaseLogModel } from './base-log';
 
-export class GameServerLogModel extends BaseModel {
-  public body: string;
-  public container: string;
+export class GameServerLogModel extends BaseLogModel {
   public gameServerId: string;
-  public pod: string;
-  public unix: number;
 
   constructor(parameters?: Partial<GameServerLogModel>) {
     super(parameters);

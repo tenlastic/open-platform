@@ -1,10 +1,6 @@
-import { BaseModel } from './base';
+import { BaseLogModel } from './base-log';
 
-export class WorkflowLogModel extends BaseModel {
-  public body: string;
-  public container: string;
-  public pod: string;
-  public unix: number;
+export class WorkflowLogModel extends BaseLogModel {
   public workflowId: string;
 
   constructor(parameters?: Partial<WorkflowLogModel>) {

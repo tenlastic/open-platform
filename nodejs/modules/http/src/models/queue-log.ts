@@ -1,11 +1,7 @@
-import { BaseModel } from './base';
+import { BaseLogModel } from './base-log';
 
-export class QueueLogModel extends BaseModel {
-  public body: string;
-  public container: string;
-  public pod: string;
+export class QueueLogModel extends BaseLogModel {
   public queueId: string;
-  public unix: number;
 
   constructor(parameters?: Partial<QueueLogModel>) {
     super(parameters);

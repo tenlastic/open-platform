@@ -1,4 +1,6 @@
 import 'source-map-support/register';
+import '@tenlastic/logging';
+
 import * as mongoose from '@tenlastic/mongoose';
 import * as nats from '@tenlastic/mongoose-nats';
 

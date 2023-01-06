@@ -1,11 +1,7 @@
-import { BaseModel } from './base';
+import { BaseLogModel } from './base-log';
 
-export class BuildLogModel extends BaseModel {
-  public body: string;
+export class BuildLogModel extends BaseLogModel {
   public buildId: string;
-  public container: string;
-  public pod: string;
-  public unix: number;
 
   constructor(parameters?: Partial<BuildLogModel>) {
     super(parameters);

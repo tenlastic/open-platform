@@ -16,6 +16,7 @@
   "dependencies": {
     "@tenlastic/dependency-injection": "0.0.331",
     "@tenlastic/http": "0.0.331",
+    "@tenlastic/logging": "0.0.331",
     "@tenlastic/pcap": "0.0.331",
     "@tenlastic/web-server": "0.0.331",
     "axios": "0.27.2"

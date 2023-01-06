@@ -1,3 +1,6 @@
+import 'source-map-support/register';
+import '@tenlastic/logging';
+
 import { V1ResourceQuota } from '@kubernetes/client-node';
 import { resourceQuotaApiV1 } from '@tenlastic/kubernetes';
 import * as minio from '@tenlastic/minio';

@@ -1,3 +1,38 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: aggregation-api
+  namespace: static
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - pods/log
+    verbs:
+      - get
+      - list
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: aggregation-api
+  namespace: static
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: aggregation-api
+subjects:
+  - kind: ServiceAccount
+    name: aggregation-api
+    namespace: static
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: aggregation-api
+  namespace: static
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -57,6 +92,7 @@ spec:
             requests:
               cpu: 25m
               memory: 75M
+      serviceAccountName: aggregation-api
 ---
 apiVersion: v1
 kind: Service

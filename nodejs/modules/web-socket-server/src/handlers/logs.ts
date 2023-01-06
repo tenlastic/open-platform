@@ -47,9 +47,18 @@ export async function logs(ctx: Context, Permissions: MongoosePermissions<any>) 
     { since: options.since, tail: options.tail },
   );
   emitter.on('close', async () => ctx.ws.send({ _id, status: StatusCode.OK }));
-  emitter.on('data', (log) =>
-    ctx.ws.send({ _id, body: { fullDocument: log }, status: StatusCode.PartialContent }),
-  );
+  emitter.on('data', (log) => {
+    let fullDocument: any;
+
+    try {
+      const json = JSON.parse(log.body);
+      fullDocument = { body: json.message, level: json.level, unix: log.unix };
+    } catch {
+      fullDocument = log;
+    }
+
+    ctx.ws.send({ _id, body: { fullDocument }, status: StatusCode.PartialContent });
+  });
   emitter.on('error', async (e) => {
     console.error(e);
 

@@ -1,4 +1,5 @@
 import 'source-map-support/register';
+import '@tenlastic/logging';
 
 import { BuildModel, IBuild } from '@tenlastic/http';
 import * as minio from '@tenlastic/minio';

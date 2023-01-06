@@ -1,3 +1,6 @@
+import 'source-map-support/register';
+import '@tenlastic/logging';
+
 import { V1Pod } from '@kubernetes/client-node';
 import { podApiV1 } from '@tenlastic/kubernetes';
 import axios from 'axios';

@@ -13,6 +13,11 @@ export interface NamespacedPodLogOptions {
   tail?: number;
 }
 
+export interface V1PodLog {
+  body: string;
+  unix: number;
+}
+
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
 
@@ -56,13 +61,12 @@ export class PodApiV1 extends BaseApiV1<k8s.V1Pod> {
 
         for (const line of lines) {
           const body = this.getBody(line);
+
           const microseconds = this.getMicroseconds(line);
           const unix = this.getUnix(line);
-
           const timestamp = parseFloat(`${unix}.${microseconds}`);
-          const json = { body, unix: timestamp };
 
-          emitter.emit('data', json);
+          emitter.emit('data', { body, unix: timestamp });
         }
       };
 
@@ -80,8 +84,7 @@ export class PodApiV1 extends BaseApiV1<k8s.V1Pod> {
     } catch (e) {
       if (e instanceof AxiosError) {
         const body = await this.getStringFromStream(e.response.data);
-        const json = body ? JSON.parse(body) : null;
-        emitter.emit('error', new HttpError(e.response.status, json));
+        emitter.emit('error', new HttpError(e.response.status, body));
       }
     }
   }
@@ -91,7 +94,7 @@ export class PodApiV1 extends BaseApiV1<k8s.V1Pod> {
     namespace: string,
     container: string,
     options?: NamespacedPodLogOptions,
-  ) {
+  ): Promise<V1PodLog[]> {
     const certificate = fs.readFileSync(kc.getCurrentCluster().caFile);
     const server = kc.getCurrentCluster().server;
     const token = fs.readFileSync(kc.getCurrentUser().authProvider.config.tokenFile, 'utf8');
@@ -116,19 +119,15 @@ export class PodApiV1 extends BaseApiV1<k8s.V1Pod> {
       throw new HttpError(response.status, response.data);
     }
 
-    const results = [];
-    const lines = this.split(response.data);
+    const results = this.split(response.data).map((l) => {
+      const body = this.getBody(l);
 
-    for (const line of lines) {
-      const body = this.getBody(line);
-      const microseconds = this.getMicroseconds(line);
-      const unix = this.getUnix(line);
-
+      const microseconds = this.getMicroseconds(l);
+      const unix = this.getUnix(l);
       const timestamp = parseFloat(`${unix}.${microseconds}`);
-      const json = { body, unix: timestamp };
 
-      results.push(json);
-    }
+      return { body, unix: timestamp };
+    });
 
     return results;
   }

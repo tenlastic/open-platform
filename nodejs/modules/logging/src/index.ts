@@ -14,13 +14,14 @@ const format = winston.format((info: any) => {
   return info;
 });
 
+const transport = new winston.transports.Console();
 const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.errors({ stack: true }),
     winston.format.json(),
     format(),
   ),
-  transports: [new winston.transports.Console()],
+  transports: [transport],
 });
 
 console.log = (...args: any[]) => logger.info.call(logger, ...args);

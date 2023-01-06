@@ -1,3 +1,6 @@
+import 'source-map-support/register';
+import '@tenlastic/logging';
+
 import { CoreV1Event, V1Deployment, V1Pod, V1StatefulSet } from '@kubernetes/client-node';
 import {
   deploymentApiV1,

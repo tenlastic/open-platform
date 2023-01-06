@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@tenlastic/kubernetes": "0.0.331",
+    "@tenlastic/logging": "0.0.331",
     "axios": "0.27.2"
   },
   "devDependencies": {

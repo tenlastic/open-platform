@@ -52,14 +52,18 @@ export async function replicateFromNats(
 export async function eachMessage(
   Model: MongooseModel<MongooseDocument>,
   options: ReplicateOptions,
-  payload: DatabasePayload<MongooseModel<MongooseDocument>>,
+  payload: DatabasePayload<MongooseDocument>,
   where?: any,
 ) {
+  if (process.env.NODE_ENV !== 'test') {
+    const _id = payload.fullDocument._id;
+    console.log(`${payload.operationType} - ${payload.ns.db}.${payload.ns.coll} - ${_id}`);
+  }
+
   if (where) {
     const fullDocument = new Model(payload.fullDocument);
 
     if (!mongoosePermissions.isJsonValid(fullDocument.toJSON({ virtuals: true }), where)) {
-      console.log('Not Valid');
       return;
     }
   }

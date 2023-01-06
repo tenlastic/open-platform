@@ -44,12 +44,24 @@ export function findLogs<TDocument extends mongoose.Document & Record>(
 
     try {
       const options = { since: ctx.request.query.since, tail: ctx.request.query.tail };
-      const records = await podApiV1.readNamespacedPodLog(
+      const logs = await podApiV1.readNamespacedPodLog(
         node.pod,
         'dynamic',
         node.container,
         options,
       );
+
+      const records = logs
+        .map((l) => {
+          try {
+            const json = JSON.parse(l.body);
+            return { body: json.message, level: json.level, unix: l.unix };
+          } catch {
+            return l;
+          }
+        })
+        .filter((l) => l.body);
+
       ctx.response.body = { records };
     } catch {
       throw new RecordNotFoundError('Record');

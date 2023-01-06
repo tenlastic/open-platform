@@ -1,4 +1,5 @@
 import 'source-map-support/register';
+import '@tenlastic/logging';
 
 import { QueueMemberModel, QueueModel } from '@tenlastic/http';
 

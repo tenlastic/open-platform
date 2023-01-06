@@ -1,6 +1,6 @@
 import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { GameServerLogModel, StreamService } from '@tenlastic/http';
+import { BaseLogModel, StreamService } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 
@@ -89,7 +89,11 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
     await this.streamService.unsubscribe(this.subscription, this.wssUrl);
   }
 
-  public getJson(log: GameServerLogModel) {
+  public getBody(log: BaseLogModel, space = 0) {
+    return typeof log.body === 'string' ? log.body : JSON.stringify(log.body, null, space);
+  }
+
+  public getJson(log: BaseLogModel) {
     if (this.logJson[log._id]) {
       return this.logJson[log._id];
     }
@@ -128,10 +132,9 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
     this.isLive = !this.isLive;
 
     if (this.isLive) {
-      await this.find();
-
       const logs = await this.$logs.pipe(first()).toPromise();
       const mostRecentLog = logs.length > 0 ? logs[0] : null;
+
       this.subscription = await this.data.subscribe(
         this.node.container,
         this.node.pod,
@@ -142,8 +145,8 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
     }
   }
 
-  public toggleVisibility(logs: GameServerLogModel[]) {
-    this.isVisible = !this.isVisible;
+  public toggleVisibility(isVisible: boolean, logs: BaseLogModel[]) {
+    this.isVisible = isVisible;
 
     for (const log of logs) {
       this.visibility[log.unix] = this.isVisible;
@@ -159,7 +162,7 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
   }
 
   private async scrollToBottom() {
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 50));
     this.container.nativeElement.scrollTop = this.container.nativeElement.scrollHeight;
   }
 }

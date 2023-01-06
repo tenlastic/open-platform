@@ -18,8 +18,14 @@
     <ng-container *ngIf="node">
       <app-button *ngIf="data.$logs | async as logs"
                   color="accent"
-                  (click)="toggleVisibility(logs)">
-        <div>{{ isVisible ? 'Collapse' : 'Expand' }} All</div>
+                  (click)="toggleVisibility(false, logs)">
+        <div>Collapse All</div>
+      </app-button>
+
+      <app-button *ngIf="data.$logs | async as logs"
+                  color="accent"
+                  (click)="toggleVisibility(true, logs)">
+        <div>Expand All</div>
       </app-button>
 
       <app-button color="primary"
@@ -38,7 +44,9 @@
          [ngClass]="visibility[log.unix] ? 'expanded' : 'collapsed'"
          (click)="visibility[log.unix] = !visibility[log.unix]">
       <div class="timestamp">[{{ log.unix | date: 'M/d/yy, H:mm:ss' }}]</div>
-      <div>{{ log.body }}</div>
+      <div *ngIf="log.level"
+           class="level">[{{ log.level | uppercase }}]</div>
+      <div>{{ getBody(log, visibility[log.unix] ? 4 : 0) }}</div>
     </div>
   </ng-container>
 

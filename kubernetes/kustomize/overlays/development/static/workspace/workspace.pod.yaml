@@ -17,8 +17,6 @@ spec:
       envFrom:
         - secretRef:
             name: workspace
-      ports:
-        - containerPort: 3000
       volumeMounts:
         - name: workspace
           mountPath: /usr/src/

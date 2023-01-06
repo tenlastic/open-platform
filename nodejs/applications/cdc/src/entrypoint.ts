@@ -1,3 +1,6 @@
+import 'source-map-support/register';
+import '@tenlastic/logging';
+
 import * as mongoose from '@tenlastic/mongoose';
 import * as nats from '@tenlastic/nats';
 import * as redis from '@tenlastic/redis';
@@ -31,10 +34,14 @@ const redisPassword = process.env.REDIS_PASSWORD;
       password: redisPassword,
     });
 
-    console.log(`Watching ${mongoDatabaseName} for changes...`);
-
     const key = `cdc.${podName}.resumeToken`;
     const resumeAfter = await client.get(key);
+
+    if (resumeAfter) {
+      console.log(`Watching ${mongoDatabaseName} for changes after ${resumeAfter}...`);
+    } else {
+      console.log(`Watching ${mongoDatabaseName} for changes...`);
+    }
 
     watch(client, mongoCollectionNames?.split(','), connection, key, resumeAfter);
   } catch (e) {

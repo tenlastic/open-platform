@@ -2,6 +2,7 @@ export * from './article';
 export * from './authorization';
 export * from './authorization-request';
 export * from './base';
+export * from './base-log';
 export * from './build';
 export * from './build-log';
 export * from './collection';

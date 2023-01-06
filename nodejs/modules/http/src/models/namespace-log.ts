@@ -1,11 +1,7 @@
-import { BaseModel } from './base';
+import { BaseLogModel } from './base-log';
 
-export class NamespaceLogModel extends BaseModel {
-  public body: string;
-  public container: string;
+export class NamespaceLogModel extends BaseLogModel {
   public namespaceId: string;
-  public pod: string;
-  public unix: number;
 
   constructor(parameters?: Partial<NamespaceLogModel>) {
     super(parameters);

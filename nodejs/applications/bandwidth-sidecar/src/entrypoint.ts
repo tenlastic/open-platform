@@ -1,3 +1,6 @@
+import 'source-map-support/register';
+import '@tenlastic/logging';
+
 import { bandwidth } from './bandwidth';
 
 (async () => {

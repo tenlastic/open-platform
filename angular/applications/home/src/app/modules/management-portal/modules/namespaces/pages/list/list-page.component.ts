@@ -169,6 +169,11 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
           n.container === 'api'
         ) {
           label = `${INamespace.StatusComponentName.Connector} (API)`;
+        } else if (
+          n.component === INamespace.StatusComponentName.Connector &&
+          n.container === 'social-api'
+        ) {
+          label = `${INamespace.StatusComponentName.Connector} (Social API)`;
         } else if (n.component === INamespace.StatusComponentName.Metrics) {
           label = INamespace.StatusComponentName.Metrics;
         } else if (
