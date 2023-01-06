@@ -14,7 +14,10 @@
     }
   },
   "npmClient": "npm",
-  "packages": ["applications/*", "modules/*"],
+  "packages": [
+    "applications/*",
+    "modules/*"
+  ],
   "tagVersionPrefix": "nodejs-v",
-  "version": "0.0.330"
+  "version": "0.0.331"
 }
