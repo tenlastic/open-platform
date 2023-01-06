@@ -28,6 +28,10 @@ export async function emit<TDocument extends mongoose.Document>(
     ...options,
   });
 
+  if (process.env.NODE_ENV !== 'test') {
+    console.log(`Subscribed to ${subject}.`);
+  }
+
   for await (const message of subscription) {
     const data = new TextDecoder().decode(message.data);
     const json = JSON.parse(data);
