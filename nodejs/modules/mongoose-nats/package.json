@@ -9,7 +9,7 @@
     "type": "git",
     "url": "ssh://git@github.com/tenlastic/open-platform.git"
   },
-  "version": "0.0.331",
+  "version": "0.0.332",
   "publishConfig": {
     "access": "public"
   },
@@ -20,8 +20,8 @@
     "prepublishOnly": "../../scripts/build.sh"
   },
   "dependencies": {
-    "@tenlastic/mongoose": "0.0.331",
-    "@tenlastic/nats": "0.0.331"
+    "@tenlastic/mongoose": "0.0.332",
+    "@tenlastic/nats": "0.0.332"
   },
   "devDependencies": {
     "eslint": "^7.26.0",
