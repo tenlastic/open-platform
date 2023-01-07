@@ -18,7 +18,7 @@ npm config set unsafe-perm true
 lerna version --concurrency 1 --no-push --yes patch
 
 # Commit changes to Git.
-git pull origin master
+git pull --rebase origin master
 git push --atomic --follow-tags --no-verify origin master
 
 # Publish Node Modules to NPM.
