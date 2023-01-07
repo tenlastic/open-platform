@@ -19,7 +19,8 @@
     "@tenlastic/logging": "0.0.333",
     "@tenlastic/pcap": "0.0.333",
     "@tenlastic/web-server": "0.0.333",
-    "axios": "0.27.2"
+    "axios": "0.27.2",
+    "source-map-support": "0.5.12"
   },
   "devDependencies": {
     "eslint": "^7.26.0",

@@ -19,7 +19,8 @@
     "@tenlastic/minio": "0.0.333",
     "@tenlastic/mongoose": "0.0.333",
     "@tenlastic/nats": "0.0.333",
-    "axios": "0.27.2"
+    "axios": "0.27.2",
+    "source-map-support": "0.5.12"
   },
   "devDependencies": {
     "eslint": "^7.26.0",
