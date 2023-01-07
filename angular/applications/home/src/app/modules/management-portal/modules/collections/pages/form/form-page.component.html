@@ -1,99 +1,102 @@
-<div *ngIf="form"
-     class="page">
-  <div class="row">
-    <div class="col-sm-6">
-      <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Collection</app-title>
-      <app-title *ngIf="!hasWriteAuthorization">View Collection</app-title>
-    </div>
-
-    <div *ngIf="hasWriteAuthorization"
-         class="col-sm-6 align-right">
-      <app-button color="accent"
-                  (OnClick)="navigateToJson()">
-        <mat-icon>code</mat-icon>
-        <div>{{ data?._id ? 'Edit' : 'Create' }} as JSON</div>
-      </app-button>
-    </div>
-  </div>
-
-  <form autocomplete="off"
-        [formGroup]="form"
-        id="form"
-        (ngSubmit)="save()">
+<ng-container *ngIf="form">
+  <div class="page">
     <div class="row">
-      <mat-form-field floatLabel="always">
-        <mat-label>Name</mat-label>
-        <input appAutofocus
-               formControlName="name"
-               matInput
-               maxlength="64" />
-        <mat-error>Enter a valid name.</mat-error>
-      </mat-form-field>
+      <div class="col-sm-6">
+        <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Collection</app-title>
+        <app-title *ngIf="!hasWriteAuthorization">View Collection</app-title>
+      </div>
+
+      <div *ngIf="hasWriteAuthorization"
+           class="col-sm-6 align-right">
+        <app-button color="accent"
+                    (OnClick)="navigateToJson()">
+          <mat-icon>code</mat-icon>
+          <div>{{ data?._id ? 'Edit' : 'Create' }} as JSON</div>
+        </app-button>
+      </div>
     </div>
 
-    <app-toggle-section title="Properties">
-      <ng-container *ngFor="let property of properties.controls; let i = index">
-        <h4>Property {{ i + 1 }}</h4>
-
-        <div class="row"
-             formArrayName="properties">
-          <app-property-field [form]="property"
-                              (remove)="removeProperty(i)"></app-property-field>
-        </div>
-      </ng-container>
-
-      <div *ngIf="!form.disabled"
-           class="row">
-        <app-button color="accent"
-                    layout="left"
-                    (OnClick)="addProperty()">
-          <mat-icon>add</mat-icon>
-          <div>Add Property</div>
-        </app-button>
+    <form autocomplete="off"
+          [formGroup]="form"
+          id="form"
+          (ngSubmit)="save()">
+      <div class="row">
+        <mat-form-field floatLabel="always">
+          <mat-label>Name</mat-label>
+          <input appAutofocus
+                 formControlName="name"
+                 matInput
+                 maxlength="64" />
+          <mat-error>Enter a valid name.</mat-error>
+        </mat-form-field>
       </div>
-    </app-toggle-section>
 
-    <app-toggle-section title="Roles">
-      <ng-container *ngFor="let role of roles.controls; let i = index">
-        <h4>Role {{ i + 1 }}</h4>
+      <app-toggle-section title="Properties">
+        <ng-container *ngFor="let property of properties.controls; let i = index">
+          <h4>Property {{ i + 1 }}</h4>
 
-        <div class="row"
-             formArrayName="roles">
-          <app-role-field [form]="role"
-                          [index]="i"
-                          [length]="roles.length"
-                          [properties]="properties"
-                          (moveDown)="moveRoleDown(i)"
-                          (moveUp)="moveRoleUp(i)"
-                          (remove)="removeRole(i)"></app-role-field>
+          <div class="row"
+               formArrayName="properties">
+            <app-property-field [form]="property"
+                                (remove)="removeProperty(i)"></app-property-field>
+          </div>
+        </ng-container>
+
+        <div *ngIf="!form.disabled"
+             class="row">
+          <app-button color="accent"
+                      layout="left"
+                      (OnClick)="addProperty()">
+            <mat-icon>add</mat-icon>
+            <div>Add Property</div>
+          </app-button>
         </div>
-      </ng-container>
+      </app-toggle-section>
 
-      <div *ngIf="!form.disabled"
-           class="row">
-        <app-button color="accent"
-                    layout="left"
-                    (OnClick)="addRole()">
-          <mat-icon>add</mat-icon>
-          <div>Add Role</div>
-        </app-button>
-      </div>
-    </app-toggle-section>
-  </form>
-</div>
+      <app-toggle-section title="Roles">
+        <ng-container *ngFor="let role of roles.controls; let i = index">
+          <h4>Role {{ i + 1 }}</h4>
 
-<div *ngIf="form && !form.disabled"
-     class="page-actions">
-  <div *ngFor="let error of errors"
-       class="form-error">
-    {{ error }}
+          <div class="row"
+               formArrayName="roles">
+            <app-role-field [form]="role"
+                            [index]="i"
+                            [length]="roles.length"
+                            [properties]="properties"
+                            (moveDown)="moveRoleDown(i)"
+                            (moveUp)="moveRoleUp(i)"
+                            (remove)="removeRole(i)"></app-role-field>
+          </div>
+        </ng-container>
+
+        <div *ngIf="!form.disabled"
+             class="row">
+          <app-button color="accent"
+                      layout="left"
+                      (OnClick)="addRole()">
+            <mat-icon>add</mat-icon>
+            <div>Add Role</div>
+          </app-button>
+        </div>
+      </app-toggle-section>
+    </form>
   </div>
 
-  <app-button color="primary"
-              form="form"
-              size="large"
-              width="full">
-    <mat-icon>save</mat-icon>
-    <div>Save</div>
-  </app-button>
-</div>
+  <div *ngIf="!form.disabled"
+       class="page-actions">
+    <div *ngFor="let error of errors"
+         class="form-error">
+      {{ error }}
+    </div>
+
+    <app-button color="primary"
+                form="form"
+                size="large"
+                width="full">
+      <mat-icon>save</mat-icon>
+      <div>Save</div>
+    </app-button>
+  </div>
+</ng-container>
+
+<app-loading-message *ngIf="!form">Loading...</app-loading-message>

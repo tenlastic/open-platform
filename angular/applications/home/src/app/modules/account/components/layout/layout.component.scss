@@ -48,9 +48,10 @@ app-sidenav {
 
     ::ng-deep {
       ng-component {
-        flex: 1 1 auto;
         display: flex;
+        flex: 1 1 auto;
         flex-direction: column;
+        position: relative;
       }
     }
   }

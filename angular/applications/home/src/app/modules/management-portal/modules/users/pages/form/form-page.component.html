@@ -1,62 +1,65 @@
-<div *ngIf="form"
-     class="page">
-  <div class="row">
-    <div class="col-sm-6">
-      <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} User</app-title>
-      <app-title *ngIf="!hasWriteAuthorization">View User</app-title>
+<ng-container *ngIf="form">
+  <div class="page">
+    <div class="row">
+      <div class="col-sm-6">
+        <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} User</app-title>
+        <app-title *ngIf="!hasWriteAuthorization">View User</app-title>
+      </div>
+
+      <div *ngIf="hasWriteAuthorization"
+           class="col-sm-6 align-right">
+        <app-button color="accent"
+                    (OnClick)="navigateToJson()">
+          <mat-icon>code</mat-icon>
+          <div>{{ data?._id ? 'Edit' : 'Create' }} as JSON</div>
+        </app-button>
+      </div>
     </div>
 
-    <div *ngIf="hasWriteAuthorization"
-         class="col-sm-6 align-right">
-      <app-button color="accent"
-                  (OnClick)="navigateToJson()">
-        <mat-icon>code</mat-icon>
-        <div>{{ data?._id ? 'Edit' : 'Create' }} as JSON</div>
-      </app-button>
-    </div>
+    <form autocomplete="off"
+          [formGroup]="form"
+          id="form"
+          (ngSubmit)="save()">
+      <div class="row">
+        <mat-form-field floatLabel="always">
+          <mat-label>Email Address</mat-label>
+          <input appAutofocus
+                 formControlName="email"
+                 matInput
+                 maxlength="256"
+                 type="email" />
+          <mat-error>Enter a valid email address.</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="row">
+        <mat-form-field floatLabel="always">
+          <mat-label>Username</mat-label>
+          <input formControlName="username"
+                 matInput
+                 maxlength="24"
+                 required />
+          <mat-error>Enter a valid alphanumeric username.</mat-error>
+        </mat-form-field>
+      </div>
+    </form>
   </div>
 
-  <form autocomplete="off"
-        [formGroup]="form"
-        id="form"
-        (ngSubmit)="save()">
-    <div class="row">
-      <mat-form-field floatLabel="always">
-        <mat-label>Email Address</mat-label>
-        <input appAutofocus
-               formControlName="email"
-               matInput
-               maxlength="256"
-               type="email" />
-        <mat-error>Enter a valid email address.</mat-error>
-      </mat-form-field>
+  <div *ngIf="!form.disabled"
+       class="page-actions">
+    <div *ngFor="let error of errors"
+         class="form-error">
+      {{ error }}
     </div>
 
-    <div class="row">
-      <mat-form-field floatLabel="always">
-        <mat-label>Username</mat-label>
-        <input formControlName="username"
-               matInput
-               maxlength="24"
-               required />
-        <mat-error>Enter a valid alphanumeric username.</mat-error>
-      </mat-form-field>
-    </div>
-  </form>
-</div>
-
-<div *ngIf="form && !form.disabled"
-     class="page-actions">
-  <div *ngFor="let error of errors"
-       class="form-error">
-    {{ error }}
+    <app-button color="primary"
+                form="form"
+                size="large"
+                width="full">
+      <mat-icon>save</mat-icon>
+      <div>Save</div>
+    </app-button>
   </div>
+</ng-container>
 
-  <app-button color="primary"
-              form="form"
-              size="large"
-              width="full">
-    <mat-icon>save</mat-icon>
-    <div>Save</div>
-  </app-button>
-</div>
+<app-loading-message *ngIf="!form">Loading...</app-loading-message>

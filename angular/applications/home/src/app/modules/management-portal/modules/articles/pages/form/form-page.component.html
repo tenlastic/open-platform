@@ -1,93 +1,96 @@
-<div *ngIf="form"
-     class="page">
-  <div class="row">
-    <div class="col-sm-6">
-      <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} {{ singular }}</app-title>
-      <app-title *ngIf="!hasWriteAuthorization">View {{ singular }}</app-title>
-    </div>
-
-    <div *ngIf="hasWriteAuthorization"
-         class="col-sm-6 align-right">
-      <app-button color="accent"
-                  (OnClick)="navigateToJson()">
-        <mat-icon>code</mat-icon>
-        <div>{{ data?._id ? 'Edit' : 'Create' }} as JSON</div>
-      </app-button>
-    </div>
-  </div>
-
-  <form autocomplete="off"
-        [formGroup]="form"
-        id="form"
-        (ngSubmit)="save()">
-    <div class="row">
-      <mat-form-field floatLabel="always">
-        <mat-label>Title</mat-label>
-        <input appAutofocus
-               formControlName="title"
-               maxlength="96"
-               matInput
-               required />
-        <mat-error>Enter a valid title.</mat-error>
-      </mat-form-field>
-
-      <mat-form-field floatLabel="always">
-        <mat-label>Subtitle</mat-label>
-        <input formControlName="subtitle"
-               matInput
-               maxlength="96" />
-        <mat-error>Enter a valid subtitle.</mat-error>
-      </mat-form-field>
-    </div>
-
-    <div *ngIf="!type"
-         class="row">
-      <mat-form-field floatLabel="always">
-        <mat-label>Type</mat-label>
-        <mat-select formControlName="type">
-          <mat-option *ngFor="let type of types"
-                      [value]="type.value">
-            {{ type.label }}
-          </mat-option>
-        </mat-select>
-        <mat-error>Choose a type.</mat-error>
-      </mat-form-field>
-    </div>
-
+<ng-container *ngIf="form">
+  <div class="page">
     <div class="row">
       <div class="col-sm-6">
-        <mat-form-field floatLabel="always">
-          <mat-label>Body (Markdown)</mat-label>
-          <textarea matInput
-                    cdkTextareaAutosize
-                    required
-                    formControlName="body"
-                    cdkAutosizeMinRows="3"
-                    type="text"></textarea>
-          <mat-error>Enter a valid body.</mat-error>
-        </mat-form-field>
+        <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} {{ singular }}</app-title>
+        <app-title *ngIf="!hasWriteAuthorization">View {{ singular }}</app-title>
       </div>
-      <div *ngIf="form.get('body').value"
-           class="col-sm-6">
-        <mat-label>Body (Preview)</mat-label>
-        <app-markdown [markdown]="form.get('body').value"></app-markdown>
+
+      <div *ngIf="hasWriteAuthorization"
+           class="col-sm-6 align-right">
+        <app-button color="accent"
+                    (OnClick)="navigateToJson()">
+          <mat-icon>code</mat-icon>
+          <div>{{ data?._id ? 'Edit' : 'Create' }} as JSON</div>
+        </app-button>
       </div>
     </div>
-  </form>
-</div>
 
-<div *ngIf="form && !form.disabled"
-     class="page-actions">
-  <div *ngFor="let error of errors"
-       class="form-error">
-    {{ error }}
+    <form autocomplete="off"
+          [formGroup]="form"
+          id="form"
+          (ngSubmit)="save()">
+      <div class="row">
+        <mat-form-field floatLabel="always">
+          <mat-label>Title</mat-label>
+          <input appAutofocus
+                 formControlName="title"
+                 maxlength="96"
+                 matInput
+                 required />
+          <mat-error>Enter a valid title.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>Subtitle</mat-label>
+          <input formControlName="subtitle"
+                 matInput
+                 maxlength="96" />
+          <mat-error>Enter a valid subtitle.</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div *ngIf="!type"
+           class="row">
+        <mat-form-field floatLabel="always">
+          <mat-label>Type</mat-label>
+          <mat-select formControlName="type">
+            <mat-option *ngFor="let type of types"
+                        [value]="type.value">
+              {{ type.label }}
+            </mat-option>
+          </mat-select>
+          <mat-error>Choose a type.</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="row">
+        <div class="col-sm-6">
+          <mat-form-field floatLabel="always">
+            <mat-label>Body (Markdown)</mat-label>
+            <textarea matInput
+                      cdkTextareaAutosize
+                      required
+                      formControlName="body"
+                      cdkAutosizeMinRows="3"
+                      type="text"></textarea>
+            <mat-error>Enter a valid body.</mat-error>
+          </mat-form-field>
+        </div>
+        <div *ngIf="form.get('body').value"
+             class="col-sm-6">
+          <mat-label>Body (Preview)</mat-label>
+          <app-markdown [markdown]="form.get('body').value"></app-markdown>
+        </div>
+      </div>
+    </form>
   </div>
 
-  <app-button color="primary"
-              form="form"
-              size="large"
-              width="full">
-    <mat-icon>save</mat-icon>
-    <div>Save</div>
-  </app-button>
-</div>
+  <div *ngIf="!form.disabled"
+       class="page-actions">
+    <div *ngFor="let error of errors"
+         class="form-error">
+      {{ error }}
+    </div>
+
+    <app-button color="primary"
+                form="form"
+                size="large"
+                width="full">
+      <mat-icon>save</mat-icon>
+      <div>Save</div>
+    </app-button>
+  </div>
+</ng-container>
+
+<app-loading-message *ngIf="!form">Loading...</app-loading-message>

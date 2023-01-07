@@ -1,114 +1,117 @@
-<div *ngIf="form"
-     class="page">
-  <div class="row">
-    <div class="col-sm-6">
-      <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Record</app-title>
-      <app-title *ngIf="!hasWriteAuthorization">View Record</app-title>
-    </div>
-
-    <div *ngIf="hasWriteAuthorization"
-         class="col-sm-6 align-right">
-      <app-button color="accent"
-                  (OnClick)="navigateToJson()">
-        <mat-icon>code</mat-icon>
-        <div>{{ data?._id ? 'Edit' : 'Create' }} as JSON</div>
-      </app-button>
-    </div>
-  </div>
-
-  <form autocomplete="off"
-        [formGroup]="form"
-        id="form"
-        (ngSubmit)="save()">
-    <ng-container *ngFor="let key of form.controls | keys; let i = index">
-      <app-toggle-section *ngIf="collection.jsonSchema.properties[key].type === 'array'"
-                          [title]="key | camelCaseToTitleCase">
-        <mat-form-field *ngFor="let item of form['controls'][key]['controls']; let i = index"
-                        floatLabel="always"
-                        [formArrayName]="key">
-          <mat-label>Element {{ i + 1 }}</mat-label>
-
-          <ng-container [ngSwitch]="collection.jsonSchema.properties[key].items.type">
-            <mat-select *ngSwitchCase="'boolean'"
-                        [formControlName]="i">
-              <mat-option [value]="true">True</mat-option>
-              <mat-option [value]="false">False</mat-option>
-            </mat-select>
-
-            <input *ngSwitchCase="'number'"
-                   matInput
-                   type="number"
-                   [formControlName]="i" />
-
-            <input *ngSwitchCase="'string'"
-                   matInput
-                   [formControlName]="i" />
-          </ng-container>
-
-          <app-button *ngIf="!form.disabled"
-                      color="accent"
-                      mat-icon-button
-                      matSuffix
-                      matTooltip="Remove Element"
-                      (OnClick)="removeArrayItem(key, i)">
-            <mat-icon>remove</mat-icon>
-          </app-button>
-
-          <mat-error>Enter a valid {{ key }}.</mat-error>
-        </mat-form-field>
-
-        <div *ngIf="!form.disabled"
-             class="row">
-          <app-button color="accent"
-                      layout="left"
-                      (OnClick)="addArrayItem(key)">
-            <mat-icon>add</mat-icon>
-            <div>Add Element</div>
-          </app-button>
-        </div>
-      </app-toggle-section>
-
-      <div *ngIf="collection.jsonSchema.properties[key].type !== 'array'"
-           class="row">
-        <mat-form-field floatLabel="always">
-          <mat-label>{{ key | camelCaseToTitleCase }}</mat-label>
-
-          <ng-container [ngSwitch]="collection.jsonSchema.properties[key].type">
-            <mat-select *ngSwitchCase="'boolean'"
-                        [formControlName]="key">
-              <mat-option [value]="true">True</mat-option>
-              <mat-option [value]="false">False</mat-option>
-            </mat-select>
-
-            <input *ngSwitchCase="'number'"
-                   matInput
-                   type="number"
-                   [formControlName]="key" />
-
-            <input *ngSwitchCase="'string'"
-                   matInput
-                   [formControlName]="key" />
-          </ng-container>
-
-          <mat-error>Enter a valid {{ key }}.</mat-error>
-        </mat-form-field>
+<ng-container *ngIf="form">
+  <div class="page">
+    <div class="row">
+      <div class="col-sm-6">
+        <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Record</app-title>
+        <app-title *ngIf="!hasWriteAuthorization">View Record</app-title>
       </div>
-    </ng-container>
-  </form>
-</div>
 
-<div *ngIf="form && !form.disabled"
-     class="page-actions">
-  <div *ngFor="let error of errors"
-       class="form-error">
-    {{ error }}
+      <div *ngIf="hasWriteAuthorization"
+           class="col-sm-6 align-right">
+        <app-button color="accent"
+                    (OnClick)="navigateToJson()">
+          <mat-icon>code</mat-icon>
+          <div>{{ data?._id ? 'Edit' : 'Create' }} as JSON</div>
+        </app-button>
+      </div>
+    </div>
+
+    <form autocomplete="off"
+          [formGroup]="form"
+          id="form"
+          (ngSubmit)="save()">
+      <ng-container *ngFor="let key of form.controls | keys; let i = index">
+        <app-toggle-section *ngIf="collection.jsonSchema.properties[key].type === 'array'"
+                            [title]="key | camelCaseToTitleCase">
+          <mat-form-field *ngFor="let item of form['controls'][key]['controls']; let i = index"
+                          floatLabel="always"
+                          [formArrayName]="key">
+            <mat-label>Element {{ i + 1 }}</mat-label>
+
+            <ng-container [ngSwitch]="collection.jsonSchema.properties[key].items.type">
+              <mat-select *ngSwitchCase="'boolean'"
+                          [formControlName]="i">
+                <mat-option [value]="true">True</mat-option>
+                <mat-option [value]="false">False</mat-option>
+              </mat-select>
+
+              <input *ngSwitchCase="'number'"
+                     matInput
+                     type="number"
+                     [formControlName]="i" />
+
+              <input *ngSwitchCase="'string'"
+                     matInput
+                     [formControlName]="i" />
+            </ng-container>
+
+            <app-button *ngIf="!form.disabled"
+                        color="accent"
+                        mat-icon-button
+                        matSuffix
+                        matTooltip="Remove Element"
+                        (OnClick)="removeArrayItem(key, i)">
+              <mat-icon>remove</mat-icon>
+            </app-button>
+
+            <mat-error>Enter a valid {{ key }}.</mat-error>
+          </mat-form-field>
+
+          <div *ngIf="!form.disabled"
+               class="row">
+            <app-button color="accent"
+                        layout="left"
+                        (OnClick)="addArrayItem(key)">
+              <mat-icon>add</mat-icon>
+              <div>Add Element</div>
+            </app-button>
+          </div>
+        </app-toggle-section>
+
+        <div *ngIf="collection.jsonSchema.properties[key].type !== 'array'"
+             class="row">
+          <mat-form-field floatLabel="always">
+            <mat-label>{{ key | camelCaseToTitleCase }}</mat-label>
+
+            <ng-container [ngSwitch]="collection.jsonSchema.properties[key].type">
+              <mat-select *ngSwitchCase="'boolean'"
+                          [formControlName]="key">
+                <mat-option [value]="true">True</mat-option>
+                <mat-option [value]="false">False</mat-option>
+              </mat-select>
+
+              <input *ngSwitchCase="'number'"
+                     matInput
+                     type="number"
+                     [formControlName]="key" />
+
+              <input *ngSwitchCase="'string'"
+                     matInput
+                     [formControlName]="key" />
+            </ng-container>
+
+            <mat-error>Enter a valid {{ key }}.</mat-error>
+          </mat-form-field>
+        </div>
+      </ng-container>
+    </form>
   </div>
 
-  <app-button color="primary"
-              form="form"
-              size="large"
-              width="full">
-    <mat-icon>save</mat-icon>
-    <div>Save</div>
-  </app-button>
-</div>
+  <div *ngIf="!form.disabled"
+       class="page-actions">
+    <div *ngFor="let error of errors"
+         class="form-error">
+      {{ error }}
+    </div>
+
+    <app-button color="primary"
+                form="form"
+                size="large"
+                width="full">
+      <mat-icon>save</mat-icon>
+      <div>Save</div>
+    </app-button>
+  </div>
+</ng-container>
+
+<app-loading-message *ngIf="!form">Loading...</app-loading-message>

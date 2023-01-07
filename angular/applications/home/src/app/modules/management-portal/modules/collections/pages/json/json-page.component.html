@@ -1,51 +1,54 @@
-<div *ngIf="form"
-     class="page">
-  <div class="row">
-    <div class="col-sm-6">
-      <app-title>{{ data?._id ? 'Edit' : 'Create' }} Collection</app-title>
-    </div>
-    <div class="col-sm-6">
-      <app-button color="accent"
-                  (OnClick)="navigateToForm()">
-        <mat-icon>format_list_bulleted</mat-icon>
-        <div>{{ data?._id ? 'Edit' : 'Create' }} as Form</div>
-      </app-button>
-    </div>
-  </div>
-
-  <form autocomplete="off"
-        [formGroup]="form"
-        id="form"
-        (ngSubmit)="save()">
+<ng-container *ngIf="form">
+  <div class="page">
     <div class="row">
-      <mat-form-field floatLabel="always">
-        <mat-label>JSON</mat-label>
-        <textarea matInput
-                  appAutofocus
-                  cdkTextareaAutosize
-                  formControlName="json"
-                  spellcheck="false"
-                  type="text"
-                  (keydown)="onKeyDown($event)"
-                  (keyup)="onKeyUp($event)"></textarea>
-        <mat-error>JSON is not valid.</mat-error>
-      </mat-form-field>
+      <div class="col-sm-6">
+        <app-title>{{ data?._id ? 'Edit' : 'Create' }} Collection</app-title>
+      </div>
+      <div class="col-sm-6">
+        <app-button color="accent"
+                    (OnClick)="navigateToForm()">
+          <mat-icon>format_list_bulleted</mat-icon>
+          <div>{{ data?._id ? 'Edit' : 'Create' }} as Form</div>
+        </app-button>
+      </div>
     </div>
-  </form>
-</div>
 
-<div *ngIf="!form?.disabled"
-     class="page-actions">
-  <div *ngFor="let error of errors"
-       class="form-error">
-    {{ error }}
+    <form autocomplete="off"
+          [formGroup]="form"
+          id="form"
+          (ngSubmit)="save()">
+      <div class="row">
+        <mat-form-field floatLabel="always">
+          <mat-label>JSON</mat-label>
+          <textarea matInput
+                    appAutofocus
+                    cdkTextareaAutosize
+                    formControlName="json"
+                    spellcheck="false"
+                    type="text"
+                    (keydown)="onKeyDown($event)"
+                    (keyup)="onKeyUp($event)"></textarea>
+          <mat-error>JSON is not valid.</mat-error>
+        </mat-form-field>
+      </div>
+    </form>
   </div>
 
-  <app-button color="primary"
-              form="form"
-              size="large"
-              width="full">
-    <mat-icon>save</mat-icon>
-    <div>Save</div>
-  </app-button>
-</div>
+  <div *ngIf="!form?.disabled"
+       class="page-actions">
+    <div *ngFor="let error of errors"
+         class="form-error">
+      {{ error }}
+    </div>
+
+    <app-button color="primary"
+                form="form"
+                size="large"
+                width="full">
+      <mat-icon>save</mat-icon>
+      <div>Save</div>
+    </app-button>
+  </div>
+</ng-container>
+
+<app-loading-message *ngIf="!form">Loading...</app-loading-message>

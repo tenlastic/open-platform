@@ -1,186 +1,189 @@
-<div *ngIf="form"
-     class="page">
-  <div class="row">
-    <div class="col-sm-6">
-      <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Workflow</app-title>
-      <app-title *ngIf="!hasWriteAuthorization">View Workflow</app-title>
-    </div>
-
-    <div *ngIf="hasWriteAuthorization"
-         class="col-sm-6 align-right">
-      <app-button color="accent"
-                  (OnClick)="navigateToJson()">
-        <mat-icon>code</mat-icon>
-        <div>{{ data?._id ? 'Edit' : 'Create' }} as JSON</div>
-      </app-button>
-    </div>
-  </div>
-
-  <form autocomplete="off"
-        [formGroup]="form"
-        id="form"
-        (ngSubmit)="save()">
+<ng-container *ngIf="form">
+  <div class="page">
     <div class="row">
-      <mat-form-field floatLabel="always">
-        <mat-label>Name</mat-label>
-        <input appAutofocus
-               formControlName="name"
-               matInput
-               maxlength="64"
-               placeholder="Hello World"
-               required />
-        <mat-error>Enter a valid name.</mat-error>
-      </mat-form-field>
+      <div class="col-sm-6">
+        <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Workflow</app-title>
+        <app-title *ngIf="!hasWriteAuthorization">View Workflow</app-title>
+      </div>
+
+      <div *ngIf="hasWriteAuthorization"
+           class="col-sm-6 align-right">
+        <app-button color="accent"
+                    (OnClick)="navigateToJson()">
+          <mat-icon>code</mat-icon>
+          <div>{{ data?._id ? 'Edit' : 'Create' }} as JSON</div>
+        </app-button>
+      </div>
     </div>
 
-    <div class="row">
-      <mat-form-field floatLabel="always">
-        <mat-label>Parallel Tasks</mat-label>
-        <mat-select formControlName="parallelism">
-          <mat-option *ngFor="let parallelism of parallelisms"
-                      [value]="parallelism.value">{{ parallelism.label }}</mat-option>
-        </mat-select>
-      </mat-form-field>
+    <form autocomplete="off"
+          [formGroup]="form"
+          id="form"
+          (ngSubmit)="save()">
+      <div class="row">
+        <mat-form-field floatLabel="always">
+          <mat-label>Name</mat-label>
+          <input appAutofocus
+                 formControlName="name"
+                 matInput
+                 maxlength="64"
+                 placeholder="Hello World"
+                 required />
+          <mat-error>Enter a valid name.</mat-error>
+        </mat-form-field>
+      </div>
 
-      <mat-form-field floatLabel="always">
-        <mat-label>Preemptible</mat-label>
-        <mat-select formControlName="preemptible">
-          <mat-option [value]="true">Yes</mat-option>
-          <mat-option [value]="false">No</mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
+      <div class="row">
+        <mat-form-field floatLabel="always">
+          <mat-label>Parallel Tasks</mat-label>
+          <mat-select formControlName="parallelism">
+            <mat-option *ngFor="let parallelism of parallelisms"
+                        [value]="parallelism.value">{{ parallelism.label }}</mat-option>
+          </mat-select>
+        </mat-form-field>
 
-    <div class="row">
-      <mat-form-field floatLabel="always">
-        <mat-label>CPU</mat-label>
-        <mat-select formControlName="cpu">
-          <mat-option *ngFor="let cpu of cpus"
-                      [value]="cpu.value">{{ cpu.label }}</mat-option>
-        </mat-select>
-      </mat-form-field>
+        <mat-form-field floatLabel="always">
+          <mat-label>Preemptible</mat-label>
+          <mat-select formControlName="preemptible">
+            <mat-option [value]="true">Yes</mat-option>
+            <mat-option [value]="false">No</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
 
-      <mat-form-field floatLabel="always">
-        <mat-label>Memory</mat-label>
-        <mat-select formControlName="memory">
-          <mat-option *ngFor="let memory of memories"
-                      [value]="memory.value">{{ memory.label }}</mat-option>
-        </mat-select>
-      </mat-form-field>
+      <div class="row">
+        <mat-form-field floatLabel="always">
+          <mat-label>CPU</mat-label>
+          <mat-select formControlName="cpu">
+            <mat-option *ngFor="let cpu of cpus"
+                        [value]="cpu.value">{{ cpu.label }}</mat-option>
+          </mat-select>
+        </mat-form-field>
 
-      <mat-form-field floatLabel="always">
-        <mat-label>Storage</mat-label>
-        <mat-select formControlName="storage">
-          <mat-option *ngFor="let storage of storages"
-                      [value]="storage.value">{{ storage.label }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
+        <mat-form-field floatLabel="always">
+          <mat-label>Memory</mat-label>
+          <mat-select formControlName="memory">
+            <mat-option *ngFor="let memory of memories"
+                        [value]="memory.value">{{ memory.label }}</mat-option>
+          </mat-select>
+        </mat-form-field>
 
-    <app-toggle-section title="Templates"
-                        [isVisible]="!$data">
-      <div *ngFor="let template of form['controls'].templates['controls']; let i = index"
-           class="row template"
-           formArrayName="templates">
-        <div class="name">
-          <mat-form-field floatLabel="always">
-            <mat-label>Name</mat-label>
-            <input matInput
-                   placeholder="Echo"
-                   required
-                   [formControl]="template.controls.name" />
-            <mat-error>Enter a valid name.</mat-error>
-          </mat-form-field>
+        <mat-form-field floatLabel="always">
+          <mat-label>Storage</mat-label>
+          <mat-select formControlName="storage">
+            <mat-option *ngFor="let storage of storages"
+                        [value]="storage.value">{{ storage.label }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
 
-          <div *ngIf="form && !form.disabled"
-               class="row">
-            <app-button *ngIf="i > 0"
-                        color="accent"
-                        layout="left"
-                        matTooltip="Move Template Up"
-                        (OnClick)="moveTemplate(i, -1)">
-              <mat-icon>arrow_upward</mat-icon>
-            </app-button>
+      <app-toggle-section title="Templates"
+                          [isVisible]="!$data">
+        <div *ngFor="let template of form['controls'].templates['controls']; let i = index"
+             class="row template"
+             formArrayName="templates">
+          <div class="name">
+            <mat-form-field floatLabel="always">
+              <mat-label>Name</mat-label>
+              <input matInput
+                     placeholder="Echo"
+                     required
+                     [formControl]="template.controls.name" />
+              <mat-error>Enter a valid name.</mat-error>
+            </mat-form-field>
 
-            <app-button *ngIf="i < form['controls'].templates['controls'].length - 1"
-                        color="accent"
-                        layout="left"
-                        (OnClick)="moveTemplate(i, 1)"
-                        matTooltip="Move Template Down">
-              <mat-icon>arrow_downward</mat-icon>
-            </app-button>
+            <div *ngIf="form && !form.disabled"
+                 class="row">
+              <app-button *ngIf="i > 0"
+                          color="accent"
+                          layout="left"
+                          matTooltip="Move Template Up"
+                          (OnClick)="moveTemplate(i, -1)">
+                <mat-icon>arrow_upward</mat-icon>
+              </app-button>
 
-            <app-button color="accent"
-                        layout="left"
-                        (OnClick)="removeTemplate(i)"
-                        matTooltip="Remove Template">
-              <mat-icon>remove</mat-icon>
-            </app-button>
+              <app-button *ngIf="i < form['controls'].templates['controls'].length - 1"
+                          color="accent"
+                          layout="left"
+                          (OnClick)="moveTemplate(i, 1)"
+                          matTooltip="Move Template Down">
+                <mat-icon>arrow_downward</mat-icon>
+              </app-button>
+
+              <app-button color="accent"
+                          layout="left"
+                          (OnClick)="removeTemplate(i)"
+                          matTooltip="Remove Template">
+                <mat-icon>remove</mat-icon>
+              </app-button>
+            </div>
+          </div>
+
+          <div class="script-sidecars">
+            <app-workflow-script-form [formGroup]="template.controls.script"></app-workflow-script-form>
+            <app-workflow-sidecars-form [formArray]="template.controls.sidecars"></app-workflow-sidecars-form>
           </div>
         </div>
 
-        <div class="script-sidecars">
-          <app-workflow-script-form [formGroup]="template.controls.script"></app-workflow-script-form>
-          <app-workflow-sidecars-form [formArray]="template.controls.sidecars"></app-workflow-sidecars-form>
+        <div *ngIf="form && !form.disabled"
+             class="row">
+          <app-button color="accent"
+                      layout="left"
+                      (OnClick)="addTemplate()">
+            <mat-icon>add</mat-icon>
+            <div>Add Template</div>
+          </app-button>
         </div>
-      </div>
+      </app-toggle-section>
 
-      <div *ngIf="form && !form.disabled"
-           class="row">
-        <app-button color="accent"
-                    layout="left"
-                    (OnClick)="addTemplate()">
-          <mat-icon>add</mat-icon>
-          <div>Add Template</div>
-        </app-button>
-      </div>
-    </app-toggle-section>
-
-    <ng-container *ngIf="$data | async as workflow">
-      <app-toggle-section *ngIf="workflow.status"
-                          title="Status">
-        <mat-tree [dataSource]="dataSource"
-                  [treeControl]="treeControl"
-                  class="example-tree">
-          <!-- This is the tree node template for leaf nodes -->
-          <mat-tree-node *matTreeNodeDef="let node"
-                         matTreeNodeToggle>
-            <li class="mat-tree-node">
-              <app-workflow-status-node [node]="node"
-                                        [workflow]="workflow"></app-workflow-status-node>
-            </li>
-          </mat-tree-node>
-
-          <!-- This is the tree node template for expandable nodes -->
-          <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
-            <li [ngClass]="{ visible: !showStatusNode(node) }">
-              <div class="mat-tree-node">
+      <ng-container *ngIf="$data | async as workflow">
+        <app-toggle-section *ngIf="workflow.status"
+                            title="Status">
+          <mat-tree [dataSource]="dataSource"
+                    [treeControl]="treeControl"
+                    class="example-tree">
+            <!-- This is the tree node template for leaf nodes -->
+            <mat-tree-node *matTreeNodeDef="let node"
+                           matTreeNodeToggle>
+              <li class="mat-tree-node">
                 <app-workflow-status-node [node]="node"
                                           [workflow]="workflow"></app-workflow-status-node>
-              </div>
-              <ul>
-                <ng-container matTreeNodeOutlet></ng-container>
-              </ul>
-            </li>
-          </mat-nested-tree-node>
-        </mat-tree>
-      </app-toggle-section>
-    </ng-container>
-  </form>
-</div>
+              </li>
+            </mat-tree-node>
 
-<div *ngIf="form && !form.disabled"
-     class="page-actions">
-  <div *ngFor="let error of errors"
-       class="form-error">
-    {{ error }}
+            <!-- This is the tree node template for expandable nodes -->
+            <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
+              <li [ngClass]="{ visible: !showStatusNode(node) }">
+                <div class="mat-tree-node">
+                  <app-workflow-status-node [node]="node"
+                                            [workflow]="workflow"></app-workflow-status-node>
+                </div>
+                <ul>
+                  <ng-container matTreeNodeOutlet></ng-container>
+                </ul>
+              </li>
+            </mat-nested-tree-node>
+          </mat-tree>
+        </app-toggle-section>
+      </ng-container>
+    </form>
   </div>
 
-  <app-button color="primary"
-              form="form"
-              size="large"
-              width="full">
-    <mat-icon>save</mat-icon>
-    <div>Save</div>
-  </app-button>
-</div>
+  <div *ngIf="!form.disabled"
+       class="page-actions">
+    <div *ngFor="let error of errors"
+         class="form-error">
+      {{ error }}
+    </div>
+
+    <app-button color="primary"
+                form="form"
+                size="large"
+                width="full">
+      <mat-icon>save</mat-icon>
+      <div>Save</div>
+    </app-button>
+  </div>
+</ng-container>
+
+<app-loading-message *ngIf="!form">Loading...</app-loading-message>

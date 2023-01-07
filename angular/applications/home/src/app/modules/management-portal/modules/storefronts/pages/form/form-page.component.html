@@ -1,82 +1,85 @@
-<div *ngIf="form"
-     class="page">
-  <div class="row">
-    <div class="col-sm-6">
-      <app-title>{{ data?._id ? 'Edit' : 'Create' }} Storefront</app-title>
-    </div>
-
-    <div *ngIf="hasWriteAuthorization"
-         class="col-sm-6 align-right">
-      <app-button color="accent"
-                  (OnClick)="navigateToJson()">
-        <mat-icon>code</mat-icon>
-        <div>{{ data?._id ? 'Edit' : 'Create' }} as JSON</div>
-      </app-button>
-    </div>
-  </div>
-
-  <form autocomplete="off"
-        [formGroup]="form"
-        id="form"
-        (ngSubmit)="save()">
-    <div class="row">
-      <mat-form-field floatLabel="always">
-        <mat-label>Title</mat-label>
-        <input appAutofocus
-               formControlName="title"
-               matInput
-               maxlength="32"
-               required />
-        <mat-error>Enter a valid title.</mat-error>
-      </mat-form-field>
-
-      <mat-form-field floatLabel="always">
-        <mat-label>Subtitle</mat-label>
-        <input formControlName="subtitle"
-               matInput
-               maxlength="32" />
-        <mat-error>Enter a valid subtitle.</mat-error>
-      </mat-form-field>
-    </div>
-
+<ng-container *ngIf="form">
+  <div class="page">
     <div class="row">
       <div class="col-sm-6">
-        <mat-form-field floatLabel="always"
-                        width="full">
-          <mat-label>Description</mat-label>
-          <textarea cdkTextareaAutosize
-                    formControlName="description"
-                    matInput
-                    type="text"></textarea>
-          <mat-error>Enter a valid description.</mat-error>
+        <app-title>{{ data?._id ? 'Edit' : 'Create' }} Storefront</app-title>
+      </div>
+
+      <div *ngIf="hasWriteAuthorization"
+           class="col-sm-6 align-right">
+        <app-button color="accent"
+                    (OnClick)="navigateToJson()">
+          <mat-icon>code</mat-icon>
+          <div>{{ data?._id ? 'Edit' : 'Create' }} as JSON</div>
+        </app-button>
+      </div>
+    </div>
+
+    <form autocomplete="off"
+          [formGroup]="form"
+          id="form"
+          (ngSubmit)="save()">
+      <div class="row">
+        <mat-form-field floatLabel="always">
+          <mat-label>Title</mat-label>
+          <input appAutofocus
+                 formControlName="title"
+                 matInput
+                 maxlength="32"
+                 required />
+          <mat-error>Enter a valid title.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>Subtitle</mat-label>
+          <input formControlName="subtitle"
+                 matInput
+                 maxlength="32" />
+          <mat-error>Enter a valid subtitle.</mat-error>
         </mat-form-field>
       </div>
 
-      <div *ngIf="form.get('description').value"
-           class="col-sm-6">
-        <mat-label>Description (Preview)</mat-label>
-        <app-markdown [markdown]="form.get('description').value"></app-markdown>
+      <div class="row">
+        <div class="col-sm-6">
+          <mat-form-field floatLabel="always"
+                          width="full">
+            <mat-label>Description</mat-label>
+            <textarea cdkTextareaAutosize
+                      formControlName="description"
+                      matInput
+                      type="text"></textarea>
+            <mat-error>Enter a valid description.</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div *ngIf="form.get('description').value"
+             class="col-sm-6">
+          <mat-label>Description (Preview)</mat-label>
+          <app-markdown [markdown]="form.get('description').value"></app-markdown>
+        </div>
       </div>
-    </div>
 
-    <app-toggle-section title="Metadata">
-      <app-metadata-fields [formArray]="form.get('metadata')"></app-metadata-fields>
-    </app-toggle-section>
-  </form>
-</div>
-
-<div *ngIf="form && !form.disabled"
-     class="page-actions">
-  <div *ngFor="let error of errors"
-       class="form-error">
-    {{ error }}
+      <app-toggle-section title="Metadata">
+        <app-metadata-fields [formArray]="form.get('metadata')"></app-metadata-fields>
+      </app-toggle-section>
+    </form>
   </div>
 
-  <app-button color="primary"
-              form="form"
-              size="large"
-              width="full">
-    <mat-icon>save</mat-icon>
-    <div>Save</div>
-  </app-button>
-</div>
+  <div *ngIf="!form.disabled"
+       class="page-actions">
+    <div *ngFor="let error of errors"
+         class="form-error">
+      {{ error }}
+    </div>
+
+    <app-button color="primary"
+                form="form"
+                size="large"
+                width="full">
+      <mat-icon>save</mat-icon>
+      <div>Save</div>
+    </app-button>
+  </div>
+</ng-container>
+
+<app-loading-message *ngIf="!form">Loading...</app-loading-message>

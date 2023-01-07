@@ -1,160 +1,163 @@
-<div *ngIf="form"
-     class="page">
-  <div class="row">
-    <div class="col-sm-6">
-      <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Authorization</app-title>
-      <app-title *ngIf="!hasWriteAuthorization">View Authorization</app-title>
-    </div>
-    <div *ngIf="hasWriteAuthorization"
-         class="col-sm-6 align-right">
-      <app-button color="accent"
-                  (OnClick)="navigateToJson()">
-        <mat-icon>code</mat-icon>
-        <div>{{ data?._id ? 'Edit' : 'Create' }} as JSON</div>
-      </app-button>
-    </div>
-  </div>
-
-  <form autocomplete="off"
-        [formGroup]="form"
-        id="form"
-        (ngSubmit)="save()">
+<ng-container *ngIf="form">
+  <div class="page">
     <div class="row">
-      <mat-form-field floatLabel="always">
-        <mat-label>Type</mat-label>
-        <mat-select formControlName="type">
-          <mat-option *ngFor="let type of AuthorizationType | keyvalue"
-                      [value]="type.value">
-            {{ type.value }}
-          </mat-option>
-        </mat-select>
-        <mat-error>Choose a type.</mat-error>
-      </mat-form-field>
+      <div class="col-sm-6">
+        <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Authorization</app-title>
+        <app-title *ngIf="!hasWriteAuthorization">View Authorization</app-title>
+      </div>
+      <div *ngIf="hasWriteAuthorization"
+           class="col-sm-6 align-right">
+        <app-button color="accent"
+                    (OnClick)="navigateToJson()">
+          <mat-icon>code</mat-icon>
+          <div>{{ data?._id ? 'Edit' : 'Create' }} as JSON</div>
+        </app-button>
+      </div>
+    </div>
 
-      <ng-container *ngIf="type === AuthorizationType.ApiKey">
+    <form autocomplete="off"
+          [formGroup]="form"
+          id="form"
+          (ngSubmit)="save()">
+      <div class="row">
         <mat-form-field floatLabel="always">
-          <mat-label>Name</mat-label>
-          <input formControlName="name"
-                 matInput
-                 maxlength="64"
-                 required />
-          <mat-error>Enter a name.</mat-error>
-        </mat-form-field>
-      </ng-container>
-
-      <ng-container *ngIf="type === AuthorizationType.User">
-        <app-autocomplete-user-field [control]="form.get('user')"></app-autocomplete-user-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Ban</mat-label>
-          <mat-select formControlName="bannedAt">
-            <mat-option [value]="true">Yes</mat-option>
-            <mat-option [value]="false">No</mat-option>
+          <mat-label>Type</mat-label>
+          <mat-select formControlName="type">
+            <mat-option *ngFor="let type of AuthorizationType | keyvalue"
+                        [value]="type.value">
+              {{ type.value }}
+            </mat-option>
           </mat-select>
           <mat-error>Choose a type.</mat-error>
         </mat-form-field>
-      </ng-container>
-    </div>
 
-    <app-toggle-section *ngIf="!form.get('bannedAt').value"
-                        formGroupName="roles"
-                        title="Roles">
-      <h4>Articles</h4>
-      <div class="row">
-        <mat-checkbox formControlName="Articles:ReadPublished">Read (Published)</mat-checkbox>
-        <mat-checkbox formControlName="Articles:Read">Read</mat-checkbox>
-        <mat-checkbox formControlName="Articles:Write">Write</mat-checkbox>
+        <ng-container *ngIf="type === AuthorizationType.ApiKey">
+          <mat-form-field floatLabel="always">
+            <mat-label>Name</mat-label>
+            <input formControlName="name"
+                   matInput
+                   maxlength="64"
+                   required />
+            <mat-error>Enter a name.</mat-error>
+          </mat-form-field>
+        </ng-container>
+
+        <ng-container *ngIf="type === AuthorizationType.User">
+          <app-autocomplete-user-field [control]="form.get('user')"></app-autocomplete-user-field>
+
+          <mat-form-field floatLabel="always">
+            <mat-label>Ban</mat-label>
+            <mat-select formControlName="bannedAt">
+              <mat-option [value]="true">Yes</mat-option>
+              <mat-option [value]="false">No</mat-option>
+            </mat-select>
+            <mat-error>Choose a type.</mat-error>
+          </mat-form-field>
+        </ng-container>
       </div>
 
-      <h4>Authorizations</h4>
-      <div class="row">
-        <mat-checkbox formControlName="Authorizations:Read">Read</mat-checkbox>
-        <mat-checkbox formControlName="Authorizations:Write">Write</mat-checkbox>
-      </div>
+      <app-toggle-section *ngIf="!form.get('bannedAt').value"
+                          formGroupName="roles"
+                          title="Roles">
+        <h4>Articles</h4>
+        <div class="row">
+          <mat-checkbox formControlName="Articles:ReadPublished">Read (Published)</mat-checkbox>
+          <mat-checkbox formControlName="Articles:Read">Read</mat-checkbox>
+          <mat-checkbox formControlName="Articles:Write">Write</mat-checkbox>
+        </div>
 
-      <h4>Builds</h4>
-      <div class="row">
-        <mat-checkbox formControlName="Builds:ReadPublished">Read (Published)</mat-checkbox>
-        <mat-checkbox formControlName="Builds:Read">Read</mat-checkbox>
-        <mat-checkbox formControlName="Builds:Write">Write</mat-checkbox>
-      </div>
+        <h4>Authorizations</h4>
+        <div class="row">
+          <mat-checkbox formControlName="Authorizations:Read">Read</mat-checkbox>
+          <mat-checkbox formControlName="Authorizations:Write">Write</mat-checkbox>
+        </div>
 
-      <h4>Collections</h4>
-      <div class="row">
-        <mat-checkbox formControlName="Collections:Read">Read</mat-checkbox>
-        <mat-checkbox formControlName="Collections:Write">Write</mat-checkbox>
-      </div>
+        <h4>Builds</h4>
+        <div class="row">
+          <mat-checkbox formControlName="Builds:ReadPublished">Read (Published)</mat-checkbox>
+          <mat-checkbox formControlName="Builds:Read">Read</mat-checkbox>
+          <mat-checkbox formControlName="Builds:Write">Write</mat-checkbox>
+        </div>
 
-      <h4>Game Servers</h4>
-      <div class="row">
-        <mat-checkbox formControlName="GameServers:ReadAuthorized">Read (Authorized)</mat-checkbox>
-        <mat-checkbox formControlName="GameServers:Read">Read</mat-checkbox>
-        <mat-checkbox formControlName="GameServers:Write">Write</mat-checkbox>
-      </div>
+        <h4>Collections</h4>
+        <div class="row">
+          <mat-checkbox formControlName="Collections:Read">Read</mat-checkbox>
+          <mat-checkbox formControlName="Collections:Write">Write</mat-checkbox>
+        </div>
 
-      <h4>Matches</h4>
-      <div class="row">
-        <mat-checkbox formControlName="Matches:Read">Read</mat-checkbox>
-        <mat-checkbox formControlName="Matches:Write">Write</mat-checkbox>
-      </div>
+        <h4>Game Servers</h4>
+        <div class="row">
+          <mat-checkbox formControlName="GameServers:ReadAuthorized">Read (Authorized)</mat-checkbox>
+          <mat-checkbox formControlName="GameServers:Read">Read</mat-checkbox>
+          <mat-checkbox formControlName="GameServers:Write">Write</mat-checkbox>
+        </div>
 
-      <h4>Namespaces</h4>
-      <div class="row">
-        <mat-checkbox formControlName="Namespaces:Read">Read</mat-checkbox>
-        <mat-checkbox formControlName="Namespaces:Write">Write</mat-checkbox>
-      </div>
+        <h4>Matches</h4>
+        <div class="row">
+          <mat-checkbox formControlName="Matches:Read">Read</mat-checkbox>
+          <mat-checkbox formControlName="Matches:Write">Write</mat-checkbox>
+        </div>
 
-      <h4>Queues</h4>
-      <div class="row">
-        <mat-checkbox formControlName="Queues:Read">Read</mat-checkbox>
-        <mat-checkbox formControlName="Queues:Write">Write</mat-checkbox>
-      </div>
+        <h4>Namespaces</h4>
+        <div class="row">
+          <mat-checkbox formControlName="Namespaces:Read">Read</mat-checkbox>
+          <mat-checkbox formControlName="Namespaces:Write">Write</mat-checkbox>
+        </div>
 
-      <h4>Records</h4>
-      <div class="row">
-        <mat-checkbox formControlName="Records:Read">Read</mat-checkbox>
-        <mat-checkbox formControlName="Records:Write">Write</mat-checkbox>
-      </div>
+        <h4>Queues</h4>
+        <div class="row">
+          <mat-checkbox formControlName="Queues:Read">Read</mat-checkbox>
+          <mat-checkbox formControlName="Queues:Write">Write</mat-checkbox>
+        </div>
 
-      <h4>Storefronts</h4>
-      <div class="row">
-        <mat-checkbox formControlName="Storefronts:Read">Read</mat-checkbox>
-        <mat-checkbox formControlName="Storefronts:Write">Write</mat-checkbox>
-      </div>
+        <h4>Records</h4>
+        <div class="row">
+          <mat-checkbox formControlName="Records:Read">Read</mat-checkbox>
+          <mat-checkbox formControlName="Records:Write">Write</mat-checkbox>
+        </div>
 
-      <h4>Users</h4>
-      <div class="row">
-        <mat-checkbox formControlName="Users:Read">Read</mat-checkbox>
-        <mat-checkbox formControlName="Users:Write">Write</mat-checkbox>
-      </div>
+        <h4>Storefronts</h4>
+        <div class="row">
+          <mat-checkbox formControlName="Storefronts:Read">Read</mat-checkbox>
+          <mat-checkbox formControlName="Storefronts:Write">Write</mat-checkbox>
+        </div>
 
-      <h4>Web Sockets</h4>
-      <div class="row">
-        <mat-checkbox formControlName="WebSockets:Read">Read</mat-checkbox>
-        <mat-checkbox formControlName="WebSockets:Write">Write</mat-checkbox>
-      </div>
+        <h4>Users</h4>
+        <div class="row">
+          <mat-checkbox formControlName="Users:Read">Read</mat-checkbox>
+          <mat-checkbox formControlName="Users:Write">Write</mat-checkbox>
+        </div>
 
-      <h4>Workflows</h4>
-      <div class="row">
-        <mat-checkbox formControlName="Workflows:Read">Read</mat-checkbox>
-        <mat-checkbox formControlName="Workflows:Write">Write</mat-checkbox>
-      </div>
-    </app-toggle-section>
-  </form>
-</div>
+        <h4>Web Sockets</h4>
+        <div class="row">
+          <mat-checkbox formControlName="WebSockets:Read">Read</mat-checkbox>
+          <mat-checkbox formControlName="WebSockets:Write">Write</mat-checkbox>
+        </div>
 
-<div *ngIf="form && !form.disabled"
-     class="page-actions">
-  <div *ngFor="let error of errors"
-       class="form-error">
-    {{ error }}
+        <h4>Workflows</h4>
+        <div class="row">
+          <mat-checkbox formControlName="Workflows:Read">Read</mat-checkbox>
+          <mat-checkbox formControlName="Workflows:Write">Write</mat-checkbox>
+        </div>
+      </app-toggle-section>
+    </form>
   </div>
 
-  <app-button color="primary"
-              form="form"
-              size="large"
-              width="full">
-    <mat-icon>save</mat-icon>
-    <div>Save</div>
-  </app-button>
-</div>
+  <div *ngIf="!form.disabled"
+       class="page-actions">
+    <div *ngFor="let error of errors"
+         class="form-error">
+      {{ error }}
+    </div>
+
+    <app-button color="primary"
+                form="form"
+                size="large"
+                width="full">
+      <mat-icon>save</mat-icon>
+      <div>Save</div>
+    </app-button>
+  </div>
+</ng-container>
+
+<app-loading-message *ngIf="!form">Loading...</app-loading-message>

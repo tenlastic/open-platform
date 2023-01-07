@@ -1,194 +1,197 @@
-<div *ngIf="form"
-     class="page">
-  <div class="row">
-    <div class="col-sm-6">
-      <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Game Server</app-title>
-      <app-title *ngIf="!hasWriteAuthorization">View Game Server</app-title>
-    </div>
-
-    <div *ngIf="hasWriteAuthorization"
-         class="col-sm-6 align-right">
-      <app-button color="accent"
-                  (OnClick)="navigateToJson()">
-        <mat-icon>code</mat-icon>
-        <div>{{ data?._id ? 'Edit' : 'Create' }} as JSON</div>
-      </app-button>
-    </div>
-  </div>
-
-  <form autocomplete="off"
-        [formGroup]="form"
-        id="form"
-        (ngSubmit)="save()">
+<ng-container *ngIf="form">
+  <div class="page">
     <div class="row">
-      <mat-form-field floatLabel="always">
-        <mat-label>Name</mat-label>
-        <input appAutofocus
-               formControlName="name"
-               matInput
-               maxlength="64"
-               required />
-        <mat-error>Enter a valid name.</mat-error>
-      </mat-form-field>
-
-      <mat-form-field floatLabel="always">
-        <mat-label>Description</mat-label>
-        <input formControlName="description"
-               matInput
-               maxlength="128" />
-        <mat-error>Enter a valid description.</mat-error>
-      </mat-form-field>
-    </div>
-
-    <div class="row">
-      <mat-form-field floatLabel="always">
-        <mat-label>Build</mat-label>
-        <mat-select formControlName="buildId"
-                    placeholder="None"
-                    required>
-          <mat-option *ngFor="let build of builds"
-                      [value]="build._id">
-            {{ build.name }}
-            <ng-container *ngIf="!build.publishedAt">(Unpublished)</ng-container>
-          </mat-option>
-        </mat-select>
-        <mat-error>Select a valid Build.</mat-error>
-      </mat-form-field>
-    </div>
-
-    <div class="row">
-      <mat-form-field floatLabel="always">
-        <mat-label>CPU</mat-label>
-        <mat-select formControlName="cpu">
-          <mat-option *ngFor="let cpu of cpus"
-                      [value]="cpu.value">{{ cpu.label }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field floatLabel="always">
-        <mat-label>Memory</mat-label>
-        <mat-select formControlName="memory">
-          <mat-option *ngFor="let memory of memories"
-                      [value]="memory.value">{{ memory.label }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field floatLabel="always">
-        <mat-label>Preemptible</mat-label>
-        <mat-select formControlName="preemptible">
-          <mat-option [value]="true">Yes</mat-option>
-          <mat-option [value]="false">No</mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
-
-    <app-toggle-section *ngIf="!form.get('metadata').disabled || form.get('metadata').value.length"
-                        [isVisible]="false"
-                        title="Metadata">
-      <app-metadata-fields [formArray]="form.get('metadata')"></app-metadata-fields>
-    </app-toggle-section>
-
-    <app-toggle-section [isVisible]="isNew"
-                        title="Ports">
-      <app-port-fields [form]="ports"></app-port-fields>
-    </app-toggle-section>
-
-    <app-toggle-section [isVisible]="false"
-                        title="Probes">
-      <h4>Liveness Probe</h4>
-      <div class="row">
-        <app-probe-field [form]="form.get('probes').get('liveness')"></app-probe-field>
+      <div class="col-sm-6">
+        <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Game Server</app-title>
+        <app-title *ngIf="!hasWriteAuthorization">View Game Server</app-title>
       </div>
 
-      <h4>Readiness Probe</h4>
-      <div class="row">
-        <app-probe-field [form]="form.get('probes').get('readiness')"></app-probe-field>
+      <div *ngIf="hasWriteAuthorization"
+           class="col-sm-6 align-right">
+        <app-button color="accent"
+                    (OnClick)="navigateToJson()">
+          <mat-icon>code</mat-icon>
+          <div>{{ data?._id ? 'Edit' : 'Create' }} as JSON</div>
+        </app-button>
       </div>
-    </app-toggle-section>
+    </div>
 
-    <app-toggle-section *ngIf="data.status"
-                        title="Status">
+    <form autocomplete="off"
+          [formGroup]="form"
+          id="form"
+          (ngSubmit)="save()">
       <div class="row">
         <mat-form-field floatLabel="always">
-          <mat-label>Phase</mat-label>
-          <input matInput
-                 disabled
-                 [value]="data.status.phase" />
+          <mat-label>Name</mat-label>
+          <input appAutofocus
+                 formControlName="name"
+                 matInput
+                 maxlength="64"
+                 required />
+          <mat-error>Enter a valid name.</mat-error>
         </mat-form-field>
 
-        <mat-form-field *ngIf="data.status.message"
-                        floatLabel="always"
-                        [matTooltip]="data.status.message.length >= 30 ? data.status.message : null"
-                        matTooltipPosition="right">
-          <mat-label>Message</mat-label>
-          <input matInput
-                 disabled
-                 [value]="data.status.message" />
+        <mat-form-field floatLabel="always">
+          <mat-label>Description</mat-label>
+          <input formControlName="description"
+                 matInput
+                 maxlength="128" />
+          <mat-error>Enter a valid description.</mat-error>
         </mat-form-field>
       </div>
-
-      <h4>Components</h4>
 
       <div class="row">
-        <mat-form-field *ngFor="let component of data.status.components"
-                        floatLabel="always">
-          <mat-label>{{ component.name }}</mat-label>
-          <input matInput
-                 disabled
-                 [value]="component.phase + ' (' + component.current + ' / ' + component.total + ')'" />
+        <mat-form-field floatLabel="always">
+          <mat-label>Build</mat-label>
+          <mat-select formControlName="buildId"
+                      placeholder="None"
+                      required>
+            <mat-option *ngFor="let build of builds"
+                        [value]="build._id">
+              {{ build.name }}
+              <ng-container *ngIf="!build.publishedAt">(Unpublished)</ng-container>
+            </mat-option>
+          </mat-select>
+          <mat-error>Select a valid Build.</mat-error>
         </mat-form-field>
       </div>
 
-      <ng-container *ngIf="data.status.endpoints.length > 0">
-        <h4>Endpoints</h4>
+      <div class="row">
+        <mat-form-field floatLabel="always">
+          <mat-label>CPU</mat-label>
+          <mat-select formControlName="cpu">
+            <mat-option *ngFor="let cpu of cpus"
+                        [value]="cpu.value">{{ cpu.label }}</mat-option>
+          </mat-select>
+        </mat-form-field>
 
-        <div *ngFor="let endpoint of data.status.endpoints"
-             class="row">
+        <mat-form-field floatLabel="always">
+          <mat-label>Memory</mat-label>
+          <mat-select formControlName="memory">
+            <mat-option *ngFor="let memory of memories"
+                        [value]="memory.value">{{ memory.label }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>Preemptible</mat-label>
+          <mat-select formControlName="preemptible">
+            <mat-option [value]="true">Yes</mat-option>
+            <mat-option [value]="false">No</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <app-toggle-section *ngIf="!form.get('metadata').disabled || form.get('metadata').value.length"
+                          [isVisible]="false"
+                          title="Metadata">
+        <app-metadata-fields [formArray]="form.get('metadata')"></app-metadata-fields>
+      </app-toggle-section>
+
+      <app-toggle-section [isVisible]="isNew"
+                          title="Ports">
+        <app-port-fields [form]="ports"></app-port-fields>
+      </app-toggle-section>
+
+      <app-toggle-section [isVisible]="false"
+                          title="Probes">
+        <h4>Liveness Probe</h4>
+        <div class="row">
+          <app-probe-field [form]="form.get('probes').get('liveness')"></app-probe-field>
+        </div>
+
+        <h4>Readiness Probe</h4>
+        <div class="row">
+          <app-probe-field [form]="form.get('probes').get('readiness')"></app-probe-field>
+        </div>
+      </app-toggle-section>
+
+      <app-toggle-section *ngIf="data.status"
+                          title="Status">
+        <div class="row">
           <mat-form-field floatLabel="always">
-            <mat-label>External IP</mat-label>
-            <input disabled
-                   matInput
-                   [value]="endpoint.externalIp" />
+            <mat-label>Phase</mat-label>
+            <input matInput
+                   disabled
+                   [value]="data.status.phase" />
           </mat-form-field>
 
-          <mat-form-field floatLabel="always">
-            <mat-label>External Port</mat-label>
-            <input disabled
-                   matInput
-                   [value]="endpoint.externalPort" />
-          </mat-form-field>
-
-          <mat-form-field floatLabel="always">
-            <mat-label>Internal Port</mat-label>
-            <input disabled
-                   matInput
-                   [value]="endpoint.internalPort" />
-          </mat-form-field>
-
-          <mat-form-field floatLabel="always">
-            <mat-label>Protocol</mat-label>
-            <input disabled
-                   matInput
-                   [value]="endpoint.protocol" />
+          <mat-form-field *ngIf="data.status.message"
+                          floatLabel="always"
+                          [matTooltip]="data.status.message.length >= 30 ? data.status.message : null"
+                          matTooltipPosition="right">
+            <mat-label>Message</mat-label>
+            <input matInput
+                   disabled
+                   [value]="data.status.message" />
           </mat-form-field>
         </div>
-      </ng-container>
-    </app-toggle-section>
-  </form>
-</div>
 
-<div *ngIf="form && !form.disabled"
-     class="page-actions">
-  <div *ngFor="let error of errors"
-       class="form-error">
-    {{ error }}
+        <h4>Components</h4>
+
+        <div class="row">
+          <mat-form-field *ngFor="let component of data.status.components"
+                          floatLabel="always">
+            <mat-label>{{ component.name }}</mat-label>
+            <input matInput
+                   disabled
+                   [value]="component.phase + ' (' + component.current + ' / ' + component.total + ')'" />
+          </mat-form-field>
+        </div>
+
+        <ng-container *ngIf="data.status.endpoints.length > 0">
+          <h4>Endpoints</h4>
+
+          <div *ngFor="let endpoint of data.status.endpoints"
+               class="row">
+            <mat-form-field floatLabel="always">
+              <mat-label>External IP</mat-label>
+              <input disabled
+                     matInput
+                     [value]="endpoint.externalIp" />
+            </mat-form-field>
+
+            <mat-form-field floatLabel="always">
+              <mat-label>External Port</mat-label>
+              <input disabled
+                     matInput
+                     [value]="endpoint.externalPort" />
+            </mat-form-field>
+
+            <mat-form-field floatLabel="always">
+              <mat-label>Internal Port</mat-label>
+              <input disabled
+                     matInput
+                     [value]="endpoint.internalPort" />
+            </mat-form-field>
+
+            <mat-form-field floatLabel="always">
+              <mat-label>Protocol</mat-label>
+              <input disabled
+                     matInput
+                     [value]="endpoint.protocol" />
+            </mat-form-field>
+          </div>
+        </ng-container>
+      </app-toggle-section>
+    </form>
   </div>
 
-  <app-button color="primary"
-              form="form"
-              size="large"
-              width="full">
-    <mat-icon>save</mat-icon>
-    <div>Save</div>
-  </app-button>
-</div>
+  <div *ngIf="!form.disabled"
+       class="page-actions">
+    <div *ngFor="let error of errors"
+         class="form-error">
+      {{ error }}
+    </div>
+
+    <app-button color="primary"
+                form="form"
+                size="large"
+                width="full">
+      <mat-icon>save</mat-icon>
+      <div>Save</div>
+    </app-button>
+  </div>
+</ng-container>
+
+<app-loading-message *ngIf="!form">Loading...</app-loading-message>
