@@ -47,7 +47,7 @@ spec:
               name: static
           podSelector:
             matchLabels:
-              app: minio
+              app.kubernetes.io/name: minio
   podSelector: {}
   policyTypes:
     - Egress
