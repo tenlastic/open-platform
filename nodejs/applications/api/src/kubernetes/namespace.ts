@@ -190,7 +190,17 @@ export const KubernetesNamespace = {
     await networkPolicyApiV1.createOrReplace('dynamic', {
       metadata: { labels: { ...labels }, name },
       spec: {
-        egress: [{ to: [{ podSelector: { matchLabels: { 'tenlastic.com/app': name } } }] }],
+        egress: [
+          {
+            to: [
+              {
+                namespaceSelector: { matchLabels: { name: 'static' } },
+                podSelector: { matchLabels: { 'app.kubernetes.io/name': 'mongodb' } },
+              },
+              { podSelector: { matchLabels: { 'tenlastic.com/app': name } } },
+            ],
+          },
+        ],
         podSelector: { matchLabels: { 'tenlastic.com/app': name } },
         policyTypes: ['Egress'],
       },
