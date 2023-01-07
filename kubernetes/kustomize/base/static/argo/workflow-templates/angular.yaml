@@ -24,8 +24,6 @@ spec:
             topologyKey: kubernetes.io/hostname
   arguments:
     parameters:
-      - name: repo
-        value: git@github.com:tenlastic/open-platform.git
       - name: revision
   entrypoint: entrypoint
   podGC:
@@ -53,7 +51,6 @@ spec:
     - name: entrypoint
       inputs:
         parameters:
-          - name: repo
           - name: revision
       parallelism: 5
       steps:
@@ -61,8 +58,6 @@ spec:
             template: checkout
             arguments:
               parameters:
-                - name: repo
-                  value: "{{inputs.parameters.repo}}"
                 - name: revision
                   value: "{{inputs.parameters.revision}}"
         - - name: get-branch
@@ -142,13 +137,19 @@ spec:
         - - name: publish-electron-applications
             when: "'{{inputs.parameters.branch}}' == 'origin/master'"
             template: publish-electron-applications
+        - - name: commit
+            when: "'{{inputs.parameters.branch}}' == 'origin/master'"
+            template: commit
+            arguments:
+              parameters:
+                - name: workingDir
+                  value: /workspace/open-platform/angular/
 
     - name: bootstrap
       container:
         image: tenlastic/node-development:latest
         command: [bash]
-        args:
-          - /workspace/open-platform/ci-cd/bootstrap.sh
+        args: [/workspace/open-platform/ci-cd/bootstrap.sh]
         imagePullPolicy: IfNotPresent
         volumeMounts:
           - name: workspace
@@ -162,8 +163,7 @@ spec:
       container:
         image: tenlastic/node-development:latest
         command: [bash]
-        args:
-          - /workspace/open-platform/ci-cd/build-docker-image.sh
+        args: [/workspace/open-platform/ci-cd/build-docker-image.sh]
         env:
           - name: CONTEXT
             value: "{{inputs.parameters.context}}"
@@ -180,25 +180,17 @@ spec:
           - name: image
 
     - name: checkout
-      script:
-        image: alpine/git:latest
-        command: [sh]
-        source: |
-          # Add Host Key for Github.
-          mkdir -p /root/.ssh/
-          ssh-keyscan -t rsa github.com > /root/.ssh/known_hosts
-          cp /tmp/secrets/continuous-deployment/id_rsa /root/.ssh/id_rsa
-          chmod 600 /root/.ssh/id_rsa
-
-          # Use SSH instead of HTTPS.
-          git config --global url."ssh://git@github.com".insteadOf "https://github.com" || true
-          git config --global gc.auto 0 || true
-
-          # Clone repository and reset to specific revision.
-          git clone {{inputs.parameters.repo}} /workspace/open-platform/
-          cd /workspace/open-platform/
-          git fetch --all
-          git reset --hard {{inputs.parameters.revision}}
+      container:
+        image: tenlastic/checkout:latest
+        env:
+          - name: DIRECTORY
+            value: /workspace/open-platform/
+          - name: PRIVATE_KEY
+            value: /tmp/secrets/continuous-deployment/id_rsa
+          - name: REPOSITORY
+            value: git@github.com:tenlastic/open-platform.git
+          - name: REVISION
+            value: "{{inputs.parameters.revision}}"
         imagePullPolicy: IfNotPresent
         volumeMounts:
           - name: continuous-deployment
@@ -208,15 +200,33 @@ spec:
             mountPath: /workspace/
       inputs:
         parameters:
-          - name: repo
           - name: revision
+
+    - name: commit
+      container:
+        image: alpine/git:latest
+        command: [sh]
+        args: [/workspace/open-platform/ci-cd/commit.sh]
+        envFrom:
+          - secretRef:
+              name: continuous-deployment
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - name: continuous-deployment
+            mountPath: /tmp/secrets/continuous-deployment/
+            readonly: true
+          - name: workspace
+            mountPath: /workspace/
+        workingDir: "{{inputs.parameters.workingDir}}"
+      inputs:
+        parameters:
+          - name: workingDir
 
     - name: continuous-integration
       container:
         image: tenlastic/node-development:latest
         command: [bash]
-        args:
-          - /workspace/open-platform/ci-cd/continuous-integration-angular.sh
+        args: [/workspace/open-platform/ci-cd/continuous-integration-angular.sh]
         envFrom:
           - secretRef:
               name: continuous-integration
@@ -227,10 +237,13 @@ spec:
         workingDir: /workspace/open-platform/angular/
 
     - name: get-branch
-      script:
+      container:
         image: alpine/git:latest
         command: [sh]
-        source: git branch --contains {{inputs.parameters.revision}} --remotes | tail +2 | cut -c 3-
+        args: [/workspace/open-platform/ci-cd/get-branch.sh]
+        env:
+          - name: REVISION
+            value: "{{inputs.parameters.revision}}"
         imagePullPolicy: IfNotPresent
         volumeMounts:
           - name: workspace
@@ -241,15 +254,10 @@ spec:
           - name: revision
 
     - name: get-docker-images
-      script:
+      container:
         image: tenlastic/node-development:latest
         command: [bash]
-        source: |
-          npm i -g json &> /dev/null
-
-          # Explicitly use local Lerna version to avoid "info cli using local version of lerna" message.
-          JSON=$(./node_modules/.bin/lerna list --all --json --loglevel silent --scope @tenlastic/* 2> /dev/null || echo "[]")
-          echo "${JSON}" | json -0 -c 'this.private === true' -e 'this.name = this.name.replace("@tenlastic/","")'
+        args: [/workspace/open-platform/ci-cd/get-docker-images.sh]
         imagePullPolicy: IfNotPresent
         volumeMounts:
           - name: workspace
@@ -295,8 +303,7 @@ spec:
       container:
         image: electronuserland/builder:wine
         command: [sh]
-        args:
-          - /workspace/open-platform/ci-cd/publish-electron-applications.sh
+        args: [/workspace/open-platform/ci-cd/publish-electron-applications.sh]
         envFrom:
           - secretRef:
               name: continuous-deployment
@@ -310,8 +317,7 @@ spec:
       container:
         image: tenlastic/node-development:latest
         command: [bash]
-        args:
-          - /workspace/open-platform/ci-cd/publish-npm-modules.sh
+        args: [/workspace/open-platform/ci-cd/publish-npm-modules.sh]
         envFrom:
           - secretRef:
               name: continuous-deployment
@@ -328,14 +334,10 @@ spec:
           - name: workingDir
 
     - name: skip
-      script:
+      container:
         image: alpine/git:latest
         command: [sh]
-        source: |
-          case $(git log -1 --pretty=%B) in 
-            *\[skip\ ci\]*) echo "true" ;;
-            *) echo "false";; 
-          esac
+        args: [/workspace/open-platform/ci-cd/skip.sh]
         imagePullPolicy: IfNotPresent
         volumeMounts:
           - name: workspace

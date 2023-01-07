@@ -197,6 +197,14 @@ export const KubernetesNamespace = {
                 namespaceSelector: { matchLabels: { name: 'static' } },
                 podSelector: { matchLabels: { 'app.kubernetes.io/name': 'mongodb' } },
               },
+              {
+                namespaceSelector: { matchLabels: { name: 'static' } },
+                podSelector: { matchLabels: { 'app.kubernetes.io/name': 'nats' } },
+              },
+              {
+                namespaceSelector: { matchLabels: { name: 'static' } },
+                podSelector: { matchLabels: { 'app.kubernetes.io/name': 'redis' } },
+              },
               { podSelector: { matchLabels: { 'tenlastic.com/app': name } } },
             ],
           },
