@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 
+# Update Git Credentials.
+git config user.email $GITHUB_USER_EMAIL
+git config user.name $GITHUB_USER_NAME
+
 # Bump package versions.
 npm config set unsafe-perm true
 lerna version --concurrency 1 --no-push --yes patch
