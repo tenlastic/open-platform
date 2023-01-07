@@ -301,6 +301,20 @@ spec:
         parameters:
           - name: workingDir
 
+    - name: migrations
+      container:
+        image: tenlastic/node-development:latest
+        command: [bash]
+        args: [/workspace/open-platform/ci-cd/migrations.sh]
+        envFrom:
+          - secretRef:
+              name: continuous-deployment
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - name: workspace
+            mountPath: /workspace/
+        workingDir: /workspace/open-platform/nodejs/
+
     - name: publish-docker-image
       container:
         image: gcr.io/kaniko-project/executor:v1.8.0
