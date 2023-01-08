@@ -8,6 +8,14 @@ resource "google_dns_managed_zone" "tenlastic_com" {
   name        = "tenlastic"
 }
 
+resource "google_dns_record_set" "tenlastic_com" {
+  managed_zone = google_dns_managed_zone.tenlastic_com.name
+  name         = google_dns_managed_zone.tenlastic_com.dns_name
+  rrdatas      = [google_compute_address.load_balancer.address]
+  ttl          = 300
+  type         = "A"
+}
+
 resource "google_dns_record_set" "wildcard_tenlastic_com" {
   managed_zone = google_dns_managed_zone.tenlastic_com.name
   name         = "*.${google_dns_managed_zone.tenlastic_com.dns_name}"
