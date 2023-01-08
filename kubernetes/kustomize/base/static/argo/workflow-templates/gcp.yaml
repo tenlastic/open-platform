@@ -24,8 +24,6 @@ spec:
             topologyKey: kubernetes.io/hostname
   arguments:
     parameters:
-      - name: repo
-        value: git@github.com:tenlastic/open-platform.git
       - name: revision
   entrypoint: entrypoint
   podGC:
@@ -53,33 +51,23 @@ spec:
     - name: entrypoint
       inputs:
         parameters:
-          - name: repo
           - name: revision
-      parallelism: 2
       steps:
         - - name: checkout
-            template: checkout
-            arguments:
-              parameters:
-                - name: repo
-                  value: "{{inputs.parameters.repo}}"
-                - name: revision
-                  value: "{{inputs.parameters.revision}}"
-        - - name: get-branch
-            template: get-branch
+            templateRef:
+              name: checkout
+              template: entrypoint
             arguments:
               parameters:
                 - name: revision
                   value: "{{inputs.parameters.revision}}"
-          - name: skip
-            template: skip
         - - name: gcp
-            when: "'{{steps.skip.outputs.result}}' == 'false'"
+            when: "'{{steps.checkout.outputs.parameters.skip}}' == 'false'"
             template: gcp
             arguments:
               parameters:
                 - name: branch
-                  value: "{{steps.get-branch.outputs.result}}"
+                  value: "{{steps.checkout.outputs.parameters.branch}}"
 
     - name: gcp
       inputs:
@@ -89,67 +77,6 @@ spec:
         - - name: terraform
             when: "'{{inputs.parameters.branch}}' == 'origin/master'"
             template: terraform
-
-    - name: checkout
-      script:
-        image: alpine/git:latest
-        command: [sh]
-        source: |
-          # Add Host Key for Github.
-          mkdir -p /root/.ssh/
-          ssh-keyscan -t rsa github.com > /root/.ssh/known_hosts
-          cp /tmp/secrets/continuous-deployment/id_rsa /root/.ssh/id_rsa
-          chmod 600 /root/.ssh/id_rsa
-
-          # Use SSH instead of HTTPS.
-          git config --global url."ssh://git@github.com".insteadOf "https://github.com" || true
-          git config --global gc.auto 0 || true
-
-          # Clone repository and reset to specific revision.
-          git clone {{inputs.parameters.repo}} /workspace/open-platform/
-          cd /workspace/open-platform/
-          git fetch --all
-          git reset --hard {{inputs.parameters.revision}}
-        imagePullPolicy: IfNotPresent
-        volumeMounts:
-          - name: continuous-deployment
-            mountPath: /tmp/secrets/continuous-deployment/
-            readonly: true
-          - name: workspace
-            mountPath: /workspace/
-      inputs:
-        parameters:
-          - name: repo
-          - name: revision
-
-    - name: get-branch
-      script:
-        image: alpine/git:latest
-        command: [sh]
-        source: git branch --contains {{inputs.parameters.revision}} --remotes | tail +2 | cut -c 3-
-        imagePullPolicy: IfNotPresent
-        volumeMounts:
-          - name: workspace
-            mountPath: /workspace/
-        workingDir: /workspace/open-platform/
-      inputs:
-        parameters:
-          - name: revision
-
-    - name: skip
-      script:
-        image: alpine/git:latest
-        command: [sh]
-        source: |
-          case $(git log -1 --pretty=%B) in 
-            *\[skip\ ci\]*) echo "true" ;;
-            *) echo "false";; 
-          esac
-        imagePullPolicy: IfNotPresent
-        volumeMounts:
-          - name: workspace
-            mountPath: /workspace/
-        workingDir: /workspace/open-platform/
 
     - name: terraform
       container:

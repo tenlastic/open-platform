@@ -52,35 +52,27 @@ spec:
       inputs:
         parameters:
           - name: revision
-      parallelism: 5
       steps:
         - - name: checkout
-            template: checkout
+            templateRef:
+              name: checkout
+              template: entrypoint
             arguments:
               parameters:
                 - name: revision
                   value: "{{inputs.parameters.revision}}"
-        - - name: get-branch
-            template: get-branch
-            arguments:
-              parameters:
-                - name: revision
-                  value: "{{inputs.parameters.revision}}"
-          - name: skip
-            template: skip
         - - name: angular
-            when: "'{{steps.skip.outputs.result}}' == 'false'"
+            when: "'{{steps.checkout.outputs.parameters.skip}}' == 'false'"
             template: angular
             arguments:
               parameters:
                 - name: branch
-                  value: "{{steps.get-branch.outputs.result}}"
+                  value: "{{steps.checkout.outputs.parameters.branch}}"
 
     - name: angular
       inputs:
         parameters:
           - name: branch
-      parallelism: 5
       steps:
         - - name: bootstrap-angular
             template: bootstrap
@@ -179,29 +171,6 @@ spec:
           - name: context
           - name: image
 
-    - name: checkout
-      container:
-        image: tenlastic/checkout:latest
-        env:
-          - name: DIRECTORY
-            value: /workspace/open-platform/
-          - name: PRIVATE_KEY
-            value: /tmp/secrets/continuous-deployment/id_rsa
-          - name: REPOSITORY
-            value: git@github.com:tenlastic/open-platform.git
-          - name: REVISION
-            value: "{{inputs.parameters.revision}}"
-        imagePullPolicy: IfNotPresent
-        volumeMounts:
-          - name: continuous-deployment
-            mountPath: /tmp/secrets/continuous-deployment/
-            readonly: true
-          - name: workspace
-            mountPath: /workspace/
-      inputs:
-        parameters:
-          - name: revision
-
     - name: commit
       container:
         image: alpine/git:latest
@@ -235,23 +204,6 @@ spec:
           - name: workspace
             mountPath: /workspace/
         workingDir: /workspace/open-platform/angular/
-
-    - name: get-branch
-      container:
-        image: alpine/git:latest
-        command: [sh]
-        args: [/workspace/open-platform/ci-cd/get-branch.sh]
-        env:
-          - name: REVISION
-            value: "{{inputs.parameters.revision}}"
-        imagePullPolicy: IfNotPresent
-        volumeMounts:
-          - name: workspace
-            mountPath: /workspace/
-        workingDir: /workspace/open-platform/
-      inputs:
-        parameters:
-          - name: revision
 
     - name: get-docker-images
       container:
@@ -332,14 +284,3 @@ spec:
       inputs:
         parameters:
           - name: workingDir
-
-    - name: skip
-      container:
-        image: alpine/git:latest
-        command: [sh]
-        args: [/workspace/open-platform/ci-cd/skip.sh]
-        imagePullPolicy: IfNotPresent
-        volumeMounts:
-          - name: workspace
-            mountPath: /workspace/
-        workingDir: /workspace/open-platform/

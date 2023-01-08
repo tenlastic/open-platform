@@ -1,0 +1,85 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: checkout
+  namespace: static
+spec:
+  templates:
+    - name: entrypoint
+      inputs:
+        parameters:
+          - name: revision
+      outputs:
+        parameters:
+          - name: branch
+            valueFrom:
+              parameter: "{{steps.get-branch.outputs.result}}"
+          - name: skip
+            valueFrom:
+              parameter: "{{steps.skip.outputs.result}}"
+      steps:
+        - - name: checkout
+            template: checkout
+            arguments:
+              parameters:
+                - name: revision
+                  value: "{{inputs.parameters.revision}}"
+        - - name: get-branch
+            template: get-branch
+            arguments:
+              parameters:
+                - name: revision
+                  value: "{{inputs.parameters.revision}}"
+          - name: skip
+            template: skip
+
+    - name: checkout
+      container:
+        image: tenlastic/checkout:latest
+        env:
+          - name: DIRECTORY
+            value: /workspace/open-platform/
+          - name: PRIVATE_KEY
+            value: /tmp/secrets/continuous-deployment/id_rsa
+          - name: REPOSITORY
+            value: git@github.com:tenlastic/open-platform.git
+          - name: REVISION
+            value: "{{inputs.parameters.revision}}"
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - name: continuous-deployment
+            mountPath: /tmp/secrets/continuous-deployment/
+            readonly: true
+          - name: workspace
+            mountPath: /workspace/
+      inputs:
+        parameters:
+          - name: revision
+
+    - name: get-branch
+      container:
+        image: alpine/git:latest
+        command: [sh]
+        args: [/workspace/open-platform/ci-cd/get-branch.sh]
+        env:
+          - name: REVISION
+            value: "{{inputs.parameters.revision}}"
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - name: workspace
+            mountPath: /workspace/
+        workingDir: /workspace/open-platform/
+      inputs:
+        parameters:
+          - name: revision
+
+    - name: skip
+      container:
+        image: alpine/git:latest
+        command: [sh]
+        args: [/workspace/open-platform/ci-cd/skip.sh]
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - name: workspace
+            mountPath: /workspace/
+        workingDir: /workspace/open-platform/
