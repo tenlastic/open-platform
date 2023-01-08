@@ -80,7 +80,7 @@ spec:
               parameters:
                 - name: workingDir
                   value: /workspace/open-platform/angular/
-        - - name: bootstrap-nodejs
+          - name: bootstrap-nodejs
             template: bootstrap
             arguments:
               parameters:
