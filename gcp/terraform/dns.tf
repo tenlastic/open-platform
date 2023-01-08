@@ -42,13 +42,17 @@ resource "google_dns_record_set" "gmail" {
 resource "google_dns_record_set" "mailgun" {
   managed_zone = google_dns_managed_zone.tenlastic_com.name
   name         = "support.${google_dns_managed_zone.tenlastic_com.dns_name}"
+  rrdatas      = ["10 mxa.mailgun.org.","10 mxb.mailgun.org."]
   ttl          = 3600
   type         = "MX"
+}
 
-  rrdatas = [
-    "10 mxa.mailgun.org.",
-    "10 mxb.mailgun.org."
-  ]
+resource "google_dns_record_set" "mailgun_spf" {
+  managed_zone = google_dns_managed_zone.tenlastic_com.name
+  name         = "support.${google_dns_managed_zone.tenlastic_com.dns_name}"
+  rrdatas      = ["v=spf1 include:mailgun.org ~all"]
+  ttl          = 3600
+  type         = "TXT"
 }
 
 module "dns_admin" {
