@@ -25,6 +25,7 @@ export class WebSocketsListPageComponent implements OnDestroy, OnInit {
   public $webSockets: Observable<WebSocketModel[]>;
   public dataSource = new MatTableDataSource<WebSocketModel>();
   public displayedColumns = ['user', 'createdAt'];
+  public message: string;
 
   private updateDataSource$ = new Subscription();
 
@@ -37,8 +38,10 @@ export class WebSocketsListPageComponent implements OnDestroy, OnInit {
   ) {}
 
   public ngOnInit() {
-    this.activatedRoute.params.subscribe((params) => {
-      this.fetchWebSockets(params.namespaceId, params.userId);
+    this.activatedRoute.params.subscribe(async (params) => {
+      this.message = 'Loading...';
+      await this.fetchWebSockets(params.namespaceId, params.userId);
+      this.message = null;
     });
   }
 

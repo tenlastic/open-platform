@@ -32,6 +32,7 @@ export class UsersListPageComponent implements OnDestroy, OnInit {
   public dataSource = new MatTableDataSource<UserModel>();
   public displayedColumns = ['webSocket', 'username', 'email', 'createdAt', 'updatedAt', 'actions'];
   public hasWriteAuthorization: boolean;
+  public message: string;
   public get user() {
     return this.identityService.user;
   }
@@ -52,12 +53,16 @@ export class UsersListPageComponent implements OnDestroy, OnInit {
     private webSocketService: WebSocketService,
   ) {}
 
-  public ngOnInit() {
+  public async ngOnInit() {
+    this.message = 'Loading...';
+
     const roles = [IAuthorization.Role.NamespacesWrite];
     const userId = this.identityService.user?._id;
     this.hasWriteAuthorization = this.authorizationQuery.hasRoles(null, roles, userId);
 
-    this.fetchUsers();
+    await this.fetchUsers();
+
+    this.message = null;
   }
 
   public ngOnDestroy() {

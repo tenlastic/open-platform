@@ -73,7 +73,8 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
   ) {}
 
   public async ngOnInit() {
-    this.activatedRoute.params.subscribe((params) => {
+    this.activatedRoute.params.subscribe(async (params) => {
+      this.message = 'Loading...';
       this.params = params;
 
       const roles = [IAuthorization.Role.GameServersWrite];
@@ -82,7 +83,9 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
         this.authorizationQuery.hasRoles(null, roles, userId) ||
         this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
-      this.fetchGameServers(params);
+      await this.fetchGameServers(params);
+
+      this.message = null;
     });
   }
 
@@ -165,8 +168,6 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
   }
 
   private async fetchGameServers(params: Params) {
-    this.message = 'Loading...';
-
     this.$gameServers = this.gameServerQuery.selectAll({
       filterBy: (gs) =>
         gs.namespaceId === params.namespaceId &&
@@ -189,8 +190,6 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
     await this.buildService.find(params.namespaceId, {
       where: { _id: { $in: gameServers.map((gs) => gs.buildId) } },
     });
-
-    this.message = null;
   }
 
   private getNodes(gameServer: GameServerModel) {

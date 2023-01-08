@@ -34,6 +34,7 @@ export class ArticlesListPageComponent implements OnDestroy, OnInit {
       : ['type', 'title', 'publishedAt', 'createdAt', 'actions'];
   }
   public hasWriteAuthorization: boolean;
+  public message: string;
   public get plural() {
     switch (this.type) {
       case IArticle.Type.Guide:
@@ -75,14 +76,19 @@ export class ArticlesListPageComponent implements OnDestroy, OnInit {
 
   public ngOnInit() {
     this.activatedRoute.data.subscribe((data) => (this.type = data.type));
-    this.activatedRoute.params.subscribe((params) => {
+
+    this.activatedRoute.params.subscribe(async (params) => {
+      this.message = 'Loading...';
+
       const roles = [IAuthorization.Role.ArticlesWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
         this.authorizationQuery.hasRoles(null, roles, userId) ||
         this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
-      this.fetchArticles(params);
+      await this.fetchArticles(params);
+
+      this.message = null;
     });
   }
 

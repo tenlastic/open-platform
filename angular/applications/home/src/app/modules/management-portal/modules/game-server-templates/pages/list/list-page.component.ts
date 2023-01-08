@@ -31,6 +31,7 @@ export class GameServerTemplatesListPageComponent implements OnDestroy, OnInit {
   public dataSource = new MatTableDataSource<GameServerTemplateModel>();
   public displayedColumns = ['name', 'description', 'build', 'actions'];
   public hasWriteAuthorization: boolean;
+  public message: string;
   public get queueId() {
     return this.params?.queueId;
   }
@@ -53,7 +54,8 @@ export class GameServerTemplatesListPageComponent implements OnDestroy, OnInit {
   ) {}
 
   public async ngOnInit() {
-    this.activatedRoute.params.subscribe((params) => {
+    this.activatedRoute.params.subscribe(async (params) => {
+      this.message = 'Loading...';
       this.params = params;
 
       const roles = [IAuthorization.Role.GameServersWrite];
@@ -62,7 +64,9 @@ export class GameServerTemplatesListPageComponent implements OnDestroy, OnInit {
         this.authorizationQuery.hasRoles(null, roles, userId) ||
         this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
-      this.fetchGameServerTemplates(params);
+      await this.fetchGameServerTemplates(params);
+
+      this.message = null;
     });
   }
 

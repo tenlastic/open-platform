@@ -32,6 +32,7 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
   public dataSource = new MatTableDataSource<BuildModel>();
   public displayedColumns = ['name', 'platform', 'status', 'publishedAt', 'actions'];
   public hasWriteAuthorization: boolean;
+  public message: string;
 
   private $builds: Observable<BuildModel[]>;
   private updateDataSource$ = new Subscription();
@@ -49,14 +50,18 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
   ) {}
 
   public ngOnInit() {
-    this.activatedRoute.params.subscribe((params) => {
+    this.activatedRoute.params.subscribe(async (params) => {
+      this.message = 'Loading...';
+
       const roles = [IAuthorization.Role.BuildsWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
         this.authorizationQuery.hasRoles(null, roles, userId) ||
         this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
-      this.fetchBuilds(params);
+      await this.fetchBuilds(params);
+
+      this.message = null;
     });
   }
 

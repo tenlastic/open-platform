@@ -37,6 +37,7 @@ export class MatchesListPageComponent implements OnDestroy, OnInit {
       : ['gameServerTemplate', 'queue', 'teams', 'users', 'startedAt', 'finishedAt', 'actions'];
   }
   public hasWriteAuthorization: boolean;
+  public message: string;
 
   private $matches: Observable<MatchModel[]>;
   private updateDataSource$ = new Subscription();
@@ -58,7 +59,8 @@ export class MatchesListPageComponent implements OnDestroy, OnInit {
   ) {}
 
   public ngOnInit() {
-    this.activatedRoute.params.subscribe((params) => {
+    this.activatedRoute.params.subscribe(async (params) => {
+      this.message = 'Loading...';
       this.params = params;
 
       const roles = [IAuthorization.Role.MatchesWrite];
@@ -67,7 +69,9 @@ export class MatchesListPageComponent implements OnDestroy, OnInit {
         this.authorizationQuery.hasRoles(null, roles, userId) ||
         this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
-      this.fetchMatches(params);
+      await this.fetchMatches(params);
+
+      this.message = null;
     });
   }
 

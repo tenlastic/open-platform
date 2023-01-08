@@ -21,6 +21,7 @@ export class RefreshTokensListPageComponent implements OnDestroy, OnInit {
   public $refreshTokens: Observable<RefreshTokenModel[]>;
   public dataSource = new MatTableDataSource<RefreshTokenModel>();
   public displayedColumns = ['_id', 'createdAt', 'updatedAt', 'expiresAt', 'actions'];
+  public message: string;
 
   private updateDataSource$ = new Subscription();
 
@@ -32,7 +33,9 @@ export class RefreshTokensListPageComponent implements OnDestroy, OnInit {
   ) {}
 
   public async ngOnInit() {
-    this.fetchRefreshTokens();
+    this.message = 'Loading...';
+    await this.fetchRefreshTokens();
+    this.message = null;
   }
 
   public ngOnDestroy() {

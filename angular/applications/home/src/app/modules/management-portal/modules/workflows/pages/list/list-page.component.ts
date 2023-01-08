@@ -29,6 +29,7 @@ export class WorkflowsListPageComponent implements OnDestroy, OnInit {
   public dataSource = new MatTableDataSource<WorkflowModel>();
   public displayedColumns = ['name', 'status', 'createdAt', 'updatedAt', 'actions'];
   public hasWriteAuthorization: boolean;
+  public message: string;
 
   private $workflows: Observable<WorkflowModel[]>;
   private updateDataSource$ = new Subscription();
@@ -44,14 +45,18 @@ export class WorkflowsListPageComponent implements OnDestroy, OnInit {
   ) {}
 
   public async ngOnInit() {
-    this.activatedRoute.params.subscribe((params) => {
+    this.activatedRoute.params.subscribe(async (params) => {
+      this.message = 'Loading...';
+
       const roles = [IAuthorization.Role.CollectionsWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
         this.authorizationQuery.hasRoles(null, roles, userId) ||
         this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
-      this.fetchWorkflows(params);
+      await this.fetchWorkflows(params);
+
+      this.message = null;
     });
   }
 

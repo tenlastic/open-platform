@@ -31,6 +31,7 @@ export class QueueMembersListPageComponent implements OnDestroy, OnInit {
   public dataSource = new MatTableDataSource<QueueMemberModel>();
   public displayedColumns = ['username', 'createdAt', 'actions'];
   public hasWriteAuthorization: boolean;
+  public message: string;
 
   private updateDataSource$ = new Subscription();
 
@@ -46,14 +47,18 @@ export class QueueMembersListPageComponent implements OnDestroy, OnInit {
   ) {}
 
   public async ngOnInit() {
-    this.activatedRoute.params.subscribe((params) => {
+    this.activatedRoute.params.subscribe(async (params) => {
+      this.message = 'Loading...';
+
       const roles = [IAuthorization.Role.QueuesWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
         this.authorizationQuery.hasRoles(null, roles, userId) ||
         this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
-      this.fetchQueueMembers(params);
+      await this.fetchQueueMembers(params);
+
+      this.message = null;
     });
   }
 

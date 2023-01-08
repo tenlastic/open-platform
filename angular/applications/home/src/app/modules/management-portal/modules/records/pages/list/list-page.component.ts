@@ -32,6 +32,7 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
   public dataSource = new MatTableDataSource<RecordModel>();
   public displayedColumns: string[];
   public hasWriteAuthorization: boolean;
+  public message: string;
   public propertyColumns: string[];
 
   private $records: Observable<RecordModel[]>;
@@ -51,6 +52,7 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
 
   public async ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
+      this.message = 'Loading...';
       this.params = params;
 
       const roles = [IAuthorization.Role.CollectionsWrite];
@@ -59,18 +61,19 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
         this.authorizationQuery.hasRoles(null, roles, userId) ||
         this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
-      this.collection = await this.collectionService.findOne(
-        params.namespaceId,
-        params.collectionId,
-      );
+      const [collection] = await Promise.all([
+        this.collectionService.findOne(params.namespaceId, params.collectionId),
+        this.fetchRecords(params),
+      ]);
 
+      this.collection = collection;
       this.propertyColumns = Object.entries(this.collection.jsonSchema.properties)
         .map(([key, value]) => (value.type === 'array' || value.type === 'object' ? null : key))
         .filter((p) => p)
         .slice(0, 4);
       this.displayedColumns = this.propertyColumns.concat(['createdAt', 'updatedAt', 'actions']);
 
-      await this.fetchRecords(params);
+      this.message = null;
     });
   }
 

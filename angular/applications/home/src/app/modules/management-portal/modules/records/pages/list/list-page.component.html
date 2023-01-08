@@ -1,4 +1,7 @@
-<div class="page">
+<app-loading-message *ngIf="message">{{ message }}</app-loading-message>
+
+<div *ngIf="!message"
+     class="page">
   <app-title>{{ collection?.name }}</app-title>
 
   <div class="row">

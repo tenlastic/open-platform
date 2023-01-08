@@ -46,6 +46,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
   public dataSource = new MatTableDataSource<QueueModel>();
   public displayedColumns = ['name', 'description', 'gameServerTemplate', 'status', 'actions'];
   public hasWriteAuthorization: boolean;
+  public message: string;
 
   private $queues: Observable<QueueModel[]>;
   private updateDataSource$ = new Subscription();
@@ -71,7 +72,8 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
   ) {}
 
   public ngOnInit() {
-    this.activatedRoute.params.subscribe((params) => {
+    this.activatedRoute.params.subscribe(async (params) => {
+      this.message = 'Loading...';
       this.params = params;
 
       const roles = [IAuthorization.Role.QueuesWrite];
@@ -80,7 +82,9 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
         this.authorizationQuery.hasRoles(null, roles, userId) ||
         this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
-      this.fetchQueues(params);
+      await this.fetchQueues(params);
+
+      this.message = null;
     });
   }
 

@@ -29,6 +29,7 @@ export class CollectionsListPageComponent implements OnDestroy, OnInit {
   public dataSource = new MatTableDataSource<CollectionModel>();
   public displayedColumns = ['name', 'properties', 'roles', 'createdAt', 'updatedAt', 'actions'];
   public hasWriteAuthorization: boolean;
+  public message: string;
 
   private $collections: Observable<CollectionModel[]>;
   private updateDataSource$ = new Subscription();
@@ -44,14 +45,18 @@ export class CollectionsListPageComponent implements OnDestroy, OnInit {
   ) {}
 
   public async ngOnInit() {
-    this.activatedRoute.params.subscribe((params) => {
+    this.activatedRoute.params.subscribe(async (params) => {
+      this.message = 'Loading...';
+
       const roles = [IAuthorization.Role.CollectionsWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
         this.authorizationQuery.hasRoles(null, roles, userId) ||
         this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
-      this.fetchCollections(params);
+      await this.fetchCollections(params);
+
+      this.message = null;
     });
   }
 

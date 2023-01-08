@@ -30,6 +30,7 @@ export class AuthorizationRequestsListPageComponent implements OnDestroy, OnInit
   public dataSource = new MatTableDataSource<AuthorizationRequestModel>();
   public displayedColumns = ['user', 'roles', 'grantedAt', 'deniedAt', 'createdAt', 'actions'];
   public hasWriteAuthorization: boolean;
+  public message: string;
 
   private $authorizationRequests: Observable<AuthorizationRequestModel[]>;
   private updateDataSource$ = new Subscription();
@@ -46,12 +47,16 @@ export class AuthorizationRequestsListPageComponent implements OnDestroy, OnInit
   ) {}
 
   public ngOnInit() {
-    this.activatedRoute.params.subscribe((params) => {
+    this.activatedRoute.params.subscribe(async (params) => {
+      this.message = 'Loading...';
+
       const roles = [IAuthorization.Role.AuthorizationsWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization = this.authorizationQuery.hasRoles(null, roles, userId);
 
-      this.fetchAuthorizations(params);
+      await this.fetchAuthorizations(params);
+
+      this.message = null;
     });
   }
 
