@@ -1,5 +1,6 @@
 import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
 import { Chance } from 'chance';
+import * as mongoose from 'mongoose';
 
 import { GameServerStatusComponentName, GameServerStatusPhase } from '../model';
 
@@ -37,4 +38,6 @@ export class GameServerStatusComponentSchema {
 }
 
 export type GameServerStatusComponentDocument = DocumentType<GameServerStatusComponentSchema>;
-export const GameServerStatusComponentModel = getModelForClass(GameServerStatusComponentSchema);
+export const GameServerStatusComponentModel = getModelForClass(GameServerStatusComponentSchema, {
+  existingMongoose: mongoose,
+});

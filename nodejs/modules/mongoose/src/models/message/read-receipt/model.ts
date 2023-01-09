@@ -22,4 +22,6 @@ export class MessageReadReceiptSchema {
 }
 
 export type MessageReadReceiptDocument = DocumentType<MessageReadReceiptSchema>;
-export const MessageReadReceiptModel = getModelForClass(MessageReadReceiptSchema);
+export const MessageReadReceiptModel = getModelForClass(MessageReadReceiptSchema, {
+  existingMongoose: mongoose,
+});

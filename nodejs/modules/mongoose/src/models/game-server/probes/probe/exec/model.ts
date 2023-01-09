@@ -1,4 +1,5 @@
 import { DocumentType, getModelForClass, modelOptions, prop, PropType } from '@typegoose/typegoose';
+import * as mongoose from 'mongoose';
 
 import { arrayLengthValidator } from '../../../../../validators';
 
@@ -30,4 +31,6 @@ export class GameServerProbesProbeExecSchema {
 }
 
 export type GameServerProbesProbeExecDocument = DocumentType<GameServerProbesProbeExecSchema>;
-export const GameServerProbesProbeExecModel = getModelForClass(GameServerProbesProbeExecSchema);
+export const GameServerProbesProbeExecModel = getModelForClass(GameServerProbesProbeExecSchema, {
+  existingMongoose: mongoose,
+});

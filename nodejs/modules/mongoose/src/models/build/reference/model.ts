@@ -20,4 +20,6 @@ export class BuildReferenceSchema {
 }
 
 export type BuildReferenceDocument = DocumentType<BuildReferenceSchema>;
-export const BuildReferenceModel = getModelForClass(BuildReferenceSchema);
+export const BuildReferenceModel = getModelForClass(BuildReferenceSchema, {
+  existingMongoose: mongoose,
+});

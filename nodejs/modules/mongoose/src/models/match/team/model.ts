@@ -35,4 +35,4 @@ export class MatchTeamSchema {
 }
 
 export type MatchTeamDocument = DocumentType<MatchTeamSchema>;
-export const MatchTeamModel = getModelForClass(MatchTeamSchema);
+export const MatchTeamModel = getModelForClass(MatchTeamSchema, { existingMongoose: mongoose });

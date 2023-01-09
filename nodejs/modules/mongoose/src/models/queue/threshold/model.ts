@@ -1,5 +1,6 @@
 import { DocumentType, getModelForClass, modelOptions, prop, PropType } from '@typegoose/typegoose';
 import { Chance } from 'chance';
+import * as mongoose from 'mongoose';
 
 import { arrayLengthValidator, arrayMaxMinValidator } from '../../../validators';
 
@@ -33,4 +34,6 @@ export class QueueThresholdSchema {
 }
 
 export type QueueThresholdDocument = DocumentType<QueueThresholdSchema>;
-export const QueueThresholdModel = getModelForClass(QueueThresholdSchema);
+export const QueueThresholdModel = getModelForClass(QueueThresholdSchema, {
+  existingMongoose: mongoose,
+});

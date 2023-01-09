@@ -72,4 +72,6 @@ export class CollectionPermissionsSchema {
 }
 
 export type CollectionPermissionsDocument = DocumentType<CollectionPermissionsSchema>;
-export const CollectionPermissionsModel = getModelForClass(CollectionPermissionsSchema);
+export const CollectionPermissionsModel = getModelForClass(CollectionPermissionsSchema, {
+  existingMongoose: mongoose,
+});

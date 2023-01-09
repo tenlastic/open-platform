@@ -1,5 +1,6 @@
 import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
 import { Chance } from 'chance';
+import * as mongoose from 'mongoose';
 
 import { QueueStatusComponentName, QueueStatusPhase } from '../model';
 
@@ -37,4 +38,6 @@ export class QueueStatusComponentSchema {
 }
 
 export type QueueStatusComponentDocument = DocumentType<QueueStatusComponentSchema>;
-export const QueueStatusComponentModel = getModelForClass(QueueStatusComponentSchema);
+export const QueueStatusComponentModel = getModelForClass(QueueStatusComponentSchema, {
+  existingMongoose: mongoose,
+});

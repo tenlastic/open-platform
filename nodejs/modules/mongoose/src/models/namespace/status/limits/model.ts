@@ -1,4 +1,5 @@
 import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
+import * as mongoose from 'mongoose';
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class NamespaceStatusLimitsSchema {
@@ -28,4 +29,6 @@ export class NamespaceStatusLimitsSchema {
 }
 
 export type NamespaceStatusLimitsDocument = DocumentType<NamespaceStatusLimitsSchema>;
-export const NamespaceStatusLimitsModel = getModelForClass(NamespaceStatusLimitsSchema);
+export const NamespaceStatusLimitsModel = getModelForClass(NamespaceStatusLimitsSchema, {
+  existingMongoose: mongoose,
+});

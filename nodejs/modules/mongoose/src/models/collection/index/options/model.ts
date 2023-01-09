@@ -42,4 +42,6 @@ export class CollectionIndexOptionsSchema {
 }
 
 export type CollectionIndexOptionsDocument = DocumentType<CollectionIndexOptionsSchema>;
-export const CollectionIndexOptionsModel = getModelForClass(CollectionIndexOptionsSchema);
+export const CollectionIndexOptionsModel = getModelForClass(CollectionIndexOptionsSchema, {
+  existingMongoose: mongoose,
+});

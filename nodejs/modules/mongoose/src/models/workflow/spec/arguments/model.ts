@@ -1,4 +1,5 @@
 import { DocumentType, getModelForClass, modelOptions, prop, PropType } from '@typegoose/typegoose';
+import * as mongoose from 'mongoose';
 
 import { WorkflowSpecParameterDocument, WorkflowSpecParameterSchema } from '../parameter';
 
@@ -21,4 +22,6 @@ export class WorkflowSpecArgumentsSchema {
 }
 
 export type WorkflowSpecArgumentsDocument = DocumentType<WorkflowSpecArgumentsSchema>;
-export const WorkflowSpecArgumentsModel = getModelForClass(WorkflowSpecArgumentsSchema);
+export const WorkflowSpecArgumentsModel = getModelForClass(WorkflowSpecArgumentsSchema, {
+  existingMongoose: mongoose,
+});

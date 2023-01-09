@@ -40,4 +40,6 @@ export class CollectionIndexSchema {
 }
 
 export type CollectionIndexDocument = DocumentType<CollectionIndexSchema>;
-export const CollectionIndexModel = getModelForClass(CollectionIndexSchema);
+export const CollectionIndexModel = getModelForClass(CollectionIndexSchema, {
+  existingMongoose: mongoose,
+});

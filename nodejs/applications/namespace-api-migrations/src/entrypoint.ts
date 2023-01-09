@@ -24,10 +24,11 @@ import {
   WorkflowModel,
 } from '@tenlastic/mongoose';
 import { getModelForClass } from '@typegoose/typegoose';
+import * as mongoose from 'mongoose';
 
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
 const mongoDatabaseName = process.env.MONGO_DATABASE_NAME;
-const SchemaModel = getModelForClass(SchemaSchema);
+const SchemaModel = getModelForClass(SchemaSchema, { existingMongoose: mongoose });
 
 (async () => {
   try {

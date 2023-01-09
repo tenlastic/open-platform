@@ -1,5 +1,6 @@
 import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
 import { Chance } from 'chance';
+import * as mongoose from 'mongoose';
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class WorkflowSpecEnvSchema {
@@ -24,4 +25,6 @@ export class WorkflowSpecEnvSchema {
 }
 
 export type WorkflowSpecEnvDocument = DocumentType<WorkflowSpecEnvSchema>;
-export const WorkflowSpecEnvModel = getModelForClass(WorkflowSpecEnvSchema);
+export const WorkflowSpecEnvModel = getModelForClass(WorkflowSpecEnvSchema, {
+  existingMongoose: mongoose,
+});

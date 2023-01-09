@@ -1,4 +1,5 @@
 import { DocumentType, getModelForClass, modelOptions, prop, PropType } from '@typegoose/typegoose';
+import * as mongoose from 'mongoose';
 
 import { WorkflowStatusPhase } from '../model';
 
@@ -67,4 +68,6 @@ export class WorkflowStatusNodeSchema {
 }
 
 export type WorkflowStatusNodeDocument = DocumentType<WorkflowStatusNodeSchema>;
-export const WorkflowStatusNodeModel = getModelForClass(WorkflowStatusNodeSchema);
+export const WorkflowStatusNodeModel = getModelForClass(WorkflowStatusNodeSchema, {
+  existingMongoose: mongoose,
+});

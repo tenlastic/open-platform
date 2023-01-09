@@ -1,5 +1,6 @@
 import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
 import { Chance } from 'chance';
+import * as mongoose from 'mongoose';
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class BuildFileSchema {
@@ -32,4 +33,4 @@ export class BuildFileSchema {
 }
 
 export type BuildFileDocument = DocumentType<BuildFileSchema>;
-export const BuildFileModel = getModelForClass(BuildFileSchema);
+export const BuildFileModel = getModelForClass(BuildFileSchema, { existingMongoose: mongoose });

@@ -1,4 +1,5 @@
 import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
+import * as mongoose from 'mongoose';
 
 import {
   GameServerProbesProbeDocument,
@@ -28,4 +29,6 @@ export class GameServerProbesSchema {
 }
 
 export type GameServerProbesDocument = DocumentType<GameServerProbesSchema>;
-export const GameServerProbesModel = getModelForClass(GameServerProbesSchema);
+export const GameServerProbesModel = getModelForClass(GameServerProbesSchema, {
+  existingMongoose: mongoose,
+});

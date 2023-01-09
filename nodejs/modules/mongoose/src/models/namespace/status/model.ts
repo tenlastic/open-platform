@@ -1,4 +1,5 @@
 import { DocumentType, getModelForClass, modelOptions, prop, PropType } from '@typegoose/typegoose';
+import * as mongoose from 'mongoose';
 
 import {
   NamespaceStatusComponentDocument,
@@ -101,4 +102,6 @@ export class NamespaceStatusSchema {
 }
 
 export type NamespaceStatusDocument = DocumentType<NamespaceStatusSchema>;
-export const NamespaceStatusModel = getModelForClass(NamespaceStatusSchema);
+export const NamespaceStatusModel = getModelForClass(NamespaceStatusSchema, {
+  existingMongoose: mongoose,
+});

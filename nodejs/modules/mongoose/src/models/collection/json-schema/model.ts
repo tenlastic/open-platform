@@ -1,4 +1,5 @@
 import { DocumentType, getModelForClass, modelOptions, prop, PropType } from '@typegoose/typegoose';
+import * as mongoose from 'mongoose';
 
 import {
   alphabeticalKeysValidator,
@@ -50,4 +51,6 @@ export class CollectionJsonSchemaSchema {
 }
 
 export type CollectionJsonSchemaDocument = DocumentType<CollectionJsonSchemaSchema>;
-export const CollectionJsonSchemaModel = getModelForClass(CollectionJsonSchemaSchema);
+export const CollectionJsonSchemaModel = getModelForClass(CollectionJsonSchemaSchema, {
+  existingMongoose: mongoose,
+});

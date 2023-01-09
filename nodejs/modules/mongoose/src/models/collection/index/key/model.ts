@@ -1,5 +1,6 @@
 import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
 import { Chance } from 'chance';
+import * as mongoose from 'mongoose';
 
 import { enumValidator } from '../../../../validators';
 
@@ -26,4 +27,6 @@ export class CollectionIndexKeySchema {
 }
 
 export type CollectionIndexKeyDocument = DocumentType<CollectionIndexKeySchema>;
-export const CollectionIndexKeyModel = getModelForClass(CollectionIndexKeySchema);
+export const CollectionIndexKeyModel = getModelForClass(CollectionIndexKeySchema, {
+  existingMongoose: mongoose,
+});

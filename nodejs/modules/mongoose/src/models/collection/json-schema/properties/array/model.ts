@@ -1,4 +1,5 @@
 import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
+import * as mongoose from 'mongoose';
 
 export enum CollectionJsonSchemaType {
   Array = 'array',
@@ -41,4 +42,6 @@ export class CollectionJsonSchemaArraySchema {
 }
 
 export type CollectionJsonSchemaArrayDocument = DocumentType<CollectionJsonSchemaArraySchema>;
-export const CollectionJsonSchemaArrayModel = getModelForClass(CollectionJsonSchemaArraySchema);
+export const CollectionJsonSchemaArrayModel = getModelForClass(CollectionJsonSchemaArraySchema, {
+  existingMongoose: mongoose,
+});

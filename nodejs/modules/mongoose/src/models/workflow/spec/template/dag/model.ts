@@ -1,4 +1,5 @@
 import { DocumentType, getModelForClass, modelOptions, prop, PropType } from '@typegoose/typegoose';
+import * as mongoose from 'mongoose';
 
 import {
   WorkflowSpecTemplateDagTaskDocument,
@@ -25,4 +26,6 @@ export class WorkflowSpecTemplateDagSchema {
 }
 
 export type WorkflowSpecTemplateDagDocument = DocumentType<WorkflowSpecTemplateDagSchema>;
-export const WorkflowSpecTemplateDagModel = getModelForClass(WorkflowSpecTemplateDagSchema);
+export const WorkflowSpecTemplateDagModel = getModelForClass(WorkflowSpecTemplateDagSchema, {
+  existingMongoose: mongoose,
+});

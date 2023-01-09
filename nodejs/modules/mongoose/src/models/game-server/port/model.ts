@@ -1,5 +1,6 @@
 import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
 import { Chance } from 'chance';
+import * as mongoose from 'mongoose';
 
 export enum GameServerPortProtocol {
   Tcp = 'TCP',
@@ -26,4 +27,6 @@ export class GameServerPortSchema {
 }
 
 export type GameServerPortDocument = DocumentType<GameServerPortSchema>;
-export const GameServerPortModel = getModelForClass(GameServerPortSchema);
+export const GameServerPortModel = getModelForClass(GameServerPortSchema, {
+  existingMongoose: mongoose,
+});

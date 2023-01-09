@@ -16,9 +16,10 @@ import {
   WebSocketModel,
 } from '@tenlastic/mongoose';
 import { getModelForClass } from '@typegoose/typegoose';
+import * as mongoose from 'mongoose';
 
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
-const SchemaModel = getModelForClass(SchemaSchema);
+const SchemaModel = getModelForClass(SchemaSchema, { existingMongoose: mongoose });
 
 (async () => {
   try {

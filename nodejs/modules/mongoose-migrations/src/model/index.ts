@@ -44,4 +44,4 @@ export class MigrationSchema {
 }
 
 export type MigrationDocument = DocumentType<MigrationSchema>;
-export const MigrationModel = getModelForClass(MigrationSchema);
+export const MigrationModel = getModelForClass(MigrationSchema, { existingMongoose: mongoose });
