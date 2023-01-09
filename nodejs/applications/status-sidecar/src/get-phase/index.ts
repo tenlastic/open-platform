@@ -6,7 +6,7 @@ export function getPhase(components: Component[], nodes: Node[]) {
 
   if (nodes.some((n) => n.phase === 'Error')) {
     phase = 'Error';
-  } else if (components.every((c) => c.phase === 'Running')) {
+  } else if (components.every((c) => c.phase === 'Running' || c.phase === 'Succeeded')) {
     phase = 'Running';
   }
 

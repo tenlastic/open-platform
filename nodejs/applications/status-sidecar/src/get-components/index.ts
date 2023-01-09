@@ -1,20 +1,38 @@
-import { V1Deployment, V1StatefulSet } from '@kubernetes/client-node';
+import { V1Deployment, V1Job, V1StatefulSet } from '@kubernetes/client-node';
 
 export interface Component {
-  current: number;
+  current?: number;
   name: string;
   phase: string;
-  total: number;
+  total?: number;
 }
 
-export function getComponents(deployments: V1Deployment[], statefulSets: V1StatefulSet[]) {
-  return deployments
-    .concat(statefulSets)
-    .map((ds) => ({
-      current: ds.status.readyReplicas || 0,
-      name: ds.metadata.labels['tenlastic.com/role'],
-      phase: ds.spec.replicas === ds.status.readyReplicas ? 'Running' : 'Pending',
-      total: ds.spec.replicas,
-    }))
-    .sort((a, b) => (a.name > b.name ? 1 : -1));
+export function getComponents(
+  deployments: V1Deployment[],
+  jobs: V1Job[],
+  statefulSets: V1StatefulSet[],
+) {
+  const components = [
+    ...deployments.map(getReplicaSetComponents),
+    ...jobs.map(getJobComponents),
+    ...statefulSets.map(getReplicaSetComponents),
+  ];
+
+  return components.sort((a, b) => (a.name > b.name ? 1 : -1));
+}
+
+function getJobComponents(job: V1Job) {
+  return {
+    name: job.metadata.labels['tenlastic.com/role'],
+    phase: job.status.completionTime ? 'Succeeded' : job.status.active ? 'Running' : 'Pending',
+  };
+}
+
+function getReplicaSetComponents(replicaSet: V1Deployment | V1StatefulSet) {
+  return {
+    current: replicaSet.status.readyReplicas || 0,
+    name: replicaSet.metadata.labels['tenlastic.com/role'],
+    phase: replicaSet.spec.replicas === replicaSet.status.readyReplicas ? 'Running' : 'Pending',
+    total: replicaSet.spec.replicas,
+  };
 }

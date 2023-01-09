@@ -1,10 +1,11 @@
 import 'source-map-support/register';
 import '@tenlastic/logging';
 
-import { CoreV1Event, V1Deployment, V1Pod, V1StatefulSet } from '@kubernetes/client-node';
+import { CoreV1Event, V1Deployment, V1Job, V1Pod, V1StatefulSet } from '@kubernetes/client-node';
 import {
   deploymentApiV1,
   eventApiV1,
+  jobApiV1,
   podApiV1,
   statefulSetApiV1,
   Watch,
@@ -24,6 +25,7 @@ const labelSelector = process.env.LABEL_SELECTOR;
 
 const deployments: { [key: string]: V1Deployment } = {};
 const events: { [key: string]: CoreV1Event } = {};
+const jobs: { [key: string]: V1Job } = {};
 const pods: { [key: string]: V1Pod } = {};
 const statefulSets: { [key: string]: V1StatefulSet } = {};
 const watches: { [key: string]: Watch<CoreV1Event> } = {};
@@ -33,10 +35,11 @@ let startedUpdatingAt = 0;
 let timeout: NodeJS.Timeout;
 
 (async () => {
-  await Promise.all([getDeployments(), getPods(), getStatefulSets()]);
+  await Promise.all([getDeployments(), getJobs(), getPods(), getStatefulSets()]);
   await update();
 
   await watchDeployments();
+  await watchJobs();
   await watchPods();
   await watchStatefulSets();
 })();
@@ -45,6 +48,13 @@ async function getDeployments() {
   const ds = await deploymentApiV1.list('dynamic', { labelSelector });
   for (const d of ds.body.items) {
     deployments[d.metadata.name] = d;
+  }
+}
+
+async function getJobs() {
+  const js = await jobApiV1.list('dynamic', { labelSelector });
+  for (const j of js.body.items) {
+    jobs[j.metadata.name] = j;
   }
 }
 
@@ -77,11 +87,12 @@ async function update() {
 
   try {
     const d = Object.values(deployments);
+    const j = Object.values(jobs);
     const p = Object.values(pods);
     const ss = Object.values(statefulSets);
 
-    const components = getComponents(d, ss);
-    const message = getMessage(d, events, ss);
+    const components = getComponents(d, j, ss);
+    const message = getMessage(d, events, j, ss);
     const nodes = getNodes(p);
     const phase = getPhase(components, nodes);
 
@@ -162,6 +173,32 @@ function watchEvents(statefulSet: V1StatefulSet) {
 
       console.error(err.message);
       process.exit(1);
+    },
+  );
+}
+
+function watchJobs() {
+  return jobApiV1.watch(
+    'dynamic',
+    { labelSelector },
+    async (type, job) => {
+      console.log(`Job - ${type}: ${job.metadata.name}.`);
+
+      if (type === 'ADDED' || type === 'MODIFIED') {
+        jobs[job.metadata.name] = job;
+      } else if (type === 'DELETED') {
+        delete jobs[job.metadata.name];
+      }
+
+      try {
+        await update();
+      } catch (e) {
+        console.error(e.message);
+      }
+    },
+    (err) => {
+      console.error(err?.message);
+      process.exit(err ? 1 : 0);
     },
   );
 }

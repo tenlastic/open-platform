@@ -5,7 +5,7 @@ import { GameServerStatusComponentName, GameServerStatusPhase } from '../model';
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class GameServerStatusComponentSchema {
-  @prop({ required: true, type: Number })
+  @prop({ type: Number })
   public current: number;
 
   @prop({ enum: GameServerStatusComponentName, required: true, type: String })
@@ -14,7 +14,7 @@ export class GameServerStatusComponentSchema {
   @prop({ default: () => GameServerStatusPhase.Pending, enum: GameServerStatusPhase, type: String })
   public phase: GameServerStatusPhase;
 
-  @prop({ required: true, type: Number })
+  @prop({ type: Number })
   public total: number;
 
   /**

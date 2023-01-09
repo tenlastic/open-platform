@@ -17,6 +17,7 @@ export enum NamespaceStatusComponentName {
   CDC = 'CDC',
   Connector = 'Connector',
   Metrics = 'Metrics',
+  Migrations = 'Migrations',
   Sidecar = 'Sidecar',
 }
 
@@ -56,6 +57,10 @@ export class NamespaceStatusSchema {
           name: NamespaceStatusComponentName.Metrics,
           phase: NamespaceStatusPhase.Pending,
           total: 1,
+        }),
+        new NamespaceStatusComponentModel({
+          name: NamespaceStatusComponentName.Migrations,
+          phase: NamespaceStatusPhase.Pending,
         }),
         new NamespaceStatusComponentModel({
           current: 0,

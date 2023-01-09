@@ -5,7 +5,7 @@ import { QueueStatusComponentName, QueueStatusPhase } from '../model';
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class QueueStatusComponentSchema {
-  @prop({ required: true, type: Number })
+  @prop({ type: Number })
   public current: number;
 
   @prop({ enum: QueueStatusComponentName, required: true, type: String })
@@ -14,7 +14,7 @@ export class QueueStatusComponentSchema {
   @prop({ default: () => QueueStatusPhase.Pending, enum: QueueStatusPhase, type: String })
   public phase: QueueStatusPhase;
 
-  @prop({ required: true, type: Number })
+  @prop({ type: Number })
   public total: number;
 
   /**

@@ -6,6 +6,7 @@ export namespace INamespace {
     CDC = 'CDC',
     Connector = 'Connector',
     Metrics = 'Metrics',
+    Migrations = 'Migrations',
     Sidecar = 'Sidecar',
   }
 

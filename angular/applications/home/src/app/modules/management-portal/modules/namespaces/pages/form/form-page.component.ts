@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   AuthorizationQuery,
   IAuthorization,
+  INamespace,
   NamespaceModel,
   NamespaceQuery,
   NamespaceService,
@@ -59,6 +60,14 @@ export class NamespacesFormPageComponent implements OnDestroy, OnInit {
 
   public ngOnDestroy() {
     this.updateNamespace$.unsubscribe();
+  }
+
+  public getComponentValue(component: INamespace.StatusComponent) {
+    if (!component.total) {
+      return component.phase;
+    }
+
+    return `${component.phase} (${component.current} / ${component.total})`;
   }
 
   public navigateToJson() {

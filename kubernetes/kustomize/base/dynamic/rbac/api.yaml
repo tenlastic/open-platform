@@ -55,6 +55,19 @@ rules:
       - update
       - watch
   - apiGroups:
+      - batch
+    resources:
+      - jobs
+    verbs:
+      - create
+      - delete
+      - deletecollection
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
       - helm.toolkit.fluxcd.io
     resources:
       - helmreleases

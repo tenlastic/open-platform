@@ -12,7 +12,5 @@ components:
         total:
           type: number
       required:
-        - current
         - name
         - phase
-        - total

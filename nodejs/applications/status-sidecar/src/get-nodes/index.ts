@@ -18,6 +18,7 @@ export function getNodes(pods: V1Pod[]) {
       const component = p.metadata.labels['tenlastic.com/role'];
       return p.status.containerStatuses.map((cs) => {
         let phase = 'Pending';
+
         if (cs.state.running) {
           phase = cs.ready ? 'Running' : 'Pending';
         } else if (cs.state.terminated) {

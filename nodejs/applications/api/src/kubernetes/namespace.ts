@@ -10,6 +10,7 @@ import {
   BaseListQuery,
   deploymentApiV1,
   ingressApiV1,
+  jobApiV1,
   networkPolicyApiV1,
   persistentVolumeClaimApiV1,
   podApiV1,
@@ -80,6 +81,7 @@ export const KubernetesNamespace = {
     const query: BaseListQuery = { labelSelector: `tenlastic.com/namespaceId=${namespace._id}` };
     await deploymentApiV1.deleteCollection('dynamic', query);
     await ingressApiV1.deleteCollection('dynamic', query);
+    await jobApiV1.deleteCollection('dynamic', query);
     await networkPolicyApiV1.deleteCollection('dynamic', query);
     await persistentVolumeClaimApiV1.deleteCollection('dynamic', query);
     await podApiV1.deleteCollection('dynamic', query);
@@ -411,6 +413,20 @@ export const KubernetesNamespace = {
         },
         template: getMetricsPodTemplate(namespace),
       },
+    });
+
+    /**
+     * ======================
+     * MIGRATIONS
+     * ======================
+     */
+    await jobApiV1.delete(`${name}-migrations`, 'dynamic');
+    await jobApiV1.createOrReplace('dynamic', {
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': NamespaceStatusComponentName.Migrations },
+        name: `${name}-migrations`,
+      },
+      spec: { template: getMigrationsPodTemplate(namespace) },
     });
   },
 };
@@ -752,6 +768,61 @@ function getMetricsPodTemplate(namespace: NamespaceDocument): V1Pod {
           },
         ],
         serviceAccountName: 'metrics',
+      },
+    };
+  }
+}
+
+function getMigrationsPodTemplate(namespace: NamespaceDocument): V1Pod {
+  const labels = KubernetesNamespace.getLabels(namespace);
+  const name = KubernetesNamespace.getName(namespace._id);
+
+  const envFrom: V1EnvFromSource[] = [{ secretRef: { name: 'nodejs' } }, { secretRef: { name } }];
+  const resources = { requests: { cpu: '25m', memory: '75M' } };
+
+  const isDevelopment = process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/');
+  if (isDevelopment) {
+    return {
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': NamespaceStatusComponentName.Migrations },
+        name: `${name}-migrations`,
+      },
+      spec: {
+        affinity: getAffinity(namespace, NamespaceStatusComponentName.Migrations),
+        containers: [
+          {
+            command: ['npm', 'run', 'start'],
+            envFrom,
+            image: `tenlastic/node-development:latest`,
+            name: 'main',
+            resources: { limits: { cpu: '1000m' }, requests: resources.requests },
+            volumeMounts: [{ mountPath: '/usr/src/', name: 'workspace' }],
+            workingDir: `/usr/src/nodejs/applications/namespace-api-migrations/`,
+          },
+        ],
+        restartPolicy: 'OnFailure',
+        volumes: [
+          { hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' }, name: 'workspace' },
+        ],
+      },
+    };
+  } else {
+    return {
+      metadata: {
+        labels: { ...labels, 'tenlastic.com/role': NamespaceStatusComponentName.Migrations },
+        name,
+      },
+      spec: {
+        affinity: getAffinity(namespace, NamespaceStatusComponentName.Migrations),
+        containers: [
+          {
+            envFrom,
+            image: `tenlastic/namespace-api-migrations:${version}`,
+            name: 'main',
+            resources,
+          },
+        ],
+        restartPolicy: 'OnFailure',
       },
     };
   }

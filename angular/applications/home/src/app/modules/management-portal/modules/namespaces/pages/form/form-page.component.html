@@ -119,9 +119,9 @@
           <mat-form-field *ngFor="let component of data.status.components"
                           floatLabel="always">
             <mat-label>{{ component.name }}</mat-label>
-            <input matInput
-                   disabled
-                   [value]="component.phase + ' (' + component.current + ' / ' + component.total + ')'" />
+            <input disabled
+                   matInput
+                   [value]="getComponentValue(component)" />
           </mat-form-field>
         </div>
 

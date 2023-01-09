@@ -76,8 +76,8 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
   }
 
   public getStatus(record: NamespaceModel) {
-    const current = record.status.components.reduce((a, b) => a + b.current, 0);
-    const total = record.status.components.reduce((a, b) => a + b.total, 0);
+    const current = record.status.components.reduce((a, b) => a + (b.current ?? 0), 0);
+    const total = record.status.components.reduce((a, b) => a + (b.total ?? 0), 0);
 
     return `${record.status.phase} (${current} / ${total})`;
   }
@@ -181,11 +181,8 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
           label = `${INamespace.StatusComponentName.Connector} (Social API)`;
         } else if (n.component === INamespace.StatusComponentName.Metrics) {
           label = INamespace.StatusComponentName.Metrics;
-        } else if (
-          n.component === INamespace.StatusComponentName.Sidecar &&
-          n.container === 'namespace-api-migrations'
-        ) {
-          label = `${INamespace.StatusComponentName.Sidecar} (Migrations)`;
+        } else if (n.component === INamespace.StatusComponentName.Migrations) {
+          label = INamespace.StatusComponentName.Migrations;
         } else if (
           n.component === INamespace.StatusComponentName.Sidecar &&
           n.container === 'status-sidecar'

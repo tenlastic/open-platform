@@ -9,7 +9,7 @@
   "scripts": {
     "build": "../../scripts/build.sh",
     "lint": "../../scripts/lint.sh",
-    "start": "../../scripts/start.sh --watch"
+    "start": "../../scripts/start.sh"
   },
   "dependencies": {
     "@tenlastic/logging": "0.0.339",

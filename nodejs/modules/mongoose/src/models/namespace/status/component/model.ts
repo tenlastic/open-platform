@@ -5,7 +5,7 @@ import { NamespaceStatusComponentName, NamespaceStatusPhase } from '../model';
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class NamespaceStatusComponentSchema {
-  @prop({ required: true, type: Number })
+  @prop({ type: Number })
   public current: number;
 
   @prop({ enum: NamespaceStatusComponentName, required: true, type: String })
@@ -14,7 +14,7 @@ export class NamespaceStatusComponentSchema {
   @prop({ default: () => NamespaceStatusPhase.Pending, enum: NamespaceStatusPhase, type: String })
   public phase: NamespaceStatusPhase;
 
-  @prop({ required: true, type: Number })
+  @prop({ type: Number })
   public total: number;
 
   /**
