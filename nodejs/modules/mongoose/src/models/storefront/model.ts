@@ -82,4 +82,4 @@ export class StorefrontSchema {
 }
 
 export type StorefrontDocument = DocumentType<StorefrontSchema>;
-export const StorefrontModel = getModelForClass(StorefrontSchema);
+export const StorefrontModel = getModelForClass(StorefrontSchema, { existingMongoose: mongoose });

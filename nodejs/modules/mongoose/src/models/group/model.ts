@@ -49,4 +49,4 @@ export class GroupSchema {
 }
 
 export type GroupDocument = DocumentType<GroupSchema>;
-export const GroupModel = getModelForClass(GroupSchema);
+export const GroupModel = getModelForClass(GroupSchema, { existingMongoose: mongoose });

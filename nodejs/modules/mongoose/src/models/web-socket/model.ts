@@ -46,4 +46,4 @@ export class WebSocketSchema {
 }
 
 export type WebSocketDocument = DocumentType<WebSocketSchema>;
-export const WebSocketModel = getModelForClass(WebSocketSchema);
+export const WebSocketModel = getModelForClass(WebSocketSchema, { existingMongoose: mongoose });

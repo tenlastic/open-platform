@@ -94,4 +94,4 @@ export class MatchSchema {
 }
 
 export type MatchDocument = DocumentType<MatchSchema>;
-export const MatchModel = getModelForClass(MatchSchema);
+export const MatchModel = getModelForClass(MatchSchema, { existingMongoose: mongoose });

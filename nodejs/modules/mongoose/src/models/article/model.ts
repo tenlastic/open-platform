@@ -67,4 +67,4 @@ export class ArticleSchema {
 }
 
 export type ArticleDocument = DocumentType<ArticleSchema>;
-export const ArticleModel = getModelForClass(ArticleSchema);
+export const ArticleModel = getModelForClass(ArticleSchema, { existingMongoose: mongoose });

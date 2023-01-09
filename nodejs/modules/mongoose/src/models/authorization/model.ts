@@ -143,4 +143,6 @@ export class AuthorizationSchema {
 }
 
 export type AuthorizationDocument = DocumentType<AuthorizationSchema>;
-export const AuthorizationModel = getModelForClass(AuthorizationSchema);
+export const AuthorizationModel = getModelForClass(AuthorizationSchema, {
+  existingMongoose: mongoose,
+});

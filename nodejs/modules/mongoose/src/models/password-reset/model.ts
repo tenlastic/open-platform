@@ -48,4 +48,6 @@ export class PasswordResetSchema {
 }
 
 export type PasswordResetDocument = DocumentType<PasswordResetSchema>;
-export const PasswordResetModel = getModelForClass(PasswordResetSchema);
+export const PasswordResetModel = getModelForClass(PasswordResetSchema, {
+  existingMongoose: mongoose,
+});

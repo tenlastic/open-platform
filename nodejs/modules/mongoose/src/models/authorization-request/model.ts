@@ -107,4 +107,6 @@ export class AuthorizationRequestSchema implements ModifiedPlugin {
 }
 
 export type AuthorizationRequestDocument = DocumentType<AuthorizationRequestSchema>;
-export const AuthorizationRequestModel = getModelForClass(AuthorizationRequestSchema);
+export const AuthorizationRequestModel = getModelForClass(AuthorizationRequestSchema, {
+  existingMongoose: mongoose,
+});

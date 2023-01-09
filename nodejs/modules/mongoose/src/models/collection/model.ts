@@ -42,7 +42,7 @@ import {
   const Model = RecordSchema.getModel(this);
   await Model.syncIndexes();
 
-  const SchemaModel = getModelForClass(SchemaSchema);
+  const SchemaModel = getModelForClass(SchemaSchema, { existingMongoose: mongoose });
   await SchemaModel.sync(Model);
 
   await enablePrePostImages(Model);
@@ -51,7 +51,7 @@ import {
   try {
     await this.dropCollection();
 
-    const Schema = getModelForClass(SchemaSchema);
+    const Schema = getModelForClass(SchemaSchema, { existingMongoose: mongoose });
     await Schema.deleteOne({ name: this.collection.name });
   } catch (e) {
     console.error(e.message);
@@ -165,4 +165,4 @@ export class CollectionSchema {
 }
 
 export type CollectionDocument = DocumentType<CollectionSchema>;
-export const CollectionModel = getModelForClass(CollectionSchema);
+export const CollectionModel = getModelForClass(CollectionSchema, { existingMongoose: mongoose });

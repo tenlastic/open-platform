@@ -181,4 +181,4 @@ export class QueueMemberSchema {
 }
 
 export type QueueMemberDocument = mongoose.Document & DocumentType<QueueMemberSchema>;
-export const QueueMemberModel = getModelForClass(QueueMemberSchema);
+export const QueueMemberModel = getModelForClass(QueueMemberSchema, { existingMongoose: mongoose });

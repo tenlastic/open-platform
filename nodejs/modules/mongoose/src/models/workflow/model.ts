@@ -70,4 +70,4 @@ export class WorkflowSchema {
 }
 
 export type WorkflowDocument = DocumentType<WorkflowSchema>;
-export const WorkflowModel = getModelForClass(WorkflowSchema);
+export const WorkflowModel = getModelForClass(WorkflowSchema, { existingMongoose: mongoose });

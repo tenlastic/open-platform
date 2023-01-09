@@ -86,4 +86,4 @@ export class UserSchema {
 }
 
 export type UserDocument = DocumentType<UserSchema>;
-export const UserModel = getModelForClass(UserSchema);
+export const UserModel = getModelForClass(UserSchema, { existingMongoose: mongoose });

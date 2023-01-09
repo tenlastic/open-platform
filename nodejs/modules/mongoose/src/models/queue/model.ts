@@ -144,4 +144,4 @@ export class QueueSchema {
 }
 
 export type QueueDocument = DocumentType<QueueSchema>;
-export const QueueModel = getModelForClass(QueueSchema);
+export const QueueModel = getModelForClass(QueueSchema, { existingMongoose: mongoose });

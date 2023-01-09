@@ -89,4 +89,4 @@ export class LoginSchema {
 }
 
 export type LoginDocument = DocumentType<LoginSchema>;
-export const LoginModel = getModelForClass(LoginSchema);
+export const LoginModel = getModelForClass(LoginSchema, { existingMongoose: mongoose });

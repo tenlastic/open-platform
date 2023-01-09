@@ -36,4 +36,6 @@ export class RefreshTokenSchema {
 }
 
 export type RefreshTokenDocument = DocumentType<RefreshTokenSchema>;
-export const RefreshTokenModel = getModelForClass(RefreshTokenSchema);
+export const RefreshTokenModel = getModelForClass(RefreshTokenSchema, {
+  existingMongoose: mongoose,
+});

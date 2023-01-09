@@ -122,4 +122,4 @@ export class NamespaceSchema {
 }
 
 export type NamespaceDocument = DocumentType<NamespaceSchema>;
-export const NamespaceModel = getModelForClass(NamespaceSchema);
+export const NamespaceModel = getModelForClass(NamespaceSchema, { existingMongoose: mongoose });

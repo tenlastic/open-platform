@@ -76,4 +76,4 @@ export class BuildSchema {
 }
 
 export type BuildDocument = DocumentType<BuildSchema>;
-export const BuildModel = getModelForClass(BuildSchema);
+export const BuildModel = getModelForClass(BuildSchema, { existingMongoose: mongoose });

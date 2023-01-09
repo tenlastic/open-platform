@@ -84,4 +84,6 @@ export class MatchInvitationSchema {
 }
 
 export type MatchInvitationDocument = DocumentType<MatchInvitationSchema>;
-export const MatchInvitationModel = getModelForClass(MatchInvitationSchema);
+export const MatchInvitationModel = getModelForClass(MatchInvitationSchema, {
+  existingMongoose: mongoose,
+});

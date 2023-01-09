@@ -87,4 +87,4 @@ export class MessageSchema {
 }
 
 export type MessageDocument = DocumentType<MessageSchema>;
-export const MessageModel = getModelForClass(MessageSchema);
+export const MessageModel = getModelForClass(MessageSchema, { existingMongoose: mongoose });

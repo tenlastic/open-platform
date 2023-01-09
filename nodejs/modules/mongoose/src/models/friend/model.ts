@@ -40,4 +40,4 @@ export class FriendSchema {
 }
 
 export type FriendDocument = DocumentType<FriendSchema>;
-export const FriendModel = getModelForClass(FriendSchema);
+export const FriendModel = getModelForClass(FriendSchema, { existingMongoose: mongoose });

@@ -134,4 +134,4 @@ export class GameServerSchema {
 }
 
 export type GameServerDocument = DocumentType<GameServerSchema>;
-export const GameServerModel = getModelForClass(GameServerSchema);
+export const GameServerModel = getModelForClass(GameServerSchema, { existingMongoose: mongoose });

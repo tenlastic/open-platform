@@ -40,4 +40,4 @@ export class IgnorationSchema {
 }
 
 export type IgnorationDocument = DocumentType<IgnorationSchema>;
-export const IgnorationModel = getModelForClass(IgnorationSchema);
+export const IgnorationModel = getModelForClass(IgnorationSchema, { existingMongoose: mongoose });

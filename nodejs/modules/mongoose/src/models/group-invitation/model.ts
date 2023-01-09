@@ -67,4 +67,6 @@ export class GroupInvitationSchema {
 }
 
 export type GroupInvitationDocument = DocumentType<GroupInvitationSchema>;
-export const GroupInvitationModel = getModelForClass(GroupInvitationSchema);
+export const GroupInvitationModel = getModelForClass(GroupInvitationSchema, {
+  existingMongoose: mongoose,
+});
