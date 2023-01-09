@@ -7,6 +7,7 @@ import * as minio from '@tenlastic/minio';
 import * as mongoose from '@tenlastic/mongoose';
 import * as nats from '@tenlastic/nats';
 import axios from 'axios';
+import { Connection } from 'mongoose';
 import { URL } from 'url';
 import { isDeepStrictEqual } from 'util';
 
@@ -26,6 +27,7 @@ const natsConnectionString = process.env.NATS_CONNECTION_STRING;
 
 const resourceQuotas: { [key: string]: V1ResourceQuota } = {};
 
+let connection: Connection;
 let previousStatus: any;
 let startedUpdatingAt = 0;
 let timeout: NodeJS.Timeout;
@@ -43,7 +45,7 @@ let timeout: NodeJS.Timeout;
   await minio.makeBucket(minioBucket);
 
   // MongoDB.
-  await mongoose.connect({
+  connection = await mongoose.connect({
     connectionString: mongoConnectionString,
     databaseName: mongoDatabaseName,
   });
@@ -91,7 +93,7 @@ async function update() {
     const memory = getMemory(Object.values(resourceQuotas));
     const [minioStorage, mongoStorage] = await Promise.all([
       getMinioStorage(minioBucket),
-      getMongoStorage(),
+      getMongoStorage(connection),
     ]);
     const storage = minioStorage + mongoStorage;
 
