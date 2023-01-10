@@ -1,7 +1,7 @@
 import { WorkflowModel } from '@tenlastic/mongoose';
 import { NamespaceEvent, WorkflowEvent } from '@tenlastic/mongoose-nats';
 
-import { KubernetesWorkflow, KubernetesWorkflowSidecar } from '../kubernetes';
+import { KubernetesWorkflow } from '../kubernetes';
 
 // Delete Workflows if associated Namespace is deleted.
 NamespaceEvent.async(async (payload) => {
@@ -15,12 +15,9 @@ NamespaceEvent.async(async (payload) => {
 WorkflowEvent.async(async (payload) => {
   if (payload.operationType === 'delete') {
     await KubernetesWorkflow.delete(payload.fullDocument, payload.operationType);
-    await KubernetesWorkflowSidecar.delete(payload.fullDocument);
   } else if (payload.operationType === 'insert') {
     await KubernetesWorkflow.upsert(payload.fullDocument);
-    await KubernetesWorkflowSidecar.upsert(payload.fullDocument);
   } else if (payload.operationType === 'update' && payload.fullDocument.status.finishedAt) {
     await KubernetesWorkflow.delete(payload.fullDocument);
-    await KubernetesWorkflowSidecar.delete(payload.fullDocument);
   }
 });

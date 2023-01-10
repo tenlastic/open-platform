@@ -2,7 +2,7 @@ import * as minio from '@tenlastic/minio';
 import { BuildModel } from '@tenlastic/mongoose';
 import { BuildEvent, NamespaceEvent, NamespaceStorageLimitEvent } from '@tenlastic/mongoose-nats';
 
-import { KubernetesBuild, KubernetesBuildSidecar } from '../kubernetes';
+import { KubernetesBuild } from '../kubernetes';
 import { MinioBuild } from '../minio';
 
 // Delete files from Minio if associated Build is deleted.
@@ -23,13 +23,10 @@ BuildEvent.async(async (payload) => {
 BuildEvent.async(async (payload) => {
   if (payload.operationType === 'delete') {
     await KubernetesBuild.delete(payload.fullDocument, payload.operationType);
-    await KubernetesBuildSidecar.delete(payload.fullDocument);
   } else if (payload.operationType === 'insert') {
     await KubernetesBuild.upsert(payload.fullDocument);
-    await KubernetesBuildSidecar.upsert(payload.fullDocument);
   } else if (payload.operationType === 'update' && payload.fullDocument.status.finishedAt) {
     await KubernetesBuild.delete(payload.fullDocument);
-    await KubernetesBuildSidecar.delete(payload.fullDocument);
   }
 });
 

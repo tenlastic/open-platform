@@ -6,7 +6,7 @@ import {
 } from '@tenlastic/mongoose';
 import { GameServerEvent, MatchEvent, NamespaceEvent, QueueEvent } from '@tenlastic/mongoose-nats';
 
-import { KubernetesGameServer, KubernetesGameServerSidecar } from '../kubernetes';
+import { KubernetesGameServer } from '../kubernetes';
 
 // Delete Game Server if Failed or Succeeded.
 GameServerEvent.async(async (payload) => {
@@ -26,7 +26,6 @@ GameServerEvent.async(async (payload) => {
 GameServerEvent.async(async (payload) => {
   if (payload.operationType === 'delete') {
     await KubernetesGameServer.delete(payload.fullDocument);
-    await KubernetesGameServerSidecar.delete(payload.fullDocument);
   } else if (
     payload.operationType === 'insert' ||
     GameServerModel.isRestartRequired(Object.keys(payload.updateDescription.updatedFields))
@@ -36,7 +35,6 @@ GameServerEvent.async(async (payload) => {
       : null;
 
     await KubernetesGameServer.upsert(payload.fullDocument, match);
-    await KubernetesGameServerSidecar.upsert(payload.fullDocument);
   }
 });
 
@@ -85,6 +83,8 @@ NamespaceEvent.async(async (payload) => {
 QueueEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
-      return GameServerModel.deleteMany({ 'match.queueId': payload.fullDocument._id });
+      return GameServerModel.deleteMany({
+        queueId: { $eq: payload.fullDocument._id, $exists: true },
+      });
   }
 });

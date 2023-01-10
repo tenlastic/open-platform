@@ -1,5 +1,5 @@
 import { V1PodTemplateSpec, V1Probe } from '@kubernetes/client-node';
-import { deploymentApiV1, networkPolicyApiV1, podApiV1, serviceApiV1 } from '@tenlastic/kubernetes';
+import { deploymentApiV1, podApiV1, serviceApiV1 } from '@tenlastic/kubernetes';
 import {
   GameServerDocument,
   GameServerProbesProbeDocument,
@@ -8,18 +8,12 @@ import {
 } from '@tenlastic/mongoose';
 import { URL } from 'url';
 
-import { KubernetesNamespace } from './namespace';
+import { KubernetesNamespace } from '../namespace';
+import { KubernetesGameServer } from './';
 
-export const KubernetesGameServer = {
+export const KubernetesGameServerApplication = {
   delete: async (gameServer: GameServerDocument) => {
     const name = KubernetesGameServer.getName(gameServer);
-
-    /**
-     * =======================
-     * NETWORK POLICY
-     * =======================
-     */
-    await networkPolicyApiV1.delete(name, 'dynamic');
 
     /**
      * =======================
@@ -36,35 +30,11 @@ export const KubernetesGameServer = {
      */
     await serviceApiV1.delete(`${name}-node-port`, 'dynamic');
   },
-  getLabels: (gameServer: GameServerDocument) => {
-    const name = KubernetesGameServer.getName(gameServer);
-    return {
-      'tenlastic.com/app': name,
-      'tenlastic.com/gameServerId': `${gameServer._id}`,
-      'tenlastic.com/namespaceId': `${gameServer.namespaceId}`,
-    };
-  },
-  getName: (gameServer: GameServerDocument) => {
-    return `game-server-${gameServer._id}`;
-  },
   upsert: async (gameServer: GameServerDocument, match: MatchDocument) => {
+    const affinity = KubernetesGameServer.getAffinity(gameServer);
     const labels = KubernetesGameServer.getLabels(gameServer);
     const name = KubernetesGameServer.getName(gameServer);
     const namespaceName = KubernetesNamespace.getName(gameServer.namespaceId);
-
-    /**
-     * =======================
-     * NETWORK POLICY
-     * =======================
-     */
-    await networkPolicyApiV1.createOrReplace('dynamic', {
-      metadata: { labels: { ...labels }, name },
-      spec: {
-        egress: [{ to: [{ podSelector: { matchLabels: { 'tenlastic.com/app': name } } }] }],
-        podSelector: { matchLabels: { 'tenlastic.com/app': name } },
-        policyTypes: ['Egress'],
-      },
-    });
 
     /**
      * =======================
@@ -73,25 +43,6 @@ export const KubernetesGameServer = {
      */
     const url = new URL(process.env.DOCKER_REGISTRY_URL);
     const image = `${url.host}/${gameServer.namespaceId}:${gameServer.buildId}`;
-
-    const affinity = {
-      nodeAffinity: {
-        requiredDuringSchedulingIgnoredDuringExecution: {
-          nodeSelectorTerms: [
-            {
-              matchExpressions: [
-                {
-                  key: gameServer.preemptible
-                    ? 'tenlastic.com/low-priority'
-                    : 'tenlastic.com/high-priority',
-                  operator: 'Exists',
-                },
-              ],
-            },
-          ],
-        },
-      },
-    };
     const ports = gameServer.ports.map((p) => {
       return { containerPort: p.port, hostPort: getHostPort(), protocol: p.protocol };
     });
@@ -169,7 +120,7 @@ export const KubernetesGameServer = {
      * DEVELOPMENT SERVICE
      * =======================
      */
-    if (process.env.PWD && process.env.PWD.includes('/usr/src/nodejs/')) {
+    if (KubernetesNamespace.isDevelopment) {
       await serviceApiV1.createOrReplace('dynamic', {
         metadata: {
           labels: { ...labels, 'tenlastic.com/role': GameServerStatusComponentName.Application },

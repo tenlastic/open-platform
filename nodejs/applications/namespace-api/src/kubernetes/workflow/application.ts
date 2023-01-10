@@ -1,4 +1,4 @@
-import { networkPolicyApiV1, workflowApiV1 } from '@tenlastic/kubernetes';
+import { workflowApiV1 } from '@tenlastic/kubernetes';
 import {
   WorkflowDocument,
   WorkflowSpecTemplateModel,
@@ -6,63 +6,22 @@ import {
 } from '@tenlastic/mongoose';
 import { DatabaseOperationType } from '@tenlastic/mongoose-nats';
 
-import { KubernetesNamespace } from './namespace';
+import { KubernetesNamespace } from '../namespace';
+import { KubernetesWorkflow } from './';
 
-export const KubernetesWorkflow = {
+export const KubernetesWorkflowApplication = {
   delete: async (workflow: WorkflowDocument, operationType?: DatabaseOperationType) => {
     const name = KubernetesWorkflow.getName(workflow);
 
-    /**
-     * =======================
-     * NETWORK POLICY
-     * =======================
-     */
-    await networkPolicyApiV1.delete(name, 'dynamic');
-
-    /**
-     * ======================
-     * WORKFLOW
-     * ======================
-     */
     if (operationType === 'delete') {
       await workflowApiV1.delete(name, 'dynamic');
     }
-  },
-  getLabels: (workflow: WorkflowDocument) => {
-    const name = KubernetesWorkflow.getName(workflow);
-    return {
-      'tenlastic.com/app': name,
-      'tenlastic.com/namespaceId': `${workflow.namespaceId}`,
-      'tenlastic.com/workflowId': `${workflow._id}`,
-    };
-  },
-  getName: (workflow: WorkflowDocument) => {
-    return `workflow-${workflow._id}`;
   },
   upsert: async (workflow: WorkflowDocument) => {
     const labels = KubernetesWorkflow.getLabels(workflow);
     const name = KubernetesWorkflow.getName(workflow);
     const namespaceName = KubernetesNamespace.getName(workflow.namespaceId);
 
-    /**
-     * =======================
-     * NETWORK POLICY
-     * =======================
-     */
-    await networkPolicyApiV1.createOrReplace('dynamic', {
-      metadata: { labels: { ...labels }, name },
-      spec: {
-        egress: [{ to: [{ podSelector: { matchLabels: { 'tenlastic.com/app': name } } }] }],
-        podSelector: { matchLabels: { 'tenlastic.com/app': name } },
-        policyTypes: ['Egress'],
-      },
-    });
-
-    /**
-     * ======================
-     * WORKFLOW
-     * ======================
-     */
     const affinity = {
       nodeAffinity: {
         requiredDuringSchedulingIgnoredDuringExecution: {
@@ -101,7 +60,8 @@ export const KubernetesWorkflow = {
       },
     };
     const templates = workflow.spec.templates.map((t) => getTemplateManifest(t, workflow));
-    await workflowApiV1.createOrReplace('dynamic', {
+
+    return workflowApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...labels, 'tenlastic.com/role': 'Application' },
         name,
