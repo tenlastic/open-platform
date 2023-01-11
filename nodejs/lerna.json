@@ -19,5 +19,5 @@
     "modules/*"
   ],
   "tagVersionPrefix": "nodejs-v",
-  "version": "0.0.341"
+  "version": "0.0.342"
 }

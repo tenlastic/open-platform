@@ -9,7 +9,7 @@
     "type": "git",
     "url": "ssh://git@github.com/tenlastic/open-platform.git"
   },
-  "version": "0.0.341",
+  "version": "0.0.342",
   "publishConfig": {
     "access": "public"
   },
@@ -22,7 +22,7 @@
     "test:watch": "../../scripts/test.sh --watch"
   },
   "dependencies": {
-    "@tenlastic/mongoose-permissions": "0.0.341",
+    "@tenlastic/mongoose-permissions": "0.0.342",
     "@typegoose/typegoose": "9.13.1",
     "bcryptjs": "2.4.3",
     "chance": "1.0.16",
