@@ -1,6 +1,7 @@
 import { networkPolicyApiV1 } from '@tenlastic/kubernetes';
 import { QueueDocument } from '@tenlastic/mongoose';
 
+import { KubernetesNamespace } from '../namespace';
 import { KubernetesQueue } from './';
 
 export const KubernetesQueueNetworkPolicy = {
@@ -12,6 +13,7 @@ export const KubernetesQueueNetworkPolicy = {
   upsert: async (queue: QueueDocument) => {
     const labels = KubernetesQueue.getLabels(queue);
     const name = KubernetesQueue.getName(queue);
+    const namespaceName = KubernetesNamespace.getName(queue.namespaceId);
 
     return networkPolicyApiV1.createOrReplace('dynamic', {
       metadata: { labels: { ...labels }, name },
@@ -23,6 +25,7 @@ export const KubernetesQueueNetworkPolicy = {
                 namespaceSelector: { matchLabels: { name: 'static' } },
                 podSelector: { matchLabels: { 'app.kubernetes.io/name': 'redis' } },
               },
+              { podSelector: { matchLabels: { 'tenlastic.com/app': namespaceName } } },
               { podSelector: { matchLabels: { 'tenlastic.com/app': name } } },
             ],
           },

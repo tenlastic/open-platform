@@ -1,6 +1,7 @@
 import { networkPolicyApiV1 } from '@tenlastic/kubernetes';
 import { WorkflowDocument } from '@tenlastic/mongoose';
 
+import { KubernetesNamespace } from '../namespace';
 import { KubernetesWorkflow } from './';
 
 export const KubernetesWorkflowNetworkPolicy = {
@@ -12,11 +13,19 @@ export const KubernetesWorkflowNetworkPolicy = {
   upsert: async (workflow: WorkflowDocument) => {
     const labels = KubernetesWorkflow.getLabels(workflow);
     const name = KubernetesWorkflow.getName(workflow);
+    const namespaceName = KubernetesNamespace.getName(workflow.namespaceId);
 
     return networkPolicyApiV1.createOrReplace('dynamic', {
       metadata: { labels: { ...labels }, name },
       spec: {
-        egress: [{ to: [{ podSelector: { matchLabels: { 'tenlastic.com/app': name } } }] }],
+        egress: [
+          {
+            to: [
+              { podSelector: { matchLabels: { 'tenlastic.com/app': namespaceName } } },
+              { podSelector: { matchLabels: { 'tenlastic.com/app': name } } },
+            ],
+          },
+        ],
         podSelector: { matchLabels: { 'tenlastic.com/app': name } },
         policyTypes: ['Egress'],
       },
