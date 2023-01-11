@@ -65,6 +65,7 @@
         }
       ],
       "image": "tenlastic/node-development:latest",
+      "imagePullPolicy": "IfNotPresent",
       "name": "api-connector",
       "resources": {
         "limits": { "cpu": "1000m" },
@@ -130,6 +131,7 @@
         }
       ],
       "image": "tenlastic/node-development:latest",
+      "imagePullPolicy": "IfNotPresent",
       "name": "social-api-connector",
       "resources": {
         "limits": { "cpu": "1000m" },

@@ -15,6 +15,7 @@
     "value": {
       "command": ["npm", "run", "start"],
       "image": "tenlastic/node-development:latest",
+      "imagePullPolicy": "IfNotPresent",
       "name": "home-ui",
       "ports": [{ "containerPort": 80 }],
       "resources": {

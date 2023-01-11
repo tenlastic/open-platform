@@ -9,7 +9,6 @@ import './nats';
 import * as webServer from './web-server';
 import * as webSocketServer from './web-socket-server';
 
-const minioBucket = process.env.MINIO_BUCKET;
 const minioConnectionString = process.env.MINIO_CONNECTION_STRING;
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
 const mongoDatabaseName = process.env.MONGO_DATABASE_NAME;
@@ -19,7 +18,7 @@ const podName = process.env.POD_NAME;
 (async () => {
   try {
     // Minio.
-    await minio.setup({ bucket: minioBucket, connectionString: minioConnectionString });
+    minio.setup({ connectionString: minioConnectionString });
 
     // MongoDB.
     await mongoose.connect({
@@ -30,7 +29,7 @@ const podName = process.env.POD_NAME;
     // NATS.
     await nats.connect({ connectionString: natsConnectionString });
     nats
-      .subscribe({ database: mongoDatabaseName, maxBytes: 250 * 1000 * 1000, podName })
+      .subscribe({ database: mongoDatabaseName, podName })
       .catch((err) => console.error(err.message));
 
     // Web Server.

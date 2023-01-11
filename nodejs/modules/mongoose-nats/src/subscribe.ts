@@ -24,7 +24,6 @@ import {
   WebSocketModel,
   WorkflowModel,
 } from '@tenlastic/mongoose';
-import * as nats from '@tenlastic/nats';
 
 import { emit } from './emit';
 import {
@@ -57,13 +56,10 @@ import {
 
 export interface SubscribeOptions {
   database: string;
-  maxBytes: number;
   podName?: string;
 }
 
 export async function subscribe(options: SubscribeOptions) {
-  await nats.upsertStream(options.database, { max_bytes: options.maxBytes });
-
   const promises = [
     emit(options.database, options.database, ArticleEvent, ArticleModel),
     emit(options.database, options.database, AuthorizationEvent, AuthorizationModel),

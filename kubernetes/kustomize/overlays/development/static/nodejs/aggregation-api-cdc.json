@@ -26,6 +26,7 @@
       ],
       "envFrom": [{ "secretRef": { "name": "nodejs" } }],
       "image": "tenlastic/node-development:latest",
+      "imagePullPolicy": "IfNotPresent",
       "name": "cdc",
       "resources": {
         "limits": { "cpu": "1000m" },

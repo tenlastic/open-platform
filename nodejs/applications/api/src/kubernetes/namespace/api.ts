@@ -83,6 +83,7 @@ function getPodTemplate(namespace: NamespaceDocument): V1Pod {
             env: [{ name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } }],
             envFrom,
             image: `tenlastic/node-development:latest`,
+            imagePullPolicy: 'IfNotPresent',
             livenessProbe: { ...livenessProbe, initialDelaySeconds: 30 },
             name: 'main',
             readinessProbe,

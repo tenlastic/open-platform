@@ -8,18 +8,16 @@ export async function upsertStream(subject: string, options?: Partial<StreamConf
   const subjects = [`${name}.>`];
 
   const jsm = await getJetStreamManager();
-  let stream: StreamInfo;
 
+  let stream: StreamInfo;
   try {
     stream = await jsm.streams.add({ max_age: maxAge, ...options, name, subjects });
-    console.log(`Created NATS stream: ${name}.`);
   } catch (e) {
     if (e.api_error?.code !== 400 || e.api_error?.err_code !== 10058) {
       throw e;
     }
 
     stream = await jsm.streams.update(name, { max_age: maxAge, ...options, subjects });
-    console.log(`Updated NATS stream: ${name}.`);
   }
 
   return stream;

@@ -83,6 +83,7 @@ export const KubernetesBuildApplication = {
                 env,
                 envFrom,
                 image: 'tenlastic/node-development:latest',
+                imagePullPolicy: 'IfNotPresent',
                 resources: { requests: { cpu: '100m', memory: '100M' } },
                 volumeMounts: [{ mountPath: '/usr/src/', name: 'host' }],
                 workingDir: `${workingDir}/build/`,

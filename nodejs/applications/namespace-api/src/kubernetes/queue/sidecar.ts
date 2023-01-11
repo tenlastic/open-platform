@@ -69,6 +69,7 @@ function getPodTemplate(queue: QueueDocument) {
             command: ['npm', 'run', 'start'],
             env,
             image: 'tenlastic/node-development:latest',
+            imagePullPolicy: 'IfNotPresent',
             name: 'status-sidecar',
             resources: { requests: { cpu: '25m', memory: '50M' } },
             volumeMounts: [{ mountPath: '/usr/src/', name: 'workspace' }],

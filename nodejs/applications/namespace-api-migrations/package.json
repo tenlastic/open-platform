@@ -13,7 +13,9 @@
   },
   "dependencies": {
     "@tenlastic/logging": "0.0.342",
+    "@tenlastic/minio": "0.0.342",
     "@tenlastic/mongoose": "0.0.342",
+    "@tenlastic/nats": "0.0.342",
     "@typegoose/typegoose": "9.13.1",
     "axios": "0.27.2",
     "source-map-support": "0.5.12"

@@ -23,12 +23,10 @@ const podName = process.env.POD_NAME;
 
     // NATS.
     await nats.connect({ connectionString: natsConnectionString });
-    nats
-      .subscribe({ database: mongoDatabaseName, maxBytes: 1 * 1000 * 1000 * 1000 })
-      .catch((err) => {
-        console.error(err.message);
-        process.exit(1);
-      });
+    nats.subscribe({ database: mongoDatabaseName }).catch((err) => {
+      console.error(err.message);
+      process.exit(1);
+    });
 
     // Web Server.
     const { server } = webServer.setup();

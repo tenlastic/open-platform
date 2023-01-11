@@ -22,6 +22,7 @@
       ],
       "envFrom": [{ "secretRef": { "name": "nodejs" } }],
       "image": "tenlastic/node-development:latest",
+      "imagePullPolicy": "IfNotPresent",
       "livenessProbe": {
         "httpGet": {
           "path": "/probes/liveness",

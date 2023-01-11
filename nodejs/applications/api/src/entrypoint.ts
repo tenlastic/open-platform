@@ -12,7 +12,6 @@ import * as webServer from './web-server';
 
 const mailgunDomain = process.env.MAILGUN_DOMAIN;
 const mailgunSecret = process.env.MAILGUN_SECRET;
-const minioBucket = process.env.MINIO_BUCKET;
 const minioConnectionString = process.env.MINIO_CONNECTION_STRING;
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
 const mongoDatabaseName = 'api';
@@ -32,7 +31,6 @@ const natsConnectionString = process.env.NATS_CONNECTION_STRING;
       secretKey: minioConnectionUrl.password,
       useSSL: minioConnectionUrl.protocol === 'https:',
     });
-    await minio.makeBucket(minioBucket);
 
     // MongoDB.
     await mongoose.connect({
@@ -42,9 +40,7 @@ const natsConnectionString = process.env.NATS_CONNECTION_STRING;
 
     // NATS.
     await nats.connect({ connectionString: natsConnectionString });
-    nats
-      .subscribe({ database: mongoDatabaseName, maxBytes: 1 * 1000 * 1000 * 1000 })
-      .catch((err) => console.error(err.message));
+    nats.subscribe({ database: mongoDatabaseName }).catch((err) => console.error(err.message));
 
     // Web Server.
     webServer.setup();

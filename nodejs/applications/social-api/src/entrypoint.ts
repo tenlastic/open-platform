@@ -21,9 +21,7 @@ const natsConnectionString = process.env.NATS_CONNECTION_STRING;
 
     // NATS.
     await nats.connect({ connectionString: natsConnectionString });
-    nats
-      .subscribe({ database: mongoDatabaseName, maxBytes: 1 * 1000 * 1000 * 1000 })
-      .catch((err) => console.error(err.message));
+    nats.subscribe({ database: mongoDatabaseName }).catch((err) => console.error(err.message));
 
     // Web Server.
     webServer.setup();

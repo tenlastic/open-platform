@@ -19,6 +19,18 @@ import { FormService, IdentityService } from '../../../../../../core/services';
   styleUrls: ['./form-page.component.scss'],
 })
 export class NamespacesFormPageComponent implements OnDestroy, OnInit {
+  public get components() {
+    const components = this.data.status.components;
+
+    const migrations = components.find((c) => c.name === INamespace.StatusComponentName.Migrations);
+    if (!migrations) {
+      return components
+        .concat({ name: INamespace.StatusComponentName.Migrations, phase: 'Succeeded' })
+        .sort((a, b) => (a.name > b.name ? 1 : -1));
+    }
+
+    return components;
+  }
   public data: NamespaceModel;
   public errors: string[] = [];
   public form: FormGroup;

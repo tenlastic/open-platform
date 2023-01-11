@@ -9,6 +9,7 @@ spec:
   containers:
     - name: workspace
       image: tenlastic/node-development:latest
+      imagePullPolicy: IfNotPresent
       command:
         - /bin/bash
         - -c

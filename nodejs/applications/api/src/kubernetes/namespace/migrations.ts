@@ -17,7 +17,10 @@ export const KubernetesNamespaceMigrations = {
         labels: { ...labels, 'tenlastic.com/role': NamespaceStatusComponentName.Migrations },
         name,
       },
-      spec: { template: getPodTemplate(namespace) },
+      spec: {
+        template: getPodTemplate(namespace),
+        ttlSecondsAfterFinished: 0,
+      },
     });
   },
 };
@@ -50,6 +53,7 @@ function getPodTemplate(namespace: NamespaceDocument): V1Pod {
             command: ['npm', 'run', 'start'],
             envFrom,
             image: `tenlastic/node-development:latest`,
+            imagePullPolicy: 'IfNotPresent',
             name: 'main',
             resources: { limits: { cpu: '1000m' }, requests: resources.requests },
             volumeMounts: [{ mountPath: '/usr/src/', name: 'workspace' }],

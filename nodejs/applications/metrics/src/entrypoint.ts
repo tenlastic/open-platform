@@ -42,7 +42,6 @@ let timeout: NodeJS.Timeout;
     secretKey: minioConnectionUrl.password,
     useSSL: minioConnectionUrl.protocol === 'https:',
   });
-  await minio.makeBucket(minioBucket);
 
   // MongoDB.
   connection = await mongoose.connect({

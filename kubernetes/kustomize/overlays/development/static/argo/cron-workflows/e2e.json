@@ -17,6 +17,7 @@
         "command": ["npm", "run", "start"],
         "envFrom": [{ "secretRef": { "name": "e2e" } }],
         "image": "tenlastic/node-development:latest",
+        "imagePullPolicy": "IfNotPresent",
         "resources": {
           "limits": { "cpu": "1000m" },
           "requests": { "cpu": "100m" }

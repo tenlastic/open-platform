@@ -1,112 +1,27 @@
 import 'source-map-support/register';
 import '@tenlastic/logging';
 
-import {
-  ArticleModel,
-  AuthorizationModel,
-  BuildModel,
-  CollectionModel,
-  connect,
-  enablePrePostImages,
-  GameServerModel,
-  GameServerTemplateModel,
-  GroupModel,
-  MatchInvitationModel,
-  MatchModel,
-  NamespaceModel,
-  QueueModel,
-  QueueMemberModel,
-  SchemaSchema,
-  StorefrontModel,
-  syncIndexes,
-  UserModel,
-  WebSocketModel,
-  WorkflowModel,
-} from '@tenlastic/mongoose';
-import { getModelForClass } from '@typegoose/typegoose';
+import { minio } from './minio';
+import { mongo } from './mongo';
+import { nats } from './nats';
 
+const minioBucket = process.env.MINIO_BUCKET;
+const minioConnectionString = process.env.MINIO_CONNECTION_STRING;
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
 const mongoDatabaseName = process.env.MONGO_DATABASE_NAME;
-const SchemaModel = getModelForClass(SchemaSchema);
+const natsConnectionString = process.env.NATS_CONNECTION_STRING;
 
 (async () => {
   try {
-    const connection = await connect({
-      connectionString: mongoConnectionString,
-      databaseName: mongoDatabaseName,
-    });
-
-    console.log('Syncing indexes...');
     await Promise.all([
-      syncIndexes(ArticleModel),
-      syncIndexes(AuthorizationModel),
-      syncIndexes(BuildModel),
-      syncIndexes(CollectionModel),
-      syncIndexes(GameServerModel),
-      syncIndexes(GameServerTemplateModel),
-      syncIndexes(GroupModel),
-      syncIndexes(MatchInvitationModel),
-      syncIndexes(MatchModel),
-      syncIndexes(NamespaceModel),
-      syncIndexes(QueueModel),
-      syncIndexes(QueueMemberModel),
-      syncIndexes(SchemaModel),
-      syncIndexes(StorefrontModel),
-      syncIndexes(UserModel),
-      syncIndexes(WebSocketModel),
-      syncIndexes(WorkflowModel),
+      minio(minioBucket, minioConnectionString),
+      mongo(mongoConnectionString, mongoDatabaseName),
+      nats(natsConnectionString, 250 * 1000 * 1000, mongoDatabaseName),
     ]);
-    console.log('Indexes synced successfully!');
-
-    console.log('Syncing schemas...');
-    await Promise.all([
-      SchemaModel.sync(ArticleModel),
-      SchemaModel.sync(AuthorizationModel),
-      SchemaModel.sync(BuildModel),
-      SchemaModel.sync(CollectionModel),
-      SchemaModel.sync(GameServerModel),
-      SchemaModel.sync(GameServerTemplateModel),
-      SchemaModel.sync(GroupModel),
-      SchemaModel.sync(MatchInvitationModel),
-      SchemaModel.sync(MatchModel),
-      SchemaModel.sync(NamespaceModel),
-      SchemaModel.sync(QueueModel),
-      SchemaModel.sync(QueueMemberModel),
-      SchemaModel.sync(StorefrontModel),
-      SchemaModel.sync(UserModel),
-      SchemaModel.sync(WebSocketModel),
-      SchemaModel.sync(WorkflowModel),
-    ]);
-    console.log('Schemas synced successfully!');
-
-    console.log('Setting feature compatibility version to 6.0...');
-    await connection.db.admin().command({ setFeatureCompatibilityVersion: '6.0' });
-    console.log('Feature compatibility version successfully set to 6.0!');
-
-    console.log('Enabling Document Pre- and Post-Images...');
-    await Promise.all([
-      enablePrePostImages(ArticleModel),
-      enablePrePostImages(AuthorizationModel),
-      enablePrePostImages(BuildModel),
-      enablePrePostImages(CollectionModel),
-      enablePrePostImages(GameServerModel),
-      enablePrePostImages(GameServerTemplateModel),
-      enablePrePostImages(GroupModel),
-      enablePrePostImages(MatchInvitationModel),
-      enablePrePostImages(MatchModel),
-      enablePrePostImages(NamespaceModel),
-      enablePrePostImages(QueueModel),
-      enablePrePostImages(QueueMemberModel),
-      enablePrePostImages(StorefrontModel),
-      enablePrePostImages(UserModel),
-      enablePrePostImages(WebSocketModel),
-      enablePrePostImages(WorkflowModel),
-    ]);
-    console.log('Document Pre- and Post-Images enabled successfully!');
 
     process.exit();
   } catch (e) {
-    console.error(e.message);
+    console.error(e);
     process.exit(1);
   }
 })();

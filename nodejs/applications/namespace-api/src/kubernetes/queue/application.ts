@@ -75,6 +75,7 @@ function getPodTemplate(queue: QueueDocument) {
             env,
             envFrom,
             image: `tenlastic/node-development:latest`,
+            imagePullPolicy: 'IfNotPresent',
             name: 'main',
             resources: { requests: resources.requests },
             volumeMounts: [{ mountPath: '/usr/src/', name: 'workspace' }],
