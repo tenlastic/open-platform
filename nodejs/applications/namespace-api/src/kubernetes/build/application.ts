@@ -126,8 +126,8 @@ export const KubernetesBuildApplication = {
             },
             {
               container: {
-                args: ['node', './dist/index.js'],
-                command: ['/sbin/tini', '--'],
+                args: ['./dist/entrypoint.js'],
+                command: ['node'],
                 env,
                 envFrom,
                 image: `tenlastic/build:${version}`,

@@ -2,6 +2,13 @@ FROM node:16-alpine
 
 WORKDIR /usr/src/
 
+# Install Chrome.
+RUN apk add --no-cache chromium
+
+# Tell Puppeteer to skip installing Chrome and use the installed package.
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+
 COPY ./package*.json ./
 RUN npm install --production --registry "https://verdaccio.tenlastic.com"
 
