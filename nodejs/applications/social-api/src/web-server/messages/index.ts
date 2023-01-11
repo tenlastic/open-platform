@@ -16,7 +16,7 @@ router.get('/', findHandler);
 router.get('/count', countHandler);
 router.get('/:_id', findOneHandler);
 router.post('/', createHandler);
-router.post('/:_id/read-by-user-ids', authenticationMiddleware, readHandler);
+router.post('/:_id/read-receipts', authenticationMiddleware, readHandler);
 router.put('/:_id', updateHandler);
 
 export default router.routes();

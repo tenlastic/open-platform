@@ -49,14 +49,6 @@ export class MatchInvitationService {
   }
 
   /**
-   * Creates a Record.
-   */
-  public async create(namespaceId: string, json: Partial<MatchInvitationModel>) {
-    const url = this.getUrl(namespaceId);
-    return this.baseService.create(json, url);
-  }
-
-  /**
    * Deletes a Record.
    */
   public async delete(namespaceId: string, _id: string) {
@@ -78,14 +70,6 @@ export class MatchInvitationService {
   public async findOne(namespaceId: string, _id: string) {
     const url = this.getUrl(namespaceId);
     return this.baseService.findOne(_id, url);
-  }
-
-  /**
-   * Updates a Record.
-   */
-  public async update(namespaceId: string, _id: string, json: Partial<MatchInvitationModel>) {
-    const url = this.getUrl(namespaceId);
-    return this.baseService.update(_id, json, url);
   }
 
   /**

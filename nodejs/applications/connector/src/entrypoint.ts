@@ -33,7 +33,6 @@ const where = process.env.WHERE ? JSON.parse(process.env.WHERE) : {};
 
     // NATS.
     await nats.connect({ connectionString: natsConnectionString });
-    await nats.upsertStream(mongoFromDatabaseName);
 
     // Sync schemas from MongoDB and NATS.
     const SchemaModel = getModelForClass(mongoose.SchemaSchema, {

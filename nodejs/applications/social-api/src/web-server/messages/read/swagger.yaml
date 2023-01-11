@@ -1,5 +1,5 @@
 paths:
-  /messages/{_id}/read-by-user-ids:
+  /messages/{_id}/read-receipts:
     post:
       summary: Read
       tags: [Messages]

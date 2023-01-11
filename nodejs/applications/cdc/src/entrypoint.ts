@@ -25,7 +25,6 @@ const redisPassword = process.env.REDIS_PASSWORD;
 
     // NATS.
     await nats.connect({ connectionString: natsConnectionString });
-    await nats.upsertStream(mongoDatabaseName);
 
     // Redis.
     const client = await redis.connect({

@@ -70,7 +70,7 @@ export class MessageService {
     const url = this.getUrl();
     const response = await this.apiService.request({
       method: 'post',
-      url: `${url}/${_id}/read-by-user-ids`,
+      url: `${url}/${_id}/read-receipts`,
     });
 
     const record = new MessageModel(response.data.record);

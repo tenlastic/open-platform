@@ -1,4 +1,4 @@
-import { StreamConfig } from 'nats';
+import { StreamConfig, StreamInfo } from 'nats';
 
 import { getJetStreamManager } from './connect';
 
@@ -8,16 +8,19 @@ export async function upsertStream(subject: string, options?: Partial<StreamConf
   const subjects = [`${name}.>`];
 
   const jsm = await getJetStreamManager();
-  const streams = await jsm.streams.list().next();
-  const stream = streams.find((s) => s.config.name === name);
+  let stream: StreamInfo;
 
-  if (options && stream) {
-    console.log(`Updating NATS stream: ${name}.`);
-    return jsm.streams.update(name, { max_age: maxAge, ...options, subjects });
-  } else if (stream) {
-    return stream;
+  try {
+    stream = await jsm.streams.add({ max_age: maxAge, ...options, name, subjects });
+    console.log(`Created NATS stream: ${name}.`);
+  } catch (e) {
+    if (e.api_error?.code !== 400 || e.api_error?.err_code !== 10058) {
+      throw e;
+    }
+
+    stream = await jsm.streams.update(name, { max_age: maxAge, ...options, subjects });
+    console.log(`Updated NATS stream: ${name}.`);
   }
 
-  console.log(`Creating NATS stream: ${name}.`);
-  return jsm.streams.add({ max_age: maxAge, ...options, name, subjects });
+  return stream;
 }
