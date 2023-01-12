@@ -5,15 +5,15 @@
   "license": "Apache-2.0",
   "name": "@tenlastic/aggregation-api-migrations",
   "private": true,
-  "version": "0.0.347",
+  "version": "0.0.348",
   "scripts": {
     "build": "../../scripts/build.sh",
     "lint": "../../scripts/lint.sh",
     "start": "../../scripts/start.sh"
   },
   "dependencies": {
-    "@tenlastic/logging": "0.0.347",
-    "@tenlastic/mongoose": "0.0.347",
+    "@tenlastic/logging": "0.0.348",
+    "@tenlastic/mongoose": "0.0.348",
     "@typegoose/typegoose": "9.13.1",
     "source-map-support": "0.5.12"
   },
