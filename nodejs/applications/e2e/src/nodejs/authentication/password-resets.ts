@@ -51,7 +51,8 @@ describe('/nodejs/authentication/password-resets', function () {
   it('sends a Password Reset email', async function () {
     await dependencies.passwordResetService.create(email);
 
-    const hash = await wait(2.5 * 1000, 60 * 1000, getPasswordResetHash);
+    const date = new Date();
+    const hash = await wait(2.5 * 1000, 60 * 1000, () => getPasswordResetHash(date));
     expect(hash).to.match(/[A-Za-z0-9]+/);
   });
 
@@ -60,7 +61,9 @@ describe('/nodejs/authentication/password-resets', function () {
 
     beforeEach(async function () {
       await dependencies.passwordResetService.create(email);
-      hash = await wait(2.5 * 1000, 60 * 1000, getPasswordResetHash);
+
+      const date = new Date();
+      hash = await wait(2.5 * 1000, 60 * 1000, () => getPasswordResetHash(date));
     });
 
     it('resets the password', async function () {
@@ -81,31 +84,40 @@ describe('/nodejs/authentication/password-resets', function () {
   });
 });
 
-async function getMessage(query: string) {
+async function getMessage(date: Date, query: string) {
   const userId = 'me';
-  const res = await gmail.users.messages.list({ q: query, userId });
 
-  if (!res.data.messages) {
+  const response = await gmail.users.messages.list({ q: query, userId });
+  if (!response.data.messages || response.data.messages.length === 0) {
     return null;
   }
 
-  // Retrieve message and mark it as read.
-  const { id } = res.data.messages[0];
-  const msg = await gmail.users.messages.get({ format: 'full', id, userId });
-  await gmail.users.messages.modify({ id, requestBody: { removeLabelIds: ['UNREAD'] }, userId });
+  // Load message metadata to sort by date.
+  const messages = await Promise.all(
+    response.data.messages.map((m) =>
+      gmail.users.messages.get({ format: 'full', id: m.id, userId }),
+    ),
+  );
+
+  // Find the most recent message and mark it as read.
+  const message = messages.find((m) => Number(m.data.internalDate) >= date.getTime());
+  await gmail.users.messages.modify({
+    id: message.data.id,
+    requestBody: { removeLabelIds: ['UNREAD'] },
+    userId,
+  });
 
   // Decode the base64-encoded body.
-  const buffer = Buffer.from(msg.data.payload.body.data, 'base64');
+  const buffer = Buffer.from(message.data.payload.body.data, 'base64');
   return buffer.toString('utf8');
 }
 
 /**
  * Retrieves the hash from the most recently unread Password Reset Request email.
  */
-async function getPasswordResetHash() {
-  const body = await getMessage(
-    'from:no-reply@tenlastic.com is:unread subject:(Password Reset Request)',
-  );
+async function getPasswordResetHash(date: Date) {
+  const filters = ['from:no-reply@tenlastic.com', 'is:unread', 'subject:(Password Reset Request)'];
+  const body = await getMessage(date, filters.join(' '));
 
   if (!body) {
     return null;

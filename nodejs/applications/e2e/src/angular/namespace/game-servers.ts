@@ -1,3 +1,4 @@
+import wait from '@tenlastic/wait';
 import axios from 'axios';
 import { expect } from 'chai';
 import * as Chance from 'chance';
@@ -78,13 +79,11 @@ describe('/angular/namespace/game-servers', () => {
   });
 
   step('runs the Namespace successfully', async function () {
-    const criteria = [
-      `.//input[@ng-reflect-value='Running']`,
-      `.//mat-label[contains(., 'Phase')]`,
-    ];
+    await wait(100, 60 * 1000, async () => {
+      const [input] = await page.$x(`//mat-form-field[.//mat-label[contains(., 'Phase')]]//input`);
+      const value = await page.evaluate((i) => i.value, input);
 
-    await helpers.waitForXPath(page, `//mat-form-field[${criteria.join(' and ')}]`, {
-      timeout: 60 * 1000,
+      return value === 'Running';
     });
   });
 
@@ -159,13 +158,11 @@ describe('/angular/namespace/game-servers', () => {
   });
 
   step('runs the Game Server successfully', async function () {
-    const criteria = [
-      `.//input[@ng-reflect-value='Running']`,
-      `.//mat-label[contains(., 'Phase')]`,
-    ];
+    await wait(100, 60 * 1000, async () => {
+      const [input] = await page.$x(`//mat-form-field[.//mat-label[contains(., 'Phase')]]//input`);
+      const value = await page.evaluate((i) => i.value, input);
 
-    await helpers.waitForXPath(page, `//mat-form-field[${criteria.join(' and ')}]`, {
-      timeout: 60 * 1000,
+      return value === 'Running';
     });
   });
 
