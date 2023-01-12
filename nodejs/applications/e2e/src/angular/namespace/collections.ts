@@ -21,7 +21,7 @@ describe('/angular/namespace/collections', () => {
     page = await browser.newPage();
     page.setViewport({ width: 1920, height: 1080 });
     await helpers.setTokensOnPageLoad(administratorAccessToken, page, administratorRefreshToken);
-    await page.goto('http://www.local.tenlastic.com', { waitUntil: 'networkidle0' });
+    await page.goto(process.env.E2E_WWW_URL, { waitUntil: 'networkidle0' });
 
     // Generate a name for the Namespace.
     collection = chance.hash({ length: 64 });
