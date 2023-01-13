@@ -107,8 +107,11 @@ describe('/angular/namespace/builds', () => {
     ]);
     await fileChooser.accept(['./fixtures/Dockerfile']);
 
-    const dockerfileInput = await helpers.getInputByLabel('Entrypoint', page);
-    await helpers.type(dockerfileInput, page, 'Dockerfile');
+    const dockerfileListItem = await helpers.getElementByXPath(
+      page,
+      `//div[contains(text(), 'Dockerfile')]`,
+    );
+    await dockerfileListItem.click();
 
     await helpers.sleep(1000);
 

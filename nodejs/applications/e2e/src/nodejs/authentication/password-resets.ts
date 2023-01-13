@@ -20,6 +20,7 @@ google.options({ auth: oauth2Client });
 
 describe('/nodejs/authentication/password-resets', function () {
   let email: string;
+  let minimumInternalDate: number;
   let refreshToken: string;
   let user: UserModel;
   let username: string;
@@ -27,8 +28,6 @@ describe('/nodejs/authentication/password-resets', function () {
   beforeEach(async function () {
     email = process.env.E2E_EMAIL_ADDRESS;
     username = chance.hash({ length: 24 });
-
-    const password = chance.hash();
 
     // Delete existing User if exists.
     if (email) {
@@ -38,10 +37,14 @@ describe('/nodejs/authentication/password-resets', function () {
       }
     }
 
+    const password = chance.hash();
     user = await dependencies.userService.create({ email, password, username });
 
     const response = await dependencies.loginService.createWithCredentials(username, password);
     refreshToken = response.refreshToken;
+
+    const [message] = await getMessages();
+    minimumInternalDate = message ? Number(message.data.internalDate) : 0;
   });
 
   afterEach(async function () {
@@ -51,8 +54,7 @@ describe('/nodejs/authentication/password-resets', function () {
   it('sends a Password Reset email', async function () {
     await dependencies.passwordResetService.create(email);
 
-    const date = new Date();
-    const hash = await wait(2.5 * 1000, 60 * 1000, () => getPasswordResetHash(date));
+    const hash = await wait(2.5 * 1000, 60 * 1000, () => getPasswordResetHash(minimumInternalDate));
     expect(hash).to.match(/[A-Za-z0-9]+/);
   });
 
@@ -62,12 +64,12 @@ describe('/nodejs/authentication/password-resets', function () {
     beforeEach(async function () {
       await dependencies.passwordResetService.create(email);
 
-      const date = new Date();
-      hash = await wait(2.5 * 1000, 60 * 1000, () => getPasswordResetHash(date));
+      hash = await wait(2.5 * 1000, 60 * 1000, () => getPasswordResetHash(minimumInternalDate));
     });
 
     it('resets the password', async function () {
       const password = chance.hash();
+
       await dependencies.passwordResetService.delete(hash, password);
 
       const response = await dependencies.loginService.createWithCredentials(username, password);
@@ -84,12 +86,32 @@ describe('/nodejs/authentication/password-resets', function () {
   });
 });
 
-async function getMessage(date: Date, query: string) {
+async function getMessage(minimumInternalDate: number) {
+  const messages = await getMessages();
+  if (messages.length === 0) {
+    return null;
+  }
+
+  // Marks the most recent message as read.
+  const message = messages.find((m) => Number(m.data.internalDate) > minimumInternalDate);
+  await gmail.users.messages.modify({
+    id: message.data.id,
+    requestBody: { removeLabelIds: ['UNREAD'] },
+    userId: 'me',
+  });
+
+  // Decode the base64-encoded body.
+  const buffer = Buffer.from(message.data.payload.body.data, 'base64');
+  return buffer.toString('utf8');
+}
+
+async function getMessages() {
+  const query = ['from:no-reply@tenlastic.com', 'is:unread', 'subject:(Password Reset Request)'];
   const userId = 'me';
 
-  const response = await gmail.users.messages.list({ q: query, userId });
+  const response = await gmail.users.messages.list({ q: query.join(' '), userId });
   if (!response.data.messages || response.data.messages.length === 0) {
-    return null;
+    return [];
   }
 
   // Load message metadata to sort by date.
@@ -99,26 +121,17 @@ async function getMessage(date: Date, query: string) {
     ),
   );
 
-  // Find the most recent message and mark it as read.
-  const message = messages.find((m) => Number(m.data.internalDate) >= date.getTime());
-  await gmail.users.messages.modify({
-    id: message.data.id,
-    requestBody: { removeLabelIds: ['UNREAD'] },
-    userId,
-  });
-
-  // Decode the base64-encoded body.
-  const buffer = Buffer.from(message.data.payload.body.data, 'base64');
-  return buffer.toString('utf8');
+  // Sort messages sorted by the most recent first.
+  return messages.sort((a, b) =>
+    Number(a.data.internalDate) > Number(b.data.internalDate) ? -1 : 1,
+  );
 }
 
 /**
  * Retrieves the hash from the most recently unread Password Reset Request email.
  */
-async function getPasswordResetHash(date: Date) {
-  const filters = ['from:no-reply@tenlastic.com', 'is:unread', 'subject:(Password Reset Request)'];
-  const body = await getMessage(date, filters.join(' '));
-
+async function getPasswordResetHash(minimumInternalDate: number) {
+  const body = await getMessage(minimumInternalDate);
   if (!body) {
     return null;
   }
