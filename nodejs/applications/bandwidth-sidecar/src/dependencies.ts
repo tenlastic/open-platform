@@ -6,6 +6,7 @@ import {
   GameServerQuery,
   GameServerService,
   GameServerStore,
+  RetryInterceptor,
 } from '@tenlastic/http';
 import { Axios } from 'axios';
 
@@ -41,6 +42,11 @@ injector.inject([
     ) => new GameServerService(apiService, environmentService, gameServerStore),
   },
   { provide: GameServerStore, useValue: new GameServerStore() },
+  {
+    deps: [Axios],
+    provide: RetryInterceptor,
+    useFactory: (axios: Axios) => new RetryInterceptor(axios),
+  },
 ]);
 
 export default {

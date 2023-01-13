@@ -201,8 +201,11 @@ describe('/angular/namespace/queues', () => {
     const logsButton = await helpers.getButtonByTooltip(page, 'Logs');
     await logsButton.click();
 
+    const startLiveTailButton = await helpers.getButtonByText(page, 'Start Live Tail');
+    await startLiveTailButton.click();
+
     await helpers.waitForXPath(page, `//app-logs-dialog//div[contains(., 'Connected to Redis.')]`, {
-      timeout: 2500,
+      timeout: 5 * 1000,
     });
   });
 });

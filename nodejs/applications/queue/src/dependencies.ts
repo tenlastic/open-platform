@@ -14,6 +14,7 @@ import {
   QueueQuery,
   QueueService,
   QueueStore,
+  RetryInterceptor,
   StreamService,
 } from '@tenlastic/http';
 import { Axios } from 'axios';
@@ -91,6 +92,11 @@ injector.inject([
     ) => new QueueService(apiService, environmentService, queueStore),
   },
   { provide: QueueStore, useValue: new QueueStore() },
+  {
+    deps: [Axios],
+    provide: RetryInterceptor,
+    useFactory: (axios: Axios) => new RetryInterceptor(axios),
+  },
   { provide: StreamService, useFactory: () => new StreamService() },
 ]);
 

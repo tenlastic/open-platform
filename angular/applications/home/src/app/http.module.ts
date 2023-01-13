@@ -75,6 +75,7 @@ import {
   RefreshTokenQuery,
   RefreshTokenService,
   RefreshTokenStore,
+  RetryInterceptor,
   StorefrontQuery,
   StorefrontService,
   StorefrontStore,
@@ -109,6 +110,11 @@ const interceptors: Provider[] = [
     provide: InvalidRefreshTokenInterceptor,
     useFactory: (axios: Axios, loginService: LoginService) =>
       new InvalidRefreshTokenInterceptor(axios, loginService),
+  },
+  {
+    deps: [Axios],
+    provide: RetryInterceptor,
+    useFactory: (axios: Axios) => new RetryInterceptor(axios),
   },
 ];
 const queries: Provider[] = [
@@ -581,5 +587,6 @@ export class HttpModule {
   constructor(
     private accessTokenInterceptor: AccessTokenInterceptor,
     private invalidRefreshTokenInterceptor: InvalidRefreshTokenInterceptor,
+    private retryInterceptor: RetryInterceptor,
   ) {}
 }

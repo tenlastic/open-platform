@@ -27,6 +27,7 @@ import {
   QueueStore,
   RecordService,
   RecordStore,
+  RetryInterceptor,
   StreamService,
   TokenService,
   UserService,
@@ -48,6 +49,11 @@ const interceptors: injector.Injection[] = [
     provide: AccessTokenInterceptor,
     useFactory: (axios: Axios, tokenService: TokenService) =>
       new AccessTokenInterceptor(axios, tokenService),
+  },
+  {
+    deps: [Axios],
+    provide: RetryInterceptor,
+    useFactory: (axios: Axios) => new RetryInterceptor(axios),
   },
 ];
 

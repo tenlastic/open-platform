@@ -6,6 +6,7 @@ import {
   BuildService,
   BuildStore,
   EnvironmentService,
+  RetryInterceptor,
 } from '@tenlastic/http';
 import { Axios } from 'axios';
 
@@ -24,6 +25,7 @@ injector.inject([
     provide: ApiService,
     useFactory: (axios: Axios) => new ApiService(axios),
   },
+  { provide: Axios, useValue: new Axios() },
   {
     deps: [BuildStore],
     provide: BuildQuery,
@@ -39,8 +41,12 @@ injector.inject([
     ) => new BuildService(apiService, buildStore, environmentService),
   },
   { provide: BuildStore, useValue: new BuildStore() },
-  { provide: Axios, useValue: new Axios() },
   { provide: EnvironmentService, useValue: new EnvironmentService({ apiKey, apiUrl }) },
+  {
+    deps: [Axios],
+    provide: RetryInterceptor,
+    useFactory: (axios: Axios) => new RetryInterceptor(axios),
+  },
 ]);
 
 export default {

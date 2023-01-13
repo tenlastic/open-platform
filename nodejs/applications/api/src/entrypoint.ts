@@ -40,7 +40,10 @@ const natsConnectionString = process.env.NATS_CONNECTION_STRING;
 
     // NATS.
     await nats.connect({ connectionString: natsConnectionString });
-    nats.subscribe({ database: mongoDatabaseName }).catch((err) => console.error(err.message));
+    nats.subscribe({ database: mongoDatabaseName }).catch((err) => {
+      console.error(err);
+      process.exit(1);
+    });
 
     // Web Server.
     webServer.setup();

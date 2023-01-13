@@ -10,6 +10,10 @@ export class FormService {
   constructor(private matDialog: MatDialog, private router: Router) {}
 
   public handleHttpError(err: ApiError, pathMap?: { [key: string]: string }) {
+    if (!err.errors) {
+      return ['An unexpected error has occurred. Please try again soon.'];
+    }
+
     return err.errors.map((e) => {
       if (e.name === 'CastError' || e.name === 'ValidatorError') {
         const path = (pathMap && pathMap[e.path]) ?? e.path;
