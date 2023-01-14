@@ -22,9 +22,12 @@ spec:
                   values:
                     - "{{workflow.name}}"
             topologyKey: kubernetes.io/hostname
+  archiveLogs: true
   arguments:
     parameters:
       - name: revision
+  artifactGC:
+    strategy: OnWorkflowDeletion
   entrypoint: entrypoint
   podGC:
     strategy: OnWorkflowSuccess

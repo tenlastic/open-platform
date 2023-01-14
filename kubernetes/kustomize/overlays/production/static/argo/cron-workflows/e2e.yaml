@@ -16,6 +16,9 @@ spec:
             - matchExpressions:
                 - key: tenlastic.com/low-priority
                   operator: Exists
+    archiveLogs: true
+    artifactGC:
+      strategy: OnWorkflowDeletion
     entrypoint: e2e
     podGC:
       strategy: OnWorkflowSuccess
@@ -33,3 +36,7 @@ spec:
           resources:
             requests:
               cpu: 50m
+        outputs:
+          artifacts:
+            - name: puppeteer
+              path: /usr/src/test-results/puppeteer/
