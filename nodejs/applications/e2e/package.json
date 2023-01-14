@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "name": "@tenlastic/e2e",
   "private": true,
-  "version": "0.0.352",
+  "version": "0.0.353",
   "scripts": {
     "build": "../../scripts/build.sh",
     "lint": "../../scripts/lint.sh",
@@ -13,9 +13,9 @@
     "version": "./scripts/version.sh"
   },
   "dependencies": {
-    "@tenlastic/dependency-injection": "0.0.352",
-    "@tenlastic/http": "0.0.352",
-    "@tenlastic/wait": "0.0.352",
+    "@tenlastic/dependency-injection": "0.0.353",
+    "@tenlastic/http": "0.0.353",
+    "@tenlastic/wait": "0.0.353",
     "axios": "0.27.2",
     "chai": "4.2.0",
     "chai-as-promised": "7.1.1",

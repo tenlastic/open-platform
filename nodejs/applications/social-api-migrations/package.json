@@ -5,16 +5,16 @@
   "license": "Apache-2.0",
   "name": "@tenlastic/social-api-migrations",
   "private": true,
-  "version": "0.0.352",
+  "version": "0.0.353",
   "scripts": {
     "build": "../../scripts/build.sh",
     "lint": "../../scripts/lint.sh",
     "start": "../../scripts/start.sh"
   },
   "dependencies": {
-    "@tenlastic/logging": "0.0.352",
-    "@tenlastic/mongoose": "0.0.352",
-    "@tenlastic/nats": "0.0.352",
+    "@tenlastic/logging": "0.0.353",
+    "@tenlastic/mongoose": "0.0.353",
+    "@tenlastic/nats": "0.0.353",
     "@typegoose/typegoose": "9.13.1",
     "source-map-support": "0.5.12"
   },
