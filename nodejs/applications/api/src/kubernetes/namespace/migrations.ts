@@ -54,7 +54,7 @@ function getPodTemplate(namespace: NamespaceDocument): V1Pod {
             envFrom,
             image: `tenlastic/node-development:latest`,
             imagePullPolicy: 'IfNotPresent',
-            name: 'main',
+            name: 'namespace-api-migrations',
             resources: { limits: { cpu: '1000m' }, requests: resources.requests },
             volumeMounts: [{ mountPath: '/usr/src/', name: 'workspace' }],
             workingDir: `/usr/src/nodejs/applications/namespace-api-migrations/`,
@@ -78,7 +78,7 @@ function getPodTemplate(namespace: NamespaceDocument): V1Pod {
           {
             envFrom,
             image: `tenlastic/namespace-api-migrations:${version}`,
-            name: 'main',
+            name: 'namespace-api-migrations',
             resources,
           },
         ],

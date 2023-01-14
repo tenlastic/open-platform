@@ -62,7 +62,7 @@ export const KubernetesGameServerApplication = {
               { name: 'GAME_SERVER_JSON', value: JSON.stringify(gameServer) },
             ],
             image,
-            name: 'main',
+            name: 'application',
             ports,
             resources: {
               limits: { cpu: `${gameServer.cpu}`, memory: `${gameServer.memory}` },

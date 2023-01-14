@@ -59,7 +59,7 @@ function getPodTemplate(gameServer: GameServerDocument) {
       name: 'API_KEY',
       valueFrom: { secretKeyRef: { key: 'GAME_SERVERS', name: `${namespaceName}-api-keys` } },
     },
-    { name: 'CONTAINER', value: 'main' },
+    { name: 'CONTAINER', value: 'application' },
     {
       name: 'ENDPOINT',
       value: `${apiHost}/namespaces/${gameServer.namespaceId}/game-servers/${gameServer._id}`,
