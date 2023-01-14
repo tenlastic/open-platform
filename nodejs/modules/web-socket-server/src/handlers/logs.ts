@@ -60,7 +60,7 @@ export async function logs(ctx: Context, Permissions: MongoosePermissions<any>) 
     ctx.ws.send({ _id, body: { fullDocument }, status: StatusCode.PartialContent });
   });
   emitter.on('error', async (e) => {
-    console.error(e);
+    console.error(e.message);
 
     const errors = [{ message: e.message, name: e.name }];
     ctx.ws.send({ _id, body: { errors }, status: StatusCode.BadRequest });

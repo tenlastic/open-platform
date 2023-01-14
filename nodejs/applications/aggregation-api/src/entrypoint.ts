@@ -24,7 +24,7 @@ const podName = process.env.POD_NAME;
     // NATS.
     await nats.connect({ connectionString: natsConnectionString });
     nats.subscribe({ database: mongoDatabaseName, podName }).catch((err) => {
-      console.error(err.message);
+      console.error(err);
       process.exit(1);
     });
 

@@ -84,7 +84,7 @@ export class WebSocketServer {
           // Respond to the request.
           ws.send(ctx.response);
         } catch (e) {
-          console.error(e);
+          console.error(e.message);
 
           const message = typeof e.message === 'string' ? e.message : JSON.stringify(e.message);
           const errors = [{ message, name: e.name }];
