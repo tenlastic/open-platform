@@ -10,7 +10,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: bitnami
-      version: 11.10.7
+      version: 11.10.25
   interval: 5m
   releaseName: minio
   values:
