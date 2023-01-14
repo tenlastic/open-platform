@@ -59,6 +59,11 @@ interface LogsResponse<T = any> extends StreamResponse {
   };
 }
 
+interface ResumeToken {
+  expiresAt: Date;
+  value: string;
+}
+
 interface Service {
   emitter: TypedEmitter<any>;
 }
@@ -99,7 +104,7 @@ export class StreamService {
 
   private _ids = new Map<string, string>();
   private pendingWebSockets = new Map<string, WebSocket>();
-  private resumeTokens: { [key: string]: string } = {};
+  private resumeTokens: { [key: string]: ResumeToken } = {};
   private subscriptions: Subscription[] = [];
 
   public close(url: string) {
@@ -259,8 +264,9 @@ export class StreamService {
     request.method = Method.Post;
 
     // Add the resume token.
-    if (request.body || this.resumeTokens[request._id]) {
-      request.body = { resumeToken: this.resumeTokens[request._id], ...request.body };
+    const resumeToken = this.getResumeToken(request._id);
+    if (request.body && resumeToken) {
+      request.body = { resumeToken, ...request.body };
     }
 
     if (this.subscriptions.some((s) => request._id === s.request._id)) {
@@ -292,7 +298,7 @@ export class StreamService {
 
       // Save the resume token if available.
       if (!request.body?.resumeToken && json.body?.resumeToken) {
-        this.resumeTokens[request._id] = json.body.resumeToken;
+        this.setResumeToken(request._id, json.body.resumeToken);
       }
 
       const record = new Model(json.body.fullDocument);
@@ -361,6 +367,13 @@ export class StreamService {
     return response._id;
   }
 
+  private getResumeToken(_id: string) {
+    const now = new Date();
+    const resumeToken = this.resumeTokens[_id];
+
+    return resumeToken.expiresAt <= now ? resumeToken.value : null;
+  }
+
   private async nak(_id: string, url: string) {
     if (!_id) {
       return;
@@ -402,5 +415,10 @@ export class StreamService {
 
       socket?.addEventListener('message', onMessage);
     });
+  }
+
+  private setResumeToken(_id: string, value: string) {
+    const expiresAt = new Date(Date.now() + 1 * 60 * 60 * 1000);
+    this.resumeTokens[_id] = { expiresAt, value };
   }
 }
