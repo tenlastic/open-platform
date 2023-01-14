@@ -369,9 +369,13 @@ export class StreamService {
 
   private getResumeToken(_id: string) {
     const now = new Date();
-    const resumeToken = this.resumeTokens[_id];
 
-    return resumeToken.expiresAt <= now ? resumeToken.value : null;
+    const resumeToken = this.resumeTokens[_id];
+    if (resumeToken && now >= resumeToken.expiresAt) {
+      return resumeToken.value;
+    }
+
+    return null;
   }
 
   private async nak(_id: string, url: string) {
