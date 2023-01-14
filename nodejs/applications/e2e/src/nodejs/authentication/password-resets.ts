@@ -15,12 +15,13 @@ const oauth2Client = new google.auth.OAuth2(
   process.env.E2E_GMAIL_CLIENT_ID,
   process.env.E2E_GMAIL_CLIENT_SECRET,
 );
+const userId = 'me';
+
 oauth2Client.setCredentials({ refresh_token: process.env.E2E_GMAIL_REFRESH_TOKEN });
 google.options({ auth: oauth2Client });
 
 describe('/nodejs/authentication/password-resets', function () {
   let email: string;
-  let minimumInternalDate: number;
   let refreshToken: string;
   let user: UserModel;
   let username: string;
@@ -43,8 +44,9 @@ describe('/nodejs/authentication/password-resets', function () {
     const response = await dependencies.loginService.createWithCredentials(username, password);
     refreshToken = response.refreshToken;
 
-    const [message] = await getMessages();
-    minimumInternalDate = message ? Number(message.data.internalDate) : 0;
+    // Mark previous messages
+    const messages = await getMessages();
+    await Promise.all(messages.map((m) => read(m.id)));
   });
 
   afterEach(async function () {
@@ -54,7 +56,7 @@ describe('/nodejs/authentication/password-resets', function () {
   it('sends a Password Reset email', async function () {
     await dependencies.passwordResetService.create(email);
 
-    const hash = await wait(2.5 * 1000, 60 * 1000, () => getPasswordResetHash(minimumInternalDate));
+    const hash = await wait(2.5 * 1000, 60 * 1000, () => getPasswordResetHash());
     expect(hash).to.match(/[A-Za-z0-9]+/);
   });
 
@@ -64,7 +66,7 @@ describe('/nodejs/authentication/password-resets', function () {
     beforeEach(async function () {
       await dependencies.passwordResetService.create(email);
 
-      hash = await wait(2.5 * 1000, 60 * 1000, () => getPasswordResetHash(minimumInternalDate));
+      hash = await wait(2.5 * 1000, 60 * 1000, () => getPasswordResetHash());
     });
 
     it('resets the password', async function () {
@@ -86,56 +88,40 @@ describe('/nodejs/authentication/password-resets', function () {
   });
 });
 
-async function getMessage(minimumInternalDate: number) {
+async function getMessage() {
   const messages = await getMessages();
   if (messages.length === 0) {
     return null;
   }
 
-  // Marks the most recent message as read.
-  const message = messages.find((m) => Number(m.data.internalDate) > minimumInternalDate);
-  await gmail.users.messages.modify({
-    id: message.data.id,
-    requestBody: { removeLabelIds: ['UNREAD'] },
-    userId: 'me',
-  });
+  // Read the first message.
+  const message = await gmail.users.messages.get({ format: 'full', id: messages[0].id, userId });
+  await read(message.data.id);
 
   // Decode the base64-encoded body.
-  const buffer = Buffer.from(message.data.payload.body.data, 'base64');
-  return buffer.toString('utf8');
+  return Buffer.from(message.data.payload.body.data, 'base64').toString('utf8');
 }
 
 async function getMessages() {
   const query = ['from:no-reply@tenlastic.com', 'is:unread', 'subject:(Password Reset Request)'];
-  const userId = 'me';
-
   const response = await gmail.users.messages.list({ q: query.join(' '), userId });
-  if (!response.data.messages || response.data.messages.length === 0) {
-    return [];
-  }
 
-  // Load message metadata to sort by date.
-  const messages = await Promise.all(
-    response.data.messages.map((m) =>
-      gmail.users.messages.get({ format: 'full', id: m.id, userId }),
-    ),
-  );
-
-  // Sort messages sorted by the most recent first.
-  return messages.sort((a, b) =>
-    Number(a.data.internalDate) > Number(b.data.internalDate) ? -1 : 1,
-  );
+  return response.data.messages ?? [];
 }
 
 /**
  * Retrieves the hash from the most recently unread Password Reset Request email.
  */
-async function getPasswordResetHash(minimumInternalDate: number) {
-  const body = await getMessage(minimumInternalDate);
+async function getPasswordResetHash() {
+  const body = await getMessage();
   if (!body) {
     return null;
   }
 
   const matches = body.match(/reset-password\/([A-Za-z0-9]+)/);
   return matches[1];
+}
+
+function read(id: string) {
+  return gmail.users.messages.modify({ id, requestBody: { removeLabelIds: ['UNREAD'] }, userId });
 }

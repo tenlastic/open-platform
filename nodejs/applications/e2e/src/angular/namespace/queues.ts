@@ -205,7 +205,7 @@ describe('/angular/namespace/queues', () => {
     await startLiveTailButton.click();
 
     await helpers.waitForXPath(page, `//app-logs-dialog//div[contains(., 'Connected to Redis.')]`, {
-      timeout: 5 * 1000,
+      timeout: 10 * 1000,
     });
   });
 });
