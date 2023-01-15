@@ -44,7 +44,7 @@ const redisPassword = process.env.REDIS_PASSWORD;
 
     watch(client, mongoCollectionNames?.split(','), connection, key, resumeAfter);
   } catch (e) {
-    console.error(e.message);
+    console.error(e);
     process.exit(1);
   }
 })();

@@ -58,7 +58,7 @@ export function watch(
 
       await client.set(key, change._id._data);
     } catch (e) {
-      console.error(e.message);
+      console.error(e);
       process.exit(1);
     }
   });
