@@ -194,6 +194,10 @@ describe('/angular/namespace/queues', () => {
     });
   });
 
+  step('waits for the pod to initialize', async function () {
+    await helpers.sleep(5 * 1000);
+  });
+
   step('generates logs', async function () {
     const button = await helpers.getButtonByText(page, 'Queues');
     await helpers.clickAndNavigate(button, page, 'Queues | Tenlastic');
