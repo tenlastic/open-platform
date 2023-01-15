@@ -17,6 +17,9 @@ spec:
                 - key: tenlastic.com/low-priority
                   operator: Exists
     archiveLogs: true
+    artifactGC:
+      serviceAccountName: argo-workflows
+      strategy: OnWorkflowDeletion
     entrypoint: e2e
     podGC:
       strategy: OnWorkflowSuccess
@@ -26,7 +29,7 @@ spec:
     templates:
       - name: e2e
         container:
-          image: tenlastic/e2e:0.0.354
+          image: tenlastic/e2e:0.0.353
           envFrom:
             - secretRef:
                 name: e2e
