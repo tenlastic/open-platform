@@ -1,4 +1,5 @@
 export * from './config-map';
+export * from './endpoints';
 export * from './event';
 export * from './namespace';
 export * from './node';

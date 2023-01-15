@@ -1,4 +1,4 @@
-import { networkPolicyApiV1 } from '@tenlastic/kubernetes';
+import { endpointsApiV1, networkPolicyApiV1, serviceApiV1 } from '@tenlastic/kubernetes';
 import { NamespaceDocument } from '@tenlastic/mongoose';
 
 import { KubernetesNamespace } from './';
@@ -8,12 +8,22 @@ export const KubernetesNamespaceNetworkPolicy = {
     const labels = KubernetesNamespace.getLabels(namespace);
     const name = KubernetesNamespace.getName(namespace._id);
 
+    // Get the Kubernetes API IP addresses.
+    const endpoints = await endpointsApiV1.list('default', {});
+    const endpoint = endpoints.body.items.find((i) => i.metadata.name === 'kubernetes');
+    const endpointIp = endpoint.subsets[0].addresses[0].ip;
+    const services = await serviceApiV1.list('default', {});
+    const service = services.body.items.find((i) => i.metadata.name === 'kubernetes');
+    const serviceIP = service.spec.clusterIP;
+
     return networkPolicyApiV1.createOrReplace('dynamic', {
       metadata: { labels: { ...labels }, name },
       spec: {
         egress: [
           {
             to: [
+              { ipBlock: { cidr: `${endpointIp}/32` } },
+              { ipBlock: { cidr: `${serviceIP}/32` } },
               {
                 namespaceSelector: { matchLabels: { name: 'static' } },
                 podSelector: { matchLabels: { 'app.kubernetes.io/name': 'mongodb' } },
