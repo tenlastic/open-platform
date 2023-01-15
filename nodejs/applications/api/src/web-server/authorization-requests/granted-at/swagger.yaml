@@ -1,6 +1,6 @@
 paths:
   /authorization-requests/{_id}/granted-at:
-    put:
+    patch:
       summary: Grant
       tags: [Authorization Requests]
       description: Updates an existing record's date field to the current date and time.

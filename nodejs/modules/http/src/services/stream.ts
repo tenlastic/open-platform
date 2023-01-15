@@ -9,8 +9,8 @@ export enum Method {
   Delete = 'DELETE',
   Get = 'GET',
   Patch = 'PATCH',
-  Post = 'POST',
   Put = 'PUT',
+  Post = 'POST',
 }
 
 export interface LogsRequest extends StreamRequest {
@@ -23,7 +23,7 @@ export interface LogsRequestBody {
 export interface StreamRequest {
   _id?: string;
   body?: { [key: string]: any };
-  method?: 'DELETE' | 'GET' | 'POST' | 'PUT';
+  method?: Method;
   path: string;
 }
 

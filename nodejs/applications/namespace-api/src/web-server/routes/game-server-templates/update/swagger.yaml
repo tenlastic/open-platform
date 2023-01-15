@@ -1,6 +1,6 @@
 paths:
   /namespaces/{namespaceId}/game-server-templates/{_id}:
-    put:
+    patch:
       summary: Update
       tags: [Game Server Templates]
       description: Updates an existing record.

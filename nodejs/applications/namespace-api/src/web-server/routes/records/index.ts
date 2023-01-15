@@ -16,7 +16,7 @@ router.delete('/:_id', deleteHandler);
 router.get('/', findHandler);
 router.get('/count', countHandler);
 router.get('/:_id', findOneHandler);
+router.patch('/:_id', storageLimitMiddleware, updateHandler);
 router.post('/', storageLimitMiddleware, createHandler);
-router.put('/:_id', storageLimitMiddleware, updateHandler);
 
 export default router.routes();

@@ -1,6 +1,6 @@
 paths:
   /authorizations/{_id}/banned-at:
-    put:
+    patch:
       summary: Ban
       tags: [Authorizations]
       description: Updates an existing record's date field to the current date and time.

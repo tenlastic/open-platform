@@ -16,7 +16,7 @@ router.get('/', findHandler);
 router.get('/count', countHandler);
 router.get('/:_id', findOneHandler);
 router.get('/:_id/logs/:pod/:container', logsHandler);
+router.patch('/:_id', storageLimitMiddleware, updateHandler);
 router.post('/', storageLimitMiddleware, createHandler);
-router.put('/:_id', storageLimitMiddleware, updateHandler);
 
 export default router.routes();

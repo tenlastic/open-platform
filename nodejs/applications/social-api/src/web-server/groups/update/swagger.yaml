@@ -1,6 +1,6 @@
 paths:
   /groups/{_id}:
-    put:
+    patch:
       summary: Update
       tags: [Groups]
       description: Updates an existing record.

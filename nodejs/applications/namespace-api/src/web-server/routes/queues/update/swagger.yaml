@@ -1,6 +1,6 @@
 paths:
   /namespaces/{namespaceId}/queues/{_id}:
-    put:
+    patch:
       summary: Update
       tags: [Queues]
       description: Updates an existing record.

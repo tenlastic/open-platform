@@ -21,12 +21,12 @@ router.get('/namespaces/:namespaceId/storefronts/count', countHandler);
 router.get('/namespaces/:namespaceId/storefronts/:_id', findOneHandler);
 router.get('/namespaces/:namespaceId/storefronts/:storefrontId/:field', downloadHandler);
 router.get('/namespaces/:namespaceId/storefronts/:storefrontId/:field/:_id', downloadHandler);
+router.patch('/namespaces/:namespaceId/storefronts/:_id', storageLimitMiddleware, updateHandler);
 router.post('/namespaces/:namespaceId/storefronts', storageLimitMiddleware, createHandler);
 router.post(
   '/namespaces/:namespaceId/storefronts/:_id/:field',
   storageLimitMiddleware,
   uploadHandler,
 );
-router.put('/namespaces/:namespaceId/storefronts/:_id', storageLimitMiddleware, updateHandler);
 
 export default router.routes();

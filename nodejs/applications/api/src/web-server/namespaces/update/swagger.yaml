@@ -1,6 +1,6 @@
 paths:
   /namespaces/{id}:
-    put:
+    patch:
       summary: Update
       tags: [Namespaces]
       description: Updates an existing record.

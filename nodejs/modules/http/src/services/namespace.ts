@@ -69,7 +69,7 @@ export class NamespaceService {
   public async restart(_id: string) {
     const url = this.getUrl();
     const response = await this.apiService.request({
-      method: 'put',
+      method: 'patch',
       url: `${url}/${_id}/restarted-at`,
     });
 

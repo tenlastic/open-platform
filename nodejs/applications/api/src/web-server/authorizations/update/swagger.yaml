@@ -1,6 +1,6 @@
 paths:
   /authorizations/{_id}:
-    put:
+    patch:
       summary: Update
       tags: [Authorizations]
       description: Updates an existing record.
@@ -28,7 +28,7 @@ paths:
                   record:
                     $ref: '#/components/schemas/Authorization'
   /namespaces/{namespaceId}/authorizations/{_id}:
-    put:
+    patch:
       summary: Update
       tags: [Authorizations]
       description: Updates an existing record.

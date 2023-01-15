@@ -1,6 +1,6 @@
 paths:
   /namespaces/{namespaceId}/workflows/{_id}:
-    put:
+    patch:
       summary: Update
       tags: [Workflows]
       description: Updates an existing record.

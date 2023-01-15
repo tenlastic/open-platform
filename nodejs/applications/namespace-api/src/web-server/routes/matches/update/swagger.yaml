@@ -1,6 +1,6 @@
 paths:
   /namespaces/{namespaceId}/matches/{_id}:
-    put:
+    patch:
       summary: Update
       tags: [Matches]
       description: Updates an existing record.

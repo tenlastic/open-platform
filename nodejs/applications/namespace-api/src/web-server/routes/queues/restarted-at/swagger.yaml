@@ -1,6 +1,6 @@
 paths:
   /namespaces/{namespaceId}/queues/{_id}/restarted-at:
-    put:
+    patch:
       summary: Restart
       tags: [Queues]
       description: Updates an existing record's date field to the current date and time.

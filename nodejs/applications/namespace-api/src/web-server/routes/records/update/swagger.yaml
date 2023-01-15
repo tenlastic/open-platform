@@ -1,6 +1,6 @@
 paths:
   /namespaces/{namespaceId}/collections/{collectionId}/records/{_id}:
-    put:
+    patch:
       summary: Update
       tags: [Records]
       description: Updates an existing record.

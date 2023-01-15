@@ -55,7 +55,7 @@ async function update(workflow: V1Workflow) {
     }
 
     const headers = { 'X-Api-Key': apiKey };
-    await axios({ headers, data: { status }, method: 'put', url: endpoint });
+    await axios({ headers, data: { status }, method: 'patch', url: endpoint });
     previousStatus = status;
 
     console.log('Status updated successfully.');

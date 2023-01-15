@@ -16,8 +16,8 @@ router.get('/', findHandler);
 router.get('/count', countHandler);
 router.get('/:_id', findOneHandler);
 router.get('/:_id/logs/:pod/:container', logsHandler);
+router.patch('/:_id', updateHandler);
+router.patch('/:_id/restarted-at', restartedAtHandler);
 router.post('/', createHandler);
-router.put('/:_id', updateHandler);
-router.put('/:_id/restarted-at', restartedAtHandler);
 
 export default router.routes();

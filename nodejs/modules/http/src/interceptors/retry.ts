@@ -22,7 +22,7 @@ export class RetryInterceptor {
         }
 
         // If the method is not idempotent, return the error.
-        if (!['delete', 'get', 'head', 'options', 'put'].includes(error.config.method)) {
+        if (!['delete', 'get', 'head', 'options', 'patch'].includes(error.config.method)) {
           return error;
         }
 

@@ -53,7 +53,7 @@ export class AuthorizationRequestService {
   public async deny(namespaceId: string, _id: string) {
     const url = this.getUrl(namespaceId);
     const response = await this.apiService.request({
-      method: 'put',
+      method: 'patch',
       url: `${url}/${_id}/denied-at`,
     });
 
@@ -86,7 +86,7 @@ export class AuthorizationRequestService {
   public async grant(namespaceId: string, _id: string) {
     const url = this.getUrl(namespaceId);
     const response = await this.apiService.request({
-      method: 'put',
+      method: 'patch',
       url: `${url}/${_id}/granted-at`,
     });
 

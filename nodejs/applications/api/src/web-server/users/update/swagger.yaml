@@ -1,6 +1,6 @@
 paths:
   /users/{id}:
-    put:
+    patch:
       summary: Update
       tags: [Users]
       description: Updates an existing record.

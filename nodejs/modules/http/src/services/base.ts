@@ -127,7 +127,7 @@ export class BaseService<T extends BaseModel> {
   public async update(_id: string, json: Partial<T>, url: string): Promise<T> {
     const response = await this.apiService.request({
       data: json,
-      method: 'put',
+      method: 'patch',
       url: `${url}/${_id}`,
     });
 

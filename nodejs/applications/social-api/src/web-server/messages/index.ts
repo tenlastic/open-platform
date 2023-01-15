@@ -15,8 +15,8 @@ router.delete('/:_id', deleteHandler);
 router.get('/', findHandler);
 router.get('/count', countHandler);
 router.get('/:_id', findOneHandler);
+router.patch('/:_id', updateHandler);
 router.post('/', createHandler);
 router.post('/:_id/read-receipts', authenticationMiddleware, readHandler);
-router.put('/:_id', updateHandler);
 
 export default router.routes();

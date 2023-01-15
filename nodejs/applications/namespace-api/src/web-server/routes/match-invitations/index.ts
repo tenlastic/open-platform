@@ -12,6 +12,6 @@ router.delete('/:_id', deleteOneHandler);
 router.get('/', findHandler);
 router.get('/count', countHandler);
 router.get('/:_id', findOneHandler);
-router.put('/:_id/accepted-at', acceptedAtHandler);
+router.patch('/:_id/accepted-at', acceptedAtHandler);
 
 export default router.routes();

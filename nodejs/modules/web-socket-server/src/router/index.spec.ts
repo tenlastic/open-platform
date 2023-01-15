@@ -100,12 +100,12 @@ describe('router', function () {
     });
   });
 
-  describe('put()', function () {
+  describe('patch()', function () {
     it('adds a middleware layer for the route', function () {
       const spy = sinon.spy();
       router['route'] = spy;
 
-      router.put('/');
+      router.patch('/');
 
       expect(spy.calledOnce).to.eql(true);
     });

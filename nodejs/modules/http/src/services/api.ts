@@ -2,7 +2,7 @@ import { Axios, AxiosDefaults, AxiosRequestConfig, AxiosResponse, AxiosStatic } 
 
 import { ApiError } from '../errors';
 
-export type RequestMethod = 'delete' | 'get' | 'patch' | 'post' | 'put';
+export type RequestMethod = 'delete' | 'get' | 'patch' | 'post' | 'patch';
 
 export class ApiService {
   constructor(private axios: Axios | AxiosStatic) {

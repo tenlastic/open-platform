@@ -1,6 +1,6 @@
 paths:
   /namespaces/{namespaceId}/game-servers/{_id}/restarted-at:
-    put:
+    patch:
       summary: Restart
       tags: [Game Servers]
       description: Updates an existing record's date field to the current date and time.

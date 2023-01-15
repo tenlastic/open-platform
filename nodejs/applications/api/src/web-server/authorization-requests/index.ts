@@ -15,18 +15,18 @@ router.delete('/authorization-requests/:_id', deleteHandler);
 router.get('/authorization-requests', findHandler);
 router.get('/authorization-requests/count', countHandler);
 router.get('/authorization-requests/:_id', findOneHandler);
+router.patch('/authorization-requests/:_id', updateHandler);
+router.patch('/authorization-requests/:_id/denied-at', deniedAtHandler);
+router.patch('/authorization-requests/:_id/granted-at', grantedAtHandler);
 router.post('/authorization-requests', createHandler);
-router.put('/authorization-requests/:_id', updateHandler);
-router.put('/authorization-requests/:_id/denied-at', deniedAtHandler);
-router.put('/authorization-requests/:_id/granted-at', grantedAtHandler);
 
 router.delete('/namespaces/:namespaceId/authorization-requests/:_id', deleteHandler);
 router.get('/namespaces/:namespaceId/authorization-requests', findHandler);
 router.get('/namespaces/:namespaceId/authorization-requests/count', countHandler);
 router.get('/namespaces/:namespaceId/authorization-requests/:_id', findOneHandler);
+router.patch('/namespaces/:namespaceId/authorization-requests/:_id', updateHandler);
+router.patch('/namespaces/:namespaceId/authorization-requests/:_id/denied-at', deniedAtHandler);
+router.patch('/namespaces/:namespaceId/authorization-requests/:_id/granted-at', grantedAtHandler);
 router.post('/namespaces/:namespaceId/authorization-requests', createHandler);
-router.put('/namespaces/:namespaceId/authorization-requests/:_id', updateHandler);
-router.put('/namespaces/:namespaceId/authorization-requests/:_id/denied-at', deniedAtHandler);
-router.put('/namespaces/:namespaceId/authorization-requests/:_id/granted-at', grantedAtHandler);
 
 export default router.routes();

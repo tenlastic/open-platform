@@ -1,6 +1,6 @@
 paths:
   /namespaces/{namespaceId}/storefronts/{_id}:
-    put:
+    patch:
       summary: Update
       tags: [Storefront]
       description: Updates an existing record.

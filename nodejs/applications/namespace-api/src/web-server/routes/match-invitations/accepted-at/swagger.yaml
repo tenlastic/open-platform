@@ -1,6 +1,6 @@
 paths:
   /namespaces/{namespaceId}/match-invitations/{_id}/accepted-at:
-    put:
+    patch:
       summary: Accept
       tags: [Match Invitations]
       description: Updates an existing record's date field to the current date and time.

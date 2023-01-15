@@ -1,6 +1,6 @@
 paths:
   /messages/{_id}:
-    put:
+    patch:
       summary: Update
       tags: [Messages]
       description: Updates an existing record.

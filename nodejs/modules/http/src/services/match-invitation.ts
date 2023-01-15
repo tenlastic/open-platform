@@ -29,7 +29,7 @@ export class MatchInvitationService {
   public async accept(namespaceId: string, _id: string) {
     const url = this.getUrl(namespaceId);
     const response = await this.apiService.request({
-      method: 'put',
+      method: 'patch',
       url: `${url}/${_id}/accepted-at`,
     });
 

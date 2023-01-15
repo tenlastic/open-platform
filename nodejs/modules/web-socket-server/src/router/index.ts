@@ -31,6 +31,13 @@ export class Router {
   }
 
   /**
+   * Registers middleware to a matching PATCH request.
+   */
+  public patch(path: string, ...middleware: MiddlewareLayer[]) {
+    this.route(Method.Patch, path, ...middleware);
+  }
+
+  /**
    * Registers middleware to a matching POST request.
    */
   public post(path: string, ...middleware: MiddlewareLayer[]) {
