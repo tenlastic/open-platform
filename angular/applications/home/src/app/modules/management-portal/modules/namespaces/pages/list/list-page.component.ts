@@ -88,6 +88,13 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
     return this.authorizationQuery.hasRoles(namespaceId, roles, userId);
   }
 
+  public async restart($event: Event, record: NamespaceModel) {
+    $event.stopPropagation();
+
+    await this.namespaceService.restart(record._id);
+    this.matSnackBar.open('Namespace is restarting...');
+  }
+
   public showDeletePrompt($event: Event, record: NamespaceModel) {
     $event.stopPropagation();
 

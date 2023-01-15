@@ -6,6 +6,7 @@ import { handler as deleteHandler } from './delete';
 import { handler as findHandler } from './find';
 import { handler as findOneHandler } from './find-one';
 import { handler as logsHandler } from './logs';
+import { handler as restartedAtHandler } from './restarted-at';
 import { handler as updateHandler } from './update';
 
 const router = new Router({ prefix: '/namespaces' });
@@ -17,5 +18,6 @@ router.get('/:_id', findOneHandler);
 router.get('/:_id/logs/:pod/:container', logsHandler);
 router.post('/', createHandler);
 router.put('/:_id', updateHandler);
+router.put('/:_id/restarted-at', restartedAtHandler);
 
 export default router.routes();

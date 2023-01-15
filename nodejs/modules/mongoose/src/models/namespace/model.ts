@@ -39,6 +39,9 @@ export class NamespaceSchema {
   @prop({ maxlength: 64, required: true, trim: true, type: String })
   public name: string;
 
+  @prop({ filter: { create: true, update: true }, type: Date })
+  public restartedAt: Date;
+
   @prop({ default: () => new NamespaceStatusModel(), merge: true, type: NamespaceStatusSchema })
   public status: NamespaceStatusDocument;
 
@@ -118,6 +121,15 @@ export class NamespaceSchema {
     if (current - previous + status > limit) {
       throw new NamespaceLimitError('storage');
     }
+  }
+
+  /**
+   * Returns true if a restart is required on an update.
+   */
+  public static isRestartRequired(fields: string[]) {
+    const immutableFields = ['limits', 'restartedAt'];
+
+    return immutableFields.some((i) => fields.includes(i));
   }
 }
 

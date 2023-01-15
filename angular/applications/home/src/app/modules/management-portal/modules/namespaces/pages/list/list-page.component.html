@@ -72,6 +72,13 @@
         <ng-container *ngIf="hasWriteAuthorization || hasWriteAuthorizationForNamespace(element._id)">
           <app-button color="accent"
                       appHighlight
+                      matTooltip="Restart"
+                      (click)="restart($event, element)">
+            <mat-icon>sync</mat-icon>
+          </app-button>
+
+          <app-button color="accent"
+                      appHighlight
                       matTooltip="Delete"
                       (OnClick)="showDeletePrompt($event, element)">
             <mat-icon>delete</mat-icon>

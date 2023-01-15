@@ -64,6 +64,23 @@ export class NamespaceService {
   }
 
   /**
+   * Restarts the Namespace.
+   */
+  public async restart(_id: string) {
+    const url = this.getUrl();
+    const response = await this.apiService.request({
+      method: 'put',
+      url: `${url}/${_id}/restarted-at`,
+    });
+
+    const record = new NamespaceModel(response.data.record);
+    this.emitter.emit('update', record);
+    this.namespaceStore.upsertMany([record]);
+
+    return record;
+  }
+
+  /**
    * Updates a Record.
    */
   public async update(_id: string, json: Partial<NamespaceModel>) {

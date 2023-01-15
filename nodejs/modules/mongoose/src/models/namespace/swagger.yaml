@@ -13,6 +13,9 @@ components:
           $ref: '#/components/schemas/NamespaceLimits'
         name:
           type: string
+        restartedAt:
+          type: string
+          format: date-time
         status:
           $ref: '#/components/schemas/NamespaceStatus'
         updatedAt:
