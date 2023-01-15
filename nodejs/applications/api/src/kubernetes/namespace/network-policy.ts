@@ -16,14 +16,12 @@ export const KubernetesNamespaceNetworkPolicy = {
     const service = services.body.items.find((i) => i.metadata.name === 'kubernetes');
     const serviceIP = service.spec.clusterIP;
 
-    return networkPolicyApiV1.createOrReplace('dynamic', {
+    await networkPolicyApiV1.createOrReplace('dynamic', {
       metadata: { labels: { ...labels }, name },
       spec: {
         egress: [
           {
             to: [
-              { ipBlock: { cidr: `${endpointIp}/32` } },
-              { ipBlock: { cidr: `${serviceIP}/32` } },
               {
                 namespaceSelector: { matchLabels: { name: 'static' } },
                 podSelector: { matchLabels: { 'app.kubernetes.io/name': 'mongodb' } },
@@ -41,6 +39,22 @@ export const KubernetesNamespaceNetworkPolicy = {
           },
         ],
         podSelector: { matchLabels: { 'tenlastic.com/app': name } },
+        policyTypes: ['Egress'],
+      },
+    });
+
+    await networkPolicyApiV1.createOrReplace('dynamic', {
+      metadata: { labels: { ...labels }, name: `${name}-kubernetes-api` },
+      spec: {
+        egress: [
+          {
+            to: [
+              { ipBlock: { cidr: `${endpointIp}/32` } },
+              { ipBlock: { cidr: `${serviceIP}/32` } },
+            ],
+          },
+        ],
+        podSelector: { matchLabels: { 'tenlastic.com/namespaceId': `${namespace._id}` } },
         policyTypes: ['Egress'],
       },
     });

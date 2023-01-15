@@ -23,12 +23,12 @@ export class RetryInterceptor {
 
         // If the method is not idempotent, return the error.
         if (!['delete', 'get', 'head', 'options', 'patch'].includes(error.config.method)) {
-          return error;
+          throw error;
         }
 
         // If the status code below 500, return the error.
         if (error?.response?.status > 0 && error?.response?.status < 500) {
-          return error;
+          throw error;
         }
 
         config.retries.current--;
