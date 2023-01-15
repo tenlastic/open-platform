@@ -26,8 +26,6 @@ spec:
   arguments:
     parameters:
       - name: revision
-  artifactGC:
-    strategy: OnWorkflowDeletion
   entrypoint: entrypoint
   podGC:
     strategy: OnWorkflowSuccess

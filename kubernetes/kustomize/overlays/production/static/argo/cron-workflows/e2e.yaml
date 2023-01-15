@@ -17,8 +17,6 @@ spec:
                 - key: tenlastic.com/low-priority
                   operator: Exists
     archiveLogs: true
-    artifactGC:
-      strategy: OnWorkflowDeletion
     entrypoint: e2e
     podGC:
       strategy: OnWorkflowSuccess
