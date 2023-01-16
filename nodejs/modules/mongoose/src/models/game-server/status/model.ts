@@ -1,4 +1,11 @@
-import { DocumentType, getModelForClass, modelOptions, prop, PropType } from '@typegoose/typegoose';
+import {
+  DocumentType,
+  getModelForClass,
+  modelOptions,
+  pre,
+  prop,
+  PropType,
+} from '@typegoose/typegoose';
 
 import {
   GameServerStatusComponentDocument,
@@ -22,28 +29,14 @@ export enum GameServerStatusPhase {
 }
 
 @modelOptions({ schemaOptions: { _id: false } })
+@pre('save', function (this: GameServerStatusDocument) {
+  if (this.isModified('components') || this.isNew) {
+    this.setComponents();
+    this.setPhase();
+  }
+})
 export class GameServerStatusSchema {
-  @prop(
-    {
-      default: () => [
-        new GameServerStatusComponentModel({
-          current: 0,
-          name: GameServerStatusComponentName.Application,
-          phase: GameServerStatusPhase.Pending,
-          total: 1,
-        }),
-        new GameServerStatusComponentModel({
-          current: 0,
-          name: GameServerStatusComponentName.Sidecar,
-          phase: GameServerStatusPhase.Pending,
-          total: 1,
-        }),
-      ],
-      type: GameServerStatusComponentSchema,
-      unset: false,
-    },
-    PropType.ARRAY,
-  )
+  @prop({ type: GameServerStatusComponentSchema, unset: false }, PropType.ARRAY)
   public components: GameServerStatusComponentDocument[];
 
   @prop({ type: GameServerStatusEndpointSchema }, PropType.ARRAY)
@@ -71,6 +64,49 @@ export class GameServerStatusSchema {
     const defaults = { phase: GameServerStatusPhase.Running };
 
     return new this({ ...defaults, ...values });
+  }
+
+  /**
+   * Sets components, filling in default values if missing.
+   */
+  private setComponents(this: GameServerStatusDocument) {
+    const components: GameServerStatusComponentDocument[] = [
+      new GameServerStatusComponentModel({
+        current: 0,
+        name: GameServerStatusComponentName.Application,
+        phase: GameServerStatusPhase.Pending,
+        total: 1,
+      }),
+      new GameServerStatusComponentModel({
+        current: 0,
+        name: GameServerStatusComponentName.Sidecar,
+        phase: GameServerStatusPhase.Pending,
+        total: 1,
+      }),
+    ];
+
+    for (const component of this.components) {
+      const index = components.findIndex((d) => d.name === component.name);
+      components[index] = component;
+    }
+
+    this.components = components;
+  }
+
+  /**
+   * Sets the phase.
+   */
+  private setPhase(this: GameServerStatusDocument) {
+    let phase = GameServerStatusPhase.Pending;
+    const statuses = [GameServerStatusPhase.Running, GameServerStatusPhase.Succeeded];
+
+    if (this.nodes.some((n) => n.phase === GameServerStatusPhase.Error)) {
+      phase = GameServerStatusPhase.Error;
+    } else if (this.components.every((c) => statuses.includes(c.phase))) {
+      phase = GameServerStatusPhase.Running;
+    }
+
+    this.phase = phase;
   }
 }
 

@@ -21,7 +21,12 @@ export class ApiError extends Error {
     this.status = err.response?.status;
     this.url = err.config?.url;
 
-    this.message =
-      `${this.method} to ${this.url} responded with ${this.status}: ` + this.messages.join(', ');
+    const message = `${this.method} to ${this.url} responded with ${this.status}`;
+
+    if (this.messages?.length > 0) {
+      this.message = `${message}: ${this.messages.join(', ')}`;
+    } else {
+      this.message = `${message}.`;
+    }
   }
 }

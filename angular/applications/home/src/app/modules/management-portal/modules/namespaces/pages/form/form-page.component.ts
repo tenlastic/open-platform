@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -13,24 +14,13 @@ import {
 import { Subscription } from 'rxjs';
 
 import { FormService, IdentityService } from '../../../../../../core/services';
+import { PromptComponent } from '../../../../../../shared/components';
 
 @Component({
   templateUrl: 'form-page.component.html',
   styleUrls: ['./form-page.component.scss'],
 })
 export class NamespacesFormPageComponent implements OnDestroy, OnInit {
-  public get components() {
-    const components = this.data.status.components;
-
-    const migrations = components.find((c) => c.name === INamespace.StatusComponentName.Migrations);
-    if (!migrations) {
-      return components
-        .concat({ name: INamespace.StatusComponentName.Migrations, phase: 'Succeeded' })
-        .sort((a, b) => (a.name > b.name ? 1 : -1));
-    }
-
-    return components;
-  }
   public data: NamespaceModel;
   public errors: string[] = [];
   public form: FormGroup;
@@ -45,6 +35,7 @@ export class NamespacesFormPageComponent implements OnDestroy, OnInit {
     private formBuilder: FormBuilder,
     private formService: FormService,
     private identityService: IdentityService,
+    private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private namespaceQuery: NamespaceQuery,
     private namespaceService: NamespaceService,
@@ -109,11 +100,38 @@ export class NamespacesFormPageComponent implements OnDestroy, OnInit {
       name: this.form.get('name').value,
     };
 
-    try {
-      this.data = await this.upsert(values);
-    } catch (e) {
-      this.errors = this.formService.handleHttpError(e, { name: 'Name' });
+    const dirtyFields = this.getDirtyFields();
+    if (this.data._id && NamespaceModel.isRestartRequired(dirtyFields)) {
+      const dialogRef = this.matDialog.open(PromptComponent, {
+        data: {
+          buttons: [
+            { color: 'primary', label: 'No' },
+            { color: 'accent', label: 'Yes' },
+          ],
+          message: `These changes require the Namespace to be restarted. Is this OK?`,
+        },
+      });
+
+      dialogRef.afterClosed().subscribe(async (result: string) => {
+        if (result === 'Yes') {
+          try {
+            this.data = await this.upsert(values);
+          } catch (e) {
+            this.errors = this.formService.handleHttpError(e, { name: 'Name' });
+          }
+        }
+      });
+    } else {
+      try {
+        this.data = await this.upsert(values);
+      } catch (e) {
+        this.errors = this.formService.handleHttpError(e, { name: 'Name' });
+      }
     }
+  }
+
+  private getDirtyFields() {
+    return Object.keys(this.form.controls).filter((key) => this.form.get(key).dirty);
   }
 
   private setupForm() {

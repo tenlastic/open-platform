@@ -19,14 +19,7 @@ import {
   enumValidator,
 } from '../../validators';
 import { AuthorizationDocument } from '../authorization';
-import {
-  QueueStatusModel,
-  QueueStatusComponentModel,
-  QueueStatusComponentName,
-  QueueStatusDocument,
-  QueueStatusPhase,
-  QueueStatusSchema,
-} from './status';
+import { QueueStatusModel, QueueStatusDocument, QueueStatusSchema } from './status';
 import { QueueThresholdDocument, QueueThresholdSchema } from './threshold';
 
 @index({ namespaceId: 1 })
@@ -73,28 +66,7 @@ export class QueueSchema {
   @prop({ filter: { create: true, update: true }, type: Date })
   public restartedAt: Date;
 
-  @prop({
-    default(this: QueueDocument) {
-      return new QueueStatusModel({
-        components: [
-          new QueueStatusComponentModel({
-            current: 0,
-            name: QueueStatusComponentName.Application,
-            phase: QueueStatusPhase.Pending,
-            total: this.replicas,
-          }),
-          new QueueStatusComponentModel({
-            current: 0,
-            name: QueueStatusComponentName.Sidecar,
-            phase: QueueStatusPhase.Pending,
-            total: 1,
-          }),
-        ],
-      });
-    },
-    merge: true,
-    type: QueueStatusSchema,
-  })
+  @prop({ default: () => new QueueStatusModel(), merge: true, type: QueueStatusSchema })
   public status: QueueStatusDocument;
 
   @prop({ type: QueueThresholdSchema, validate: duplicateValidator }, PropType.ARRAY)

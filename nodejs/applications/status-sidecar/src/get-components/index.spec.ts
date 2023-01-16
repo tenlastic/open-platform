@@ -22,6 +22,7 @@ describe('get-components', function () {
         status: { completionTime: new Date() },
       },
     ];
+    const pods = [];
     const statefulSets = [
       {
         metadata: { labels: { 'tenlastic.com/role': 'C' } },
@@ -30,10 +31,10 @@ describe('get-components', function () {
       },
     ];
 
-    const result = getComponents(deployments as any, jobs as any, statefulSets as any);
+    const result = getComponents(deployments as any, jobs as any, pods as any, statefulSets as any);
 
     expect(result[0]).to.eql({ current: 0, name: 'A', phase: 'Pending', total: replicas });
-    expect(result[1]).to.eql({ name: 'B', phase: 'Succeeded' });
+    expect(result[1]).to.eql({ current: 0, name: 'B', phase: 'Succeeded', total: 0 });
     expect(result[2]).to.eql({ current: replicas, name: 'C', phase: 'Running', total: replicas });
   });
 });

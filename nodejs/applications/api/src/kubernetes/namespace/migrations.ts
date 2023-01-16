@@ -1,5 +1,5 @@
 import { V1EnvFromSource, V1Pod } from '@kubernetes/client-node';
-import { jobApiV1 } from '@tenlastic/kubernetes';
+import { jobApiV1, podApiV1 } from '@tenlastic/kubernetes';
 import { NamespaceDocument, NamespaceStatusComponentName } from '@tenlastic/mongoose';
 
 import { version } from '../../../package.json';
@@ -12,6 +12,9 @@ export const KubernetesNamespaceMigrations = {
 
     await jobApiV1.delete(name, 'dynamic');
 
+    const pods = await podApiV1.list('dynamic', { labelSelector: `job-name=${name}` });
+    await Promise.all(pods.body.items.map((p) => podApiV1.delete(p.metadata.name, 'dynamic')));
+
     return jobApiV1.createOrReplace('dynamic', {
       metadata: {
         labels: { ...labels, 'tenlastic.com/role': NamespaceStatusComponentName.Migrations },
@@ -19,7 +22,6 @@ export const KubernetesNamespaceMigrations = {
       },
       spec: {
         template: getPodTemplate(namespace),
-        ttlSecondsAfterFinished: 0,
       },
     });
   },

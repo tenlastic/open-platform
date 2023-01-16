@@ -58,7 +58,7 @@ mat-list.mat-list {
           white-space: nowrap;
 
           &:first-of-type {
-            margin-right: 8px;
+            padding-right: 8px;
             overflow: hidden;
             text-overflow: ellipsis;
           }

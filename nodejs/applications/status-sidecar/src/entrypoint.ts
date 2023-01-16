@@ -17,7 +17,6 @@ import { version } from '../package.json';
 import { getComponents } from './get-components';
 import { getMessage } from './get-message';
 import { getNodes } from './get-nodes';
-import { getPhase } from './get-phase';
 
 const apiKey = process.env.API_KEY;
 const endpoint = process.env.ENDPOINT;
@@ -91,13 +90,12 @@ async function update() {
     const p = Object.values(pods);
     const ss = Object.values(statefulSets);
 
-    const components = getComponents(d, j, ss);
+    const components = getComponents(d, j, p, ss);
     const message = getMessage(d, events, j, ss);
     const nodes = getNodes(p);
-    const phase = getPhase(components, nodes);
 
     // Do not update status if nothing has changed.
-    const status = { components, message, nodes, phase, version };
+    const status = { components, message, nodes, version };
     if (isDeepStrictEqual(previousStatus, status)) {
       console.log('Status has not changed. Skipping update.');
       return;

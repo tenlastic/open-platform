@@ -28,10 +28,10 @@ export namespace INamespace {
   }
 
   export interface StatusComponent {
-    current?: number;
+    current: number;
     name: StatusComponentName;
     phase: string;
-    total?: number;
+    total: number;
   }
 
   export interface StatusLimits {
@@ -56,5 +56,11 @@ export class NamespaceModel extends BaseModel {
 
   constructor(parameters?: Partial<NamespaceModel>) {
     super(parameters);
+  }
+
+  public static isRestartRequired(fields: string[]) {
+    const immutableFields = ['limits', 'restartedAt'];
+
+    return immutableFields.some((i) => fields.includes(i));
   }
 }

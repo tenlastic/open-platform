@@ -35,10 +35,10 @@ export namespace IQueue {
   }
 
   export interface StatusComponent {
-    current?: number;
+    current: number;
     name: StatusComponentName;
     phase: string;
-    total?: number;
+    total: number;
   }
 
   export interface StatusNode {
