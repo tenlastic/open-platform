@@ -41,9 +41,8 @@ export async function replicateFromNats(
       await eachMessage(Model, options, json, new Query().cast(Model, where));
       message.ack();
     } catch (e) {
-      console.error(e.message);
+      console.error(e);
       message.nak();
-
       process.exit(1);
     }
   }

@@ -54,7 +54,7 @@ import {
     const Schema = getModelForClass(SchemaSchema);
     await Schema.deleteOne({ name: this.collection.name });
   } catch (e) {
-    console.error(e.message);
+    console.error(e);
   }
 })
 @post('save', async function (this: CollectionDocument) {

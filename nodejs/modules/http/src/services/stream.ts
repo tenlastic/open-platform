@@ -150,7 +150,8 @@ export class StreamService {
           await new Promise((resolve) => setTimeout(resolve, 5000));
           await this.connect(options);
         } catch {
-          console.error(`Could not reconnect to web socket at ${options.url}.`);
+          const error = new Error(`Could not reconnect to web socket at ${options.url}.`);
+          console.error(error);
         }
       }
     });

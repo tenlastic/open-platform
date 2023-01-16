@@ -109,7 +109,7 @@ async function update() {
 
     console.log('Status updated successfully.');
   } catch (e) {
-    console.error(e.message);
+    console.error(e);
 
     clearTimeout(timeout);
     timeout = setTimeout(update, throttle - now - startedUpdatingAt);
@@ -132,11 +132,11 @@ function watchDeployments() {
       try {
         await update();
       } catch (e) {
-        console.error(e.message);
+        console.error(e);
       }
     },
     (err) => {
-      console.error(err?.message);
+      console.error(err);
       process.exit(err ? 1 : 0);
     },
   );
@@ -163,7 +163,7 @@ function watchEvents(statefulSet: V1StatefulSet) {
       try {
         await update();
       } catch (e) {
-        console.error(e.message);
+        console.error(e);
       }
     },
     (err) => {
@@ -171,7 +171,7 @@ function watchEvents(statefulSet: V1StatefulSet) {
         return;
       }
 
-      console.error(err.message);
+      console.error(err);
       process.exit(1);
     },
   );
@@ -193,11 +193,11 @@ function watchJobs() {
       try {
         await update();
       } catch (e) {
-        console.error(e.message);
+        console.error(e);
       }
     },
     (err) => {
-      console.error(err?.message);
+      console.error(err);
       process.exit(err ? 1 : 0);
     },
   );
@@ -222,11 +222,11 @@ function watchPods() {
       try {
         await update();
       } catch (e) {
-        console.error(e.message);
+        console.error(e);
       }
     },
     (err) => {
-      console.error(err?.message);
+      console.error(err);
       process.exit(err ? 1 : 0);
     },
   );
@@ -257,11 +257,11 @@ function watchStatefulSets() {
       try {
         await update();
       } catch (e) {
-        console.error(e.message);
+        console.error(e);
       }
     },
     (err) => {
-      console.error(err?.message);
+      console.error(err);
       process.exit(err ? 1 : 0);
     },
   );

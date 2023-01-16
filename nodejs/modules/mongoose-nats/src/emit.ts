@@ -42,7 +42,7 @@ export async function emit<TDocument extends mongoose.Document>(
       await Event.emit(json);
       message.ack();
     } catch (e) {
-      console.error(e.message);
+      console.error(e);
       message.nak();
     }
   }

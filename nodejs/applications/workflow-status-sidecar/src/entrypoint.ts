@@ -60,7 +60,7 @@ async function update(workflow: V1Workflow) {
 
     console.log('Status updated successfully.');
   } catch (e) {
-    console.error(e.message);
+    console.error(e);
 
     clearTimeout(timeout);
     timeout = setTimeout(() => update(workflow), throttle - now - startedUpdatingAt);
@@ -81,7 +81,7 @@ function watchPods() {
       }
     },
     (err) => {
-      console.error(err?.message);
+      console.error(err);
       process.exit(err ? 1 : 0);
     },
   );
@@ -97,11 +97,11 @@ function watchWorkflows() {
       try {
         await update(workflow);
       } catch (e) {
-        console.error(e.message);
+        console.error(e);
       }
     },
     (err) => {
-      console.error(err?.message);
+      console.error(err);
       process.exit(err ? 1 : 0);
     },
   );

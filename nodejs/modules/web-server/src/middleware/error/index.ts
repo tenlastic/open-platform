@@ -54,7 +54,7 @@ export async function errorMiddleware(ctx: Context, next: Next) {
         break;
 
       default:
-        console.error(e.message);
+        console.error(e);
         ctx.response.status = status;
         ctx.response.body = getError(e);
         break;

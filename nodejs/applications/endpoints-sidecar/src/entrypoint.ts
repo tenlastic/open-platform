@@ -56,7 +56,7 @@ async function update() {
 
     console.log('Endpoints updated successfully.');
   } catch (e) {
-    console.error(e.message);
+    console.error(e);
 
     clearTimeout(timeout);
     timeout = setTimeout(update, throttle - now - startedUpdatingAt);
@@ -79,11 +79,11 @@ function watchPods() {
       try {
         await update();
       } catch (e) {
-        console.error(e.message);
+        console.error(e);
       }
     },
     (err) => {
-      console.error(err?.message);
+      console.error(err);
       process.exit(err ? 1 : 0);
     },
   );

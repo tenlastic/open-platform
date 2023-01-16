@@ -81,7 +81,7 @@ const wssUrl = process.env.WSS_URL;
     // Wait for changes to catch up before creating Matches.
     setTimeout(main, 5000);
   } catch (e) {
-    console.error(e.message);
+    console.error(e);
     process.exit(1);
   }
 })();
@@ -96,9 +96,9 @@ async function main() {
     return main();
   } catch (e) {
     if (e.name === 'StatusCodeError') {
-      e.error.errors.forEach((error) => console.error(error.message));
+      e.error.errors.forEach((error) => console.error(error));
     } else if (!e.message.includes('Not enough QueueMembers.')) {
-      console.error(e.message);
+      console.error(e);
     }
 
     setTimeout(main, 5000);

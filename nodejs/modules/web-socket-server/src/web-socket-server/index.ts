@@ -46,7 +46,7 @@ export class WebSocketServer {
             this.wss.emit('connection', state, ws);
           });
         } catch (e) {
-          console.error(e.message);
+          console.error(e);
           socket.destroy();
         }
       },
@@ -84,7 +84,7 @@ export class WebSocketServer {
           // Respond to the request.
           ws.send(ctx.response);
         } catch (e) {
-          console.error(e.message);
+          console.error(e);
 
           const message = typeof e.message === 'string' ? e.message : JSON.stringify(e.message);
           const errors = [{ message, name: e.name }];

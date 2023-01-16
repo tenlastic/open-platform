@@ -113,7 +113,7 @@ export async function subscribe(
         setAckCallback(_id, () => message.ack(), ctx.ws);
         setNakCallback(_id, () => message.nak(), ctx.ws);
       } catch (e) {
-        console.error(e.message);
+        console.error(e);
 
         const errors = [{ message: e.message, name: e.name }];
         ctx.ws.send({ _id, body: { errors }, status: StatusCode.BadRequest });

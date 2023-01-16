@@ -19,12 +19,14 @@
       <app-button *ngIf="data.$logs | async as logs"
                   color="accent"
                   (click)="toggleVisibility(false, logs)">
+        <mat-icon>expand_less</mat-icon>
         <div>Collapse All</div>
       </app-button>
 
       <app-button *ngIf="data.$logs | async as logs"
                   color="accent"
                   (click)="toggleVisibility(true, logs)">
+        <mat-icon>expand_more</mat-icon>
         <div>Expand All</div>
       </app-button>
 

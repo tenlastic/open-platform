@@ -57,10 +57,11 @@ minio.connect({
         break;
       } catch (e) {
         if (e.code === 'NoSuchKey') {
-          console.error(`Could not find zip file: ${build.getZipPath()}.`);
+          const error = new Error(`Could not find zip file: ${build.getZipPath()}.`);
+          console.error(error);
           await new Promise((res) => setTimeout(res, 5000));
         } else {
-          console.error(e.message);
+          console.error(e);
           throw e;
         }
       }
@@ -83,7 +84,7 @@ minio.connect({
 
     process.exit();
   } catch (e) {
-    console.error(e.message);
+    console.error(e);
     process.exit(1);
   }
 })();

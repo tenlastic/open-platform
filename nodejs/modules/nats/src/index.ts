@@ -1,4 +1,4 @@
-export { connect } from './connect';
+export { connect, ConnectionOptions } from './connect';
 
 export * from './delete-stream';
 export * from './get-consumer';

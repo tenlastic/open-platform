@@ -45,7 +45,7 @@ const where = process.env.WHERE ? JSON.parse(process.env.WHERE) : {};
     console.log(`Watching NATS (${mongoFromDatabaseName}.schemas) for schema updates...`);
     fetchSchemasFromNats(mongoFromDatabaseName, fromConnection, start, toConnection).catch(
       (err) => {
-        console.error(err.message);
+        console.error(err);
         process.exit(1);
       },
     );
