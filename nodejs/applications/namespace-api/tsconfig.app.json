@@ -15,6 +15,7 @@
     { "path": "../../modules/mongoose/tsconfig.app.json" },
     { "path": "../../modules/mongoose-nats/tsconfig.app.json" },
     { "path": "../../modules/mongoose-permissions/tsconfig.app.json" },
+    { "path": "../../modules/nats/tsconfig.app.json" },
     { "path": "../../modules/web-server/tsconfig.app.json" },
     { "path": "../../modules/web-socket-server/tsconfig.app.json" }
   ],

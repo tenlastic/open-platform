@@ -19,6 +19,7 @@
     "@tenlastic/mongoose": "0.0.358",
     "@tenlastic/mongoose-nats": "0.0.358",
     "@tenlastic/mongoose-permissions": "0.0.358",
+    "@tenlastic/nats": "0.0.358",
     "@tenlastic/web-server": "0.0.358",
     "@tenlastic/web-socket-server": "0.0.358",
     "koa-router": "12.0.0",

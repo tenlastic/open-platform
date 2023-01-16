@@ -6,13 +6,15 @@ export interface ConnectOptions {
   password: string;
 }
 
+export let client: Redis;
+
 export function connect(options: ConnectOptions) {
   const sentinels = options.connectionString.split(',').map((rcs) => {
     const [host, port] = rcs.split(':');
     return { host, port: Number(port) };
   });
 
-  const client = new Redis({
+  client = new Redis({
     name: options.name,
     password: options.password,
     retryStrategy: (times) => Math.min(times * 1000, 5000),

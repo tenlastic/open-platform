@@ -62,6 +62,10 @@ export function watch(
       process.exit(1);
     }
   });
+  changeStream.on('error', (err) => {
+    console.error(err);
+    process.exit(1);
+  });
 
   return changeStream as ChangeStream;
 }

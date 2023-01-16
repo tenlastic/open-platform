@@ -1,6 +1,7 @@
 import * as nats from 'nats';
 
-import { getJetStream, getJetStreamManager } from './connect';
+import { getJetStream } from './jet-stream';
+import { getJetStreamManager } from './jet-stream-manager';
 
 export async function subscribe(subject: string, options: Partial<nats.ConsumerConfig> = null) {
   const consumerOptions: Partial<nats.ConsumerConfig> = {

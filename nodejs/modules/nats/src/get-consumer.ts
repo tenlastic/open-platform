@@ -1,4 +1,4 @@
-import { getJetStreamManager } from './connect';
+import { getJetStreamManager } from './jet-stream-manager';
 
 export async function getConsumer(durable: string, subject: string) {
   const jsm = await getJetStreamManager();

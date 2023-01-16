@@ -4,9 +4,7 @@ export interface ConnectionOptions extends nats.ConnectionOptions {
   connectionString?: string;
 }
 
-let client: nats.NatsConnection;
-let jetStream: nats.JetStreamClient;
-let jetStreamManager: nats.JetStreamManager;
+export let client: nats.NatsConnection;
 
 export async function connect(options: ConnectionOptions) {
   if (client) {
@@ -29,31 +27,6 @@ export async function connect(options: ConnectionOptions) {
   }
 
   client = await nats.connect(options);
+
   return client;
-}
-
-export function getJetStream(options?: nats.JetStreamOptions) {
-  if (jetStream) {
-    return jetStream;
-  }
-
-  if (!client) {
-    throw new Error('Cannot create Jetstream. Connect to NATS first with connect().');
-  }
-
-  jetStream = client.jetstream(options);
-  return jetStream;
-}
-
-export async function getJetStreamManager(options?: nats.JetStreamOptions) {
-  if (jetStreamManager) {
-    return jetStreamManager;
-  }
-
-  if (!client) {
-    throw new Error('Cannot create Jetstream Manager. Connect to NATS first with connect().');
-  }
-
-  jetStreamManager = await client.jetstreamManager(options);
-  return jetStreamManager;
 }

@@ -13,4 +13,5 @@ export * from './validators';
 
 export * from './connect';
 export * from './enable-pre-post-images';
+export * from './status';
 export * from './sync-indexes';

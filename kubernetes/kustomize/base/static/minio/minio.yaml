@@ -40,9 +40,6 @@ spec:
       storageClass: balanced-expandable
     provisioning:
       buckets:
-        - name: api
-          policy: none
-          purge: "false"
         - name: argo
           policy: none
           purge: "false"

@@ -1,1 +1,3 @@
-export * from './connect';
+export { connect } from './connect';
+
+export * from './status';

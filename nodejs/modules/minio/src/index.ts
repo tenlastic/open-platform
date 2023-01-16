@@ -1,4 +1,4 @@
-export * from './connect';
+export { connect, getClient } from './connect';
 
 export * from './copy-object';
 export * from './f-get-object';
@@ -12,4 +12,5 @@ export * from './remove-bucket';
 export * from './remove-object';
 export * from './remove-objects';
 export * from './stat-object';
+export * from './status';
 export * from './stream-objects';

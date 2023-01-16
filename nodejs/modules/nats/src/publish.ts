@@ -1,6 +1,6 @@
 import { TextEncoder } from 'util';
 
-import { getJetStream } from './connect';
+import { getJetStream } from './jet-stream';
 
 export async function publish(subject: string, message: any) {
   // Encode message to Uint8Array.

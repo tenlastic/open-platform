@@ -1,6 +1,6 @@
 import { StreamConfig, StreamInfo } from 'nats';
 
-import { getJetStreamManager } from './connect';
+import { getJetStreamManager } from './jet-stream-manager';
 
 export async function upsertStream(subject: string, options?: Partial<StreamConfig>) {
   const maxAge = 7 * 24 * 60 * 60 * 1000 * 1000 * 1000;
