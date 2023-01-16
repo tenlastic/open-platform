@@ -1,4 +1,5 @@
 import * as mongoose from '@tenlastic/mongoose';
+import * as nats from '@tenlastic/nats';
 
 before(async function () {
   // MongoDB.
@@ -16,6 +17,10 @@ before(async function () {
     mongoose.StorefrontModel.syncIndexes(),
     mongoose.UserModel.syncIndexes(),
   ]);
+
+  // NATS.
+  await nats.connect({ connectionString: process.env.NATS_CONNECTION_STRING });
+  await nats.upsertStream('aggregation-api-test');
 });
 
 beforeEach(async function () {

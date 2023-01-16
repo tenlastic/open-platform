@@ -1,5 +1,6 @@
 import * as minio from '@tenlastic/minio';
 import * as mongoose from '@tenlastic/mongoose';
+import * as nats from '@tenlastic/nats';
 import { URL } from 'url';
 
 before(async function () {
@@ -29,6 +30,10 @@ before(async function () {
     mongoose.UserModel.syncIndexes(),
     mongoose.WebSocketModel.syncIndexes(),
   ]);
+
+  // NATS.
+  await nats.connect({ connectionString: process.env.NATS_CONNECTION_STRING });
+  await nats.upsertStream('api-test');
 });
 
 beforeEach(async function () {

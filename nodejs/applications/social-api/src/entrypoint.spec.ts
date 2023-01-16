@@ -1,4 +1,5 @@
 import * as mongoose from '@tenlastic/mongoose';
+import * as nats from '@tenlastic/nats';
 
 before(async function () {
   // MongoDB.
@@ -14,6 +15,10 @@ before(async function () {
     mongoose.MessageModel.syncIndexes(),
     mongoose.UserModel.syncIndexes(),
   ]);
+
+  // NATS.
+  await nats.connect({ connectionString: process.env.NATS_CONNECTION_STRING });
+  await nats.upsertStream('social-api-test');
 });
 
 beforeEach(async function () {

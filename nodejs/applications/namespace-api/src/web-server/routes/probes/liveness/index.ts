@@ -3,8 +3,6 @@ import * as mongoose from '@tenlastic/mongoose';
 import * as nats from '@tenlastic/nats';
 import { Context } from '@tenlastic/web-server';
 
-const mongoDatabaseName = process.env.MONGO_DATABASE_NAME;
-
 export async function handler(ctx: Context) {
   const minioStatus = await getMinioStatus();
   const mongoStatus = await getMongoStatus();
@@ -15,7 +13,7 @@ export async function handler(ctx: Context) {
 
 async function getMinioStatus() {
   const { buckets, health } = await minio.status();
-  return buckets.find((b) => b.name === mongoDatabaseName) && health === 1;
+  return buckets.length > 0 && health === 1;
 }
 
 async function getMongoStatus() {
