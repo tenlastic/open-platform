@@ -26,13 +26,15 @@ export class RetryInterceptor {
           throw error;
         }
 
-        // If the status code below 500, return the error.
+        // If the status code is below 500, return the error.
         if (error?.response?.status > 0 && error?.response?.status < 500) {
           throw error;
         }
 
-        config.retries.current--;
         await new Promise((resolve) => setTimeout(resolve, config.retries.delay));
+
+        config.retries.current--;
+        config.retries.delay *= 2;
 
         return axios.request(config);
       },
