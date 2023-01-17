@@ -136,7 +136,7 @@ spec:
       container:
         image: tenlastic/node-development:latest
         command: [bash]
-        args: [/workspace/open-platform/ci-cd/bootstrap.sh]
+        args: [/workspace/open-platform/scripts/bootstrap.sh]
         imagePullPolicy: IfNotPresent
         volumeMounts:
           - name: workspace
@@ -150,7 +150,7 @@ spec:
       container:
         image: tenlastic/node-development:latest
         command: [bash]
-        args: [/workspace/open-platform/ci-cd/build-docker-image.sh]
+        args: [/workspace/open-platform/scripts/build-docker-image.sh]
         env:
           - name: CONTEXT
             value: "{{inputs.parameters.context}}"
@@ -170,7 +170,7 @@ spec:
       container:
         image: alpine/git:latest
         command: [sh]
-        args: [/workspace/open-platform/ci-cd/commit.sh]
+        args: [/workspace/open-platform/scripts/commit.sh]
         envFrom:
           - secretRef:
               name: continuous-deployment
@@ -190,7 +190,8 @@ spec:
       container:
         image: tenlastic/node-development:latest
         command: [bash]
-        args: [/workspace/open-platform/ci-cd/continuous-integration-nodejs.sh]
+        args:
+          [/workspace/open-platform/scripts/continuous-integration-nodejs.sh]
         envFrom:
           - secretRef:
               name: continuous-integration
@@ -244,7 +245,7 @@ spec:
       container:
         image: tenlastic/node-development:latest
         command: [bash]
-        args: [/workspace/open-platform/ci-cd/get-docker-images.sh]
+        args: [/workspace/open-platform/scripts/get-docker-images.sh]
         imagePullPolicy: IfNotPresent
         volumeMounts:
           - name: workspace
@@ -258,7 +259,7 @@ spec:
       container:
         image: tenlastic/node-development:latest
         command: [bash]
-        args: [/workspace/open-platform/ci-cd/migrations.sh]
+        args: [/workspace/open-platform/scripts/migrations.sh]
         envFrom:
           - secretRef:
               name: continuous-deployment
@@ -304,7 +305,7 @@ spec:
       container:
         image: tenlastic/node-development:latest
         command: [bash]
-        args: [/workspace/open-platform/ci-cd/publish-npm-modules.sh]
+        args: [/workspace/open-platform/scripts/publish-npm-modules.sh]
         envFrom:
           - secretRef:
               name: continuous-deployment

@@ -60,7 +60,7 @@ spec:
       container:
         image: alpine/git:latest
         command: [sh]
-        args: [/workspace/open-platform/ci-cd/get-branch.sh]
+        args: [/workspace/open-platform/scripts/get-branch.sh]
         env:
           - name: REVISION
             value: "{{inputs.parameters.revision}}"
@@ -77,7 +77,7 @@ spec:
       container:
         image: alpine/git:latest
         command: [sh]
-        args: [/workspace/open-platform/ci-cd/skip.sh]
+        args: [/workspace/open-platform/scripts/skip.sh]
         imagePullPolicy: IfNotPresent
         volumeMounts:
           - name: workspace

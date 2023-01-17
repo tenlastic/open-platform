@@ -84,7 +84,7 @@ spec:
         image: hashicorp/terraform:0.14.5
         command: [sh]
         args:
-          - /workspace/open-platform/ci-cd/terraform.sh
+          - /workspace/open-platform/scripts/terraform.sh
         envFrom:
           - secretRef:
               name: continuous-deployment
