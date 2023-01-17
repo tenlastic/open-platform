@@ -139,7 +139,7 @@ spec:
     protocolHttp: true
     rbac:
       create: false
-    replicaCount: 3
+    replicaCount: 5
     resources:
       requests:
         cpu: 75m

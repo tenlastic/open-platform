@@ -65,7 +65,7 @@ spec:
       storageClass: balanced-expandable
     readinessProbe:
       periodSeconds: 30
-    replicaCount: 3
+    replicaCount: 5
     resources:
       requests:
         cpu: 200m

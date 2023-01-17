@@ -51,8 +51,8 @@ spec:
           purge: "false"
       enabled: true
     statefulset:
-      drivesPerNode: 2
-      replicaCount: 3
+      drivesPerNode: 1
+      replicaCount: 5
     resources:
       requests:
         cpu: 200m

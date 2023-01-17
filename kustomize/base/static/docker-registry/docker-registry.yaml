@@ -45,7 +45,7 @@ metadata:
   namespace: static
 spec:
   minReadySeconds: 5
-  replicas: 3
+  replicas: 5
   selector:
     matchLabels:
       app: docker-registry

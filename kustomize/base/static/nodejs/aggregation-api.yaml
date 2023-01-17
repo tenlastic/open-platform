@@ -41,7 +41,7 @@ metadata:
   name: aggregation-api
   namespace: static
 spec:
-  replicas: 3
+  replicas: 5
   selector:
     matchLabels:
       app: aggregation-api

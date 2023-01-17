@@ -57,7 +57,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
       persistence:
         storageClass: standard-expandable
-      replicaCount: 3
+      replicaCount: 5
       resources:
         requests:
           cpu: 50m

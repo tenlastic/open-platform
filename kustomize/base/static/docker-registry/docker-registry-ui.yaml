@@ -6,7 +6,7 @@ metadata:
   name: docker-registry-ui
   namespace: static
 spec:
-  replicas: 3
+  replicas: 5
   selector:
     matchLabels:
       app: docker-registry-ui
