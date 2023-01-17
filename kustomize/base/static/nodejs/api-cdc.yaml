@@ -2,19 +2,19 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   labels:
-    app: api-cdc
+    app.kubernetes.io/name: api-cdc
   name: api-cdc
   namespace: static
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: api-cdc
+      app.kubernetes.io/name: api-cdc
   serviceName: api-cdc
   template:
     metadata:
       labels:
-        app: api-cdc
+        app.kubernetes.io/name: api-cdc
     spec:
       affinity:
         nodeAffinity:

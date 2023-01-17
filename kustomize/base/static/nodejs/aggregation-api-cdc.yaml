@@ -2,19 +2,19 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   labels:
-    app: aggregation-api-cdc
+    app.kubernetes.io/name: aggregation-api-cdc
   name: aggregation-api-cdc
   namespace: static
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: aggregation-api-cdc
+      app.kubernetes.io/name: aggregation-api-cdc
   serviceName: aggregation-api-cdc
   template:
     metadata:
       labels:
-        app: aggregation-api-cdc
+        app.kubernetes.io/name: aggregation-api-cdc
     spec:
       affinity:
         nodeAffinity:

@@ -2,18 +2,18 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: social-api
+    app.kubernetes.io/name: social-api
   name: social-api
   namespace: static
 spec:
   replicas: 5
   selector:
     matchLabels:
-      app: social-api
+      app.kubernetes.io/name: social-api
   template:
     metadata:
       labels:
-        app: social-api
+        app.kubernetes.io/name: social-api
     spec:
       affinity:
         nodeAffinity:
@@ -56,7 +56,7 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: social-api
+    app.kubernetes.io/name: social-api
   name: social-api
   namespace: static
 spec:
@@ -64,4 +64,4 @@ spec:
     - name: http
       port: 3000
   selector:
-    app: social-api
+    app.kubernetes.io/name: social-api

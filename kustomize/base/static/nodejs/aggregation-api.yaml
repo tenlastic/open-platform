@@ -37,19 +37,19 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   labels:
-    app: aggregation-api
+    app.kubernetes.io/name: aggregation-api
   name: aggregation-api
   namespace: static
 spec:
   replicas: 5
   selector:
     matchLabels:
-      app: aggregation-api
+      app.kubernetes.io/name: aggregation-api
   serviceName: aggregation-api
   template:
     metadata:
       labels:
-        app: aggregation-api
+        app.kubernetes.io/name: aggregation-api
     spec:
       affinity:
         nodeAffinity:
@@ -98,7 +98,7 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: aggregation-api
+    app.kubernetes.io/name: aggregation-api
   name: aggregation-api
   namespace: static
 spec:
@@ -106,4 +106,4 @@ spec:
     - name: http
       port: 3000
   selector:
-    app: aggregation-api
+    app.kubernetes.io/name: aggregation-api

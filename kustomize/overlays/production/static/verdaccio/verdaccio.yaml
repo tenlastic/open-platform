@@ -31,24 +31,22 @@ data:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    fluxcd.io/automated: "true"
   labels:
-    app: verdaccio
+    app.kubernetes.io/name: verdaccio
   name: verdaccio
   namespace: static
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: verdaccio
+      app.kubernetes.io/name: verdaccio
   strategy:
     type: Recreate
     rollingUpdate: null
   template:
     metadata:
       labels:
-        app: verdaccio
+        app.kubernetes.io/name: verdaccio
     spec:
       affinity:
         nodeAffinity:
@@ -139,4 +137,4 @@ spec:
       port: 4873
       protocol: TCP
   selector:
-    app: verdaccio
+    app.kubernetes.io/name: verdaccio

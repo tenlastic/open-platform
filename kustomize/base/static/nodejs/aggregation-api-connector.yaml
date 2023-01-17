@@ -2,19 +2,19 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   labels:
-    app: aggregation-api-connector
+    app.kubernetes.io/name: aggregation-api-connector
   name: aggregation-api-connector
   namespace: static
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: aggregation-api-connector
+      app.kubernetes.io/name: aggregation-api-connector
   serviceName: aggregation-api-connector
   template:
     metadata:
       labels:
-        app: aggregation-api-connector
+        app.kubernetes.io/name: aggregation-api-connector
     spec:
       affinity:
         nodeAffinity:

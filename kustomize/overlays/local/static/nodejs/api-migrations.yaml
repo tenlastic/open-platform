@@ -2,7 +2,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   labels:
-    app: api-migrations
+    app.kubernetes.io/name: api-migrations
   name: api-migrations
   namespace: static
 spec:
@@ -10,7 +10,7 @@ spec:
     metadata:
       name: api-migrations
       labels:
-        app: api-migrations
+        app.kubernetes.io/name: api-migrations
     spec:
       affinity:
         nodeAffinity:

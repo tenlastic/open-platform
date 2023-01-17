@@ -2,18 +2,18 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: documentation
+    app.kubernetes.io/name: documentation
   name: documentation
   namespace: static
 spec:
   replicas: 5
   selector:
     matchLabels:
-      app: documentation
+      app.kubernetes.io/name: documentation
   template:
     metadata:
       labels:
-        app: documentation
+        app.kubernetes.io/name: documentation
     spec:
       affinity:
         nodeAffinity:
@@ -53,7 +53,7 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: documentation
+    app.kubernetes.io/name: documentation
   name: documentation
   namespace: static
 spec:
@@ -61,4 +61,4 @@ spec:
     - name: http
       port: 80
   selector:
-    app: documentation
+    app.kubernetes.io/name: documentation

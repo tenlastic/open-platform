@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   labels:
-    app: docker-registry
+    app.kubernetes.io/name: docker-registry
   name: docker-registry
   namespace: static
 data:
@@ -37,10 +37,8 @@ data:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    fluxcd.io/automated: "true"
   labels:
-    app: docker-registry
+    app.kubernetes.io/name: docker-registry
   name: docker-registry
   namespace: static
 spec:
@@ -48,11 +46,11 @@ spec:
   replicas: 5
   selector:
     matchLabels:
-      app: docker-registry
+      app.kubernetes.io/name: docker-registry
   template:
     metadata:
       labels:
-        app: docker-registry
+        app.kubernetes.io/name: docker-registry
     spec:
       affinity:
         nodeAffinity:
@@ -135,7 +133,7 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: docker-registry
+    app.kubernetes.io/name: docker-registry
   name: docker-registry
   namespace: static
 spec:
@@ -145,4 +143,4 @@ spec:
       port: 5000
       protocol: TCP
   selector:
-    app: docker-registry
+    app.kubernetes.io/name: docker-registry
