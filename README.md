@@ -7,5 +7,5 @@
 ## Getting Started
 
 - [Deploy resources to Google Cloud Platform with Deployment Manager and Terraform.](./gcp/README.md)
-- [Deploy dependencies to Kubernetes.](./kubernetes/README.md)
+- [Deploy dependencies to Kubernetes.](./kustomize/README.md)
 - [Start Dockerized NodeJS applications locally.](./projects/nodejs/README.md)

@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-FILE="../../../kubernetes/kustomize/overlays/production/static/argo/cron-workflows/e2e.yaml"
+FILE="../../../kustomize/overlays/production/static/argo/cron-workflows/e2e.yaml"
 VERSION=$(node -p "require('./package.json').version")
 
 # Bump image to the most recent version.

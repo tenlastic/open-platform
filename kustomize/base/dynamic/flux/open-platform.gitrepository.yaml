@@ -8,7 +8,7 @@ spec:
     # Exclude everything.
     /*
     # Include Kubernetes directory.
-    !/kubernetes/
+    !/kustomize/
   interval: 1m
   ref:
     branch: master

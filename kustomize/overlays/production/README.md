@@ -11,10 +11,10 @@ gcloud iam service-accounts keys create "../../../../gcp/service-accounts/dns-ad
   --iam-account "dns-admin@${PROJECT}.iam.gserviceaccount.com"
 
 # Update NGINX load balancer IP address.
-cd ../../../../gcp/terraform/
+cd ../../../gcp/terraform/
 export GOOGLE_CREDENTIALS=$(cat ../service-accounts/terraform.json)
 export LOAD_BALANCER_IP=$(terraform output -raw load_balancer_ip_address)
-cd ../../kubernetes/kustomize/overlays/production/
+cd ../../kustomize/overlays/production/
 sed -E -i "s/[0-9.]{7,15}/${LOAD_BALANCER_IP}/g" ./static/ingress-nginx/ingress-nginx.yaml
 
 # Install Flux and the Helm Controller.

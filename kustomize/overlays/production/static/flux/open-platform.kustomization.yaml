@@ -6,7 +6,7 @@ metadata:
 spec:
   force: true
   interval: 60m0s
-  path: ./kubernetes/kustomize/overlays/production/
+  path: ./kustomize/overlays/production/
   prune: true
   retryInterval: 2m0s
   sourceRef:
