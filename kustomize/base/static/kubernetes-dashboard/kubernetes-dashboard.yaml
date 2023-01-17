@@ -35,6 +35,78 @@ subjects:
     name: kubernetes-dashboard
     namespace: static
 ---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: kubernetes-dashboard
+  namespace: static
+spec:
+  chart:
+    spec:
+      chart: kubernetes-dashboard
+      sourceRef:
+        kind: HelmRepository
+        name: kubernetes-dashboard
+      version: 5.7.0
+  interval: 5m
+  releaseName: kubernetes-dashboard
+  values:
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: tenlastic.com/low-priority
+                  operator: Exists
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                      - kubernetes-dashboard
+              topologyKey: kubernetes.io/hostname
+    extraArgs:
+      - --disable-settings-authorizer
+      - --enable-insecure-login
+      - --enable-skip-login
+    metricsScraper:
+      enabled: true
+    protocolHttp: true
+    rbac:
+      create: false
+    replicaCount: 5
+    resources:
+      requests:
+        cpu: 75m
+        memory: 50M
+    serviceAccount:
+      create: false
+      name: kubernetes-dashboard
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: kubernetes-dashboard
+  namespace: static
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: kubernetes-dashboard
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: static
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: ingress-nginx
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -95,55 +167,3 @@ metadata:
     k8s-app: kubernetes-dashboard
   name: kubernetes-dashboard
   namespace: static
----
-apiVersion: helm.toolkit.fluxcd.io/v2beta1
-kind: HelmRelease
-metadata:
-  name: kubernetes-dashboard
-  namespace: static
-spec:
-  chart:
-    spec:
-      chart: kubernetes-dashboard
-      sourceRef:
-        kind: HelmRepository
-        name: kubernetes-dashboard
-      version: 5.7.0
-  interval: 5m
-  releaseName: kubernetes-dashboard
-  values:
-    affinity:
-      nodeAffinity:
-        requiredDuringSchedulingIgnoredDuringExecution:
-          nodeSelectorTerms:
-            - matchExpressions:
-                - key: tenlastic.com/low-priority
-                  operator: Exists
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 1
-            podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                  - key: app.kubernetes.io/name
-                    operator: In
-                    values:
-                      - kubernetes-dashboard
-              topologyKey: kubernetes.io/hostname
-    extraArgs:
-      - --disable-settings-authorizer
-      - --enable-insecure-login
-      - --enable-skip-login
-    metricsScraper:
-      enabled: true
-    protocolHttp: true
-    rbac:
-      create: false
-    replicaCount: 5
-    resources:
-      requests:
-        cpu: 75m
-        memory: 50M
-    serviceAccount:
-      create: false
-      name: kubernetes-dashboard

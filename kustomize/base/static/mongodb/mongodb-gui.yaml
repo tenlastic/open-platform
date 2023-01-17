@@ -46,6 +46,26 @@ spec:
               cpu: 25m
               memory: 25M
 ---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: mongodb-gui
+  namespace: static
+spec:
+  podSelector:
+    matchLabels:
+      app: mongodb-gui
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: static
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: ingress-nginx
+---
 apiVersion: v1
 kind: Service
 metadata:

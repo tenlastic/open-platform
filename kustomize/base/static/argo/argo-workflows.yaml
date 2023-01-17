@@ -108,6 +108,26 @@ spec:
       rbac:
         create: false
 ---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: argo-workflows-server
+  namespace: static
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: argo-workflows-server
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: static
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: ingress-nginx
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
