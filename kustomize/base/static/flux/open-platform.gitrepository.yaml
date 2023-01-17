@@ -7,7 +7,7 @@ spec:
   ignore: |
     # Exclude everything.
     /*
-    # Include Kubernetes directory.
+    # Include Kustomize directory.
     !/kustomize/
   interval: 1m
   ref:

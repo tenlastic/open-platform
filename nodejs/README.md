@@ -3,7 +3,7 @@
 ### Getting Started
 
 - Install Lerna: `npm i -g lerna`.
-- Bootstrap Node Modules with Lerna: `lerna bootstrap --hoist --strict`.
+- Bootstrap Node Modules with Lerna: `lerna bootstrap`.
 - Run NPM scripts: `npm run [CMD]`.
 
 ### Using Lerna to run multiple commands.
