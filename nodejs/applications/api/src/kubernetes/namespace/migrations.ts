@@ -1,6 +1,7 @@
 import { V1EnvFromSource, V1Pod } from '@kubernetes/client-node';
 import { jobApiV1, podApiV1 } from '@tenlastic/kubernetes';
 import { NamespaceDocument, NamespaceStatusComponentName } from '@tenlastic/mongoose';
+import wait from '@tenlastic/wait';
 
 import { version } from '../../../package.json';
 import { KubernetesNamespace } from './';
@@ -12,8 +13,15 @@ export const KubernetesNamespaceMigrations = {
 
     await jobApiV1.delete(name, 'dynamic');
 
+    // Delete all Pods associated with the Job.
     const pods = await podApiV1.list('dynamic', { labelSelector: `job-name=${name}` });
     await Promise.all(pods.body.items.map((p) => podApiV1.delete(p.metadata.name, 'dynamic')));
+
+    // Wait for the Job to be completely deleted.
+    await wait(100, 5 * 1000, async () => {
+      const exists = await jobApiV1.exists(name, 'dynamic');
+      return !exists;
+    });
 
     return jobApiV1.createOrReplace('dynamic', {
       metadata: {

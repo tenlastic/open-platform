@@ -77,6 +77,20 @@ export abstract class BaseApiV1<T extends BaseBody> {
     );
   }
 
+  public async exists(name: string, namespace: string) {
+    try {
+      await this.read(name, namespace);
+    } catch (e) {
+      if (e.statusCode === 404) {
+        return false;
+      }
+
+      throw e;
+    }
+
+    return true;
+  }
+
   public list(namespace: string, query: BaseListQuery): Promise<BaseResponse<BaseListResponse<T>>> {
     const method = `listNamespaced${this.singular}`;
     return this.api[method](

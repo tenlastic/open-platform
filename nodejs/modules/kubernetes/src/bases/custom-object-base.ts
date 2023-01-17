@@ -83,6 +83,20 @@ export abstract class CustomObjectBaseApiV1<T extends CustomObjectBaseBody> {
     return this.deleteCollection(namespace, query);
   }
 
+  public async exists(name: string, namespace: string) {
+    try {
+      await this.read(name, namespace);
+    } catch (e) {
+      if (e.statusCode === 404) {
+        return false;
+      }
+
+      throw e;
+    }
+
+    return true;
+  }
+
   public list(namespace: string, query: BaseListQuery) {
     return customObjects.listNamespacedCustomObject(
       this.group,

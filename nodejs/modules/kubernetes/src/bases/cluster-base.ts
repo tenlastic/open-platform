@@ -70,6 +70,20 @@ export class ClusterBaseApiV1<T extends ClusterBaseBody> {
     );
   }
 
+  public async exists(name: string) {
+    try {
+      await this.read(name);
+    } catch (e) {
+      if (e.statusCode === 404) {
+        return false;
+      }
+
+      throw e;
+    }
+
+    return true;
+  }
+
   public patch(name: string, body: Partial<T>) {
     const method = `patch${this.singular}`;
     return this.api[method](name, body, undefined, undefined, undefined, undefined, {
