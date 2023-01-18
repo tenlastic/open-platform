@@ -5,7 +5,7 @@ metadata:
   namespace: static
 spec:
   concurrencyPolicy: Allow
-  schedule: 0 0 * * *
+  schedule: 0 */3 * * *
   startingDeadlineSeconds: 0
   timezone: America/New_York
   workflowSpec:
