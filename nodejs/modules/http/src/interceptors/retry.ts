@@ -21,13 +21,16 @@ export class RetryInterceptor {
           throw error;
         }
 
-        // If the method is not idempotent, return the error.
-        if (!['delete', 'get', 'head', 'options', 'patch'].includes(error.config.method)) {
+        // If the status code is below 500, return the error.
+        if (error?.response?.status > 0 && error?.response?.status < 500) {
           throw error;
         }
 
-        // If the status code is below 500, return the error.
-        if (error?.response?.status > 0 && error?.response?.status < 500) {
+        // If the service was reachable and the method is not idempotent, return the error.
+        if (
+          error?.response?.status !== 503 &&
+          !['delete', 'get', 'head', 'options', 'patch'].includes(error.config.method)
+        ) {
           throw error;
         }
 
