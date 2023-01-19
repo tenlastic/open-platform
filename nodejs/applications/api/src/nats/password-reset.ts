@@ -9,6 +9,10 @@ PasswordResetEvent.async(async (payload) => {
 
   if (payload.operationType === 'insert') {
     const user = await UserModel.findOne({ _id: fullDocument.userId });
-    return mailgun.sendPasswordResetRequest({ email: user.email, hash: fullDocument.hash });
+    const response = await mailgun.sendPasswordResetRequest({
+      email: user.email,
+      hash: fullDocument.hash,
+    });
+    console.log(`Password Reset Request status code: ${response.status}.`);
   }
 });
