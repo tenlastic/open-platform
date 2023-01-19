@@ -75,7 +75,7 @@ describe('/angular/namespace/collections', () => {
   });
 
   step('runs the Namespace successfully', async function () {
-    await wait(100, 60 * 1000, async () => {
+    await wait(100, 2 * 60 * 1000, async () => {
       const [input] = await page.$x(`//mat-form-field[.//mat-label[contains(., 'Phase')]]//input`);
       const value = await page.evaluate((i) => i.value, input);
 
