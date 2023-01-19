@@ -7,7 +7,7 @@ git config user.name $GITHUB_USER_NAME
 
 # Bump package versions.
 npm config set unsafe-perm true
-lerna version --concurrency 1 --no-push --yes patch
+lerna version --concurrency 1 --force-publish --no-push --yes patch
 
 # Publish Node Modules to NPM.
 echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
