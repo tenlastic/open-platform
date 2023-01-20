@@ -25,6 +25,8 @@ export class ApiError extends Error {
 
     if (this.messages?.length > 0) {
       this.message = `${message}: ${this.messages.join(', ')}`;
+    } else if (err.message) {
+      this.message = `${message}: ${err.message}`;
     } else {
       this.message = `${message}.`;
     }
