@@ -11,8 +11,12 @@ export class AuthorizationRequestModel extends BaseModel {
   constructor(parameters?: Partial<AuthorizationRequestModel>) {
     super(parameters);
 
-    this.deniedAt = parameters?.deniedAt ? new Date(parameters.deniedAt) : null;
-    this.grantedAt = parameters?.grantedAt ? new Date(parameters.grantedAt) : null;
+    if (parameters?.deniedAt) {
+      this.deniedAt = new Date(parameters.deniedAt);
+    }
+    if (parameters?.grantedAt) {
+      this.grantedAt = new Date(parameters.grantedAt);
+    }
   }
 
   public hasRoles(roles: IAuthorization.Role[]) {

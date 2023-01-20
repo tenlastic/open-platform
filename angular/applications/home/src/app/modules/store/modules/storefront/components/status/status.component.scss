@@ -26,7 +26,7 @@
   div.status {
     flex: 1 1 auto;
 
-    div {
+    > div {
       display: flex;
 
       div {

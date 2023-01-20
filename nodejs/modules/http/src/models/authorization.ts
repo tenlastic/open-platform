@@ -64,7 +64,9 @@ export class AuthorizationModel extends BaseModel {
   constructor(parameters?: Partial<AuthorizationModel>) {
     super(parameters);
 
-    this.bannedAt = parameters?.bannedAt ? new Date(parameters.bannedAt) : null;
+    if (parameters?.bannedAt) {
+      this.bannedAt = new Date(parameters.bannedAt);
+    }
   }
 
   public hasRoles(roles: IAuthorization.Role[]) {

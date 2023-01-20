@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "name": "@tenlastic/documentation",
   "private": true,
-  "version": "0.0.369",
+  "version": "0.0.370",
   "scripts": {
     "build": "./scripts/build.sh",
     "start": "./scripts/start.sh",

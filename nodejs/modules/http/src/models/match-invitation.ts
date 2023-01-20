@@ -11,7 +11,11 @@ export class MatchInvitationModel extends BaseModel {
   constructor(parameters?: Partial<MatchInvitationModel>) {
     super(parameters);
 
-    this.acceptedAt = parameters?.acceptedAt ? new Date(parameters.acceptedAt) : null;
-    this.expiresAt = parameters?.expiresAt ? new Date(parameters.expiresAt) : null;
+    if (parameters?.acceptedAt) {
+      this.acceptedAt = new Date(parameters.acceptedAt);
+    }
+    if (parameters?.expiresAt) {
+      this.expiresAt = new Date(parameters.expiresAt);
+    }
   }
 }

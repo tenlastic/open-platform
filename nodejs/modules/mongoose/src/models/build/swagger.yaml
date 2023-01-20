@@ -22,7 +22,7 @@ components:
           format: ^[0-9a-f]{24}$
         platform:
           type: string
-          enum: [server64, windows64]
+          enum: [Server64, Windows64]
         publishedAt:
           type: string
           format: date-time

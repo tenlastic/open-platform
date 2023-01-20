@@ -128,7 +128,9 @@ export class GameServerModel extends BaseModel {
   constructor(parameters?: Partial<GameServerModel>) {
     super(parameters);
 
-    this.restartedAt = parameters?.restartedAt ? new Date(parameters.restartedAt) : null;
+    if (parameters?.restartedAt) {
+      this.restartedAt = new Date(parameters.restartedAt);
+    }
   }
 
   public static isRestartRequired(fields: string[]) {

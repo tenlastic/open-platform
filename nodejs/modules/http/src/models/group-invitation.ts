@@ -9,6 +9,8 @@ export class GroupInvitationModel extends BaseModel {
   constructor(parameters?: Partial<GroupInvitationModel>) {
     super(parameters);
 
-    this.expiresAt = parameters?.expiresAt ? new Date(parameters.expiresAt) : null;
+    if (parameters?.expiresAt) {
+      this.expiresAt = new Date(parameters.expiresAt);
+    }
   }
 }

@@ -12,6 +12,8 @@ export class QueueMemberModel extends BaseModel {
   constructor(parameters?: Partial<QueueMemberModel>) {
     super(parameters);
 
-    this.matchedAt = parameters?.matchedAt ? new Date(parameters.matchedAt) : null;
+    if (parameters?.matchedAt) {
+      this.matchedAt = new Date(parameters.matchedAt);
+    }
   }
 }

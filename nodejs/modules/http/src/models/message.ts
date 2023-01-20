@@ -8,7 +8,9 @@ export namespace IMessage {
     constructor(parameters?: Partial<ReadReceipt>) {
       Object.assign(this, parameters);
 
-      this.createdAt = parameters?.createdAt ? new Date(parameters.createdAt) : null;
+      if (parameters?.createdAt) {
+        this.createdAt = new Date(parameters.createdAt);
+      }
     }
   }
 }

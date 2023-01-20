@@ -23,10 +23,14 @@ export class MatchModel extends BaseModel {
   constructor(parameters?: Partial<MatchModel>) {
     super(parameters);
 
-    this.confirmationExpiresAt = parameters?.confirmationExpiresAt
-      ? new Date(parameters.confirmationExpiresAt)
-      : null;
-    this.finishedAt = parameters?.finishedAt ? new Date(parameters.finishedAt) : null;
-    this.startedAt = parameters?.startedAt ? new Date(parameters.startedAt) : null;
+    if (parameters?.confirmationExpiresAt) {
+      this.confirmationExpiresAt = new Date(parameters.confirmationExpiresAt);
+    }
+    if (parameters?.finishedAt) {
+      this.finishedAt = new Date(parameters.finishedAt);
+    }
+    if (parameters?.startedAt) {
+      this.startedAt = new Date(parameters.startedAt);
+    }
   }
 }

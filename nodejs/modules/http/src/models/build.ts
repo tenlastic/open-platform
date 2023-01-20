@@ -52,7 +52,9 @@ export class BuildModel extends BaseModel {
   constructor(parameters?: Partial<BuildModel>) {
     super(parameters);
 
-    this.publishedAt = this.publishedAt ? new Date(this.publishedAt) : null;
+    if (parameters?.publishedAt) {
+      this.publishedAt = new Date(this.publishedAt);
+    }
   }
 
   public getNestedStatusNodes() {
