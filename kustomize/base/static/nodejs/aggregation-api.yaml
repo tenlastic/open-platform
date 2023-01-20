@@ -71,7 +71,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
       containers:
         - name: aggregation-api
-          image: tenlastic/aggregation-api:0.0.369
+          image: tenlastic/aggregation-api:0.0.370
           env:
             - name: POD_NAME
               valueFrom:
