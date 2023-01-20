@@ -1,3 +1,5 @@
+export * from './setup';
+
 export * from './authorization';
 export * from './authorization-request';
 export * from './login';
