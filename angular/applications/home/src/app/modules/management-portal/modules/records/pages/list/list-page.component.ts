@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
-import { MatTable, MatTableDataSource } from '@angular/material/table';
+import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Params } from '@angular/router';
 import {
   AuthorizationQuery,
@@ -24,9 +24,12 @@ import { IdentityService } from '../../../../../../core/services';
   styleUrls: ['./list-page.component.scss'],
 })
 export class RecordsListPageComponent implements OnDestroy, OnInit {
-  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
-  @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(MatTable, { static: true }) table: MatTable<RecordModel>;
+  @ViewChild(MatPaginator) set paginator(paginator: MatPaginator) {
+    this.dataSource.paginator = paginator;
+  }
+  @ViewChild(MatSort) set sort(sort: MatSort) {
+    this.dataSource.sort = sort;
+  }
 
   public collection: CollectionModel;
   public dataSource = new MatTableDataSource<RecordModel>();
@@ -121,8 +124,5 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
 
       return regex.test(json);
     };
-
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
   }
 }

@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
-import { MatTable, MatTableDataSource } from '@angular/material/table';
+import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Params } from '@angular/router';
 import {
   AuthorizationModel,
@@ -22,9 +22,12 @@ import { PromptComponent } from '../../../../../../shared/components';
   styleUrls: ['./list-page.component.scss'],
 })
 export class AuthorizationsListPageComponent implements OnDestroy, OnInit {
-  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
-  @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(MatTable, { static: true }) table: MatTable<AuthorizationModel>;
+  @ViewChild(MatPaginator) set paginator(paginator: MatPaginator) {
+    this.dataSource.paginator = paginator;
+  }
+  @ViewChild(MatSort) set sort(sort: MatSort) {
+    this.dataSource.sort = sort;
+  }
 
   public dataSource = new MatTableDataSource<AuthorizationModel>();
   public displayedColumns = ['name', 'user', 'roles', 'createdAt', 'actions'];
@@ -115,8 +118,5 @@ export class AuthorizationsListPageComponent implements OnDestroy, OnInit {
       const user = this.getUser(data.userId);
       return regex.test(user.username);
     };
-
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
   }
 }

@@ -114,13 +114,13 @@ export class CollectionsFormPageComponent implements OnInit {
     const role = this.getDefaultRoleFormGroup();
     const formArray = this.form.get('roles') as FormArray;
 
-    formArray.insert(formArray.length - 1, role);
+    formArray.push(role);
   }
 
   public moveRoleDown(index: number) {
     const roles = this.form.get('roles') as FormArray;
 
-    if (index >= roles.length - 2) {
+    if (index >= roles.length - 1) {
       return;
     }
 

@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
-import { MatTable, MatTableDataSource } from '@angular/material/table';
+import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Params } from '@angular/router';
 import {
   AuthorizationQuery,
@@ -23,9 +23,12 @@ import { PromptComponent } from '../../../../../../shared/components';
   styleUrls: ['./list-page.component.scss'],
 })
 export class QueueMembersListPageComponent implements OnDestroy, OnInit {
-  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
-  @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(MatTable, { static: true }) table: MatTable<QueueMemberModel>;
+  @ViewChild(MatPaginator) set paginator(paginator: MatPaginator) {
+    this.dataSource.paginator = paginator;
+  }
+  @ViewChild(MatSort) set sort(sort: MatSort) {
+    this.dataSource.sort = sort;
+  }
 
   public $queueMembers: Observable<QueueMemberModel[]>;
   public dataSource = new MatTableDataSource<QueueMemberModel>();
@@ -104,8 +107,5 @@ export class QueueMembersListPageComponent implements OnDestroy, OnInit {
     this.updateDataSource$ = this.$queueMembers.subscribe(
       (queueMembers) => (this.dataSource.data = queueMembers),
     );
-
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
   }
 }

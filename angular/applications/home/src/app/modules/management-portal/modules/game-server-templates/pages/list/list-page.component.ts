@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
-import { MatTable, MatTableDataSource } from '@angular/material/table';
+import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
   AuthorizationQuery,
@@ -24,9 +24,12 @@ import { PromptComponent } from '../../../../../../shared/components';
   styleUrls: ['./list-page.component.scss'],
 })
 export class GameServerTemplatesListPageComponent implements OnDestroy, OnInit {
-  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
-  @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(MatTable, { static: true }) table: MatTable<GameServerTemplateModel>;
+  @ViewChild(MatPaginator) set paginator(paginator: MatPaginator) {
+    this.dataSource.paginator = paginator;
+  }
+  @ViewChild(MatSort) set sort(sort: MatSort) {
+    this.dataSource.sort = sort;
+  }
 
   public dataSource = new MatTableDataSource<GameServerTemplateModel>();
   public displayedColumns = ['name', 'description', 'build', 'actions'];
@@ -121,9 +124,6 @@ export class GameServerTemplatesListPageComponent implements OnDestroy, OnInit {
       const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
       return regex.test(data.description) || regex.test(data.name);
     };
-
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
 
     const gameServerTemplates = await this.gameServerTemplateService.find(params.namespaceId, {
       sort: 'name',

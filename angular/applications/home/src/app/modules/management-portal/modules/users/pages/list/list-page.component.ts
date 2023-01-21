@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
-import { MatTable, MatTableDataSource } from '@angular/material/table';
+import { MatTableDataSource } from '@angular/material/table';
 import {
   AuthorizationQuery,
   IAuthorization,
@@ -24,9 +24,12 @@ import { PromptComponent } from '../../../../../../shared/components';
   styleUrls: ['./list-page.component.scss'],
 })
 export class UsersListPageComponent implements OnDestroy, OnInit {
-  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
-  @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(MatTable, { static: true }) table: MatTable<UserModel>;
+  @ViewChild(MatPaginator) set paginator(paginator: MatPaginator) {
+    this.dataSource.paginator = paginator;
+  }
+  @ViewChild(MatSort) set sort(sort: MatSort) {
+    this.dataSource.sort = sort;
+  }
 
   public $users: Observable<UserModel[]>;
   public dataSource = new MatTableDataSource<UserModel>();
@@ -116,8 +119,5 @@ export class UsersListPageComponent implements OnDestroy, OnInit {
 
       return regex.test(data.email) || regex.test(data.username) || regex.test(status);
     };
-
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
   }
 }

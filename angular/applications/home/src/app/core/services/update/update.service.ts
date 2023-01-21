@@ -336,7 +336,7 @@ export class UpdateService {
       request
         .get({
           headers: { Authorization: `Bearer ${accessToken.value}` },
-          qs: { query: JSON.stringify({ files: files.join('') }) },
+          qs: { files: files.join('') },
           url: `${environment.apiUrl}/namespaces/${namespaceId}/builds/${status.build._id}/files`,
         })
         .on('data', (data) => {

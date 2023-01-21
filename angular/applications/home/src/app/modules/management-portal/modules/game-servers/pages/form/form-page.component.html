@@ -139,7 +139,7 @@
           </mat-form-field>
         </div>
 
-        <ng-container *ngIf="data.status.endpoints.length > 0">
+        <ng-container *ngIf="data.status.phase === 'Running' && data.status.endpoints.length > 0">
           <h4>Endpoints</h4>
 
           <div *ngFor="let endpoint of data.status.endpoints"

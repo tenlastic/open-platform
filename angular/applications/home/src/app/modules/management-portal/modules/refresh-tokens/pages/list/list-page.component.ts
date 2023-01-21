@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
-import { MatTable, MatTableDataSource } from '@angular/material/table';
+import { MatTableDataSource } from '@angular/material/table';
 import { RefreshTokenModel, RefreshTokenQuery, RefreshTokenService } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 
@@ -14,9 +14,12 @@ import { PromptComponent } from '../../../../../../shared/components';
   styleUrls: ['./list-page.component.scss'],
 })
 export class RefreshTokensListPageComponent implements OnDestroy, OnInit {
-  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
-  @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(MatTable, { static: true }) table: MatTable<RefreshTokenModel>;
+  @ViewChild(MatPaginator) set paginator(paginator: MatPaginator) {
+    this.dataSource.paginator = paginator;
+  }
+  @ViewChild(MatSort) set sort(sort: MatSort) {
+    this.dataSource.sort = sort;
+  }
 
   public $refreshTokens: Observable<RefreshTokenModel[]>;
   public dataSource = new MatTableDataSource<RefreshTokenModel>();
@@ -71,8 +74,5 @@ export class RefreshTokensListPageComponent implements OnDestroy, OnInit {
     this.updateDataSource$ = this.$refreshTokens.subscribe(
       (refreshTokens) => (this.dataSource.data = refreshTokens),
     );
-
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
   }
 }

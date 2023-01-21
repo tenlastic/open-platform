@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { MatTable, MatTableDataSource } from '@angular/material/table';
+import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute } from '@angular/router';
 import {
   UserQuery,
@@ -11,16 +11,18 @@ import {
   WebSocketService,
 } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 @Component({
   templateUrl: 'list-page.component.html',
   styleUrls: ['./list-page.component.scss'],
 })
 export class WebSocketsListPageComponent implements OnDestroy, OnInit {
-  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
-  @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(MatTable, { static: true }) table: MatTable<WebSocketModel>;
+  @ViewChild(MatPaginator) set paginator(paginator: MatPaginator) {
+    this.dataSource.paginator = paginator;
+  }
+  @ViewChild(MatSort) set sort(sort: MatSort) {
+    this.dataSource.sort = sort;
+  }
 
   public $webSockets: Observable<WebSocketModel[]>;
   public dataSource = new MatTableDataSource<WebSocketModel>();
@@ -70,9 +72,6 @@ export class WebSocketsListPageComponent implements OnDestroy, OnInit {
       const user = this.getUser(data.userId);
       return regex.test(user.username);
     };
-
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
 
     const webSockets = await this.webSocketService.find(namespaceId, {
       sort: '-createdAt',

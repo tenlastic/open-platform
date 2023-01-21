@@ -82,7 +82,7 @@ export class CollectionsJsonPageComponent implements OnInit {
         delete: { public: false },
         find: { public: null },
         read: { public: [] },
-        roles: { public: {} },
+        roles: { public: { $and: [] } },
         update: { public: [] },
       },
     });

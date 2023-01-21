@@ -139,7 +139,7 @@
       <div>Move Up</div>
     </app-button>
 
-    <app-button *ngIf="index < length - 2"
+    <app-button *ngIf="index < length - 1 && length > 1"
                 color="accent"
                 layout="left"
                 (OnClick)="moveDown.emit()">

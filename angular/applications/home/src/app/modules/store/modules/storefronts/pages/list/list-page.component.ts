@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { MatTable, MatTableDataSource } from '@angular/material/table';
+import { MatTableDataSource } from '@angular/material/table';
 import { StorefrontModel, StorefrontQuery, StorefrontService } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 
@@ -10,9 +10,12 @@ import { Observable, Subscription } from 'rxjs';
   styleUrls: ['./list-page.component.scss'],
 })
 export class ListPageComponent implements OnDestroy, OnInit {
-  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
-  @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(MatTable, { static: true }) table: MatTable<StorefrontModel>;
+  @ViewChild(MatPaginator) set paginator(paginator: MatPaginator) {
+    this.dataSource.paginator = paginator;
+  }
+  @ViewChild(MatSort) set sort(sort: MatSort) {
+    this.dataSource.sort = sort;
+  }
 
   public $storefronts: Observable<StorefrontModel[]>;
   public dataSource = new MatTableDataSource<StorefrontModel>();
@@ -38,8 +41,5 @@ export class ListPageComponent implements OnDestroy, OnInit {
     await this.storefrontService.find(null, { sort: 'title' });
 
     this.updateDataSource$ = this.$storefronts.subscribe((g) => (this.dataSource.data = g));
-
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
   }
 }

@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
-import { MatTable, MatTableDataSource } from '@angular/material/table';
+import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Params } from '@angular/router';
 import {
   AuthorizationQuery,
@@ -25,12 +25,15 @@ import { PromptComponent } from '../../../../../../shared/components';
   styleUrls: ['./list-page.component.scss'],
 })
 export class BuildsListPageComponent implements OnDestroy, OnInit {
-  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
-  @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(MatTable, { static: true }) table: MatTable<BuildModel>;
+  @ViewChild(MatPaginator) set paginator(paginator: MatPaginator) {
+    this.dataSource.paginator = paginator;
+  }
+  @ViewChild(MatSort) set sort(sort: MatSort) {
+    this.dataSource.sort = sort;
+  }
 
   public dataSource = new MatTableDataSource<BuildModel>();
-  public displayedColumns = ['name', 'platform', 'status', 'publishedAt', 'actions'];
+  public displayedColumns = ['name', 'platform', 'status', 'publishedAt', 'createdAt', 'actions'];
   public hasWriteAuthorization: boolean;
   public message: string;
 
@@ -203,8 +206,5 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
         exactRegex.test(published)
       );
     };
-
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
   }
 }
