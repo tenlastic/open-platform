@@ -6,7 +6,6 @@ import {
   AuthorizationQuery,
   AuthorizationRequestModel,
   AuthorizationRequestService,
-  AuthorizationService,
   IAuthorization,
   UserModel,
   UserService,
@@ -24,13 +23,13 @@ export class AuthorizationRequestsFormPageComponent implements OnInit {
   public errors: string[] = [];
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
+  public isSaving: boolean;
 
   private params: Params;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private authorizationQuery: AuthorizationQuery,
-    private authorizationService: AuthorizationService,
     private authorizationRequestService: AuthorizationRequestService,
     private formBuilder: FormBuilder,
     private formService: FormService,
@@ -61,6 +60,7 @@ export class AuthorizationRequestsFormPageComponent implements OnInit {
 
   public async deny() {
     this.errors = [];
+    this.isSaving = true;
 
     try {
       this.data = await this.authorizationRequestService.deny(
@@ -76,10 +76,13 @@ export class AuthorizationRequestsFormPageComponent implements OnInit {
         userId: 'User',
       });
     }
+
+    this.isSaving = false;
   }
 
   public async grant() {
     this.errors = [];
+    this.isSaving = true;
 
     try {
       this.data = await this.authorizationRequestService.grant(
@@ -95,6 +98,8 @@ export class AuthorizationRequestsFormPageComponent implements OnInit {
         userId: 'User',
       });
     }
+
+    this.isSaving = false;
   }
 
   private async setupForm() {

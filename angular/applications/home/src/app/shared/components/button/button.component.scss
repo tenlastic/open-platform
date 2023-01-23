@@ -202,6 +202,11 @@
         }
       }
 
+      mat-spinner.mat-spinner:not(:last-child) {
+        margin-right: 6px;
+        margin-top: 0px;
+      }
+
       span.mat-button-wrapper {
         align-items: center;
         display: flex;

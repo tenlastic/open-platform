@@ -26,6 +26,7 @@ export class NamespacesFormPageComponent implements OnDestroy, OnInit {
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
   public hasWriteAuthorizationForNamespace: boolean;
+  public isSaving: boolean;
 
   private updateNamespace$ = new Subscription();
 
@@ -79,9 +80,11 @@ export class NamespacesFormPageComponent implements OnDestroy, OnInit {
 
   public async save() {
     this.errors = [];
+    this.isSaving = true;
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.isSaving = false;
       return;
     }
 
@@ -119,6 +122,8 @@ export class NamespacesFormPageComponent implements OnDestroy, OnInit {
           } catch (e) {
             this.errors = this.formService.handleHttpError(e, { name: 'Name' });
           }
+
+          this.isSaving = false;
         }
       });
     } else {
@@ -127,6 +132,8 @@ export class NamespacesFormPageComponent implements OnDestroy, OnInit {
       } catch (e) {
         this.errors = this.formService.handleHttpError(e, { name: 'Name' });
       }
+
+      this.isSaving = false;
     }
   }
 

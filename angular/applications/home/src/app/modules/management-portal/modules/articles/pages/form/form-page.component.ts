@@ -21,6 +21,7 @@ export class ArticlesFormPageComponent implements OnInit {
   public errors: string[] = [];
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
+  public isSaving: boolean;
   public get singular() {
     switch (this.type) {
       case IArticle.Type.Guide:
@@ -78,9 +79,11 @@ export class ArticlesFormPageComponent implements OnInit {
 
   public async save() {
     this.errors = [];
+    this.isSaving = true;
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.isSaving = false;
       return;
     }
 
@@ -98,6 +101,8 @@ export class ArticlesFormPageComponent implements OnInit {
     } catch (e) {
       this.errors = this.formService.handleHttpError(e, { name: 'Name' });
     }
+
+    this.isSaving = false;
   }
 
   private setupForm() {

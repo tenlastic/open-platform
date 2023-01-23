@@ -15,6 +15,7 @@ export class RecordsJsonPageComponent implements OnInit {
   public data: RecordModel;
   public errors: string[] = [];
   public form: FormGroup;
+  public isSaving: boolean;
 
   private collection: CollectionModel;
   private params: Params;
@@ -65,9 +66,11 @@ export class RecordsJsonPageComponent implements OnInit {
 
   public async save() {
     this.errors = [];
+    this.isSaving = true;
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.isSaving = false;
       return;
     }
 
@@ -81,6 +84,8 @@ export class RecordsJsonPageComponent implements OnInit {
     } catch (e) {
       this.errors = this.formService.handleHttpError(e);
     }
+
+    this.isSaving = false;
   }
 
   private getValue(type: string, value: any) {

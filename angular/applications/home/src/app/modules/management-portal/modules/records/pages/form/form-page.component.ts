@@ -24,6 +24,7 @@ export class RecordsFormPageComponent implements OnInit {
   public errors: string[] = [];
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
+  public isSaving: boolean;
 
   private params: Params;
 
@@ -95,9 +96,11 @@ export class RecordsFormPageComponent implements OnInit {
 
   public async save() {
     this.errors = [];
+    this.isSaving = true;
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.isSaving = false;
       return;
     }
 
@@ -127,6 +130,8 @@ export class RecordsFormPageComponent implements OnInit {
 
       this.errors = this.formService.handleHttpError(e, { ...pathMap, userId: 'User ID' });
     }
+
+    this.isSaving = false;
   }
 
   private getValue(type: string, value: any) {

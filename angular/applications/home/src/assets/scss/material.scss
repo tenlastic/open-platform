@@ -500,6 +500,7 @@ mat-sidenav-container.mat-drawer-container {
 
 mat-spinner.mat-spinner {
   display: inline-block;
+  filter: $drop-shadow;
   margin-right: 8px;
   margin-top: 2px;
   vertical-align: middle;

@@ -15,6 +15,7 @@ export class UsersJsonPageComponent implements OnInit {
   public data: UserModel;
   public errors: string[] = [];
   public form: FormGroup;
+  public isSaving: boolean;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -50,9 +51,11 @@ export class UsersJsonPageComponent implements OnInit {
 
   public async save() {
     this.errors = [];
+    this.isSaving = true;
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.isSaving = false;
       return;
     }
 
@@ -66,6 +69,8 @@ export class UsersJsonPageComponent implements OnInit {
     } catch (e) {
       this.errors = this.formService.handleHttpError(e);
     }
+
+    this.isSaving = false;
   }
 
   private setupForm() {

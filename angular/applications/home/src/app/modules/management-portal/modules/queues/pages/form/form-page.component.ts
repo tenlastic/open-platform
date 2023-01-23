@@ -38,6 +38,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
   public get isNew() {
     return this.params.queueId === 'new';
   }
+  public isSaving: boolean;
   public get memories() {
     return this.namespace.limits.memory
       ? IQueue.Memory.filter((r) => r.value <= this.namespace.limits.memory)
@@ -105,9 +106,11 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
 
   public async save() {
     this.errors = [];
+    this.isSaving = true;
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.isSaving = false;
       return;
     }
 
@@ -146,6 +149,8 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
           } catch (e) {
             this.errors = this.formService.handleHttpError(e, { name: 'Name' });
           }
+
+          this.isSaving = false;
         }
       });
     } else {
@@ -154,6 +159,8 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       } catch (e) {
         this.errors = this.formService.handleHttpError(e, { name: 'Name' });
       }
+
+      this.isSaving = false;
     }
   }
 

@@ -54,6 +54,7 @@ export class BuildsFormPageComponent implements OnInit {
   public errors: string[] = [];
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
+  public isSaving: boolean;
   public platforms = [
     { label: 'Linux Server (x64)', value: IBuild.Platform.Server64 },
     { label: 'Windows Client (x64)', value: IBuild.Platform.Windows64 },
@@ -107,9 +108,11 @@ export class BuildsFormPageComponent implements OnInit {
 
   public async save() {
     this.errors = [];
+    this.isSaving = true;
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.isSaving = false;
       return;
     }
 
@@ -135,6 +138,8 @@ export class BuildsFormPageComponent implements OnInit {
         platform: 'Platform',
       });
     }
+
+    this.isSaving = false;
   }
 
   public showStatusNode(node: StatusNode) {

@@ -15,6 +15,7 @@ export class GameServersJsonPageComponent implements OnInit {
   public data: GameServerModel;
   public errors: string[] = [];
   public form: FormGroup;
+  public isSaving: boolean;
 
   private params: Params;
 
@@ -54,9 +55,11 @@ export class GameServersJsonPageComponent implements OnInit {
 
   public async save() {
     this.errors = [];
+    this.isSaving = true;
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.isSaving = false;
       return;
     }
 
@@ -71,6 +74,8 @@ export class GameServersJsonPageComponent implements OnInit {
     } catch (e) {
       this.errors = this.formService.handleHttpError(e);
     }
+
+    this.isSaving = false;
   }
 
   private setupForm() {

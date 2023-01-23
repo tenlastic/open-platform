@@ -46,6 +46,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
   public get isNew() {
     return this.params.gameServerId === 'new';
   }
+  public isSaving: boolean;
   public get liveness() {
     return this.form.get('probes').get('liveness') as FormGroup;
   }
@@ -119,9 +120,11 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
 
   public async save() {
     this.errors = [];
+    this.isSaving = true;
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.isSaving = false;
       return;
     }
 
@@ -172,6 +175,8 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
           } catch (e) {
             this.errors = this.formService.handleHttpError(e);
           }
+
+          this.isSaving = false;
         }
       });
     } else {
@@ -180,6 +185,8 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
       } catch (e) {
         this.errors = this.formService.handleHttpError(e);
       }
+
+      this.isSaving = false;
     }
   }
 

@@ -35,6 +35,7 @@ export class AuthorizationsFormPageComponent implements OnInit {
   public errors: string[] = [];
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
+  public isSaving: boolean;
   public get type() {
     return this.form.get('type').value;
   }
@@ -79,9 +80,11 @@ export class AuthorizationsFormPageComponent implements OnInit {
 
   public async save() {
     this.errors = [];
+    this.isSaving = true;
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.isSaving = false;
       return;
     }
 
@@ -117,6 +120,8 @@ export class AuthorizationsFormPageComponent implements OnInit {
         userId: 'User',
       });
     }
+
+    this.isSaving = false;
   }
 
   private getRandomCharacter() {

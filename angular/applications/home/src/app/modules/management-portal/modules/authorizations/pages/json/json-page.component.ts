@@ -15,6 +15,7 @@ export class AuthorizationsJsonPageComponent implements OnInit {
   public data: AuthorizationModel;
   public errors: string[] = [];
   public form: FormGroup;
+  public isSaving: boolean;
 
   private params: Params;
 
@@ -57,9 +58,11 @@ export class AuthorizationsJsonPageComponent implements OnInit {
 
   public async save() {
     this.errors = [];
+    this.isSaving = true;
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.isSaving = false;
       return;
     }
 
@@ -73,6 +76,8 @@ export class AuthorizationsJsonPageComponent implements OnInit {
     } catch (e) {
       this.errors = this.formService.handleHttpError(e);
     }
+
+    this.isSaving = false;
   }
 
   private setupForm() {

@@ -47,6 +47,7 @@ export class WorkflowsFormPageComponent implements OnInit {
   public errors: string[] = [];
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
+  public isSaving: boolean;
   public get memories() {
     return this.namespace.limits.memory
       ? IWorkflow.Memory.filter((r) => r.value <= this.namespace.limits.memory)
@@ -134,9 +135,11 @@ export class WorkflowsFormPageComponent implements OnInit {
 
   public async save() {
     this.errors = [];
+    this.isSaving = true;
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.isSaving = false;
       return;
     }
 
@@ -218,6 +221,8 @@ export class WorkflowsFormPageComponent implements OnInit {
     } catch (e) {
       this.errors = this.formService.handleHttpError(e, { name: 'Name', namespaceId: 'Namespace' });
     }
+
+    this.isSaving = false;
   }
 
   public showStatusNode(node: StatusNode) {

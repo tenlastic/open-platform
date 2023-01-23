@@ -176,12 +176,21 @@
       {{ error }}
     </div>
 
-    <app-button color="primary"
+    <app-button *ngIf="!isSaving"
+                color="primary"
                 form="form"
                 size="large"
                 width="full">
       <mat-icon>save</mat-icon>
       <div>Save</div>
+    </app-button>
+    <app-button *ngIf="isSaving"
+                color="primary"
+                disabled
+                size="large"
+                width="full">
+      <mat-spinner diameter="20"></mat-spinner>
+      <div>Saving...</div>
     </app-button>
   </div>
 </ng-container>

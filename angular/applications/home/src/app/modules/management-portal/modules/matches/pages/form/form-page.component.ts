@@ -33,6 +33,7 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
   public get isNew() {
     return this.params.matchId === 'new';
   }
+  public isSaving: boolean;
   public queues: QueueModel[];
   public get teams() {
     return this.form.get('teams') as FormArray;
@@ -113,9 +114,11 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
 
   public async save() {
     this.errors = [];
+    this.isSaving = true;
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.isSaving = false;
       return;
     }
 
@@ -144,6 +147,8 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
         'teams.userIds': 'Team Users',
       });
     }
+
+    this.isSaving = false;
   }
 
   private setupForm() {

@@ -65,6 +65,7 @@ export class CollectionsFormPageComponent implements OnInit {
   public errors: string[] = [];
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
+  public isSaving: boolean;
   public get properties() {
     return this.form.get('properties') as FormArray;
   }
@@ -158,9 +159,11 @@ export class CollectionsFormPageComponent implements OnInit {
 
   public async save() {
     this.errors = [];
+    this.isSaving = true;
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.isSaving = false;
       return;
     }
 
@@ -180,6 +183,8 @@ export class CollectionsFormPageComponent implements OnInit {
     } catch (e) {
       this.errors = this.formService.handleHttpError(e, { name: 'Name', namespaceId: 'Namespace' });
     }
+
+    this.isSaving = false;
   }
 
   private alphabeticalKeysValidator(control: AbstractControl): ValidationErrors {

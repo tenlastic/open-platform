@@ -130,7 +130,8 @@
       {{ error }}
     </div>
 
-    <div class="flex">
+    <div *ngIf="!isSaving"
+         class="flex">
       <div class="col-sm-6">
         <app-button color="accent"
                     size="large"
@@ -149,6 +150,15 @@
         </app-button>
       </div>
     </div>
+
+    <app-button *ngIf="isSaving"
+                color="primary"
+                disabled
+                size="large"
+                width="full">
+      <mat-spinner diameter="20"></mat-spinner>
+      <div>Saving...</div>
+    </app-button>
   </div>
 </ng-container>
 

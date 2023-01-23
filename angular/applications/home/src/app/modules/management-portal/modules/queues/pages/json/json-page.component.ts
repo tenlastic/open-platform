@@ -15,6 +15,7 @@ export class QueuesJsonPageComponent implements OnInit {
   public data: QueueModel;
   public errors: string[] = [];
   public form: FormGroup;
+  public isSaving: boolean;
 
   private params: Params;
 
@@ -54,9 +55,11 @@ export class QueuesJsonPageComponent implements OnInit {
 
   public async save() {
     this.errors = [];
+    this.isSaving = true;
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.isSaving = false;
       return;
     }
 
@@ -71,6 +74,8 @@ export class QueuesJsonPageComponent implements OnInit {
     } catch (e) {
       this.errors = this.formService.handleHttpError(e);
     }
+
+    this.isSaving = false;
   }
 
   private setupForm() {

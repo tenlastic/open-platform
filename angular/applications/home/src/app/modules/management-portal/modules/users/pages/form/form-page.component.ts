@@ -15,6 +15,7 @@ export class UsersFormPageComponent implements OnInit {
   public errors: string[] = [];
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
+  public isSaving: boolean;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -48,9 +49,11 @@ export class UsersFormPageComponent implements OnInit {
 
   public async save() {
     this.errors = [];
+    this.isSaving = true;
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.isSaving = false;
       return;
     }
 
@@ -68,6 +71,8 @@ export class UsersFormPageComponent implements OnInit {
         username: 'Username',
       });
     }
+
+    this.isSaving = false;
   }
 
   private setupForm() {
