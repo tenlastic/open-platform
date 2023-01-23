@@ -17,7 +17,7 @@ export class ApiError extends Error {
       } catch {}
     }
     this.messages = this.errors.map((e) => e?.message).filter((m) => m);
-    this.method = err.config.method?.toUpperCase();
+    this.method = err.config?.method?.toUpperCase();
     this.status = err.response?.status;
     this.url = err.config?.url;
 

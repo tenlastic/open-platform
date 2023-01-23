@@ -1,8 +1,11 @@
+import { AxiosRequestConfig, AxiosRequestTransformer } from 'axios';
 import { StorefrontModel } from '../models/storefront';
 import { StorefrontStore } from '../states/storefront';
 import { ApiService } from './api';
 import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
+
+type FormDataFunction = (formData?: FormData) => FormData;
 
 export class StorefrontService {
   public get emitter() {
@@ -84,13 +87,27 @@ export class StorefrontService {
   /**
    * Uploads an image or video to the Storefront.
    */
-  public async upload(namespaceId: string, storefrontId: string, _id: string, formData: FormData) {
+  public async upload(
+    namespaceId: string,
+    storefrontId: string,
+    _id: string,
+    formData: FormData | FormDataFunction,
+    options: { onUploadProgress?: (progressEvent: any) => void } = {},
+  ) {
     const url = this.getUrl(namespaceId);
-    const response = await this.apiService.request({
-      data: formData,
+    const config: AxiosRequestConfig = {
       method: 'post',
+      onUploadProgress: options?.onUploadProgress,
       url: `${url}/${storefrontId}/${_id}`,
-    });
+    };
+
+    if (formData.constructor.name === 'FormData') {
+      config.data = formData;
+    } else {
+      config.transformRequest = formData as AxiosRequestTransformer;
+    }
+
+    const response = await this.apiService.request(config);
 
     const record = new StorefrontModel(response.data.record);
     this.emitter.emit('update', record);

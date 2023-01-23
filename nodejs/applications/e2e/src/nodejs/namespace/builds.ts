@@ -57,17 +57,19 @@ describe('/nodejs/namespace/builds', function () {
     });
 
     // Create the Build.
-    const formData = new FormData();
-    formData.append(
-      'record',
-      JSON.stringify({
-        entrypoint: 'Dockerfile',
-        name: chance.hash({ length: 64 }),
-        platform: IBuild.Platform.Server64,
-      } as BuildModel),
-    );
-    formData.append('zip', buffer, { contentType: 'application/zip', filename: 'example.zip' });
-    build = await dependencies.buildService.create(namespace._id, formData);
+    build = await dependencies.buildService.create(namespace._id, () => {
+      const formData = new FormData();
+      formData.append(
+        'record',
+        JSON.stringify({
+          entrypoint: 'Dockerfile',
+          name: chance.hash({ length: 64 }),
+          platform: IBuild.Platform.Server64,
+        } as BuildModel),
+      );
+      formData.append('zip', buffer, { contentType: 'application/zip', filename: 'example.zip' });
+      return formData;
+    });
 
     expect(build).to.exist;
   });

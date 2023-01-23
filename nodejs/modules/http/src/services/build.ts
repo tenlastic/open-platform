@@ -1,10 +1,12 @@
-import { AxiosRequestConfig } from 'axios';
+import { AxiosRequestConfig, AxiosRequestTransformer } from 'axios';
 
 import { BuildModel } from '../models/build';
 import { BuildStore } from '../states/build';
 import { ApiService } from './api';
 import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
+
+type FormDataFunction = (formData?: FormData) => FormData;
 
 export class BuildService {
   public get emitter() {
@@ -34,16 +36,23 @@ export class BuildService {
    */
   public async create(
     namespaceId: string,
-    formData: FormData,
+    formData: FormData | FormDataFunction,
     options: { onUploadProgress?: (progressEvent: any) => void } = {},
   ) {
     const url = this.getUrl(namespaceId);
-    const response = await this.apiService.request({
-      data: formData,
+    const config: AxiosRequestConfig = {
       method: 'post',
       onUploadProgress: options?.onUploadProgress,
       url,
-    });
+    };
+
+    if (formData.constructor.name === 'FormData') {
+      config.data = formData;
+    } else {
+      config.transformRequest = formData as AxiosRequestTransformer;
+    }
+
+    const response = await this.apiService.request(config);
 
     const record = new BuildModel(response.data.record);
     this.emitter.emit('create', record);
