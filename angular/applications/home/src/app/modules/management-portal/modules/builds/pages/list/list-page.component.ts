@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
@@ -92,18 +92,12 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
   public async publish($event: Event, build: BuildModel) {
     $event.stopPropagation();
 
-    await this.buildService.update(build.namespaceId, build._id, {
-      ...build,
-      publishedAt: new Date(),
-    });
-
-    this.matSnackBar.open('Build published successfully.');
-
     if (build.platform === IBuild.Platform.Server64 && build.reference) {
       const referenceBuild = await this.buildService.findOne(
         build.namespaceId,
         build.reference._id,
       );
+
       const dialogRef = this.matDialog.open(PromptComponent, {
         data: {
           buttons: [
@@ -111,56 +105,58 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
             { color: 'accent', label: 'Yes' },
           ],
           message:
-            `Would you like to update Game Servers and Game Server Templates using the Reference Build ` +
-            `(${referenceBuild.name}) to use this Build?`,
+            `Publishing this Build will restart and update Game Servers that use its Reference Build ` +
+            `(${referenceBuild.name}). Are you sure you want to publish this Build?`,
         },
       });
 
       dialogRef.afterClosed().subscribe(async (result) => {
         if (result === 'Yes') {
-          // Update Game Servers.
-          const gameServers = await this.gameServerService.find(build.namespaceId, {
-            where: { buildId: build.reference._id, matchId: { $exists: false } },
-          });
-          for (const gameServer of gameServers) {
-            await this.gameServerService.update(gameServer.namespaceId, gameServer._id, {
-              ...gameServer,
-              buildId: build._id,
-            });
-          }
+          await this.buildService.update(build.namespaceId, build._id, { publishedAt: new Date() });
 
-          // Update Game Server Templates.
-          const gameServerTemplates = await this.gameServerTemplateService.find(build.namespaceId, {
-            where: { buildId: build.reference._id },
-          });
-          for (const gameServerTemplate of gameServerTemplates) {
-            await this.gameServerTemplateService.update(
-              gameServerTemplate.namespaceId,
-              gameServerTemplate._id,
-              { buildId: build._id },
-            );
-          }
-
-          this.matSnackBar.open(
-            `${gameServers.length} Game Server(s) and ${gameServerTemplates.length} Game Server Template(s) updated successfully.`,
-          );
+          this.matSnackBar.open('Build published successfully.');
         }
       });
+    } else {
+      await this.buildService.update(build.namespaceId, build._id, { publishedAt: new Date() });
+
+      this.matSnackBar.open('Build published successfully.');
     }
   }
 
-  public showDeletePrompt($event: Event, record: BuildModel) {
+  public async showDeletePrompt($event: Event, record: BuildModel) {
     $event.stopPropagation();
 
-    const dialogRef = this.matDialog.open(PromptComponent, {
-      data: {
-        buttons: [
-          { color: 'primary', label: 'No' },
-          { color: 'accent', label: 'Yes' },
-        ],
-        message: `Are you sure you want to delete this Build?`,
-      },
-    });
+    let dialogRef: MatDialogRef<PromptComponent>;
+
+    if (record.platform === IBuild.Platform.Server64 && record.reference) {
+      const referenceBuild = await this.buildService.findOne(
+        record.namespaceId,
+        record.reference._id,
+      );
+
+      dialogRef = this.matDialog.open(PromptComponent, {
+        data: {
+          buttons: [
+            { color: 'primary', label: 'No' },
+            { color: 'accent', label: 'Yes' },
+          ],
+          message:
+            `Deleting this Build will restart and rollback Game Servers to use its Reference Build ` +
+            `(${referenceBuild.name}). Are you sure you want to delete this Build?`,
+        },
+      });
+    } else {
+      dialogRef = this.matDialog.open(PromptComponent, {
+        data: {
+          buttons: [
+            { color: 'primary', label: 'No' },
+            { color: 'accent', label: 'Yes' },
+          ],
+          message: `Are you sure you want to delete this Build?`,
+        },
+      });
+    }
 
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result === 'Yes') {
@@ -173,9 +169,36 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
   public async unpublish($event: Event, build: BuildModel) {
     $event.stopPropagation();
 
-    await this.buildService.update(build.namespaceId, build._id, { ...build, publishedAt: null });
+    if (build.platform === IBuild.Platform.Server64 && build.reference) {
+      const referenceBuild = await this.buildService.findOne(
+        build.namespaceId,
+        build.reference._id,
+      );
 
-    this.matSnackBar.open('Build unpublished successfully.');
+      const dialogRef = this.matDialog.open(PromptComponent, {
+        data: {
+          buttons: [
+            { color: 'primary', label: 'No' },
+            { color: 'accent', label: 'Yes' },
+          ],
+          message:
+            `Unpublishing this Build will restart and rollback Game Servers to use its Reference Build ` +
+            `(${referenceBuild.name}). Are you sure you want to unpublish this Build?`,
+        },
+      });
+
+      dialogRef.afterClosed().subscribe(async (result) => {
+        if (result === 'Yes') {
+          await this.buildService.update(build.namespaceId, build._id, { publishedAt: null });
+
+          this.matSnackBar.open('Build unpublished successfully.');
+        }
+      });
+    } else {
+      await this.buildService.update(build.namespaceId, build._id, { publishedAt: null });
+
+      this.matSnackBar.open('Build unpublished successfully.');
+    }
   }
 
   private async fetchBuilds(params: Params) {
@@ -184,7 +207,7 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
     });
 
     await this.buildService.find(params.namespaceId, {
-      select: '-files -reference',
+      select: '-files -reference.files',
       sort: '-createdAt',
     });
 

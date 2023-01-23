@@ -1,12 +1,43 @@
 import {
+  BuildPlatform,
   GameServerModel,
   GameServerStatusComponentName,
   GameServerTemplateModel,
   MatchModel,
 } from '@tenlastic/mongoose';
-import { GameServerEvent, MatchEvent, NamespaceEvent, QueueEvent } from '@tenlastic/mongoose-nats';
+import {
+  BuildEvent,
+  GameServerEvent,
+  MatchEvent,
+  NamespaceEvent,
+  QueueEvent,
+} from '@tenlastic/mongoose-nats';
 
 import { KubernetesGameServer } from '../kubernetes';
+
+// Update Game Servers when Build is published.
+BuildEvent.async(async (payload) => {
+  if (payload.fullDocument.platform !== BuildPlatform.Server64 || !payload.fullDocument.reference) {
+    return;
+  }
+
+  const buildId = payload.fullDocument._id;
+  const matchId = { $exists: false };
+  const referenceBuildId = payload.fullDocument.reference._id;
+  const { updateDescription } = payload;
+
+  if (
+    payload.operationType === 'insert' ||
+    (payload.operationType === 'update' && updateDescription.updatedFields.publishedAt)
+  ) {
+    await GameServerModel.updateMany({ buildId: referenceBuildId, matchId }, { buildId });
+  } else if (
+    payload.operationType === 'delete' ||
+    (payload.operationType === 'update' && updateDescription.removedFields.includes('publishedAt'))
+  ) {
+    await GameServerModel.updateMany({ buildId, matchId }, { buildId: referenceBuildId });
+  }
+});
 
 // Delete Game Server if Failed or Succeeded.
 GameServerEvent.async(async (payload) => {
