@@ -42,7 +42,7 @@ function unset(document: Document, key: string, value: any) {
     return;
   }
 
-  const isArrayElement = key?.match(/\.[0-9]$/);
+  const isArrayElement = key?.match(/\.[0-9]+$/);
   if (!isArrayElement && (value === false || value === null || value === 0 || value === '')) {
     document.set(key, undefined);
   }

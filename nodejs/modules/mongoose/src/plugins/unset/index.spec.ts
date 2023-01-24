@@ -126,11 +126,11 @@ describe('plugins/unset', function () {
         },
       });
 
-      record.object.array = [0];
+      record.object.array = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
       await record.save();
 
       const result = await Model.findOne({ _id: record._id });
-      expect(result.object.array).to.eql([0]);
+      expect(result.object.array).to.eql([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
     });
   });
 });
