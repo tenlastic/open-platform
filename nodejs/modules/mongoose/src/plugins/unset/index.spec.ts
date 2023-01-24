@@ -118,5 +118,19 @@ describe('plugins/unset', function () {
       expect(result.exclude).to.eql('');
       expect(result.object.exclude).to.eql('');
     });
+
+    it('does not unset array elements', async function () {
+      const record = await Model.create({
+        object: {
+          array: [],
+        },
+      });
+
+      record.object.array = [0];
+      await record.save();
+
+      const result = await Model.findOne({ _id: record._id });
+      expect(result.object.array).to.eql([0]);
+    });
   });
 });
