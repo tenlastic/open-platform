@@ -42,6 +42,27 @@ export const KubernetesNamespace = {
 
     /**
      * =======================
+     * KUBERNETES RESOURCES
+     * =======================
+     */
+    const query: BaseListQuery = { labelSelector: `tenlastic.com/namespaceId=${namespace._id}` };
+    await Promise.all([
+      deploymentApiV1.deleteCollection('dynamic', query),
+      ingressApiV1.deleteCollection('dynamic', query),
+      jobApiV1.deleteCollection('dynamic', query),
+      networkPolicyApiV1.deleteCollection('dynamic', query),
+      persistentVolumeClaimApiV1.deleteCollection('dynamic', query),
+      podApiV1.deleteCollection('dynamic', query),
+      priorityClassApiV1.deleteCollection(query),
+      resourceQuotaApiV1.deleteCollection('dynamic', query),
+      secretApiV1.deleteCollection('dynamic', query),
+      serviceApiV1.deleteCollection('dynamic', query),
+      statefulSetApiV1.deleteCollection('dynamic', query),
+      workflowApiV1.deleteCollection('dynamic', query),
+    ]);
+
+    /**
+     * =======================
      * MINIO
      * =======================
      */
@@ -70,27 +91,6 @@ export const KubernetesNamespace = {
      * =======================
      */
     await nats.deleteStream(name);
-
-    /**
-     * =======================
-     * RESOURCES
-     * =======================
-     */
-    const query: BaseListQuery = { labelSelector: `tenlastic.com/namespaceId=${namespace._id}` };
-    await Promise.all([
-      deploymentApiV1.deleteCollection('dynamic', query),
-      ingressApiV1.deleteCollection('dynamic', query),
-      jobApiV1.deleteCollection('dynamic', query),
-      networkPolicyApiV1.deleteCollection('dynamic', query),
-      persistentVolumeClaimApiV1.deleteCollection('dynamic', query),
-      podApiV1.deleteCollection('dynamic', query),
-      priorityClassApiV1.deleteCollection(query),
-      resourceQuotaApiV1.deleteCollection('dynamic', query),
-      secretApiV1.deleteCollection('dynamic', query),
-      serviceApiV1.deleteCollection('dynamic', query),
-      statefulSetApiV1.deleteCollection('dynamic', query),
-      workflowApiV1.deleteCollection('dynamic', query),
-    ]);
   },
   getAffinity: (namespace: NamespaceDocument, role: NamespaceStatusComponentName): V1Affinity => {
     const name = KubernetesNamespace.getName(namespace._id);
