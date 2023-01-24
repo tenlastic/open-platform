@@ -1,4 +1,4 @@
-import * as mongoose from 'mongoose';
+import { mongoose } from '@typegoose/typegoose';
 
 mongoose.set('autoCreate', false);
 mongoose.set('autoIndex', false);
