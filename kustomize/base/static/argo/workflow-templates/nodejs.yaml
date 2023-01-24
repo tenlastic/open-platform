@@ -74,6 +74,7 @@ spec:
       inputs:
         parameters:
           - name: branch
+      paralellism: 10
       steps:
         - - name: bootstrap
             template: bootstrap
