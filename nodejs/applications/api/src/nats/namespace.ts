@@ -1,16 +1,10 @@
 import { NamespaceModel } from '@tenlastic/mongoose';
-import { NamespaceEvent } from '@tenlastic/mongoose-nats';
+import { log, NamespaceEvent } from '@tenlastic/mongoose-nats';
 
 import { KubernetesNamespace } from '../kubernetes';
 
 // Log the message.
-NamespaceEvent.sync((payload) => {
-  console.log({
-    documentKey: payload.documentKey,
-    ns: payload.ns,
-    operationType: payload.operationType,
-  });
-});
+NamespaceEvent.sync(log);
 
 // Update Kubernetes resources.
 NamespaceEvent.async(async (payload) => {

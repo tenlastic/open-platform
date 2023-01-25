@@ -1,5 +1,8 @@
 import { CollectionModel } from '@tenlastic/mongoose';
-import { NamespaceEvent } from '@tenlastic/mongoose-nats';
+import { CollectionEvent, log, NamespaceEvent } from '@tenlastic/mongoose-nats';
+
+// Log the message.
+CollectionEvent.sync(log);
 
 // Delete Collections if associated Namespace is deleted.
 NamespaceEvent.async(async (payload) => {

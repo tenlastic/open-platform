@@ -1,5 +1,5 @@
 import { WebSocketModel } from '@tenlastic/mongoose';
-import { NamespaceEvent, UserEvent } from '@tenlastic/mongoose-nats';
+import { log, NamespaceEvent, UserEvent, WebSocketEvent } from '@tenlastic/mongoose-nats';
 
 // Delete Web Sockets if associated Namespace is deleted.
 NamespaceEvent.async(async (payload) => {
@@ -16,3 +16,6 @@ UserEvent.async(async (payload) => {
       return WebSocketModel.deleteMany({ userId: payload.fullDocument._id });
   }
 });
+
+// Log the message.
+WebSocketEvent.sync(log);

@@ -1,5 +1,5 @@
 import { MessageModel } from '@tenlastic/mongoose';
-import { GroupEvent, UserEvent } from '@tenlastic/mongoose-nats';
+import { GroupEvent, log, MessageEvent, UserEvent } from '@tenlastic/mongoose-nats';
 
 // Delete Messages if associated Group is deleted.
 GroupEvent.async(async (payload) => {
@@ -11,6 +11,9 @@ GroupEvent.async(async (payload) => {
     return MessageModel.deleteMany({ fromUserId: { $nin: group.userIds }, groupId: group._id });
   }
 });
+
+// Log the message.
+MessageEvent.sync(log);
 
 // Delete Messages if associated User is deleted.
 UserEvent.async(async (payload) => {

@@ -1,5 +1,5 @@
 import { BuildPlatform, GameServerTemplateModel } from '@tenlastic/mongoose';
-import { BuildEvent, NamespaceEvent } from '@tenlastic/mongoose-nats';
+import { BuildEvent, GameServerTemplateEvent, log, NamespaceEvent } from '@tenlastic/mongoose-nats';
 
 // Update Game Server Templates when Build is published or unpublished.
 BuildEvent.async(async (payload) => {
@@ -23,6 +23,9 @@ BuildEvent.async(async (payload) => {
     await GameServerTemplateModel.updateMany({ buildId }, { buildId: referenceBuildId });
   }
 });
+
+// Log the message.
+GameServerTemplateEvent.sync(log);
 
 // Delete Game Server Templates if associated Namespace is deleted.
 NamespaceEvent.async(async (payload) => {

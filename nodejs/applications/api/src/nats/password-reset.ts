@@ -1,16 +1,10 @@
 import { UserModel } from '@tenlastic/mongoose';
-import { PasswordResetEvent } from '@tenlastic/mongoose-nats';
+import { log, PasswordResetEvent } from '@tenlastic/mongoose-nats';
 
 import mailgun from '../mailgun';
 
 // Log the message.
-PasswordResetEvent.sync((payload) => {
-  console.log({
-    documentKey: payload.documentKey,
-    ns: payload.ns,
-    operationType: payload.operationType,
-  });
-});
+PasswordResetEvent.sync(log);
 
 // Send a Password Reset Request to the User's email address.
 PasswordResetEvent.async(async (payload) => {

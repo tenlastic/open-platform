@@ -1,5 +1,5 @@
 import { StorefrontModel } from '@tenlastic/mongoose';
-import { NamespaceEvent, StorefrontEvent } from '@tenlastic/mongoose-nats';
+import { log, NamespaceEvent, StorefrontEvent } from '@tenlastic/mongoose-nats';
 
 import { MinioStorefront } from '../minio';
 
@@ -10,6 +10,9 @@ NamespaceEvent.async(async (payload) => {
       return StorefrontModel.deleteMany({ namespaceId: payload.fullDocument._id });
   }
 });
+
+// Log the message.
+StorefrontEvent.sync(log);
 
 // Delete unused images and videos on update.
 StorefrontEvent.async(async (payload) => {

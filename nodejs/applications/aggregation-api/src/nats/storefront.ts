@@ -1,5 +1,5 @@
 import { StorefrontModel } from '@tenlastic/mongoose';
-import { NamespaceEvent } from '@tenlastic/mongoose-nats';
+import { log, NamespaceEvent, StorefrontEvent } from '@tenlastic/mongoose-nats';
 
 // Delete Storefronts if associated Namespace is deleted.
 NamespaceEvent.async(async (payload) => {
@@ -8,3 +8,6 @@ NamespaceEvent.async(async (payload) => {
       return StorefrontModel.deleteMany({ namespaceId: payload.fullDocument._id });
   }
 });
+
+// Log the message.
+StorefrontEvent.sync(log);

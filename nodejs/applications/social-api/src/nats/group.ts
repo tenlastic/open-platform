@@ -1,4 +1,7 @@
-import { GroupEvent } from '@tenlastic/mongoose-nats';
+import { GroupEvent, log } from '@tenlastic/mongoose-nats';
+
+// Log the message.
+GroupEvent.sync(log);
 
 // Delete the group if empty.
 GroupEvent.async(async (payload) => {

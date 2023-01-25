@@ -1,14 +1,8 @@
 import { LoginModel } from '@tenlastic/mongoose';
-import { LoginEvent, UserEvent } from '@tenlastic/mongoose-nats';
+import { log, LoginEvent, UserEvent } from '@tenlastic/mongoose-nats';
 
 // Log the message.
-LoginEvent.sync((payload) => {
-  console.log({
-    documentKey: payload.documentKey,
-    ns: payload.ns,
-    operationType: payload.operationType,
-  });
-});
+LoginEvent.sync(log);
 
 // Delete Logins if associated User is deleted.
 UserEvent.async(async (payload) => {

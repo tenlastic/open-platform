@@ -1,5 +1,11 @@
 import { MatchInvitationModel } from '@tenlastic/mongoose';
-import { MatchEvent, NamespaceEvent, QueueMemberEvent } from '@tenlastic/mongoose-nats';
+import {
+  log,
+  MatchEvent,
+  MatchInvitationEvent,
+  NamespaceEvent,
+  QueueMemberEvent,
+} from '@tenlastic/mongoose-nats';
 
 // Delete Match Invitations if associated Match is deleted.
 // Create Match Invitations if associated Match is created.
@@ -16,6 +22,9 @@ MatchEvent.async(async (payload) => {
     return MatchInvitationModel.deleteMany({ matchId: payload.fullDocument._id });
   }
 });
+
+// Log the message.
+MatchInvitationEvent.sync(log);
 
 // Delete Match Invitations if associated Namespace is deleted.
 NamespaceEvent.async(async (payload) => {

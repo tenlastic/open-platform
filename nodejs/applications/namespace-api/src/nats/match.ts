@@ -1,6 +1,7 @@
 import { MatchModel } from '@tenlastic/mongoose';
 import {
   GameServerEvent,
+  log,
   MatchEvent,
   MatchInvitationEvent,
   NamespaceEvent,
@@ -14,6 +15,9 @@ GameServerEvent.async(async (payload) => {
     return MatchModel.findOneAndUpdate({ _id: matchId }, { finishedAt: new Date() });
   }
 });
+
+// Log the message.
+MatchEvent.sync(log);
 
 // Starts a Match if all Match Invitations have been accepted.
 MatchEvent.async(async (payload) => {

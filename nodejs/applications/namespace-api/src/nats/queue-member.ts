@@ -1,9 +1,11 @@
 import { QueueMemberModel } from '@tenlastic/mongoose';
 import {
   GroupEvent,
+  log,
   MatchEvent,
   NamespaceEvent,
   QueueEvent,
+  QueueMemberEvent,
   WebSocketEvent,
 } from '@tenlastic/mongoose-nats';
 
@@ -59,6 +61,9 @@ QueueEvent.async(async (payload) => {
       return QueueMemberModel.deleteMany({ queueId: payload.fullDocument._id });
   }
 });
+
+// Log the message.
+QueueMemberEvent.sync(log);
 
 // Delete Queue Member when associated WebSocket is deleted.
 WebSocketEvent.async(async (payload) => {

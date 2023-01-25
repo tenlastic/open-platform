@@ -1,5 +1,5 @@
 import { WorkflowModel } from '@tenlastic/mongoose';
-import { NamespaceEvent, WorkflowEvent } from '@tenlastic/mongoose-nats';
+import { log, NamespaceEvent, WorkflowEvent } from '@tenlastic/mongoose-nats';
 
 import { KubernetesWorkflow } from '../kubernetes';
 
@@ -10,6 +10,9 @@ NamespaceEvent.async(async (payload) => {
       return WorkflowModel.deleteMany({ namespaceId: payload.fullDocument._id });
   }
 });
+
+// Log the message.
+WorkflowEvent.sync(log);
 
 // Create, delete, and update Kubernetes resources.
 WorkflowEvent.async(async (payload) => {

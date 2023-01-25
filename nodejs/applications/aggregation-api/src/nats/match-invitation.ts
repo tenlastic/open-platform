@@ -1,5 +1,8 @@
 import { MatchInvitationModel } from '@tenlastic/mongoose';
-import { NamespaceEvent } from '@tenlastic/mongoose-nats';
+import { log, MatchInvitationEvent, NamespaceEvent } from '@tenlastic/mongoose-nats';
+
+// Log the message.
+MatchInvitationEvent.sync(log);
 
 // Delete Match Invitations if associated Namespace is deleted.
 NamespaceEvent.async(async (payload) => {

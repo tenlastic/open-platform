@@ -1,5 +1,5 @@
 import { QueueModel } from '@tenlastic/mongoose';
-import { NamespaceEvent, QueueEvent } from '@tenlastic/mongoose-nats';
+import { log, NamespaceEvent, QueueEvent } from '@tenlastic/mongoose-nats';
 
 import { KubernetesQueue } from '../kubernetes';
 
@@ -10,6 +10,9 @@ NamespaceEvent.async(async (payload) => {
       return QueueModel.deleteMany({ namespaceId: payload.fullDocument._id });
   }
 });
+
+// Log the message.
+QueueEvent.sync(log);
 
 // Create, delete, and update Kubernetes resources.
 QueueEvent.async(async (payload) => {

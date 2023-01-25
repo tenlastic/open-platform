@@ -1,5 +1,8 @@
 import { ArticleModel } from '@tenlastic/mongoose';
-import { NamespaceEvent } from '@tenlastic/mongoose-nats';
+import { ArticleEvent, log, NamespaceEvent } from '@tenlastic/mongoose-nats';
+
+// Log the message.
+ArticleEvent.sync(log);
 
 // Delete Articles if associated Namespace is deleted.
 NamespaceEvent.async(async (payload) => {

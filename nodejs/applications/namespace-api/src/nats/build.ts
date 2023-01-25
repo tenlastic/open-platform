@@ -1,9 +1,17 @@
 import * as minio from '@tenlastic/minio';
 import { BuildModel } from '@tenlastic/mongoose';
-import { BuildEvent, NamespaceEvent, NamespaceStorageLimitEvent } from '@tenlastic/mongoose-nats';
+import {
+  BuildEvent,
+  log,
+  NamespaceEvent,
+  NamespaceStorageLimitEvent,
+} from '@tenlastic/mongoose-nats';
 
 import { KubernetesBuild } from '../kubernetes';
 import { MinioBuild } from '../minio';
+
+// Log the message.
+BuildEvent.sync(log);
 
 // Delete files from Minio if associated Build is deleted.
 // Delete zip file from Minio if associated Build is finished.

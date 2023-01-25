@@ -8,6 +8,7 @@ import {
 import {
   BuildEvent,
   GameServerEvent,
+  log,
   MatchEvent,
   NamespaceEvent,
   QueueEvent,
@@ -38,6 +39,9 @@ BuildEvent.async(async (payload) => {
     await GameServerModel.updateMany({ buildId, matchId }, { buildId: referenceBuildId });
   }
 });
+
+// Log the message.
+GameServerEvent.sync(log);
 
 // Delete Game Server if Failed or Succeeded.
 GameServerEvent.async(async (payload) => {

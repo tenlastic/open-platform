@@ -1,14 +1,8 @@
 import { AuthorizationModel } from '@tenlastic/mongoose';
-import { AuthorizationEvent, NamespaceEvent, UserEvent } from '@tenlastic/mongoose-nats';
+import { AuthorizationEvent, log, NamespaceEvent, UserEvent } from '@tenlastic/mongoose-nats';
 
 // Log the message.
-AuthorizationEvent.sync((payload) => {
-  console.log({
-    documentKey: payload.documentKey,
-    ns: payload.ns,
-    operationType: payload.operationType,
-  });
-});
+AuthorizationEvent.sync(log);
 
 // Delete Authorizations if associated Namespace is deleted.
 NamespaceEvent.async(async (payload) => {
