@@ -113,6 +113,8 @@ export class StreamService {
     const socket = this.webSockets.get(url);
     socket?.close(1000);
 
+    console.log(`Successfully closed web socket to ${url}.`);
+
     this.pendingWebSockets.delete(url);
     this.webSockets.delete(url);
   }
