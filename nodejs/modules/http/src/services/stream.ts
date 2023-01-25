@@ -148,7 +148,10 @@ export class StreamService {
       if (e.code !== 1000) {
         try {
           await new Promise((resolve) => setTimeout(resolve, 5000));
+
+          console.log(`Reconnecting to web socket at ${options.url}...`);
           await this.connect(options);
+          console.log(`Successfully reconnected to web socket at ${options.url}.`);
         } catch {
           const error = new Error(`Could not reconnect to web socket at ${options.url}.`);
           console.error(error);
