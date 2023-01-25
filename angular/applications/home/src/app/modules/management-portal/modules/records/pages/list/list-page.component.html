@@ -30,7 +30,7 @@
           *matHeaderCellDef
           mat-sort-header>{{ column | camelCaseToTitleCase }}</th>
       <td mat-cell
-          *matCellDef="let element">{{ element.properties[column] }}</td>
+          *matCellDef="let element">{{ element.properties ? element.properties[column] : '' }}</td>
     </ng-container>
 
     <ng-container matColumnDef="createdAt">
