@@ -29,7 +29,7 @@ export class StorefrontSchema {
 
   public createdAt: Date;
 
-  @prop({ maxlength: 256, trim: true, type: String })
+  @prop({ maxlength: 5120, trim: true, type: String })
   public description: string;
 
   @prop({ filter: { create: true, update: true }, maxlength: 256, trim: true, type: String })
