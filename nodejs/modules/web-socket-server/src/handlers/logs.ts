@@ -10,8 +10,7 @@ import { Context, StatusCode } from '../definitions';
 import { deleteUnsubscribeCallback, setUnsubscribeCallback } from './unsubscribe';
 
 export interface LogsOptions {
-  since?: string;
-  tail?: number;
+  resumeToken?: string;
 }
 
 export async function logs(ctx: Context, Permissions: MongoosePermissions<any>) {
@@ -44,7 +43,7 @@ export async function logs(ctx: Context, Permissions: MongoosePermissions<any>) 
     node.pod,
     'dynamic',
     container || node.container,
-    { since: options.since, tail: options.tail },
+    { since: options.resumeToken },
   );
   emitter.on('close', async () => ctx.ws.send({ _id, status: StatusCode.OK }));
   emitter.on('data', (log) => {
@@ -57,7 +56,11 @@ export async function logs(ctx: Context, Permissions: MongoosePermissions<any>) 
       fullDocument = log;
     }
 
-    ctx.ws.send({ _id, body: { fullDocument }, status: StatusCode.PartialContent });
+    ctx.ws.send({
+      _id,
+      body: { fullDocument, operationType: 'insert', resumeToken: fullDocument.unix },
+      status: StatusCode.PartialContent,
+    });
   });
   emitter.on('error', async (e) => {
     console.error(e);

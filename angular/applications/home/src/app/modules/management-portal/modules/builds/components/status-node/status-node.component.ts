@@ -74,15 +74,24 @@ export class BuildStatusNodeComponent {
         }),
       node: this.node,
       subscribe: (container, pod, unix) => {
-        return this.subscriptionService.logs<BuildLogModel>(
+        const resumeToken = unix ? new Date(unix) : new Date();
+
+        return this.subscriptionService.subscribe<BuildLogModel>(
           BuildLogModel,
-          { buildId: this.build._id, container, pod },
           {
-            body: { since: unix ? new Date(unix) : new Date() },
+            body: { resumeToken: resumeToken.toISOString() },
             path: `/subscriptions/builds/${this.build._id}/logs/${pod}/${container}`,
           },
+          this.buildLogService,
           this.buildLogStore,
           this.webSocketUrl,
+          {
+            callback: (response) => {
+              response.body.fullDocument.buildId = this.build._id;
+              response.body.fullDocument.container = container;
+              response.body.fullDocument.pod = pod;
+            },
+          },
         );
       },
       wssUrl: this.webSocketUrl,

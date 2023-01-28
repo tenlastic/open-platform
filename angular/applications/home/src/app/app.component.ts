@@ -257,6 +257,7 @@ export class AppComponent implements OnInit {
         s.service,
         s.store,
         environment.wssUrl,
+        { acks: true },
       ),
     );
 

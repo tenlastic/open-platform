@@ -1,6 +1,10 @@
+import { EventEmitter } from 'events';
+import TypedEmitter from 'typed-emitter';
+
 import { QueueLogModel } from '../models/queue-log';
 import { QueueLogStore } from '../states/queue-log';
 import { ApiService } from './api';
+import { ServiceEvents } from './base';
 import { EnvironmentService } from './environment';
 
 export interface QueueLogsQuery {
@@ -9,6 +13,8 @@ export interface QueueLogsQuery {
 }
 
 export class QueueLogService {
+  public emitter = new EventEmitter() as TypedEmitter<ServiceEvents<QueueLogModel>>;
+
   constructor(
     private apiService: ApiService,
     private environmentService: EnvironmentService,

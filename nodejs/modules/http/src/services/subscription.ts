@@ -1,6 +1,5 @@
 import TypedEmitter from 'typed-emitter';
 import { v4 as uuid } from 'uuid';
-import { BaseLogModel } from '../models';
 
 import { BaseModel } from '../models/base';
 import {
@@ -10,14 +9,6 @@ import {
   WebSocketResponseError,
 } from '../web-socket';
 import { WebSocketService } from './web-socket';
-
-export interface LogsRequest extends WebSocketRequest {
-  body?: LogsRequestBody;
-}
-
-export interface LogsRequestBody {
-  since?: Date;
-}
 
 export interface SubscribeRequest extends WebSocketRequest {
   body?: SubscribeRequestBody;
@@ -29,14 +20,12 @@ export interface SubscribeRequestBody {
   where?: any;
 }
 
-export type DatabaseOperationType = 'delete' | 'insert' | 'replace' | 'update';
-
-interface LogsResponse<T extends BaseLogModel> extends WebSocketResponse {
-  body: {
-    errors?: WebSocketResponseError[];
-    fullDocument?: T;
-  };
+export interface SubscribeOptions<T extends BaseModel> {
+  acks?: boolean;
+  callback?: (response: SubscribeResponse<T>) => any | Promise<any>;
 }
+
+export type DatabaseOperationType = 'delete' | 'insert' | 'replace' | 'update';
 
 interface Service {
   emitter: TypedEmitter<any>;
@@ -66,51 +55,13 @@ interface SubscribeResponse<T extends BaseModel> extends WebSocketResponse {
 export class SubscriptionService {
   constructor(private webSocketService: WebSocketService) {}
 
-  public async logs<T extends BaseLogModel = BaseLogModel>(
-    Model: new (parameters?: Partial<BaseModel>) => BaseModel,
-    parameters: Partial<T>,
-    request: LogsRequest,
-    store: Store,
-    url: string,
-  ) {
-    const webSocket = this.webSocketService.getWebSocket(url);
-
-    // Do not subscribe if request is already registered.
-    if (webSocket.hasDurableRequest(request._id)) {
-      return null;
-    }
-
-    // Set default values for the request.
-    request._id ??= uuid();
-    request.method = WebSocketMethod.Post;
-
-    webSocket.emitter.on('message', (message: LogsResponse<T>) => {
-      // If the response is for a different request, ignore it.
-      if (message._id !== request._id || !message.body?.fullDocument) {
-        return;
-      }
-
-      // If the response contains errors, throw the first one.
-      if (message.body.errors) {
-        throw new Error(message.body.errors[0].message);
-      }
-
-      const record = new Model({ ...message.body.fullDocument, ...parameters }) as any;
-      store.upsertMany([record]);
-
-      request.body.since = new Date(record.unix);
-    });
-
-    return webSocket.createDurableRequest(request);
-  }
-
   public async subscribe<T extends BaseModel = BaseModel>(
     Model: new (parameters?: Partial<T>) => T,
     request: SubscribeRequest,
     service: Service,
     store: Store,
     url: string,
-    callback?: (response: SubscribeResponse<T>) => any | Promise<any>,
+    options: SubscribeOptions<T> = {},
   ) {
     const webSocket = this.webSocketService.getWebSocket(url);
 
@@ -139,6 +90,17 @@ export class SubscriptionService {
         request.body.resumeToken = message.body.resumeToken;
       }
 
+      // Invoke the callback, responding with a NAK if ACKs are enabled.
+      if (options.acks && options.callback) {
+        try {
+          await options.callback(message);
+        } catch {
+          return this.nak(request._id, url);
+        }
+      } else if (options.callback) {
+        await options.callback(message);
+      }
+
       const record = new Model(message.body.fullDocument);
       if (message.body.operationType === 'delete') {
         service.emitter.emit('delete', record);
@@ -154,15 +116,9 @@ export class SubscriptionService {
         store.upsertMany([record]);
       }
 
-      if (callback) {
-        try {
-          await callback(message);
-        } catch {
-          return this.nak(request._id, url);
-        }
+      if (options.acks) {
+        return this.ack(request._id, url);
       }
-
-      return this.ack(request._id, url);
     });
 
     return webSocket.createDurableRequest(request);

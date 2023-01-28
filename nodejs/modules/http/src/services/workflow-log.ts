@@ -1,6 +1,10 @@
+import { EventEmitter } from 'events';
+import TypedEmitter from 'typed-emitter';
+
 import { WorkflowLogModel } from '../models/workflow-log';
 import { WorkflowLogStore } from '../states/workflow-log';
 import { ApiService } from './api';
+import { ServiceEvents } from './base';
 import { EnvironmentService } from './environment';
 
 export interface WorkflowLogsQuery {
@@ -9,6 +13,8 @@ export interface WorkflowLogsQuery {
 }
 
 export class WorkflowLogService {
+  public emitter = new EventEmitter() as TypedEmitter<ServiceEvents<WorkflowLogModel>>;
+
   constructor(
     private apiService: ApiService,
     private environmentService: EnvironmentService,

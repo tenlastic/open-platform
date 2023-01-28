@@ -1,6 +1,10 @@
+import { EventEmitter } from 'events';
+import TypedEmitter from 'typed-emitter';
+
 import { BuildLogModel } from '../models/build-log';
 import { BuildLogStore } from '../states/build-log';
 import { ApiService } from './api';
+import { ServiceEvents } from './base';
 import { EnvironmentService } from './environment';
 
 export interface BuildLogsQuery {
@@ -9,6 +13,8 @@ export interface BuildLogsQuery {
 }
 
 export class BuildLogService {
+  public emitter = new EventEmitter() as TypedEmitter<ServiceEvents<BuildLogModel>>;
+
   constructor(
     private apiService: ApiService,
     private buildLogStore: BuildLogStore,

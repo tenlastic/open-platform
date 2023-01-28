@@ -74,15 +74,24 @@ export class WorkflowStatusNodeComponent {
         }),
       node: this.node,
       subscribe: (container, pod, unix) => {
-        return this.subscriptionService.logs<WorkflowLogModel>(
+        const resumeToken = unix ? new Date(unix) : new Date();
+
+        return this.subscriptionService.subscribe<WorkflowLogModel>(
           WorkflowLogModel,
-          { container, pod, workflowId: this.workflow._id },
           {
-            body: { since: unix ? new Date(unix) : new Date() },
+            body: { resumeToken: resumeToken.toISOString() },
             path: `/subscriptions/workflows/${this.workflow._id}/logs/${pod}/${container}`,
           },
+          this.workflowLogService,
           this.workflowLogStore,
           this.webSocketUrl,
+          {
+            callback: (response) => {
+              response.body.fullDocument.container = container;
+              response.body.fullDocument.pod = pod;
+              response.body.fullDocument.workflowId = this.workflow._id;
+            },
+          },
         );
       },
       wssUrl: this.webSocketUrl,

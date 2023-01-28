@@ -1,6 +1,10 @@
+import { EventEmitter } from 'events';
+import TypedEmitter from 'typed-emitter';
+
 import { GameServerLogModel } from '../models/game-server-log';
 import { GameServerLogStore } from '../states/game-server-log';
 import { ApiService } from './api';
+import { ServiceEvents } from './base';
 import { EnvironmentService } from './environment';
 
 export interface GameServerLogsQuery {
@@ -9,6 +13,8 @@ export interface GameServerLogsQuery {
 }
 
 export class GameServerLogService {
+  public emitter = new EventEmitter() as TypedEmitter<ServiceEvents<GameServerLogModel>>;
+
   constructor(
     private apiService: ApiService,
     private environmentService: EnvironmentService,

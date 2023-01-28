@@ -1,6 +1,10 @@
+import { EventEmitter } from 'events';
+import TypedEmitter from 'typed-emitter';
+
 import { NamespaceLogModel } from '../models/namespace-log';
 import { NamespaceLogStore } from '../states/namespace-log';
 import { ApiService } from './api';
+import { ServiceEvents } from './base';
 import { EnvironmentService } from './environment';
 
 export interface NamespaceLogsQuery {
@@ -9,6 +13,8 @@ export interface NamespaceLogsQuery {
 }
 
 export class NamespaceLogService {
+  public emitter = new EventEmitter() as TypedEmitter<ServiceEvents<NamespaceLogModel>>;
+
   constructor(
     private apiService: ApiService,
     private environmentService: EnvironmentService,

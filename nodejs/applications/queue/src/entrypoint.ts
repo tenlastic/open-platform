@@ -40,6 +40,7 @@ const wssUrl = process.env.WSS_URL;
         dependencies.queueService,
         dependencies.queueStore,
         wssUrl,
+        { acks: true },
       ),
 
       // Distribute new Queue Members among replicas.
@@ -52,7 +53,7 @@ const wssUrl = process.env.WSS_URL;
         dependencies.queueMemberService,
         dependencies.queueMemberStore,
         wssUrl,
-        (payload) => redis.upsert(client, payload.body.fullDocument),
+        { acks: true, callback: (response) => redis.upsert(client, response.body.fullDocument) },
       ),
 
       // Get all Queue Member deletions and updates.
@@ -65,12 +66,15 @@ const wssUrl = process.env.WSS_URL;
         dependencies.queueMemberService,
         dependencies.queueMemberStore,
         wssUrl,
-        (payload) => {
-          if (payload.body.operationType === 'delete') {
-            return redis.remove(client, payload.body.fullDocument);
-          } else if (dependencies.queueMemberQuery.hasEntity(payload.body.fullDocument._id)) {
-            return redis.upsert(client, payload.body.fullDocument);
-          }
+        {
+          acks: true,
+          callback: (response) => {
+            if (response.body.operationType === 'delete') {
+              return redis.remove(client, response.body.fullDocument);
+            } else if (dependencies.queueMemberQuery.hasEntity(response.body.fullDocument._id)) {
+              return redis.upsert(client, response.body.fullDocument);
+            }
+          },
         },
       ),
     ]);

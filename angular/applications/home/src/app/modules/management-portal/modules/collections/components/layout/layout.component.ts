@@ -119,6 +119,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
         s.service,
         s.store,
         this.webSocketUrl,
+        { acks: true },
       );
     });
 

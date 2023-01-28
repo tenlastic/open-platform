@@ -108,7 +108,7 @@ export class WebSocket {
         this.webSocket.removeEventListener('error', onError);
         this.webSocket.removeEventListener('message', onMessage);
 
-        const webSocket = response.body.fullDocument as WebSocketModel;
+        const webSocket = response.body?.fullDocument as WebSocketModel;
         this.emitter.emit('open', webSocket);
         this.emitter.removeAllListeners('open');
 

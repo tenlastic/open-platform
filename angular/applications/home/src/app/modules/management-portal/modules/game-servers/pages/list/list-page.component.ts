@@ -152,15 +152,24 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
           tail: 500,
         }),
       subscribe: (container, pod, unix) => {
-        return this.subscriptionService.logs<GameServerLogModel>(
+        const resumeToken = unix ? new Date(unix) : new Date();
+
+        return this.subscriptionService.subscribe<GameServerLogModel>(
           GameServerLogModel,
-          { container, gameServerId: record._id, pod },
           {
-            body: { since: unix ? new Date(unix) : new Date() },
+            body: { resumeToken: resumeToken.toISOString() },
             path: `/subscriptions/game-servers/${record._id}/logs/${pod}/${container}`,
           },
+          this.gameServerLogService,
           this.gameServerLogStore,
           this.webSocketUrl,
+          {
+            callback: (response) => {
+              response.body.fullDocument.container = container;
+              response.body.fullDocument.gameServerId = record._id;
+              response.body.fullDocument.pod = pod;
+            },
+          },
         );
       },
       wssUrl: this.webSocketUrl,

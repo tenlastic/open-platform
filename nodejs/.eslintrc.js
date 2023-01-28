@@ -105,7 +105,6 @@ module.exports = {
       },
     ],
     '@typescript-eslint/typedef': 'off',
-    '@typescript-eslint/unified-signatures': 'error',
     'arrow-parens': ['off', 'always'],
     'comma-dangle': ['error', 'always-multiline'],
     complexity: 'off',

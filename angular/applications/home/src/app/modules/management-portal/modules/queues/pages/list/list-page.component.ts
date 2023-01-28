@@ -147,15 +147,24 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
           tail: 500,
         }),
       subscribe: (container, pod, unix) => {
-        return this.subscriptionService.logs<QueueLogModel>(
+        const resumeToken = unix ? new Date(unix) : new Date();
+
+        return this.subscriptionService.subscribe<QueueLogModel>(
           QueueLogModel,
-          { container, pod, queueId: record._id },
           {
-            body: { since: unix ? new Date(unix) : new Date() },
+            body: { resumeToken: resumeToken.toISOString() },
             path: `/subscriptions/queues/${record._id}/logs/${pod}/${container}`,
           },
+          this.queueLogService,
           this.queueLogStore,
           this.webSocketUrl,
+          {
+            callback: (response) => {
+              response.body.fullDocument.container = container;
+              response.body.fullDocument.pod = pod;
+              response.body.fullDocument.queueId = record._id;
+            },
+          },
         );
       },
       wssUrl: this.webSocketUrl,

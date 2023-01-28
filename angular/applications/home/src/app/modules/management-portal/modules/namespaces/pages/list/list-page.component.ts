@@ -134,15 +134,24 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
       find: (container, pod) =>
         this.namespaceLogService.find(record._id, pod, container, { tail: 500 }),
       subscribe: (container, pod, unix) => {
-        return this.subscriptionService.logs<NamespaceLogModel>(
+        const resumeToken = unix ? new Date(unix) : new Date();
+
+        return this.subscriptionService.subscribe<NamespaceLogModel>(
           NamespaceLogModel,
-          { container, namespaceId: record._id, pod },
           {
-            body: { since: unix ? new Date(unix) : new Date() },
+            body: { resumeToken: resumeToken.toISOString() },
             path: `/subscriptions/namespaces/${record._id}/logs/${pod}/${container}`,
           },
+          this.namespaceLogService,
           this.namespaceLogStore,
           environment.wssUrl,
+          {
+            callback: (response) => {
+              response.body.fullDocument.container = container;
+              response.body.fullDocument.namespaceId = record._id;
+              response.body.fullDocument.pod = pod;
+            },
+          },
         );
       },
     } as LogsDialogComponentData;
