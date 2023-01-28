@@ -89,13 +89,8 @@ interface SubscribeResponse<T = any> extends StreamResponse {
 }
 
 interface Subscription {
-  callback?: (response: SubscribeResponse) => any;
-  method: 'logs' | 'subscribe';
-  Model: new (parameters?: Partial<BaseModel>) => BaseModel;
-  parameters?: Partial<BaseModel>;
-  request: LogsRequest & SubscribeRequest;
-  service?: Service;
-  store?: Store;
+  _id: string;
+  callback?: () => Promise<string>;
   url: string;
 }
 
@@ -104,7 +99,7 @@ export class StreamService {
 
   private _ids = new Map<string, string>();
   private pendingWebSockets = new Map<string, WebSocket>();
-  private resumeTokens: { [key: string]: ResumeToken } = {};
+  private resumeTokens = new Map<string, ResumeToken>();
   private subscriptions: Subscription[] = [];
 
   public close(url: string) {
@@ -177,18 +172,9 @@ export class StreamService {
         }
 
         const subscriptions = this.subscriptions.filter((s) => s.url === options.url);
-        const logs = subscriptions.filter((s) => s.method === 'logs');
-        const subscribe = subscriptions.filter((s) => s.method === 'subscribe');
         this.subscriptions = this.subscriptions.filter((s) => s.url !== options.url);
 
-        await Promise.all(
-          logs.map((l) => this.logs(l.Model, l.parameters, l.request, l.store, l.url)),
-        );
-        await Promise.all(
-          subscribe.map((s) =>
-            this.subscribe(s.Model, s.request, s.service, s.store, s.url, s.callback),
-          ),
-        );
+        await Promise.all(subscriptions.map((s) => s.callback()));
 
         return resolve(socket);
       };
@@ -210,12 +196,16 @@ export class StreamService {
     request.method = Method.Post;
 
     // If there is already a subscription with this ID, return the ID.
-    if (this.subscriptions.some((s) => request._id === s.request._id)) {
+    if (this.subscriptions.some((s) => request._id === s._id)) {
       return request._id;
     }
 
     // Cache the subscription to resubscribe when reconnected.
-    this.subscriptions.push({ method: 'logs', Model, parameters, request, store, url });
+    this.subscriptions.push({
+      _id: request._id,
+      callback: () => this.logs(Model, parameters, request, store, url),
+      url,
+    });
 
     // Wait until web socket is connected to subscribe.
     if (this.pendingWebSockets.has(url) || !this.webSockets.has(url)) {
@@ -240,22 +230,20 @@ export class StreamService {
       const record = new Model({ ...json.body.fullDocument, ...parameters }) as any;
       store.upsertMany([record]);
 
-      const subscription = this.subscriptions.find((s) => request._id === s.request._id);
-      subscription.request.body.since = new Date(record.unix);
+      request.body.since = new Date(record.unix);
     });
 
     const response = await this.response<LogsResponse>(request._id, socket);
     return response._id;
   }
 
-  public async request<T = { [key: string]: any }>(request: StreamRequest, url: string) {
+  public request<T = { [key: string]: any }>(request: StreamRequest, url: string) {
     request._id ??= uuid();
 
     const socket = this.webSockets.get(url);
     socket?.send(JSON.stringify(request));
 
-    const response = await this.response<StreamResponse<T>>(request._id, socket);
-    return response;
+    return this.response<StreamResponse<T>>(request._id, socket);
   }
 
   public async subscribe<T extends BaseModel = any>(
@@ -269,18 +257,23 @@ export class StreamService {
     request._id ??= uuid();
     request.method = Method.Post;
 
+    // If there is already a subscription with this ID, return the ID.
+    if (this.subscriptions.some((s) => request._id === s._id)) {
+      return request._id;
+    }
+
     // Add the resume token.
     const resumeToken = this.getResumeToken(request._id);
     if (request.body && resumeToken) {
       request.body = { resumeToken, ...request.body };
     }
 
-    if (this.subscriptions.some((s) => request._id === s.request._id)) {
-      return request._id;
-    }
-
     // Cache the subscription to resubscribe when reconnected.
-    this.subscriptions.push({ callback, method: 'subscribe', Model, request, service, store, url });
+    this.subscriptions.push({
+      _id: request._id,
+      callback: () => this.subscribe(Model, request, service, store, url, callback),
+      url,
+    });
 
     // Wait until web socket is connected to subscribe.
     if (this.pendingWebSockets.has(url) || !this.webSockets.has(url)) {
@@ -335,11 +328,7 @@ export class StreamService {
   }
 
   public async unsubscribe(_id: string, url: string) {
-    if (!_id) {
-      return;
-    }
-
-    const index = this.subscriptions.findIndex((s) => _id === s.request._id);
+    const index = this.subscriptions.findIndex((s) => _id === s._id);
     this.subscriptions.splice(index, index >= 0 ? 1 : 0);
 
     const request: StreamRequest = {
@@ -347,36 +336,26 @@ export class StreamService {
       method: Method.Delete,
       path: `/subscriptions/${_id}`,
     };
+    const response = await this.request(request, url);
 
-    const socket = this.webSockets.get(url);
-    socket?.send(JSON.stringify(request));
-
-    const response = await this.response(request._id, socket);
     return response._id;
   }
 
   private async ack(_id: string, url: string) {
-    if (!_id) {
-      return;
-    }
-
     const request: StreamRequest = {
       _id: uuid(),
       method: Method.Post,
       path: `/subscriptions/${_id}/acks`,
     };
+    const response = await this.request(request, url);
 
-    const socket = this.webSockets.get(url);
-    socket?.send(JSON.stringify(request));
-
-    const response = await this.response(request._id, socket);
     return response._id;
   }
 
   private getResumeToken(_id: string) {
     const now = new Date();
 
-    const resumeToken = this.resumeTokens[_id];
+    const resumeToken = this.resumeTokens.get(_id);
     if (resumeToken && now >= resumeToken.expiresAt) {
       return resumeToken.value;
     }
@@ -385,20 +364,13 @@ export class StreamService {
   }
 
   private async nak(_id: string, url: string) {
-    if (!_id) {
-      return;
-    }
-
     const request: StreamRequest = {
       _id: uuid(),
       method: Method.Post,
       path: `/subscriptions/${_id}/naks`,
     };
+    const response = await this.request(request, url);
 
-    const socket = this.webSockets.get(url);
-    socket?.send(JSON.stringify(request));
-
-    const response = await this.response(request._id, socket);
     return response._id;
   }
 
@@ -429,6 +401,6 @@ export class StreamService {
 
   private setResumeToken(_id: string, value: string) {
     const expiresAt = new Date(Date.now() + 1 * 60 * 60 * 1000);
-    this.resumeTokens[_id] = { expiresAt, value };
+    this.resumeTokens.set(_id, { expiresAt, value });
   }
 }
