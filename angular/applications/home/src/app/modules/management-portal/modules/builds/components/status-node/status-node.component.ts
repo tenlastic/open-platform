@@ -9,7 +9,7 @@ import {
   BuildLogStore,
   BuildQuery,
   BuildLogService,
-  StreamService,
+  SubscriptionService,
 } from '@tenlastic/http';
 import { map } from 'rxjs/operators';
 
@@ -35,7 +35,7 @@ export class BuildStatusNodeComponent {
     Succeeded: 'check_circle',
   };
 
-  private get streamServiceUrl() {
+  private get webSocketUrl() {
     return `${environment.wssUrl}/namespaces/${this.build.namespaceId}`;
   }
 
@@ -45,7 +45,7 @@ export class BuildStatusNodeComponent {
     private buildLogStore: BuildLogStore,
     private buildQuery: BuildQuery,
     private matDialog: MatDialog,
-    private streamService: StreamService,
+    private subscriptionService: SubscriptionService,
   ) {}
 
   public getLabel(displayName: string) {
@@ -74,7 +74,7 @@ export class BuildStatusNodeComponent {
         }),
       node: this.node,
       subscribe: (container, pod, unix) => {
-        return this.streamService.logs<BuildLogModel>(
+        return this.subscriptionService.logs<BuildLogModel>(
           BuildLogModel,
           { buildId: this.build._id, container, pod },
           {
@@ -82,10 +82,10 @@ export class BuildStatusNodeComponent {
             path: `/subscriptions/builds/${this.build._id}/logs/${pod}/${container}`,
           },
           this.buildLogStore,
-          this.streamServiceUrl,
+          this.webSocketUrl,
         );
       },
-      wssUrl: this.streamServiceUrl,
+      wssUrl: this.webSocketUrl,
     } as LogsDialogComponentData;
 
     const dialogRef = this.matDialog.open(LogsDialogComponent, { autoFocus: false, data });

@@ -31,10 +31,10 @@ const wssUrl = process.env.WSS_URL;
 
     // Web Sockets.
     await Promise.all([
-      dependencies.streamService.connect(dependencies.environmentService.apiKey, wssUrl),
+      dependencies.webSocketService.connect(dependencies.environmentService.apiKey, wssUrl),
 
       // Watch for updates to the Queue.
-      dependencies.streamService.subscribe(
+      dependencies.subscriptionService.subscribe(
         QueueModel,
         { body: { resumeToken: podName, where: { _id: queueId } }, path: '/subscriptions/queues' },
         dependencies.queueService,
@@ -43,7 +43,7 @@ const wssUrl = process.env.WSS_URL;
       ),
 
       // Distribute new Queue Members among replicas.
-      dependencies.streamService.subscribe(
+      dependencies.subscriptionService.subscribe(
         QueueMemberModel,
         {
           body: { operationType: ['insert'], resumeToken: `queue-${queueId}`, where: { queueId } },
@@ -56,7 +56,7 @@ const wssUrl = process.env.WSS_URL;
       ),
 
       // Get all Queue Member deletions and updates.
-      dependencies.streamService.subscribe(
+      dependencies.subscriptionService.subscribe(
         QueueMemberModel,
         {
           body: { operationType: ['delete', 'update'], resumeToken: podName, where: { queueId } },

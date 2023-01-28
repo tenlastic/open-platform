@@ -26,7 +26,7 @@ export * from './queue-member';
 export * from './record';
 export * from './refresh-token';
 export * from './storefront';
-export * from './stream';
+export * from './subscription';
 export * from './token';
 export * from './user';
 export * from './web-socket';

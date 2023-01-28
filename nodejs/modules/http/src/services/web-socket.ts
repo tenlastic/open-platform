@@ -1,5 +1,7 @@
+import { Jwt } from '../models';
 import { WebSocketModel } from '../models/web-socket';
 import { WebSocketStore } from '../states/web-socket';
+import { WebSocket, WebSocketRequest, WebSocketResponse } from '../web-socket';
 import { ApiService } from './api';
 import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
@@ -10,6 +12,7 @@ export class WebSocketService {
   }
 
   private baseService: BaseService<WebSocketModel>;
+  private webSockets = new Map<string, WebSocket>();
 
   constructor(
     private apiService: ApiService,
@@ -21,6 +24,45 @@ export class WebSocketService {
       WebSocketModel,
       this.webSocketStore,
     );
+  }
+
+  /**
+   * Closes a web socket.
+   */
+  public close(url: string) {
+    const webSocket = this.webSockets.get(url);
+    webSocket?.close(1000);
+
+    this.webSockets.delete(url);
+  }
+
+  /**
+   * Connects a web socket.
+   */
+  public async connect(accessToken: Jwt, url: string): Promise<WebSocket>;
+  public async connect(apiKey: string, url: string): Promise<WebSocket>;
+  public async connect(authorization: any, url: string): Promise<WebSocket> {
+    if (this.webSockets.has(url)) {
+      return this.webSockets.get(url);
+    }
+
+    let connectionString = url;
+    if (typeof authorization === 'string') {
+      connectionString += `?api_key=${authorization}`;
+    } else if (authorization instanceof Jwt && !authorization.isExpired) {
+      connectionString += `?access_token=${authorization.value}`;
+    }
+
+    const webSocket = new WebSocket(connectionString);
+    this.webSockets.set(url, webSocket);
+
+    webSocket.emitter.on('close', () => {
+      this.webSockets.delete(url);
+    });
+
+    await webSocket.connect();
+
+    return webSocket;
   }
 
   /**
@@ -45,6 +87,27 @@ export class WebSocketService {
   public async findOne(namespaceId: string, _id: string) {
     const url = this.getUrl(namespaceId);
     return this.baseService.findOne(_id, url);
+  }
+
+  /**
+   * Get the web socket for a URL, throwing an error if not found.
+   */
+  public getWebSocket(url: string) {
+    const webSocket = this.webSockets.get(url);
+
+    if (!webSocket) {
+      throw new Error(`Web socket not connected to ${url}.`);
+    }
+
+    return webSocket;
+  }
+
+  /**
+   * Sends a request through the web socket.
+   */
+  public request<T extends WebSocketResponse>(request: WebSocketRequest, url: string) {
+    const webSocket = this.getWebSocket(url);
+    return webSocket.request<T>(request);
   }
 
   /**

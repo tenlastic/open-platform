@@ -28,9 +28,10 @@ import {
   StorefrontModel,
   StorefrontQuery,
   StorefrontService,
-  StreamService,
+  SubscriptionService,
   TokenService,
   WebSocketRequest,
+  WebSocketService,
 } from '@tenlastic/http';
 import { combineLatest, Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -65,9 +66,6 @@ export class LayoutComponent implements OnDestroy, OnInit {
 
   private subscribe$ = new Subscription();
   private params: Params;
-  private get streamServiceUrl() {
-    return `${environment.wssUrl}/namespaces/${this.namespaceId}`;
-  }
   private subscriptions = [
     {
       Model: ArticleModel,
@@ -100,6 +98,9 @@ export class LayoutComponent implements OnDestroy, OnInit {
       store: this.queueStore,
     },
   ];
+  private get webSocketUrl() {
+    return `${environment.wssUrl}/namespaces/${this.namespaceId}`;
+  }
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
@@ -122,9 +123,10 @@ export class LayoutComponent implements OnDestroy, OnInit {
     private queueStore: QueueStore,
     private storefrontQuery: StorefrontQuery,
     private storefrontService: StorefrontService,
-    private streamService: StreamService,
+    private subscriptionService: SubscriptionService,
     private tokenService: TokenService,
     private updateService: UpdateService,
+    private webSocketService: WebSocketService,
   ) {}
 
   public async ngOnInit() {
@@ -176,7 +178,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
       this.$storefront = this.storefrontQuery.selectEntity(params.namespaceId);
 
       // Close previous stream.
-      this.streamService.close(this.streamServiceUrl);
+      this.webSocketService.close(this.webSocketUrl);
 
       // Subscribe to the Namespace.
       const $namespace = this.namespaceQuery.selectEntity(this.namespaceId);
@@ -187,7 +189,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
 
         const accessToken = await this.tokenService.getAccessToken();
         await Promise.all([
-          this.streamService.connect(accessToken, this.streamServiceUrl),
+          this.webSocketService.connect(accessToken, this.webSocketUrl),
           this.subscribe(),
         ]);
         this.subscribe$.unsubscribe();
@@ -197,8 +199,8 @@ export class LayoutComponent implements OnDestroy, OnInit {
 
   public ngOnDestroy() {
     this.document.body.style.backgroundImage = `url('/assets/images/background.jpg')`;
-    this.streamService.close(this.streamServiceUrl);
     this.subscribe$.unsubscribe();
+    this.webSocketService.close(this.webSocketUrl);
   }
 
   public $hasPermission(roles: IAuthorization.Role[]) {
@@ -234,12 +236,12 @@ export class LayoutComponent implements OnDestroy, OnInit {
 
   private async subscribe() {
     const promises = this.subscriptions.map((s) =>
-      this.streamService.subscribe<BaseModel>(
+      this.subscriptionService.subscribe<BaseModel>(
         s.Model,
         { ...s.request },
         s.service,
         s.store,
-        this.streamServiceUrl,
+        this.webSocketUrl,
       ),
     );
 

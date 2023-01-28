@@ -3,14 +3,13 @@ import { v4 as uuid } from 'uuid';
 import { BaseLogModel } from '../models';
 
 import { BaseModel } from '../models/base';
-import { Jwt } from '../models/jwt';
 import {
-  WebSocket,
   WebSocketMethod,
   WebSocketRequest,
   WebSocketResponse,
   WebSocketResponseError,
 } from '../web-socket';
+import { WebSocketService } from './web-socket';
 
 export interface LogsRequest extends WebSocketRequest {
   body?: LogsRequestBody;
@@ -64,46 +63,8 @@ interface SubscribeResponse<T extends BaseModel> extends WebSocketResponse {
   };
 }
 
-export class StreamService {
-  public webSockets = new Map<string, WebSocket>();
-
-  private _ids = new Map<string, string>();
-
-  public close(url: string) {
-    const webSocket = this.webSockets.get(url);
-    webSocket?.close(1000);
-
-    this._ids.delete(url);
-    this.webSockets.delete(url);
-  }
-
-  public async connect(accessToken: Jwt, url: string): Promise<WebSocket>;
-  public async connect(apiKey: string, url: string): Promise<WebSocket>;
-  public async connect(authorization: any, url: string): Promise<WebSocket> {
-    if (this.webSockets.has(url)) {
-      return this.webSockets.get(url);
-    }
-
-    let connectionString = url;
-    if (typeof authorization === 'string') {
-      connectionString += `?api_key=${authorization}`;
-    } else if (authorization instanceof Jwt && !authorization.isExpired) {
-      connectionString += `?access_token=${authorization.value}`;
-    }
-
-    const webSocket = new WebSocket(connectionString);
-    this.webSockets.set(url, webSocket);
-
-    webSocket.emitter.on('close', () => {
-      this._ids.delete(url);
-      this.webSockets.delete(url);
-    });
-
-    const { _id } = await webSocket.connect();
-    this._ids.set(url, _id);
-
-    return webSocket;
-  }
+export class SubscriptionService {
+  constructor(private webSocketService: WebSocketService) {}
 
   public async logs<T extends BaseLogModel = BaseLogModel>(
     Model: new (parameters?: Partial<BaseModel>) => BaseModel,
@@ -112,7 +73,7 @@ export class StreamService {
     store: Store,
     url: string,
   ) {
-    const webSocket = this.getWebSocket(url);
+    const webSocket = this.webSocketService.getWebSocket(url);
 
     // Do not subscribe if request is already registered.
     if (webSocket.hasDurableRequest(request._id)) {
@@ -143,11 +104,6 @@ export class StreamService {
     return webSocket.createDurableRequest(request);
   }
 
-  public request<T extends WebSocketResponse>(request: WebSocketRequest, url: string) {
-    const webSocket = this.getWebSocket(url);
-    return webSocket.request<T>(request);
-  }
-
   public async subscribe<T extends BaseModel = BaseModel>(
     Model: new (parameters?: Partial<T>) => T,
     request: SubscribeRequest,
@@ -156,7 +112,7 @@ export class StreamService {
     url: string,
     callback?: (response: SubscribeResponse<T>) => any | Promise<any>,
   ) {
-    const webSocket = this.getWebSocket(url);
+    const webSocket = this.webSocketService.getWebSocket(url);
 
     // Do not subscribe if request is already registered.
     if (webSocket.hasDurableRequest(request._id)) {
@@ -213,7 +169,7 @@ export class StreamService {
   }
 
   public async unsubscribe(_id: string, url: string) {
-    const webSocket = this.getWebSocket(url);
+    const webSocket = this.webSocketService.getWebSocket(url);
     webSocket.deleteDurableRequest(_id);
 
     const request: WebSocketRequest = {
@@ -221,7 +177,7 @@ export class StreamService {
       method: WebSocketMethod.Delete,
       path: `/subscriptions/${_id}`,
     };
-    const response = await this.request(request, url);
+    const response = await this.webSocketService.request(request, url);
 
     return response._id;
   }
@@ -232,19 +188,9 @@ export class StreamService {
       method: WebSocketMethod.Post,
       path: `/subscriptions/${_id}/acks`,
     };
-    const response = await this.request(request, url);
+    const response = await this.webSocketService.request(request, url);
 
     return response._id;
-  }
-
-  private getWebSocket(url: string) {
-    const webSocket = this.webSockets.get(url);
-
-    if (!webSocket) {
-      throw new Error(`Web socket not connected to ${url}.`);
-    }
-
-    return webSocket;
   }
 
   private async nak(_id: string, url: string) {
@@ -253,7 +199,7 @@ export class StreamService {
       method: WebSocketMethod.Post,
       path: `/subscriptions/${_id}/naks`,
     };
-    const response = await this.request(request, url);
+    const response = await this.webSocketService.request(request, url);
 
     return response._id;
   }

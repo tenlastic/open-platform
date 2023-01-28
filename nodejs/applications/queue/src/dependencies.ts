@@ -15,7 +15,9 @@ import {
   QueueService,
   QueueStore,
   RetryInterceptor,
-  StreamService,
+  SubscriptionService,
+  WebSocketService,
+  WebSocketStore,
 } from '@tenlastic/http';
 import { Axios } from 'axios';
 
@@ -67,14 +69,14 @@ injector.inject([
     useFactory: (queueMemberStore: QueueMemberStore) => new QueueMemberQuery(queueMemberStore),
   },
   {
-    deps: [ApiService, EnvironmentService, QueueMemberStore, StreamService],
+    deps: [ApiService, EnvironmentService, QueueMemberStore, WebSocketService],
     provide: QueueMemberService,
     useFactory: (
       apiService: ApiService,
       environmentService: EnvironmentService,
       queueMemberStore: QueueMemberStore,
-      streamService: StreamService,
-    ) => new QueueMemberService(apiService, environmentService, queueMemberStore, streamService),
+      webSocketService: WebSocketService,
+    ) => new QueueMemberService(apiService, environmentService, queueMemberStore, webSocketService),
   },
   { provide: QueueMemberStore, useValue: new QueueMemberStore() },
   {
@@ -97,7 +99,21 @@ injector.inject([
     provide: RetryInterceptor,
     useFactory: (axios: Axios) => new RetryInterceptor(axios),
   },
-  { provide: StreamService, useFactory: () => new StreamService() },
+  {
+    deps: [WebSocketService],
+    provide: SubscriptionService,
+    useFactory: (webSocketService: WebSocketService) => new SubscriptionService(webSocketService),
+  },
+  { provide: WebSocketStore, useValue: new WebSocketStore() },
+  {
+    deps: [ApiService, EnvironmentService, WebSocketStore],
+    provide: WebSocketService,
+    useFactory: (
+      apiService: ApiService,
+      environmentService: EnvironmentService,
+      webSocketStore: WebSocketStore,
+    ) => new WebSocketService(apiService, environmentService, webSocketStore),
+  },
 ]);
 
 export default {
@@ -115,5 +131,6 @@ export default {
   queueQuery: injector.get(QueueQuery),
   queueService: injector.get(QueueService),
   queueStore: injector.get(QueueStore),
-  streamService: injector.get(StreamService),
+  subscriptionService: injector.get(SubscriptionService),
+  webSocketService: injector.get(WebSocketService),
 };

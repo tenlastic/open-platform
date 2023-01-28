@@ -16,7 +16,7 @@ import {
   NamespaceModel,
   NamespaceQuery,
   NamespaceService,
-  StreamService,
+  SubscriptionService,
 } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -59,7 +59,7 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
     private namespaceLogStore: NamespaceLogStore,
     private namespaceQuery: NamespaceQuery,
     private namespaceService: NamespaceService,
-    private streamService: StreamService,
+    private subscriptionService: SubscriptionService,
   ) {}
 
   public async ngOnInit() {
@@ -134,7 +134,7 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
       find: (container, pod) =>
         this.namespaceLogService.find(record._id, pod, container, { tail: 500 }),
       subscribe: (container, pod, unix) => {
-        return this.streamService.logs<NamespaceLogModel>(
+        return this.subscriptionService.logs<NamespaceLogModel>(
           NamespaceLogModel,
           { container, namespaceId: record._id, pod },
           {

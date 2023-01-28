@@ -1,6 +1,6 @@
 import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { BaseLogModel, StreamService, WebSocketResponse } from '@tenlastic/http';
+import { BaseLogModel, SubscriptionService, WebSocketResponse } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 
@@ -61,7 +61,7 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: LogsDialogComponentData,
     private matDialogRef: MatDialogRef<LogsDialogComponent>,
-    private streamService: StreamService,
+    private subscriptionService: SubscriptionService,
   ) {}
 
   public async ngOnInit() {
@@ -88,7 +88,7 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
     this.setDefaultNode$.unsubscribe();
 
     if (this.subscription) {
-      await this.streamService.unsubscribe(this.subscription._id, this.wssUrl);
+      await this.subscriptionService.unsubscribe(this.subscription._id, this.wssUrl);
     }
   }
 
@@ -144,7 +144,7 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
         mostRecentLog?.unix,
       );
     } else {
-      await this.streamService.unsubscribe(this.subscription._id, this.wssUrl);
+      await this.subscriptionService.unsubscribe(this.subscription._id, this.wssUrl);
     }
   }
 

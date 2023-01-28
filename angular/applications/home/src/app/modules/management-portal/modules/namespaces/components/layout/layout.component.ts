@@ -26,9 +26,10 @@ import {
   StorefrontModel,
   StorefrontQuery,
   StorefrontService,
-  StreamService,
+  SubscriptionService,
   TokenService,
   WebSocketRequest,
+  WebSocketService,
   WorkflowModel,
   WorkflowService,
   WorkflowStore,
@@ -76,9 +77,6 @@ export class LayoutComponent implements OnDestroy, OnInit {
   private subscribe$ = new Subscription();
   private connected = false;
   private params: Params;
-  private get streamServiceUrl() {
-    return `${environment.wssUrl}/namespaces/${this.params.namespaceId}`;
-  }
   private subscriptions = [
     {
       Model: BuildModel,
@@ -117,6 +115,9 @@ export class LayoutComponent implements OnDestroy, OnInit {
       store: this.workflowStore,
     },
   ];
+  private get webSocketUrl() {
+    return `${environment.wssUrl}/namespaces/${this.params.namespaceId}`;
+  }
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -138,8 +139,9 @@ export class LayoutComponent implements OnDestroy, OnInit {
     private router: Router,
     private storefrontQuery: StorefrontQuery,
     private storefrontService: StorefrontService,
-    private streamService: StreamService,
+    private subscriptionService: SubscriptionService,
     private tokenService: TokenService,
+    private webSocketService: WebSocketService,
     private workflowService: WorkflowService,
     private workflowStore: WorkflowStore,
   ) {}
@@ -170,7 +172,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
 
           const accessToken = await this.tokenService.getAccessToken();
           return Promise.all([
-            this.streamService.connect(accessToken, this.streamServiceUrl),
+            this.webSocketService.connect(accessToken, this.webSocketUrl),
             this.subscribe(),
           ]);
         }
@@ -185,8 +187,8 @@ export class LayoutComponent implements OnDestroy, OnInit {
 
   public ngOnDestroy() {
     this.fetchStorefront$.unsubscribe();
-    this.streamService.close(this.streamServiceUrl);
     this.subscribe$.unsubscribe();
+    this.webSocketService.close(this.webSocketUrl);
   }
 
   public $hasPermission(roles: IAuthorization.Role[]) {
@@ -200,12 +202,12 @@ export class LayoutComponent implements OnDestroy, OnInit {
 
   private async subscribe() {
     const promises = this.subscriptions.map((s) =>
-      this.streamService.subscribe<BaseModel>(
+      this.subscriptionService.subscribe<BaseModel>(
         s.Model,
         { ...s.request },
         s.service,
         s.store,
-        this.streamServiceUrl,
+        this.webSocketUrl,
       ),
     );
 

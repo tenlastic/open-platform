@@ -9,7 +9,7 @@ import {
 import { ApiService } from './api';
 import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
-import { StreamService } from './stream';
+import { WebSocketService } from './web-socket';
 
 interface QueueMemberResponse extends WebSocketResponse {
   body: {
@@ -29,7 +29,7 @@ export class QueueMemberService {
     private apiService: ApiService,
     private environmentService: EnvironmentService,
     private queueMemberStore: QueueMemberStore,
-    private streamService: StreamService,
+    private webSocketService: WebSocketService,
   ) {
     this.baseService = new BaseService<QueueMemberModel>(
       this.apiService,
@@ -55,7 +55,7 @@ export class QueueMemberService {
       method: WebSocketMethod.Post,
       path: '/queue-members',
     };
-    const response = await this.streamService.request<QueueMemberResponse>(request, url);
+    const response = await this.webSocketService.request<QueueMemberResponse>(request, url);
 
     const record = new QueueMemberModel(response.body.record);
     this.emitter.emit('create', record);

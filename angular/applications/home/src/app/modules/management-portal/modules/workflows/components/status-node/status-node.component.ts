@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Order } from '@datorama/akita';
 import {
   IWorkflow,
-  StreamService,
+  SubscriptionService,
   WorkflowLogModel,
   WorkflowLogQuery,
   WorkflowLogService,
@@ -35,13 +35,13 @@ export class WorkflowStatusNodeComponent {
     Succeeded: 'check_circle',
   };
 
-  private get streamServiceUrl() {
+  private get webSocketUrl() {
     return `${environment.wssUrl}/namespaces/${this.workflow.namespaceId}`;
   }
 
   constructor(
     private matDialog: MatDialog,
-    private streamService: StreamService,
+    private subscriptionService: SubscriptionService,
     private workflowLogQuery: WorkflowLogQuery,
     private workflowLogService: WorkflowLogService,
     private workflowLogStore: WorkflowLogStore,
@@ -74,7 +74,7 @@ export class WorkflowStatusNodeComponent {
         }),
       node: this.node,
       subscribe: (container, pod, unix) => {
-        return this.streamService.logs<WorkflowLogModel>(
+        return this.subscriptionService.logs<WorkflowLogModel>(
           WorkflowLogModel,
           { container, pod, workflowId: this.workflow._id },
           {
@@ -82,10 +82,10 @@ export class WorkflowStatusNodeComponent {
             path: `/subscriptions/workflows/${this.workflow._id}/logs/${pod}/${container}`,
           },
           this.workflowLogStore,
-          this.streamServiceUrl,
+          this.webSocketUrl,
         );
       },
-      wssUrl: this.streamServiceUrl,
+      wssUrl: this.webSocketUrl,
     } as LogsDialogComponentData;
 
     const dialogRef = this.matDialog.open(LogsDialogComponent, { autoFocus: false, data });

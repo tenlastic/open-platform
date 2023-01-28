@@ -28,10 +28,12 @@ import {
   RecordService,
   RecordStore,
   RetryInterceptor,
-  StreamService,
+  SubscriptionService,
   TokenService,
   UserService,
   UserStore,
+  WebSocketService,
+  WebSocketStore,
   WorkflowLogService,
   WorkflowLogStore,
   WorkflowService,
@@ -149,14 +151,14 @@ const services: injector.Injection[] = [
     ) => new QueueLogService(apiService, environmentService, queueLogStore),
   },
   {
-    deps: [ApiService, EnvironmentService, QueueMemberStore, StreamService],
+    deps: [ApiService, EnvironmentService, QueueMemberStore, WebSocketService],
     provide: QueueMemberService,
     useFactory: (
       apiService: ApiService,
       environmentService: EnvironmentService,
       queueMemberStore: QueueMemberStore,
-      streamService: StreamService,
-    ) => new QueueMemberService(apiService, environmentService, queueMemberStore, streamService),
+      webSocketService: WebSocketService,
+    ) => new QueueMemberService(apiService, environmentService, queueMemberStore, webSocketService),
   },
   {
     deps: [ApiService, EnvironmentService, QueueStore],
@@ -176,7 +178,11 @@ const services: injector.Injection[] = [
       recordStore: RecordStore,
     ) => new RecordService(apiService, environmentService, recordStore),
   },
-  { provide: StreamService, useFactory: () => new StreamService() },
+  {
+    deps: [WebSocketService],
+    provide: SubscriptionService,
+    useFactory: (webSocketService: WebSocketService) => new SubscriptionService(webSocketService),
+  },
   {
     deps: [LoginService],
     provide: TokenService,
@@ -190,6 +196,16 @@ const services: injector.Injection[] = [
       environmentService: EnvironmentService,
       userStore: UserStore,
     ) => new UserService(apiService, environmentService, userStore),
+  },
+  { provide: WebSocketStore, useValue: new WebSocketStore() },
+  {
+    deps: [ApiService, EnvironmentService, WebSocketStore],
+    provide: WebSocketService,
+    useFactory: (
+      apiService: ApiService,
+      environmentService: EnvironmentService,
+      webSocketStore: WebSocketStore,
+    ) => new WebSocketService(apiService, environmentService, webSocketStore),
   },
   {
     deps: [ApiService, EnvironmentService, WorkflowLogStore],
@@ -252,9 +268,10 @@ export default {
   queueService: injector.get(QueueService),
   queueStore: injector.get(QueueStore),
   recordService: injector.get(RecordService),
-  streamService: injector.get(StreamService),
+  subscriptionService: injector.get(SubscriptionService),
   tokenService: injector.get(TokenService),
   userService: injector.get(UserService),
+  webSocketService: injector.get(WebSocketService),
   workflowLogService: injector.get(WorkflowLogService),
   workflowService: injector.get(WorkflowService),
 };

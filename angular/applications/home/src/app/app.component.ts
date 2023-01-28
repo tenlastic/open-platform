@@ -36,7 +36,7 @@ import {
   StorefrontModel,
   StorefrontService,
   StorefrontStore,
-  StreamService,
+  SubscriptionService,
   TokenService,
   UserModel,
   UserQuery,
@@ -165,7 +165,7 @@ export class AppComponent implements OnInit {
     private router: Router,
     private storefrontService: StorefrontService,
     private storefrontStore: StorefrontStore,
-    private streamService: StreamService,
+    private subscriptionService: SubscriptionService,
     private tokenService: TokenService,
     private userQuery: UserQuery,
     private userService: UserService,
@@ -186,7 +186,7 @@ export class AppComponent implements OnInit {
 
     // Handle websockets when logging in and out.
     this.loginService.emitter.on('login', () => this.connectSocket());
-    this.loginService.emitter.on('logout', () => this.streamService.close(environment.wssUrl));
+    this.loginService.emitter.on('logout', () => this.webSocketService.close(environment.wssUrl));
 
     // Handle websockets when access token is set.
     this.tokenService.emitter.on('accessToken', (accessToken) => {
@@ -239,7 +239,7 @@ export class AppComponent implements OnInit {
   private async connectSocket() {
     const accessToken = await this.tokenService.getAccessToken();
     return Promise.all([
-      this.streamService.connect(accessToken, environment.wssUrl),
+      this.webSocketService.connect(accessToken, environment.wssUrl),
       this.subscribe(),
     ]);
   }
@@ -251,7 +251,7 @@ export class AppComponent implements OnInit {
 
   private subscribe() {
     const promises = this.subscriptions.map((s) =>
-      this.streamService.subscribe<BaseModel>(
+      this.subscriptionService.subscribe<BaseModel>(
         s.Model,
         { ...s.request },
         s.service,

@@ -19,7 +19,7 @@ import {
   QueueModel,
   QueueQuery,
   QueueService,
-  StreamService,
+  SubscriptionService,
 } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -52,7 +52,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
   private $queues: Observable<QueueModel[]>;
   private updateDataSource$ = new Subscription();
   private params: Params;
-  private get streamServiceUrl() {
+  private get webSocketUrl() {
     return `${environment.wssUrl}/namespaces/${this.params.namespaceId}`;
   }
 
@@ -69,7 +69,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
     private queueLogStore: QueueLogStore,
     private queueQuery: QueueQuery,
     private queueService: QueueService,
-    private streamService: StreamService,
+    private subscriptionService: SubscriptionService,
   ) {}
 
   public ngOnInit() {
@@ -147,7 +147,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
           tail: 500,
         }),
       subscribe: (container, pod, unix) => {
-        return this.streamService.logs<QueueLogModel>(
+        return this.subscriptionService.logs<QueueLogModel>(
           QueueLogModel,
           { container, pod, queueId: record._id },
           {
@@ -155,10 +155,10 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
             path: `/subscriptions/queues/${record._id}/logs/${pod}/${container}`,
           },
           this.queueLogStore,
-          this.streamServiceUrl,
+          this.webSocketUrl,
         );
       },
-      wssUrl: this.streamServiceUrl,
+      wssUrl: this.webSocketUrl,
     } as LogsDialogComponentData;
 
     const dialogRef = this.matDialog.open(LogsDialogComponent, { autoFocus: false, data });

@@ -52,6 +52,7 @@ export class WebSocket {
   private webSocket: IsomorphicWS;
 
   constructor(url: string) {
+    this.emitter.setMaxListeners(25);
     this.url = url;
   }
 

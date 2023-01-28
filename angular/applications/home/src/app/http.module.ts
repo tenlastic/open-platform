@@ -79,7 +79,7 @@ import {
   StorefrontQuery,
   StorefrontService,
   StorefrontStore,
-  StreamService,
+  SubscriptionService,
   TokenService,
   UserQuery,
   UserService,
@@ -449,14 +449,14 @@ const services: Provider[] = [
     ) => new QueueLogService(apiService, environmentService, store),
   },
   {
-    deps: [ApiService, EnvironmentService, QueueMemberStore, StreamService],
+    deps: [ApiService, EnvironmentService, QueueMemberStore, WebSocketService],
     provide: QueueMemberService,
     useFactory: (
       apiService: ApiService,
       environmentService: EnvironmentService,
       store: QueueMemberStore,
-      streamService: StreamService,
-    ) => new QueueMemberService(apiService, environmentService, store, streamService),
+      webSocketService: WebSocketService,
+    ) => new QueueMemberService(apiService, environmentService, store, webSocketService),
   },
   {
     deps: [ApiService, EnvironmentService, QueueStore],
@@ -500,7 +500,11 @@ const services: Provider[] = [
       store: StorefrontStore,
     ) => new StorefrontService(apiService, environmentService, store),
   },
-  { provide: StreamService, useFactory: () => new StreamService() },
+  {
+    deps: [WebSocketService],
+    provide: SubscriptionService,
+    useFactory: (webSocketService: WebSocketService) => new SubscriptionService(webSocketService),
+  },
   {
     deps: [LoginService],
     provide: TokenService,

@@ -19,7 +19,7 @@ import {
   IAuthorization,
   IGameServer,
   GameServerLogService,
-  StreamService,
+  SubscriptionService,
 } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -55,7 +55,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
   private $gameServers: Observable<GameServerModel[]>;
   private updateDataSource$ = new Subscription();
   private params: Params;
-  private get streamServiceUrl() {
+  private get webSocketUrl() {
     return `${environment.wssUrl}/namespaces/${this.params.namespaceId}`;
   }
 
@@ -72,7 +72,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
     private identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
-    private streamService: StreamService,
+    private subscriptionService: SubscriptionService,
   ) {}
 
   public async ngOnInit() {
@@ -152,7 +152,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
           tail: 500,
         }),
       subscribe: (container, pod, unix) => {
-        return this.streamService.logs<GameServerLogModel>(
+        return this.subscriptionService.logs<GameServerLogModel>(
           GameServerLogModel,
           { container, gameServerId: record._id, pod },
           {
@@ -160,10 +160,10 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
             path: `/subscriptions/game-servers/${record._id}/logs/${pod}/${container}`,
           },
           this.gameServerLogStore,
-          this.streamServiceUrl,
+          this.webSocketUrl,
         );
       },
-      wssUrl: this.streamServiceUrl,
+      wssUrl: this.webSocketUrl,
     } as LogsDialogComponentData;
 
     const dialogRef = this.matDialog.open(LogsDialogComponent, { autoFocus: false, data });

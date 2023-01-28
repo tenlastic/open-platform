@@ -11,9 +11,10 @@ import {
   StorefrontModel,
   StorefrontQuery,
   StorefrontService,
-  StreamService,
+  SubscriptionService,
   TokenService,
   WebSocketRequest,
+  WebSocketService,
 } from '@tenlastic/http';
 import { combineLatest, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -35,9 +36,6 @@ export class LayoutComponent implements OnDestroy, OnInit {
   }
 
   private params: Params;
-  private get streamServiceUrl() {
-    return `${environment.wssUrl}/namespaces/${this.params.namespaceId}`;
-  }
   private subscriptions = [
     {
       Model: ArticleModel,
@@ -46,6 +44,9 @@ export class LayoutComponent implements OnDestroy, OnInit {
       store: this.articleStore,
     },
   ];
+  private get webSocketUrl() {
+    return `${environment.wssUrl}/namespaces/${this.params.namespaceId}`;
+  }
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -57,8 +58,9 @@ export class LayoutComponent implements OnDestroy, OnInit {
     private router: Router,
     private storefrontQuery: StorefrontQuery,
     private storefrontService: StorefrontService,
-    private streamService: StreamService,
+    private subscriptionService: SubscriptionService,
     private tokenService: TokenService,
+    private webSocketService: WebSocketService,
   ) {}
 
   public async ngOnInit() {
@@ -72,7 +74,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
 
       const accessToken = await this.tokenService.getAccessToken();
       return Promise.all([
-        this.streamService.connect(accessToken, this.streamServiceUrl),
+        this.webSocketService.connect(accessToken, this.webSocketUrl),
         this.subscribe(),
       ]);
     });
@@ -93,12 +95,12 @@ export class LayoutComponent implements OnDestroy, OnInit {
 
   private async subscribe() {
     const promises = this.subscriptions.map((s) =>
-      this.streamService.subscribe(
+      this.subscriptionService.subscribe(
         s.Model,
         { ...s.request },
         s.service,
         s.store,
-        this.streamServiceUrl,
+        this.webSocketUrl,
       ),
     );
 
@@ -107,7 +109,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
 
   private unsubscribe() {
     const promises = this.subscriptions.map((s) =>
-      this.streamService.unsubscribe(s.request._id, this.streamServiceUrl),
+      this.subscriptionService.unsubscribe(s.request._id, this.webSocketUrl),
     );
 
     return Promise.all(promises);

@@ -9,8 +9,8 @@ import {
   StorefrontModel,
   StorefrontQuery,
   StorefrontService,
-  StreamService,
   TokenService,
+  WebSocketService,
 } from '@tenlastic/http';
 import { Observable } from 'rxjs';
 
@@ -45,7 +45,10 @@ export class LayoutComponent implements OnInit {
     return this.identityService.user;
   }
   public get webSocket() {
-    return this.streamService.webSockets.get(environment.wssUrl);
+    try {
+      const webSocket = this.webSocketService.getWebSocket(environment.wssUrl);
+      return webSocket;
+    } catch {}
   }
 
   private previousUrl: string;
@@ -61,8 +64,8 @@ export class LayoutComponent implements OnInit {
     private router: Router,
     private storefrontQuery: StorefrontQuery,
     private storefrontService: StorefrontService,
-    private streamService: StreamService,
     private tokenService: TokenService,
+    private webSocketService: WebSocketService,
   ) {}
 
   public async ngOnInit() {
