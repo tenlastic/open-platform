@@ -11,9 +11,9 @@ import {
   StorefrontModel,
   StorefrontQuery,
   StorefrontService,
-  StreamRequest,
   StreamService,
   TokenService,
+  WebSocketRequest,
 } from '@tenlastic/http';
 import { combineLatest, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -41,7 +41,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
   private subscriptions = [
     {
       Model: ArticleModel,
-      request: { _id: uuid(), path: '/subscriptions/articles' } as StreamRequest,
+      request: { _id: uuid(), path: '/subscriptions/articles' } as WebSocketRequest,
       service: this.articleService,
       store: this.articleStore,
     },
@@ -72,7 +72,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
 
       const accessToken = await this.tokenService.getAccessToken();
       return Promise.all([
-        this.streamService.connect({ accessToken, url: this.streamServiceUrl }),
+        this.streamService.connect(accessToken, this.streamServiceUrl),
         this.subscribe(),
       ]);
     });

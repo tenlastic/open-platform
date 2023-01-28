@@ -221,10 +221,7 @@ async function createUser(namespaceId: string) {
 
   // Connect to the web socket server.
   const streamServiceUrl = `${wssUrl}/namespaces/${namespaceId}`;
-  await dependencies.streamService.connect({
-    accessToken: new Jwt(credentials.accessToken),
-    url: streamServiceUrl,
-  });
+  await dependencies.streamService.connect(new Jwt(credentials.accessToken), streamServiceUrl);
 
   // Restore original access token.
   dependencies.tokenService.setAccessToken(administratorAccessToken);

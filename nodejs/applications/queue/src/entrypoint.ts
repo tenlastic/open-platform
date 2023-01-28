@@ -31,10 +31,7 @@ const wssUrl = process.env.WSS_URL;
 
     // Web Sockets.
     await Promise.all([
-      dependencies.streamService.connect({
-        apiKey: dependencies.environmentService.apiKey,
-        url: wssUrl,
-      }),
+      dependencies.streamService.connect(dependencies.environmentService.apiKey, wssUrl),
 
       // Watch for updates to the Queue.
       dependencies.streamService.subscribe(

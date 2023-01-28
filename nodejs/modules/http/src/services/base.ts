@@ -6,24 +6,6 @@ import { BaseModel } from '../models/base';
 import { BaseStore } from '../states/base';
 import { ApiService } from './api';
 
-export class ServiceEventEmitter<T extends BaseModel> extends EventEmitter {
-  public emit<U extends keyof ServiceEvents<T>>(
-    event: U,
-    ...args: Parameters<ServiceEvents<T>[U]>
-  ) {
-    super.emit(event, ...args);
-  }
-
-  public on<U extends keyof ServiceEvents<T>>(event: U, listener: ServiceEvents<T>[U]) {
-    super.on(event, listener);
-  }
-}
-
-export declare interface ServiceEventEmitter<T extends BaseModel> {
-  emit<U extends keyof ServiceEvents<T>>(event: U, ...args: Parameters<ServiceEvents<T>[U]>);
-  on<U extends keyof ServiceEvents<T>>(event: U, listener: ServiceEvents<T>[U]);
-}
-
 export interface BaseServiceFindQuery {
   limit?: number;
   select?: string | string[];

@@ -41,11 +41,11 @@ export class LayoutComponent implements OnInit {
       !url.startsWith('/store')
     );
   }
-  public get socket() {
-    return this.streamService.webSockets.get(environment.wssUrl);
-  }
   public get user() {
     return this.identityService.user;
+  }
+  public get webSocket() {
+    return this.streamService.webSockets.get(environment.wssUrl);
   }
 
   private previousUrl: string;

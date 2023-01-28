@@ -11,9 +11,9 @@ import {
   QueueModel,
   QueueQuery,
   QueueService,
-  StreamRequest,
   StreamService,
   TokenService,
+  WebSocketRequest,
 } from '@tenlastic/http';
 import { combineLatest, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -53,7 +53,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
   private subscriptions = [
     {
       Model: QueueMemberModel,
-      request: { _id: uuid(), path: '/subscriptions/queue-members' } as StreamRequest,
+      request: { _id: uuid(), path: '/subscriptions/queue-members' } as WebSocketRequest,
       service: this.queueMemberService,
       store: this.queueMemberStore,
     },
@@ -88,7 +88,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
 
       const accessToken = await this.tokenService.getAccessToken();
       return Promise.all([
-        this.streamService.connect({ accessToken, url: this.streamServiceUrl }),
+        this.streamService.connect(accessToken, this.streamServiceUrl),
         this.subscribe(),
       ]);
     });

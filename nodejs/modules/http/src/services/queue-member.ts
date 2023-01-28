@@ -1,9 +1,22 @@
 import { QueueMemberModel } from '../models/queue-member';
 import { QueueMemberStore } from '../states/queue-member';
+import {
+  WebSocketMethod,
+  WebSocketRequest,
+  WebSocketResponse,
+  WebSocketResponseError,
+} from '../web-socket';
 import { ApiService } from './api';
 import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
-import { Method, StreamRequest, StreamService } from './stream';
+import { StreamService } from './stream';
+
+interface QueueMemberResponse extends WebSocketResponse {
+  body: {
+    errors?: WebSocketResponseError[];
+    record: Partial<QueueMemberModel>;
+  };
+}
 
 export class QueueMemberService {
   public get emitter() {
@@ -37,8 +50,12 @@ export class QueueMemberService {
    * Creates a Record.
    */
   public async create(json: Partial<QueueMemberModel>, url: string) {
-    const request: StreamRequest = { body: json, method: Method.Post, path: '/queue-members' };
-    const response = await this.streamService.request(request, url);
+    const request: WebSocketRequest = {
+      body: json,
+      method: WebSocketMethod.Post,
+      path: '/queue-members',
+    };
+    const response = await this.streamService.request<QueueMemberResponse>(request, url);
 
     const record = new QueueMemberModel(response.body.record);
     this.emitter.emit('create', record);

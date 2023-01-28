@@ -28,9 +28,9 @@ import {
   StorefrontModel,
   StorefrontQuery,
   StorefrontService,
-  StreamRequest,
   StreamService,
   TokenService,
+  WebSocketRequest,
 } from '@tenlastic/http';
 import { combineLatest, Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -71,31 +71,31 @@ export class LayoutComponent implements OnDestroy, OnInit {
   private subscriptions = [
     {
       Model: ArticleModel,
-      request: { _id: uuid(), path: '/subscriptions/articles' } as StreamRequest,
+      request: { _id: uuid(), path: '/subscriptions/articles' } as WebSocketRequest,
       service: this.articleService,
       store: this.articleStore,
     },
     {
       Model: BuildModel,
-      request: { _id: uuid(), path: '/subscriptions/builds' } as StreamRequest,
+      request: { _id: uuid(), path: '/subscriptions/builds' } as WebSocketRequest,
       service: this.buildService,
       store: this.buildStore,
     },
     {
       Model: GameServerModel,
-      request: { _id: uuid(), path: '/subscriptions/game-servers' } as StreamRequest,
+      request: { _id: uuid(), path: '/subscriptions/game-servers' } as WebSocketRequest,
       service: this.gameServerService,
       store: this.gameServerStore,
     },
     {
       Model: QueueMemberModel,
-      request: { _id: uuid(), path: '/subscriptions/queue-members' } as StreamRequest,
+      request: { _id: uuid(), path: '/subscriptions/queue-members' } as WebSocketRequest,
       service: this.queueMemberService,
       store: this.queueMemberStore,
     },
     {
       Model: QueueModel,
-      request: { _id: uuid(), path: '/subscriptions/queues' } as StreamRequest,
+      request: { _id: uuid(), path: '/subscriptions/queues' } as WebSocketRequest,
       service: this.queueService,
       store: this.queueStore,
     },
@@ -187,7 +187,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
 
         const accessToken = await this.tokenService.getAccessToken();
         await Promise.all([
-          this.streamService.connect({ accessToken, url: this.streamServiceUrl }),
+          this.streamService.connect(accessToken, this.streamServiceUrl),
           this.subscribe(),
         ]);
         this.subscribe$.unsubscribe();

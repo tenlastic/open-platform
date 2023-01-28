@@ -1,6 +1,6 @@
 import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { BaseLogModel, StreamService } from '@tenlastic/http';
+import { BaseLogModel, StreamService, WebSocketResponse } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 
@@ -11,7 +11,7 @@ export interface LogsDialogComponentData {
   $nodes: Observable<LogsDialogComponentNode[]>;
   find(container: string, pod: string): Promise<any[]>;
   node?: LogsDialogComponentNode;
-  subscribe(container: string, pod: string, unix: string): Promise<string>;
+  subscribe(container: string, pod: string, unix: string): Promise<WebSocketResponse>;
   wssUrl?: string;
 }
 
@@ -53,7 +53,7 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
   private setDefaultNode$ = new Subscription();
   private _node: LogsDialogComponentNode;
   private logJson: { [_id: string]: any } = {};
-  private subscription: string;
+  private subscription: WebSocketResponse;
   private get wssUrl() {
     return this.data.wssUrl ?? environment.wssUrl;
   }
@@ -86,7 +86,10 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
 
   public async ngOnDestroy() {
     this.setDefaultNode$.unsubscribe();
-    await this.streamService.unsubscribe(this.subscription, this.wssUrl);
+
+    if (this.subscription) {
+      await this.streamService.unsubscribe(this.subscription._id, this.wssUrl);
+    }
   }
 
   public getBody(log: BaseLogModel, space = 0) {
@@ -141,7 +144,7 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
         mostRecentLog?.unix,
       );
     } else {
-      await this.streamService.unsubscribe(this.subscription, this.wssUrl);
+      await this.streamService.unsubscribe(this.subscription._id, this.wssUrl);
     }
   }
 

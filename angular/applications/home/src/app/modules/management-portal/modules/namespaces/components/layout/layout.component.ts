@@ -26,9 +26,9 @@ import {
   StorefrontModel,
   StorefrontQuery,
   StorefrontService,
-  StreamRequest,
   StreamService,
   TokenService,
+  WebSocketRequest,
   WorkflowModel,
   WorkflowService,
   WorkflowStore,
@@ -82,37 +82,37 @@ export class LayoutComponent implements OnDestroy, OnInit {
   private subscriptions = [
     {
       Model: BuildModel,
-      request: { _id: uuid(), path: '/subscriptions/builds' } as StreamRequest,
+      request: { _id: uuid(), path: '/subscriptions/builds' } as WebSocketRequest,
       service: this.buildService,
       store: this.buildStore,
     },
     {
       Model: CollectionModel,
-      request: { _id: uuid(), path: '/subscriptions/collections' } as StreamRequest,
+      request: { _id: uuid(), path: '/subscriptions/collections' } as WebSocketRequest,
       service: this.collectionService,
       store: this.collectionStore,
     },
     {
       Model: GameServerModel,
-      request: { _id: uuid(), path: '/subscriptions/game-servers' } as StreamRequest,
+      request: { _id: uuid(), path: '/subscriptions/game-servers' } as WebSocketRequest,
       service: this.gameServerService,
       store: this.gameServerStore,
     },
     {
       Model: GameServerTemplateModel,
-      request: { _id: uuid(), path: '/subscriptions/game-server-templates' } as StreamRequest,
+      request: { _id: uuid(), path: '/subscriptions/game-server-templates' } as WebSocketRequest,
       service: this.gameServerTemplateService,
       store: this.gameServerTemplateStore,
     },
     {
       Model: QueueModel,
-      request: { _id: uuid(), path: '/subscriptions/queues' } as StreamRequest,
+      request: { _id: uuid(), path: '/subscriptions/queues' } as WebSocketRequest,
       service: this.queueService,
       store: this.queueStore,
     },
     {
       Model: WorkflowModel,
-      request: { _id: uuid(), path: '/subscriptions/workflows' } as StreamRequest,
+      request: { _id: uuid(), path: '/subscriptions/workflows' } as WebSocketRequest,
       service: this.workflowService,
       store: this.workflowStore,
     },
@@ -170,7 +170,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
 
           const accessToken = await this.tokenService.getAccessToken();
           return Promise.all([
-            this.streamService.connect({ accessToken, url: this.streamServiceUrl }),
+            this.streamService.connect(accessToken, this.streamServiceUrl),
             this.subscribe(),
           ]);
         }

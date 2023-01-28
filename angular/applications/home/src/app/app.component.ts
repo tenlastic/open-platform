@@ -36,7 +36,6 @@ import {
   StorefrontModel,
   StorefrontService,
   StorefrontStore,
-  StreamRequest,
   StreamService,
   TokenService,
   UserModel,
@@ -45,6 +44,7 @@ import {
   UserStore,
   WebSocketModel,
   WebSocketQuery,
+  WebSocketRequest,
   WebSocketService,
   WebSocketStore,
 } from '@tenlastic/http';
@@ -66,73 +66,73 @@ export class AppComponent implements OnInit {
   private subscriptions = [
     {
       Model: AuthorizationModel,
-      request: { _id: uuid(), path: '/subscriptions/authorizations' } as StreamRequest,
+      request: { _id: uuid(), path: '/subscriptions/authorizations' } as WebSocketRequest,
       service: this.authorizationService,
       store: this.authorizationStore,
     },
     {
       Model: AuthorizationRequestModel,
-      request: { _id: uuid(), path: '/subscriptions/authorization-requests' } as StreamRequest,
+      request: { _id: uuid(), path: '/subscriptions/authorization-requests' } as WebSocketRequest,
       service: this.authorizationRequestService,
       store: this.authorizationRequestStore,
     },
     {
       Model: GroupModel,
-      request: { _id: uuid(), path: '/subscriptions/groups' } as StreamRequest,
+      request: { _id: uuid(), path: '/subscriptions/groups' } as WebSocketRequest,
       service: this.groupService,
       store: this.groupStore,
     },
     {
       Model: GroupInvitationModel,
-      request: { _id: uuid(), path: '/subscriptions/group-invitations' } as StreamRequest,
+      request: { _id: uuid(), path: '/subscriptions/group-invitations' } as WebSocketRequest,
       service: this.groupInvitationService,
       store: this.groupInvitationStore,
     },
     {
       Model: MatchInvitationModel,
-      request: { _id: uuid(), path: '/subscriptions/match-invitations' } as StreamRequest,
+      request: { _id: uuid(), path: '/subscriptions/match-invitations' } as WebSocketRequest,
       service: this.matchInvitationService,
       store: this.matchInvitationStore,
     },
     {
       Model: MatchModel,
-      request: { _id: uuid(), path: '/subscriptions/matches' } as StreamRequest,
+      request: { _id: uuid(), path: '/subscriptions/matches' } as WebSocketRequest,
       service: this.matchService,
       store: this.matchStore,
     },
     {
       Model: MessageModel,
-      request: { _id: uuid(), path: '/subscriptions/messages' } as StreamRequest,
+      request: { _id: uuid(), path: '/subscriptions/messages' } as WebSocketRequest,
       service: this.messageService,
       store: this.messageStore,
     },
     {
       Model: NamespaceModel,
-      request: { _id: uuid(), path: '/subscriptions/namespaces' } as StreamRequest,
+      request: { _id: uuid(), path: '/subscriptions/namespaces' } as WebSocketRequest,
       service: this.namespaceService,
       store: this.namespaceStore,
     },
     {
       Model: QueueMemberModel,
-      request: { _id: uuid(), path: '/subscriptions/queue-members' } as StreamRequest,
+      request: { _id: uuid(), path: '/subscriptions/queue-members' } as WebSocketRequest,
       service: this.queueMemberService,
       store: this.queueMemberStore,
     },
     {
       Model: StorefrontModel,
-      request: { _id: uuid(), path: '/subscriptions/storefronts' } as StreamRequest,
+      request: { _id: uuid(), path: '/subscriptions/storefronts' } as WebSocketRequest,
       service: this.storefrontService,
       store: this.storefrontStore,
     },
     {
       Model: UserModel,
-      request: { _id: uuid(), path: '/subscriptions/users' } as StreamRequest,
+      request: { _id: uuid(), path: '/subscriptions/users' } as WebSocketRequest,
       service: this.userService,
       store: this.userStore,
     },
     {
       Model: WebSocketModel,
-      request: { _id: uuid(), path: '/subscriptions/web-sockets' } as StreamRequest,
+      request: { _id: uuid(), path: '/subscriptions/web-sockets' } as WebSocketRequest,
       service: this.webSocketService,
       store: this.webSocketStore,
     },
@@ -239,7 +239,7 @@ export class AppComponent implements OnInit {
   private async connectSocket() {
     const accessToken = await this.tokenService.getAccessToken();
     return Promise.all([
-      this.streamService.connect({ accessToken, url: environment.wssUrl }),
+      this.streamService.connect(accessToken, environment.wssUrl),
       this.subscribe(),
     ]);
   }
