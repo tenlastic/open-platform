@@ -106,11 +106,9 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
 
   public async save() {
     this.errors = [];
-    this.isSaving = true;
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.isSaving = false;
       return;
     }
 
@@ -144,6 +142,8 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
 
       dialogRef.afterClosed().subscribe(async (result: string) => {
         if (result === 'Yes') {
+          this.isSaving = true;
+
           try {
             this.data = await this.upsert(values);
           } catch (e) {
@@ -154,6 +154,8 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
         }
       });
     } else {
+      this.isSaving = true;
+
       try {
         this.data = await this.upsert(values);
       } catch (e) {

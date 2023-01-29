@@ -45,10 +45,7 @@ export class LayoutComponent implements OnInit {
     return this.identityService.user;
   }
   public get webSocket() {
-    try {
-      const webSocket = this.webSocketService.getWebSocket(environment.wssUrl);
-      return webSocket;
-    } catch {}
+    return this.webSocketService.webSockets.get(environment.wssUrl);
   }
 
   private previousUrl: string;

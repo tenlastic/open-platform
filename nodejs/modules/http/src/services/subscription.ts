@@ -63,7 +63,12 @@ export class SubscriptionService {
     url: string,
     options: SubscribeOptions<T> = {},
   ) {
-    const webSocket = this.webSocketService.getWebSocket(url);
+    const webSocket = this.webSocketService.webSockets.get(url);
+
+    // Throw an error if the web socket is not connected.
+    if (!webSocket) {
+      throw new Error(`Web socket not connected to ${url}.`);
+    }
 
     // Do not subscribe if request is already registered.
     if (webSocket.hasDurableRequest(request._id)) {
@@ -125,7 +130,13 @@ export class SubscriptionService {
   }
 
   public async unsubscribe(_id: string, url: string) {
-    const webSocket = this.webSocketService.getWebSocket(url);
+    const webSocket = this.webSocketService.webSockets.get(url);
+
+    // Throw an error if the web socket is not connected.
+    if (!webSocket) {
+      throw new Error(`Web socket not connected to ${url}.`);
+    }
+
     webSocket.deleteDurableRequest(_id);
 
     const request: WebSocketRequest = {

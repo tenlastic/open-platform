@@ -47,6 +47,7 @@ export class WebSocket {
     return this.webSocket ? this.webSocket.readyState : 0;
   }
 
+  private interval: ReturnType<typeof setInterval>;
   private requests = new Map<string, WebSocketRequest>();
   private url: string;
   private webSocket: IsomorphicWS;
@@ -57,6 +58,8 @@ export class WebSocket {
   }
 
   public close(status = 1000) {
+    clearInterval(this.interval);
+
     this.emitter.emit('close', status);
     this.webSocket.close(status);
   }
@@ -64,27 +67,9 @@ export class WebSocket {
   public async connect() {
     this.webSocket = new IsomorphicWS(this.url);
 
-    const data: WebSocketRequest = {
-      _id: uuid(),
-      method: WebSocketMethod.Get,
-      path: '/probes/liveness',
-    };
-    const interval = setInterval(() => this.send(data), 5000);
+    clearInterval(this.interval);
+    this.interval = setInterval(() => this.ping(), 5 * 1000);
 
-    this.webSocket.addEventListener('close', async (e) => {
-      clearInterval(interval);
-
-      if (e.code !== 1000) {
-        try {
-          await new Promise((resolve) => setTimeout(resolve, 5000));
-          await this.connect();
-        } catch {
-          const error = new Error(`Could not reconnect to web socket at ${this.url}.`);
-          console.error(error);
-        }
-      }
-    });
-    this.webSocket.addEventListener('error', () => this.webSocket.close());
     this.webSocket.addEventListener('message', (message) => {
       const response = JSON.parse(message.data) as WebSocketResponse;
       this.emitter.emit('message', response);
@@ -152,6 +137,26 @@ export class WebSocket {
     }
 
     return this.response<T>(request._id);
+  }
+
+  private async ping() {
+    if (this.webSocket.readyState > 1) {
+      try {
+        return await this.connect();
+      } catch {
+        const error = new Error(`Could not reconnect to web socket at ${this.url}.`);
+        console.error(error);
+      }
+    }
+
+    if (this.webSocket.readyState === 1) {
+      const request: WebSocketRequest = {
+        _id: uuid(),
+        method: WebSocketMethod.Get,
+        path: '/probes/liveness',
+      };
+      this.send(request);
+    }
   }
 
   private response<T extends WebSocketResponse>(_id: string) {

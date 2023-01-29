@@ -162,19 +162,9 @@ export class LayoutComponent implements OnDestroy, OnInit {
           return this.storefrontService.find(params.namespaceId, { limit: 1 });
         }
       });
-      this.subscribe$ = this.$namespace.subscribe(async (namespace) => {
-        if (this.connected) {
-          return;
-        }
-
-        if (namespace?.status.phase === 'Running') {
-          this.connected = true;
-
-          const accessToken = await this.tokenService.getAccessToken();
-          return Promise.all([
-            this.webSocketService.connect(accessToken, this.webSocketUrl),
-            this.subscribe(),
-          ]);
+      this.subscribe$ = this.$namespace.subscribe((namespace) => {
+        if (namespace.status?.phase === 'Running') {
+          this.connectSocket();
         }
       });
 
@@ -198,6 +188,23 @@ export class LayoutComponent implements OnDestroy, OnInit {
       this.authorizationQuery.selectHasRoles(null, roles, userId),
       this.authorizationQuery.selectHasRoles(this.params.namespaceId, roles, userId),
     ]).pipe(map(([a, b]) => a || b));
+  }
+
+  private async connectSocket() {
+    const webSocket = this.webSocketService.webSockets.get(this.webSocketUrl);
+    if (webSocket) {
+      return;
+    }
+
+    const accessToken = await this.tokenService.getAccessToken();
+    if (!accessToken) {
+      return;
+    }
+
+    return Promise.all([
+      this.webSocketService.connect(accessToken, this.webSocketUrl),
+      this.subscribe(),
+    ]);
   }
 
   private async subscribe() {

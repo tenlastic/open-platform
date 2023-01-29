@@ -10,9 +10,9 @@ export class WebSocketService {
   public get emitter() {
     return this.baseService.emitter;
   }
+  public webSockets = new Map<string, WebSocket>();
 
   private baseService: BaseService<WebSocketModel>;
-  private webSockets = new Map<string, WebSocket>();
 
   constructor(
     private apiService: ApiService,
@@ -90,23 +90,16 @@ export class WebSocketService {
   }
 
   /**
-   * Get the web socket for a URL, throwing an error if not found.
+   * Sends a request through the web socket.
    */
-  public getWebSocket(url: string) {
+  public request<T extends WebSocketResponse>(request: WebSocketRequest, url: string) {
     const webSocket = this.webSockets.get(url);
 
+    // Throw an error if the web socket is not connected.
     if (!webSocket) {
       throw new Error(`Web socket not connected to ${url}.`);
     }
 
-    return webSocket;
-  }
-
-  /**
-   * Sends a request through the web socket.
-   */
-  public request<T extends WebSocketResponse>(request: WebSocketRequest, url: string) {
-    const webSocket = this.getWebSocket(url);
     return webSocket.request<T>(request);
   }
 
