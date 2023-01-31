@@ -26,10 +26,13 @@ const apiUrl = process.env.API_URL;
 
 injector.inject([
   {
-    deps: [Axios, EnvironmentService],
+    deps: [Axios, EnvironmentService, WebSocketService],
     provide: ApiKeyInterceptor,
-    useFactory: (axios: Axios, environmentService: EnvironmentService) =>
-      new ApiKeyInterceptor(axios, environmentService),
+    useFactory: (
+      axios: Axios,
+      environmentService: EnvironmentService,
+      webSocketService: WebSocketService,
+    ) => new ApiKeyInterceptor(axios, environmentService, webSocketService),
   },
   {
     deps: [Axios],

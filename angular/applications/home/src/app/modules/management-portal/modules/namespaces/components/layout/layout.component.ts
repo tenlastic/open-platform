@@ -27,7 +27,6 @@ import {
   StorefrontQuery,
   StorefrontService,
   SubscriptionService,
-  TokenService,
   WebSocketRequest,
   WebSocketService,
   WorkflowModel,
@@ -75,7 +74,6 @@ export class LayoutComponent implements OnDestroy, OnInit {
 
   private fetchStorefront$ = new Subscription();
   private subscribe$ = new Subscription();
-  private connected = false;
   private params: Params;
   private subscriptions = [
     {
@@ -140,7 +138,6 @@ export class LayoutComponent implements OnDestroy, OnInit {
     private storefrontQuery: StorefrontQuery,
     private storefrontService: StorefrontService,
     private subscriptionService: SubscriptionService,
-    private tokenService: TokenService,
     private webSocketService: WebSocketService,
     private workflowService: WorkflowService,
     private workflowStore: WorkflowStore,
@@ -191,20 +188,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
   }
 
   private async connectSocket() {
-    const webSocket = this.webSocketService.webSockets.get(this.webSocketUrl);
-    if (webSocket) {
-      return;
-    }
-
-    const accessToken = await this.tokenService.getAccessToken();
-    if (!accessToken) {
-      return;
-    }
-
-    return Promise.all([
-      this.webSocketService.connect(accessToken, this.webSocketUrl),
-      this.subscribe(),
-    ]);
+    return Promise.all([this.webSocketService.connect(this.webSocketUrl), this.subscribe()]);
   }
 
   private async subscribe() {

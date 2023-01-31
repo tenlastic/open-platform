@@ -1,7 +1,9 @@
 import { EventEmitter } from 'events';
 import IsomorphicWS from 'isomorphic-ws';
 import TypedEmitter from 'typed-emitter';
+import { URL } from 'url';
 import { v4 as uuid } from 'uuid';
+
 import { BaseModel, WebSocketModel } from './models';
 
 export enum WebSocketMethod {
@@ -10,6 +12,10 @@ export enum WebSocketMethod {
   Patch = 'PATCH',
   Put = 'PUT',
   Post = 'POST',
+}
+
+export interface WebSocketInterceptors {
+  connect: WebSocketConnectInterceptor[];
 }
 
 export interface WebSocketRequest {
@@ -35,6 +41,11 @@ export interface WebSocketResponseError {
   name: string;
 }
 
+export type WebSocketConnectInterceptor = (url: string) => string | Promise<string>;
+
+export type WebSocketDurableRequest = () => WebSocketRequest | Promise<WebSocketRequest>;
+export type WebSocketDurableResponse = (response: WebSocketResponse) => any | Promise<any>;
+
 export type WebSocketEvents = {
   close: (status: number) => void;
   message: (message: WebSocketResponse) => void;
@@ -43,12 +54,14 @@ export type WebSocketEvents = {
 
 export class WebSocket {
   public emitter = new EventEmitter() as TypedEmitter<WebSocketEvents>;
+  public interceptors: WebSocketInterceptors = { connect: [] };
   public get readyState() {
     return this.webSocket ? this.webSocket.readyState : 0;
   }
 
+  private durableRequests = new Map<string, WebSocketDurableRequest>();
+  private durableResponses = new Map<string, WebSocketDurableResponse>();
   private interval: ReturnType<typeof setInterval>;
-  private requests = new Map<string, WebSocketRequest>();
   private url: string;
   private webSocket: IsomorphicWS;
 
@@ -65,7 +78,12 @@ export class WebSocket {
   }
 
   public async connect() {
-    this.webSocket = new IsomorphicWS(this.url);
+    let url = this.url;
+    for (const interceptor of this.interceptors.connect) {
+      url = await interceptor(url);
+    }
+
+    this.webSocket = new IsomorphicWS(`${url}`);
 
     clearInterval(this.interval);
     this.interval = setInterval(() => this.ping(), 5 * 1000);
@@ -97,8 +115,9 @@ export class WebSocket {
         this.emitter.emit('open', webSocket);
         this.emitter.removeAllListeners('open');
 
-        const requests = this.requests.values();
-        for (const request of requests) {
+        const durableRequests = this.durableRequests.values();
+        for (const durableRequest of durableRequests) {
+          const request = await durableRequest();
           this.send(request);
         }
 
@@ -111,26 +130,51 @@ export class WebSocket {
     });
   }
 
-  public createDurableRequest<T extends WebSocketResponse>(request: WebSocketRequest) {
-    if (this.webSocket.readyState === 1) {
+  public async createDurableRequest<T extends WebSocketResponse>(
+    _id: string,
+    durableRequest: WebSocketDurableRequest,
+    durableResponse?: WebSocketDurableResponse,
+  ) {
+    if (this.webSocket?.readyState === 1) {
+      const request = await durableRequest();
       this.send(request);
     }
 
-    this.requests.set(request._id, request);
+    this.durableRequests.set(_id, durableRequest);
 
-    return this.response<T>(request._id);
+    if (durableResponse) {
+      const callback = (message: WebSocketResponse) => {
+        // If the response is for a different request, ignore it.
+        if (_id !== message._id) {
+          return;
+        }
+
+        return durableResponse(message);
+      };
+
+      this.durableResponses.set(_id, callback);
+      this.emitter.on('message', callback);
+    }
+
+    return this.response<T>(_id);
   }
 
   public deleteDurableRequest(_id: string) {
-    this.requests.delete(_id);
+    this.durableRequests.delete(_id);
+
+    const durableResponse = this.durableResponses.get(_id);
+    if (durableResponse) {
+      this.durableResponses.delete(_id);
+      this.emitter.off('message', durableResponse);
+    }
   }
 
   public hasDurableRequest(_id: string) {
-    return this.requests.has(_id);
+    return this.durableRequests.has(_id);
   }
 
   public request<T extends WebSocketResponse>(request: WebSocketRequest) {
-    if (this.webSocket.readyState === 1) {
+    if (this.webSocket?.readyState === 1) {
       this.send(request);
     } else {
       this.emitter.on('open', () => this.send(request));

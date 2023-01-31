@@ -221,7 +221,7 @@ async function createUser(namespaceId: string) {
 
   // Connect to the web socket server.
   const webSocketUrl = `${wssUrl}/namespaces/${namespaceId}`;
-  await dependencies.webSocketService.connect(new Jwt(credentials.accessToken), webSocketUrl);
+  await dependencies.webSocketService.connect(webSocketUrl);
 
   // Restore original access token.
   dependencies.tokenService.setAccessToken(administratorAccessToken);

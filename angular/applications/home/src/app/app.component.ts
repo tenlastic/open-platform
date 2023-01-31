@@ -184,7 +184,11 @@ export class AppComponent implements OnInit {
     this.loginService.emitter.on('logout', () => this.webSocketService.close(environment.wssUrl));
 
     // Handle websockets when access token is set.
-    this.tokenService.emitter.on('accessToken', () => this.connectSocket());
+    this.tokenService.emitter.on('accessToken', (accessToken) => {
+      if (accessToken) {
+        this.connectSocket();
+      }
+    });
 
     // Clear stores on login and logout.
     this.loginService.emitter.on('login', () => this.resetService.reset());
@@ -228,20 +232,7 @@ export class AppComponent implements OnInit {
   }
 
   private async connectSocket() {
-    const webSocket = this.webSocketService.webSockets.get(environment.wssUrl);
-    if (webSocket) {
-      return;
-    }
-
-    const accessToken = await this.tokenService.getAccessToken();
-    if (!accessToken) {
-      return;
-    }
-
-    return Promise.all([
-      this.webSocketService.connect(accessToken, environment.wssUrl),
-      this.subscribe(),
-    ]);
+    return Promise.all([this.webSocketService.connect(environment.wssUrl), this.subscribe()]);
   }
 
   private setTokens(response: LoginServiceResponse) {

@@ -12,7 +12,6 @@ import {
   QueueQuery,
   QueueService,
   SubscriptionService,
-  TokenService,
   WebSocketRequest,
   WebSocketService,
 } from '@tenlastic/http';
@@ -71,7 +70,6 @@ export class LayoutComponent implements OnDestroy, OnInit {
     private queueService: QueueService,
     private router: Router,
     private subscriptionService: SubscriptionService,
-    private tokenService: TokenService,
     private webSocketService: WebSocketService,
   ) {}
 
@@ -88,11 +86,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
       this.$queue = this.queueQuery.selectEntity(params.queueId);
       await this.queueService.findOne(params.namespaceId, params.queueId);
 
-      const accessToken = await this.tokenService.getAccessToken();
-      return Promise.all([
-        this.webSocketService.connect(accessToken, this.webSocketUrl),
-        this.subscribe(),
-      ]);
+      return Promise.all([this.webSocketService.connect(this.webSocketUrl), this.subscribe()]);
     });
   }
 

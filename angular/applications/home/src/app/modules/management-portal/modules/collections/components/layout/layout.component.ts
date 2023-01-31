@@ -12,7 +12,6 @@ import {
   RecordService,
   RecordStore,
   SubscriptionService,
-  TokenService,
   WebSocketRequest,
   WebSocketService,
 } from '@tenlastic/http';
@@ -71,7 +70,6 @@ export class LayoutComponent implements OnDestroy, OnInit {
     private recordStore: RecordStore,
     private router: Router,
     private subscriptionService: SubscriptionService,
-    private tokenService: TokenService,
     private webSocketService: WebSocketService,
   ) {}
 
@@ -88,11 +86,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
       this.$collection = this.collectionQuery.selectEntity(params.collectionId);
       await this.collectionService.findOne(params.namespaceId, params.collectionId);
 
-      const accessToken = await this.tokenService.getAccessToken();
-      return Promise.all([
-        this.webSocketService.connect(accessToken, this.webSocketUrl),
-        this.subscribe(),
-      ]);
+      return Promise.all([this.webSocketService.connect(this.webSocketUrl), this.subscribe()]);
     });
   }
 

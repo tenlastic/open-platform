@@ -1,7 +1,11 @@
-import { Jwt } from '../models';
 import { WebSocketModel } from '../models/web-socket';
 import { WebSocketStore } from '../states/web-socket';
-import { WebSocket, WebSocketRequest, WebSocketResponse } from '../web-socket';
+import {
+  WebSocket,
+  WebSocketInterceptors,
+  WebSocketRequest,
+  WebSocketResponse,
+} from '../web-socket';
 import { ApiService } from './api';
 import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
@@ -10,6 +14,7 @@ export class WebSocketService {
   public get emitter() {
     return this.baseService.emitter;
   }
+  public interceptors: WebSocketInterceptors = { connect: [] };
   public webSockets = new Map<string, WebSocket>();
 
   private baseService: BaseService<WebSocketModel>;
@@ -39,27 +44,16 @@ export class WebSocketService {
   /**
    * Connects a web socket.
    */
-  public async connect(accessToken: Jwt, url: string): Promise<WebSocket>;
-  public async connect(apiKey: string, url: string): Promise<WebSocket>;
-  public async connect(authorization: any, url: string): Promise<WebSocket> {
+  public async connect(url: string): Promise<WebSocket> {
     if (this.webSockets.has(url)) {
       return this.webSockets.get(url);
     }
 
-    let connectionString = url;
-    if (typeof authorization === 'string') {
-      connectionString += `?api_key=${authorization}`;
-    } else if (authorization instanceof Jwt && !authorization.isExpired) {
-      connectionString += `?access_token=${authorization.value}`;
-    }
-
-    const webSocket = new WebSocket(connectionString);
+    const webSocket = new WebSocket(url);
+    webSocket.emitter.on('close', () => this.webSockets.delete(url));
     this.webSockets.set(url, webSocket);
 
-    webSocket.emitter.on('close', () => {
-      this.webSockets.delete(url);
-    });
-
+    webSocket.interceptors.connect = [...this.interceptors.connect];
     await webSocket.connect();
 
     return webSocket;

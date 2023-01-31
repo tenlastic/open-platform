@@ -100,10 +100,10 @@ import { environment } from '../environments/environment';
 
 const interceptors: Provider[] = [
   {
-    deps: [Axios, TokenService],
+    deps: [Axios, TokenService, WebSocketService],
     provide: AccessTokenInterceptor,
-    useFactory: (axios: Axios, tokenService: TokenService) =>
-      new AccessTokenInterceptor(axios, tokenService),
+    useFactory: (axios: Axios, tokenService: TokenService, webSocketService: WebSocketService) =>
+      new AccessTokenInterceptor(axios, tokenService, webSocketService),
   },
   {
     deps: [Axios, LoginService],

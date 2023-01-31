@@ -18,7 +18,7 @@ injector.inject([
     deps: [Axios, EnvironmentService],
     provide: ApiKeyInterceptor,
     useFactory: (axios: Axios, environmentService: EnvironmentService) =>
-      new ApiKeyInterceptor(axios, environmentService),
+      new ApiKeyInterceptor(axios, environmentService, null),
   },
   {
     deps: [Axios],

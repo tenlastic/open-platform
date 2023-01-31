@@ -31,21 +31,29 @@ export const MinioBuild = {
       await minio.removeObject(process.env.MINIO_BUCKET, objectName);
     }
 
-    // Delete docker tag.
-    const headers = { Accept: 'application/vnd.docker.distribution.manifest.v2+json' };
-    const url = process.env.DOCKER_REGISTRY_URL;
+    try {
+      // Delete docker tag.
+      const headers = { Accept: 'application/vnd.docker.distribution.manifest.v2+json' };
+      const url = process.env.DOCKER_REGISTRY_URL;
 
-    const response = await axios({
-      headers,
-      method: 'GET',
-      url: `${url}/v2/${build.namespaceId}/manifests/${build._id}`,
-    });
+      const response = await axios({
+        headers,
+        method: 'GET',
+        url: `${url}/v2/${build.namespaceId}/manifests/${build._id}`,
+      });
 
-    const digest = response.headers['docker-content-digest'];
-    await axios({
-      headers,
-      method: 'DELETE',
-      url: `${url}/v2/${build.namespaceId}/manifests/${digest}`,
-    });
+      const digest = response.headers['docker-content-digest'];
+      await axios({
+        headers,
+        method: 'DELETE',
+        url: `${url}/v2/${build.namespaceId}/manifests/${digest}`,
+      });
+    } catch (e) {
+      if (e.response.status === 404) {
+        return;
+      }
+
+      throw e;
+    }
   },
 };

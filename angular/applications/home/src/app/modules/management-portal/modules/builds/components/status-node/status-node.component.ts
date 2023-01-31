@@ -12,6 +12,7 @@ import {
   SubscriptionService,
 } from '@tenlastic/http';
 import { map } from 'rxjs/operators';
+import { v4 as uuid } from 'uuid';
 
 import { environment } from '../../../../../../../environments/environment';
 import { LogsDialogComponent, LogsDialogComponentData } from '../../../../../../shared/components';
@@ -59,6 +60,7 @@ export class BuildStatusNodeComponent {
   }
 
   public showLogsDialog() {
+    const _id = uuid();
     const data = {
       $logs: this.buildLogQuery.selectAll({
         filterBy: (log) => log.buildId === this.build._id,
@@ -79,6 +81,7 @@ export class BuildStatusNodeComponent {
         return this.subscriptionService.subscribe<BuildLogModel>(
           BuildLogModel,
           {
+            _id,
             body: { resumeToken: resumeToken.toISOString() },
             path: `/subscriptions/builds/${this.build._id}/logs/${pod}/${container}`,
           },
@@ -94,7 +97,7 @@ export class BuildStatusNodeComponent {
           },
         );
       },
-      wssUrl: this.webSocketUrl,
+      unsubscribe: () => this.subscriptionService.unsubscribe(_id, this.webSocketUrl),
     } as LogsDialogComponentData;
 
     const dialogRef = this.matDialog.open(LogsDialogComponent, { autoFocus: false, data });

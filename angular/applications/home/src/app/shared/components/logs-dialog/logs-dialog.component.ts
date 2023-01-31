@@ -1,10 +1,8 @@
 import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { BaseLogModel, SubscriptionService, WebSocketResponse } from '@tenlastic/http';
+import { BaseLogModel, WebSocketResponse } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 import { first, map } from 'rxjs/operators';
-
-import { environment } from '../../../../environments/environment';
 
 export interface LogsDialogComponentData {
   $logs: Observable<any[]>;
@@ -12,7 +10,7 @@ export interface LogsDialogComponentData {
   find(container: string, pod: string): Promise<any[]>;
   node?: LogsDialogComponentNode;
   subscribe(container: string, pod: string, unix: string): Promise<WebSocketResponse>;
-  wssUrl?: string;
+  unsubscribe(): Promise<WebSocketResponse>;
 }
 
 export interface LogsDialogComponentNode {
@@ -53,15 +51,10 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
   private setDefaultNode$ = new Subscription();
   private _node: LogsDialogComponentNode;
   private logJson: { [_id: string]: any } = {};
-  private subscription: WebSocketResponse;
-  private get wssUrl() {
-    return this.data.wssUrl ?? environment.wssUrl;
-  }
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: LogsDialogComponentData,
     private matDialogRef: MatDialogRef<LogsDialogComponent>,
-    private subscriptionService: SubscriptionService,
   ) {}
 
   public async ngOnInit() {
@@ -86,10 +79,7 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
 
   public async ngOnDestroy() {
     this.setDefaultNode$.unsubscribe();
-
-    if (this.subscription) {
-      await this.subscriptionService.unsubscribe(this.subscription._id, this.wssUrl);
-    }
+    await this.data.unsubscribe();
   }
 
   public getBody(log: BaseLogModel, space = 0) {
@@ -138,13 +128,9 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
       const logs = await this.$logs.pipe(first()).toPromise();
       const mostRecentLog = logs.length > 0 ? logs[0] : null;
 
-      this.subscription = await this.data.subscribe(
-        this.node.container,
-        this.node.pod,
-        mostRecentLog?.unix,
-      );
+      await this.data.subscribe(this.node.container, this.node.pod, mostRecentLog?.unix);
     } else {
-      await this.subscriptionService.unsubscribe(this.subscription._id, this.wssUrl);
+      await this.data.unsubscribe();
     }
   }
 

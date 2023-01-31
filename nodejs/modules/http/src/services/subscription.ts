@@ -79,54 +79,57 @@ export class SubscriptionService {
     request._id ??= uuid();
     request.method = WebSocketMethod.Post;
 
-    webSocket.emitter.on('message', async (message: SubscribeResponse<T>) => {
-      // If the response is for a different request, ignore it.
-      if (message._id !== request._id || !message.body?.fullDocument) {
-        return;
-      }
-
-      // If the response contains errors, throw the first one.
-      if (message.body.errors) {
-        throw new Error(message.body.errors[0].message);
-      }
-
-      // Save the resume token if available.
-      if (request.body && message.body?.resumeToken) {
-        request.body.resumeToken = message.body.resumeToken;
-      }
-
-      // Invoke the callback, responding with a NAK if ACKs are enabled.
-      if (options.acks && options.callback) {
-        try {
-          await options.callback(message);
-        } catch {
-          return this.nak(request._id, url);
+    return webSocket.createDurableRequest(
+      request._id,
+      () => request,
+      async (message: SubscribeResponse<T>) => {
+        // If the response does not include a full document, ignore it.
+        if (!message.body?.fullDocument) {
+          return;
         }
-      } else if (options.callback) {
-        await options.callback(message);
-      }
 
-      const record = new Model(message.body.fullDocument);
-      if (message.body.operationType === 'delete') {
-        service.emitter.emit('delete', record);
-        store.remove(record._id);
-      } else if (message.body.operationType === 'insert') {
-        service.emitter.emit('create', record);
-        store.upsertMany([record]);
-      } else if (
-        message.body.operationType === 'replace' ||
-        message.body.operationType === 'update'
-      ) {
-        service.emitter.emit('update', record);
-        store.upsertMany([record]);
-      }
+        // If the response contains errors, throw the first one.
+        if (message.body.errors) {
+          throw new Error(message.body.errors[0].message);
+        }
 
-      if (options.acks) {
-        return this.ack(request._id, url);
-      }
-    });
+        // Save the resume token if available.
+        if (message.body?.resumeToken) {
+          const body = { ...request.body, resumeToken: message.body.resumeToken };
+          request.body = body;
+        }
 
-    return webSocket.createDurableRequest(request);
+        // Invoke the callback, responding with a NAK if ACKs are enabled.
+        if (options.acks && options.callback) {
+          try {
+            await options.callback(message);
+          } catch {
+            return this.nak(request._id, url);
+          }
+        } else if (options.callback) {
+          await options.callback(message);
+        }
+
+        const record = new Model(message.body.fullDocument);
+        if (message.body.operationType === 'delete') {
+          service.emitter.emit('delete', record);
+          store.remove(record._id);
+        } else if (message.body.operationType === 'insert') {
+          service.emitter.emit('create', record);
+          store.upsertMany([record]);
+        } else if (
+          message.body.operationType === 'replace' ||
+          message.body.operationType === 'update'
+        ) {
+          service.emitter.emit('update', record);
+          store.upsertMany([record]);
+        }
+
+        if (options.acks) {
+          await this.ack(request._id, url);
+        }
+      },
+    );
   }
 
   public async unsubscribe(_id: string, url: string) {
@@ -144,9 +147,7 @@ export class SubscriptionService {
       method: WebSocketMethod.Delete,
       path: `/subscriptions/${_id}`,
     };
-    const response = await this.webSocketService.request(request, url);
-
-    return response._id;
+    return this.webSocketService.request(request, url);
   }
 
   private async ack(_id: string, url: string) {
@@ -155,9 +156,7 @@ export class SubscriptionService {
       method: WebSocketMethod.Post,
       path: `/subscriptions/${_id}/acks`,
     };
-    const response = await this.webSocketService.request(request, url);
-
-    return response._id;
+    return this.webSocketService.request(request, url);
   }
 
   private async nak(_id: string, url: string) {
@@ -166,8 +165,6 @@ export class SubscriptionService {
       method: WebSocketMethod.Post,
       path: `/subscriptions/${_id}/naks`,
     };
-    const response = await this.webSocketService.request(request, url);
-
-    return response._id;
+    return this.webSocketService.request(request, url);
   }
 }

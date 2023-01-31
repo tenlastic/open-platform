@@ -31,7 +31,7 @@ const wssUrl = process.env.WSS_URL;
 
     // Web Sockets.
     await Promise.all([
-      dependencies.webSocketService.connect(dependencies.environmentService.apiKey, wssUrl),
+      dependencies.webSocketService.connect(wssUrl),
 
       // Watch for updates to the Queue.
       dependencies.subscriptionService.subscribe(

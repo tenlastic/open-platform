@@ -12,6 +12,7 @@ import {
   WorkflowQuery,
 } from '@tenlastic/http';
 import { map } from 'rxjs/operators';
+import { v4 as uuid } from 'uuid';
 
 import { environment } from '../../../../../../../environments/environment';
 import { LogsDialogComponent, LogsDialogComponentData } from '../../../../../../shared/components';
@@ -59,6 +60,7 @@ export class WorkflowStatusNodeComponent {
   }
 
   public showLogsDialog() {
+    const _id = uuid();
     const data = {
       $logs: this.workflowLogQuery.selectAll({
         filterBy: (log) => log.workflowId === this.workflow._id,
@@ -79,6 +81,7 @@ export class WorkflowStatusNodeComponent {
         return this.subscriptionService.subscribe<WorkflowLogModel>(
           WorkflowLogModel,
           {
+            _id,
             body: { resumeToken: resumeToken.toISOString() },
             path: `/subscriptions/workflows/${this.workflow._id}/logs/${pod}/${container}`,
           },
@@ -94,7 +97,7 @@ export class WorkflowStatusNodeComponent {
           },
         );
       },
-      wssUrl: this.webSocketUrl,
+      unsubscribe: () => this.subscriptionService.unsubscribe(_id, this.webSocketUrl),
     } as LogsDialogComponentData;
 
     const dialogRef = this.matDialog.open(LogsDialogComponent, { autoFocus: false, data });

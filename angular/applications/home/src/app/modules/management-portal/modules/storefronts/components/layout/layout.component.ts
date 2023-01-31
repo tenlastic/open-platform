@@ -12,7 +12,6 @@ import {
   StorefrontQuery,
   StorefrontService,
   SubscriptionService,
-  TokenService,
   WebSocketRequest,
   WebSocketService,
 } from '@tenlastic/http';
@@ -59,7 +58,6 @@ export class LayoutComponent implements OnDestroy, OnInit {
     private storefrontQuery: StorefrontQuery,
     private storefrontService: StorefrontService,
     private subscriptionService: SubscriptionService,
-    private tokenService: TokenService,
     private webSocketService: WebSocketService,
   ) {}
 
@@ -72,11 +70,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
 
       await this.storefrontService.find(params.namespaceId, { limit: 1 });
 
-      const accessToken = await this.tokenService.getAccessToken();
-      return Promise.all([
-        this.webSocketService.connect(accessToken, this.webSocketUrl),
-        this.subscribe(),
-      ]);
+      return Promise.all([this.webSocketService.connect(this.webSocketUrl), this.subscribe()]);
     });
   }
 

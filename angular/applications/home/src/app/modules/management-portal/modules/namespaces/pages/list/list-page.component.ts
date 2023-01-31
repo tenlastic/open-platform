@@ -20,6 +20,7 @@ import {
 } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { v4 as uuid } from 'uuid';
 
 import { environment } from '../../../../../../../environments/environment';
 import { IdentityService } from '../../../../../../core/services';
@@ -122,6 +123,7 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
   public showLogsDialog($event: Event, record: NamespaceModel) {
     $event.stopPropagation();
 
+    const _id = uuid();
     const data = {
       $logs: this.namespaceLogQuery.selectAll({
         filterBy: (log) => log.namespaceId === record._id,
@@ -139,6 +141,7 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
         return this.subscriptionService.subscribe<NamespaceLogModel>(
           NamespaceLogModel,
           {
+            _id,
             body: { resumeToken: resumeToken.toISOString() },
             path: `/subscriptions/namespaces/${record._id}/logs/${pod}/${container}`,
           },
@@ -154,6 +157,7 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
           },
         );
       },
+      unsubscribe: () => this.subscriptionService.unsubscribe(_id, environment.wssUrl),
     } as LogsDialogComponentData;
 
     const dialogRef = this.matDialog.open(LogsDialogComponent, { autoFocus: false, data });

@@ -23,6 +23,7 @@ import {
 } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { v4 as uuid } from 'uuid';
 
 import { environment } from '../../../../../../../environments/environment';
 import { IdentityService } from '../../../../../../core/services';
@@ -135,6 +136,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
   public showLogsDialog($event: Event, record: QueueModel) {
     $event.stopPropagation();
 
+    const _id = uuid();
     const data = {
       $logs: this.queueLogQuery.selectAll({
         filterBy: (log) => log.queueId === record._id,
@@ -152,6 +154,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
         return this.subscriptionService.subscribe<QueueLogModel>(
           QueueLogModel,
           {
+            _id,
             body: { resumeToken: resumeToken.toISOString() },
             path: `/subscriptions/queues/${record._id}/logs/${pod}/${container}`,
           },
@@ -167,7 +170,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
           },
         );
       },
-      wssUrl: this.webSocketUrl,
+      unsubscribe: () => this.subscriptionService.unsubscribe(_id, this.webSocketUrl),
     } as LogsDialogComponentData;
 
     const dialogRef = this.matDialog.open(LogsDialogComponent, { autoFocus: false, data });
