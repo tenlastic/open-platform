@@ -73,16 +73,7 @@ export class PodApiV1 extends BaseApiV1<k8s.V1Pod> {
       response.data
         .on('close', () => emitter.emit('close'))
         .on('data', onData)
-        .on('error', (err) => {
-          try {
-            console.error('on(error)' + err);
-            const json = JSON.parse(err.message);
-            emitter.emit('error', new HttpError(err.response.status, json.message));
-          } catch {
-            console.error('on(error) error' + err);
-            emitter.emit('error', new HttpError(err.response.status, err.message));
-          }
-        });
+        .on('error', (e) => emitter.emit('error', new HttpError(e.response.status, e.message)));
 
       const abort = () => {
         abortController.abort();
@@ -93,15 +84,8 @@ export class PodApiV1 extends BaseApiV1<k8s.V1Pod> {
     } catch (e) {
       if (e instanceof AxiosError) {
         const body = await this.getStringFromStream(e.response.data);
-        console.log('Body: ' + body);
-
-        try {
-          const json = JSON.parse(body);
-          emitter.emit('error', new HttpError(e.response.status, json.message));
-        } catch (err) {
-          console.error(`ERROR: ${err}`);
-          emitter.emit('error', new HttpError(e.response.status, body));
-        }
+        const json = JSON.parse(body);
+        emitter.emit('error', new HttpError(e.response.status, json.message));
       }
     }
   }
