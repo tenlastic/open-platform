@@ -4,6 +4,6 @@ import marked from 'marked';
 @Pipe({ name: 'markdown' })
 export class MarkdownPipe implements PipeTransform {
   transform(value: string) {
-    return marked(value, { headerIds: false });
+    return value ? marked(value, { headerIds: false }) : '';
   }
 }

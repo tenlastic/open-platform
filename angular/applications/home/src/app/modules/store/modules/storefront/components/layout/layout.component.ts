@@ -1,5 +1,4 @@
-import { DOCUMENT } from '@angular/common';
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Order } from '@datorama/akita';
 import {
@@ -36,7 +35,12 @@ import { combineLatest, Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { v4 as uuid } from 'uuid';
 
-import { ElectronService, IdentityService, UpdateService } from '../../../../../../core/services';
+import {
+  BackgroundService,
+  ElectronService,
+  IdentityService,
+  UpdateService,
+} from '../../../../../../core/services';
 import { environment } from '../../../../../../../environments/environment';
 
 @Component({
@@ -102,13 +106,13 @@ export class LayoutComponent implements OnDestroy, OnInit {
   }
 
   constructor(
-    @Inject(DOCUMENT) private document: Document,
     private activatedRoute: ActivatedRoute,
     private articleQuery: ArticleQuery,
     private articleService: ArticleService,
     private articleStore: ArticleStore,
     private authorizationQuery: AuthorizationQuery,
     private authorizationService: AuthorizationService,
+    private backgroundService: BackgroundService,
     private buildService: BuildService,
     private buildStore: BuildStore,
     private electronService: ElectronService,
@@ -144,7 +148,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
 
       // Update the background image.
       const value = storefront.background || '/assets/images/background.jpg';
-      this.document.body.style.backgroundImage = `url('${value}')`;
+      this.backgroundService.subject.next(value);
 
       // Update the Articles.
       this.$guide = this.articleQuery
@@ -192,7 +196,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
   }
 
   public ngOnDestroy() {
-    this.document.body.style.backgroundImage = `url('/assets/images/background.jpg')`;
+    this.backgroundService.subject.next(null);
     this.subscribe$.unsubscribe();
     this.webSocketService.close(this.webSocketUrl);
   }

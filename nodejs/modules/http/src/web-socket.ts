@@ -1,7 +1,7 @@
+import wait from '@tenlastic/wait';
 import { EventEmitter } from 'events';
 import IsomorphicWS from 'isomorphic-ws';
 import TypedEmitter from 'typed-emitter';
-import { URL } from 'url';
 import { v4 as uuid } from 'uuid';
 
 import { BaseModel, WebSocketModel } from './models';
@@ -135,6 +135,9 @@ export class WebSocket {
     durableRequest: WebSocketDurableRequest,
     durableResponse?: WebSocketDurableResponse,
   ) {
+    // Make sure the web socket exists.
+    await wait(100, 5 * 1000, () => this.webSocket);
+
     if (this.webSocket?.readyState === 1) {
       const request = await durableRequest();
       this.send(request);
@@ -173,7 +176,10 @@ export class WebSocket {
     return this.durableRequests.has(_id);
   }
 
-  public request<T extends WebSocketResponse>(request: WebSocketRequest) {
+  public async request<T extends WebSocketResponse>(request: WebSocketRequest) {
+    // Make sure the web socket exists.
+    await wait(100, 5 * 1000, () => this.webSocket);
+
     if (this.webSocket?.readyState === 1) {
       this.send(request);
     } else {
@@ -203,7 +209,7 @@ export class WebSocket {
     }
   }
 
-  private response<T extends WebSocketResponse>(_id: string) {
+  private async response<T extends WebSocketResponse>(_id: string) {
     return new Promise<T>((resolve, reject) => {
       const onMessage = (message) => {
         const response = JSON.parse(message.data) as T;
