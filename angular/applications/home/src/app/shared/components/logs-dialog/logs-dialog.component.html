@@ -45,7 +45,7 @@
          class="log"
          [ngClass]="visibility[log.unix] ? 'expanded' : 'collapsed'"
          (click)="visibility[log.unix] = !visibility[log.unix]">
-      <div class="timestamp">[{{ log.unix | date: 'M/d/yy, H:mm:ss' }}]</div>
+      <div class="timestamp">[{{ log.unix | date:"M/d/yy - H:mm:ss" }}]</div>
       <div *ngIf="log.level"
            class="level">[{{ log.level | uppercase }}]</div>
       <div>{{ getBody(log, visibility[log.unix] ? 4 : 0) }}</div>

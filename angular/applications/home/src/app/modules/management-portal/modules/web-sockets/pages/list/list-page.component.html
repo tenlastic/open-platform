@@ -30,7 +30,7 @@
           *matHeaderCellDef
           mat-sort-header>Created At</th>
       <td mat-cell
-          *matCellDef="let element">{{ element.createdAt | date: 'medium' }}</td>
+          *matCellDef="let element">{{ element.createdAt | date:"MMM d, y 'at' h:mm a" }}</td>
     </ng-container>
 
     <tr mat-header-row

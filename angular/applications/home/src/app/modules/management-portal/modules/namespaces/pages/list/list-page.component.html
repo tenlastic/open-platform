@@ -47,7 +47,7 @@
           *matHeaderCellDef
           mat-sort-header>Created At</th>
       <td mat-cell
-          *matCellDef="let element">{{ element.createdAt | date }}</td>
+          *matCellDef="let element">{{ element.createdAt | date:"MMM d, y 'at' h:mm a" }}</td>
     </ng-container>
 
     <ng-container matColumnDef="updatedAt">
@@ -55,7 +55,7 @@
           *matHeaderCellDef
           mat-sort-header>Last Updated At</th>
       <td mat-cell
-          *matCellDef="let element">{{ element.updatedAt | date }}</td>
+          *matCellDef="let element">{{ element.updatedAt | date:"MMM d, y 'at' h:mm a" }}</td>
     </ng-container>
 
     <ng-container matColumnDef="actions">

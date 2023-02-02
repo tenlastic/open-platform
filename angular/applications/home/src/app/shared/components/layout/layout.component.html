@@ -29,7 +29,7 @@
     <app-button color="accent"
                 routerLink="/account"
                 routerLinkActive="active">
-      <mat-icon>{{ webSocket?.readyState === 1 ? 'person' : 'person_outline' }}</mat-icon>
+      <mat-icon>{{ isConnected ? 'person' : 'person_outline' }}</mat-icon>
       <div>{{ user.username }}</div>
     </app-button>
   </ng-container>

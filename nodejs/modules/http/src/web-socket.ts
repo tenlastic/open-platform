@@ -55,9 +55,7 @@ export type WebSocketEvents = {
 export class WebSocket {
   public emitter = new EventEmitter() as TypedEmitter<WebSocketEvents>;
   public interceptors: WebSocketInterceptors = { connect: [] };
-  public get readyState() {
-    return this.webSocket ? this.webSocket.readyState : 0;
-  }
+  public readyState = 0;
 
   private durableRequests = new Map<string, WebSocketDurableRequest>();
   private durableResponses = new Map<string, WebSocketDurableResponse>();
@@ -74,6 +72,7 @@ export class WebSocket {
     clearInterval(this.interval);
 
     this.emitter.emit('close', status);
+    this.readyState = 3;
     this.webSocket.close(status);
   }
 
@@ -83,6 +82,7 @@ export class WebSocket {
       url = await interceptor(url);
     }
 
+    this.readyState = 0;
     this.webSocket = new IsomorphicWS(`${url}`);
 
     clearInterval(this.interval);
@@ -114,6 +114,7 @@ export class WebSocket {
         const webSocket = response.body?.fullDocument as WebSocketModel;
         this.emitter.emit('open', webSocket);
         this.emitter.removeAllListeners('open');
+        this.readyState = 1;
 
         const durableRequests = this.durableRequests.values();
         for (const durableRequest of durableRequests) {
@@ -138,7 +139,7 @@ export class WebSocket {
     // Make sure the web socket exists.
     await wait(100, 5 * 1000, () => this.webSocket);
 
-    if (this.webSocket?.readyState === 1) {
+    if (this.readyState === 1) {
       const request = await durableRequest();
       this.send(request);
     }
@@ -180,7 +181,7 @@ export class WebSocket {
     // Make sure the web socket exists.
     await wait(100, 5 * 1000, () => this.webSocket);
 
-    if (this.webSocket?.readyState === 1) {
+    if (this.readyState === 1) {
       this.send(request);
     } else {
       this.emitter.on('open', () => this.send(request));

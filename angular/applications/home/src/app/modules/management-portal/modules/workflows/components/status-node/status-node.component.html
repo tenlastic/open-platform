@@ -16,13 +16,13 @@
      <div *ngIf="node.phase === 'Error'"
           class="node-phase"
           phase="Error">
-          Errored at {{ node.finishedAt | date:'h:mm:ss a on MMM d, y' }}
+          Errored on {{ node.finishedAt | date:"MMM d, y 'at' h:mm a" }}
           <ng-container *ngIf="node.message">({{ node.message }})</ng-container>
      </div>
      <div *ngIf="node.phase === 'Failed'"
           class="node-phase"
           phase="Failed">
-          Failed at {{ node.finishedAt | date:'h:mm:ss a on MMM d, y' }}
+          Failed on {{ node.finishedAt | date:"MMM d, y 'at' h:mm a" }}
           <ng-container *ngIf="node.message">({{ node.message }})</ng-container>
      </div>
      <div *ngIf="node.phase === 'Omitted'"
@@ -38,10 +38,10 @@
      </div>
      <div *ngIf="node.phase === 'Running'"
           class="node-phase"
-          phase="Running">Started at {{ node.startedAt | date:'h:mm:ss a on MMM d, y' }}</div>
+          phase="Running">Started on {{ node.startedAt | date:"MMM d, y 'at' h:mm a" }}</div>
      <div *ngIf="node.phase === 'Succeeded'"
           class="node-phase"
-          phase="Succeeded">Succeeded at {{ node.finishedAt | date:'h:mm:ss a on MMM d, y' }}</div>
+          phase="Succeeded">Succeeded on {{ node.finishedAt | date:"MMM d, y 'at' h:mm a" }}</div>
 </div>
 
 <app-button *ngIf="node.type === 'Pod'"

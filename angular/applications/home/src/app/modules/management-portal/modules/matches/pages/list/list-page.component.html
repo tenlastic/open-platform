@@ -61,7 +61,7 @@
           *matHeaderCellDef
           mat-sort-header>Started At</th>
       <td mat-cell
-          *matCellDef="let element">{{ element.startedAt | date }}</td>
+          *matCellDef="let element">{{ element.startedAt | date:"MMM d, y 'at' h:mm a" }}</td>
     </ng-container>
 
     <ng-container matColumnDef="finishedAt">
@@ -69,7 +69,7 @@
           *matHeaderCellDef
           mat-sort-header>Finished At</th>
       <td mat-cell
-          *matCellDef="let element">{{ element.finishedAt | date }}</td>
+          *matCellDef="let element">{{ element.finishedAt | date:"MMM d, y 'at' h:mm a" }}</td>
     </ng-container>
 
     <ng-container matColumnDef="actions">

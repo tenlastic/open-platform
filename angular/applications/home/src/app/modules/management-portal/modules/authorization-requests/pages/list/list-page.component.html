@@ -38,7 +38,7 @@
           *matHeaderCellDef
           mat-sort-header>Granted At</th>
       <td mat-cell
-          *matCellDef="let element">{{ element.grantedAt | date }}</td>
+          *matCellDef="let element">{{ element.grantedAt | date:"MMM d, y 'at' h:mm a" }}</td>
     </ng-container>
 
     <ng-container matColumnDef="deniedAt">
@@ -46,7 +46,7 @@
           *matHeaderCellDef
           mat-sort-header>Denied At</th>
       <td mat-cell
-          *matCellDef="let element">{{ element.deniedAt | date }}</td>
+          *matCellDef="let element">{{ element.deniedAt | date:"MMM d, y 'at' h:mm a" }}</td>
     </ng-container>
 
     <ng-container matColumnDef="createdAt">
@@ -54,7 +54,7 @@
           *matHeaderCellDef
           mat-sort-header>Created At</th>
       <td mat-cell
-          *matCellDef="let element">{{ element.createdAt | date }}</td>
+          *matCellDef="let element">{{ element.createdAt | date:"MMM d, y 'at' h:mm a" }}</td>
     </ng-container>
 
     <ng-container matColumnDef="actions">

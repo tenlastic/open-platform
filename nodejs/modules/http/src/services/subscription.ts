@@ -79,47 +79,57 @@ export class SubscriptionService {
     request._id ??= uuid();
     request.method = WebSocketMethod.Post;
 
+    let resumeToken = request.body?.resumeToken;
+    let resumeTokenExpiresAt = new Date(Date.now() + 1 * 60 * 60 * 1000);
+
     return webSocket.createDurableRequest(
       request._id,
-      () => request,
-      async (message: SubscribeResponse<T>) => {
+      () => {
+        if (resumeToken && resumeTokenExpiresAt.getTime() <= Date.now()) {
+          const body = { ...request.body, resumeToken };
+          request.body = body;
+        }
+
+        return request;
+      },
+      async (response: SubscribeResponse<T>) => {
         // If the response does not include a full document, ignore it.
-        if (!message.body?.fullDocument) {
+        if (!response.body?.fullDocument) {
           return;
         }
 
         // If the response contains errors, throw the first one.
-        if (message.body.errors) {
-          throw new Error(message.body.errors[0].message);
+        if (response.body.errors) {
+          throw new Error(response.body.errors[0].message);
         }
 
         // Save the resume token if available.
-        if (message.body?.resumeToken) {
-          const body = { ...request.body, resumeToken: message.body.resumeToken };
-          request.body = body;
+        if (response.body?.resumeToken) {
+          resumeToken = response.body.resumeToken;
+          resumeTokenExpiresAt = new Date(Date.now() + 1 * 60 * 60 * 1000);
         }
 
         // Invoke the callback, responding with a NAK if ACKs are enabled.
         if (options.acks && options.callback) {
           try {
-            await options.callback(message);
+            await options.callback(response);
           } catch {
             return this.nak(request._id, url);
           }
         } else if (options.callback) {
-          await options.callback(message);
+          await options.callback(response);
         }
 
-        const record = new Model(message.body.fullDocument);
-        if (message.body.operationType === 'delete') {
+        const record = new Model(response.body.fullDocument);
+        if (response.body.operationType === 'delete') {
           service.emitter.emit('delete', record);
           store.remove(record._id);
-        } else if (message.body.operationType === 'insert') {
+        } else if (response.body.operationType === 'insert') {
           service.emitter.emit('create', record);
           store.upsertMany([record]);
         } else if (
-          message.body.operationType === 'replace' ||
-          message.body.operationType === 'update'
+          response.body.operationType === 'replace' ||
+          response.body.operationType === 'update'
         ) {
           service.emitter.emit('update', record);
           store.upsertMany([record]);

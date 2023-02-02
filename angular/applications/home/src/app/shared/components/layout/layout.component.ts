@@ -28,6 +28,17 @@ export class LayoutComponent implements OnInit {
   }
   public $namespaces: Observable<NamespaceModel[]>;
   public $storefronts: Observable<StorefrontModel[]>;
+  public get isConnected() {
+    const webSockets = this.webSocketService.webSockets.values();
+
+    for (const webSocket of webSockets) {
+      if (webSocket.readyState === 0) {
+        return false;
+      }
+    }
+
+    return true;
+  }
   public get isElectron() {
     return this.electronService.isElectron;
   }
@@ -43,9 +54,6 @@ export class LayoutComponent implements OnInit {
   }
   public get user() {
     return this.identityService.user;
-  }
-  public get webSocket() {
-    return this.webSocketService.webSockets.get(environment.wssUrl);
   }
 
   private previousUrl: string;

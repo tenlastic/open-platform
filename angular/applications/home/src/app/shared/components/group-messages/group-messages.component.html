@@ -66,9 +66,7 @@
        class="messages-container">
     <ng-container *ngFor="let message of ($messages | async).slice().reverse(); let i = index">
       <div class="message"
-           matTooltip="{{ message.createdAt | date: 'M/d/y' }} at {{
-          message.createdAt | date: 'h:mm a'
-        }}"
+           [matTooltip]="message.createdAt | date:'MMM d, y \'at\' h:mm a'"
            matTooltipPosition="before">
         <div class="sender">[{{ getUser(message.fromUserId).username }}]:</div>
         <div>{{ message.body }}</div>

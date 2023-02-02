@@ -3,10 +3,7 @@
        class="page">
     <app-title>{{ article.title }}</app-title>
     <h4 *ngIf="article.subtitle">{{ article.subtitle }}</h4>
-    <div class="type-date">
-      {{ article.publishedAt | date: 'longDate' }} at
-      {{ article.publishedAt | date: 'shortTime' }}
-    </div>
+    <div class="type-date">{{ article.publishedAt | date:"MMMM d, y 'at' h:mm a" }}</div>
 
     <app-markdown [markdown]="article.body"></app-markdown>
   </div>
