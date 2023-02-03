@@ -9,7 +9,7 @@ export class BackgroundService {
 
   constructor(@Inject(DOCUMENT) private document: Document) {
     this.subject.subscribe((url) => {
-      const value = `url('${url}')` ?? `url('/assets/images/background.jpg')`;
+      const value = url ? `url('${url}')` : `url('/assets/images/background.jpg')`;
       this.document.body.style.backgroundImage = value;
       this.value = value;
     });
