@@ -332,11 +332,12 @@ export class UpdateService {
 
     return new Promise(async (resolve, reject) => {
       const accessToken = await this.tokenService.getAccessToken();
+      const qs = files.length > 0 ? { files: files.join('') } : {};
 
       request
         .get({
           headers: { Authorization: `Bearer ${accessToken.value}` },
-          qs: { files: files.join('') },
+          qs,
           url: `${environment.apiUrl}/namespaces/${namespaceId}/builds/${status.build._id}/files`,
         })
         .on('data', (data) => {
