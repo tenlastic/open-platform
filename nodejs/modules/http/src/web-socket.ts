@@ -193,14 +193,12 @@ export class WebSocket {
   private async ping() {
     if (this.webSocket.readyState > 1) {
       try {
-        return await this.connect();
+        await this.connect();
       } catch {
         const error = new Error(`Could not reconnect to web socket at ${this.url}.`);
         console.error(error);
       }
-    }
-
-    if (this.webSocket.readyState === 1) {
+    } else if (this.webSocket.readyState === 1) {
       const request: WebSocketRequest = {
         _id: uuid(),
         method: WebSocketMethod.Get,

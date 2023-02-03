@@ -96,7 +96,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
         this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
       this.builds = await this.buildService.find(params.namespaceId, {
-        select: '-files',
+        select: '-files -reference.files',
         sort: '-publishedAt',
         where: { namespaceId: params.namespaceId, platform: IBuild.Platform.Server64 },
       });

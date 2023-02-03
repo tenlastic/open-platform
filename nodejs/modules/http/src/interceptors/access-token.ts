@@ -23,6 +23,7 @@ export class AccessTokenInterceptor {
 
     webSocketService?.interceptors.connect.push(async (url) => {
       const accessToken = await tokenService.getAccessToken();
+
       if (accessToken) {
         url += url.includes('?') ? `&` : '?';
         url += `access_token=${accessToken.value}`;

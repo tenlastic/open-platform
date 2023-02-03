@@ -36,7 +36,7 @@ export class WebSocketService {
    */
   public close(url: string) {
     const webSocket = this.webSockets.get(url);
-    webSocket?.close(1000);
+    webSocket?.close();
 
     this.webSockets.delete(url);
   }

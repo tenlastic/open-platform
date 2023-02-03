@@ -200,6 +200,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
 
     const gameServers = await this.gameServerService.find(params.namespaceId, { sort: 'name' });
     await this.buildService.find(params.namespaceId, {
+      select: '-files -reference.files',
       where: { _id: { $in: gameServers.map((gs) => gs.buildId) } },
     });
   }

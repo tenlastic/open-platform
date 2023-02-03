@@ -129,6 +129,7 @@ export class GameServerTemplatesListPageComponent implements OnDestroy, OnInit {
       sort: 'name',
     });
     await this.buildService.find(params.namespaceId, {
+      select: '-files -reference.files',
       where: { _id: { $in: gameServerTemplates.map((gs) => gs.buildId) } },
     });
   }
