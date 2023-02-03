@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "name": "@tenlastic/cdc",
   "private": true,
-  "version": "0.0.381",
+  "version": "0.0.382",
   "scripts": {
     "build": "../../scripts/build.sh",
     "lint": "../../scripts/lint.sh",
@@ -15,14 +15,14 @@
     "version": "./scripts/version.sh"
   },
   "dependencies": {
-    "@tenlastic/logging": "0.0.381",
-    "@tenlastic/mongoose": "0.0.381",
-    "@tenlastic/nats": "0.0.381",
-    "@tenlastic/redis": "0.0.381",
+    "@tenlastic/logging": "0.0.382",
+    "@tenlastic/mongoose": "0.0.382",
+    "@tenlastic/nats": "0.0.382",
+    "@tenlastic/redis": "0.0.382",
     "source-map-support": "0.5.12"
   },
   "devDependencies": {
-    "@tenlastic/mongoose-nats": "0.0.381",
+    "@tenlastic/mongoose-nats": "0.0.382",
     "eslint": "^7.26.0",
     "mocha": "7.1.2",
     "nyc": "15.0.0",
