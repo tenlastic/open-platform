@@ -65,7 +65,7 @@ describe('web-server/files/download', function () {
           _id: build._id,
         },
         request: {
-          query: {
+          rawQuery: {
             files: '10',
           },
         },
@@ -108,7 +108,7 @@ describe('web-server/files/download', function () {
           _id: build._id,
         },
         request: {
-          query: {
+          rawQuery: {
             files: '10',
           },
         },
