@@ -25,6 +25,7 @@ export async function queryMiddleware(ctx: Context, next: Next) {
     }, {});
   }
 
+  ctx.request.rawQuery = { ...ctx.request.query };
   Object.assign(ctx.request.query, query);
 
   await next();

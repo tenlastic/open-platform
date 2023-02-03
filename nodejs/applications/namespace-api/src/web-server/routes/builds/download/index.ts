@@ -18,12 +18,9 @@ export async function handler(ctx: Context) {
     throw new PermissionError();
   }
 
-  const query = `${ctx.request.query.files}`;
-  const files = ctx.request.query.files
-    ? build.files.filter((f, i) => query[i] === '1')
+  const files = ctx.request.rawQuery?.files
+    ? build.files.filter((f, i) => ctx.request.rawQuery.files[i] === '1')
     : build.files;
-
-  console.log(`Total Files: ${files.length} - Query: ${query}`);
 
   const zip = new JSZip();
   for (const file of files) {

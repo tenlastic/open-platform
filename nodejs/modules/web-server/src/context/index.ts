@@ -8,6 +8,7 @@ export interface Jwt {
 
 export interface Request extends koa.Request {
   body?: any;
+  rawQuery?: { [key: string]: string };
 }
 
 interface Response {
