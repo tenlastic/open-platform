@@ -23,6 +23,8 @@ export async function handler(ctx: Context) {
     ? build.files.filter((f, i) => query[i] === '1')
     : build.files;
 
+  console.log(`Total Files: ${files.length} - Query: ${query}`);
+
   const zip = new JSZip();
   for (const file of files) {
     const stream = await minio.getObject(
