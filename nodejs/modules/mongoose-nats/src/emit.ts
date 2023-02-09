@@ -24,7 +24,6 @@ export async function emit<TDocument extends mongoose.Document>(
     ack_wait: 60 * 1000 * 1000 * 1000,
     deliver_policy: DeliverPolicy.All,
     durable_name: `${durable}-${collection}`,
-    inactive_threshold: 7 * 24 * 60 * 60 * 1000 * 1000 * 1000,
     max_deliver: 5,
     ...options,
   });

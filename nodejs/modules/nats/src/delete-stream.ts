@@ -7,7 +7,12 @@ export async function deleteStream(subject: string) {
   const streams = await jsm.streams.list().next();
   const stream = streams.find((s) => s.config.name === name);
 
-  if (stream) {
-    return jsm.streams.delete(name);
+  if (!stream) {
+    return false;
   }
+
+  const consumers = await jsm.consumers.list(name).next();
+  await Promise.all(consumers.map((c) => jsm.consumers.delete(name, c.name)));
+
+  return jsm.streams.delete(name);
 }

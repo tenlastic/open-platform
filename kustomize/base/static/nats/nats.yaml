@@ -49,9 +49,6 @@ spec:
         memStorage:
           enabled: true
           size: 2G
-      logging:
-        debug: true
-        trace: true
       resources:
         requests:
           cpu: 50m

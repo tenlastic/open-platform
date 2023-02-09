@@ -38,8 +38,6 @@ import { KubernetesNamespaceSidecar } from './sidecar';
 
 export const KubernetesNamespace = {
   delete: async (namespace: NamespaceDocument) => {
-    const name = KubernetesNamespace.getName(namespace._id);
-
     /**
      * =======================
      * KUBERNETES RESOURCES
@@ -63,34 +61,10 @@ export const KubernetesNamespace = {
 
     /**
      * =======================
-     * MINIO
+     * SERVICES
      * =======================
      */
-    try {
-      await minio.removeBucket(name);
-    } catch (e) {
-      if (e.code !== 'NoSuchBucket') {
-        throw e;
-      }
-    }
-
-    /**
-     * =======================
-     * MONGODB
-     * =======================
-     */
-    const connection = await createConnection({
-      connectionString: process.env.MONGO_CONNECTION_STRING,
-      databaseName: name,
-    });
-    await connection.dropDatabase();
-
-    /**
-     * =======================
-     * NATS
-     * =======================
-     */
-    await nats.deleteStream(name);
+    await Promise.all([deleteMinio(namespace), deleteMongo(namespace), deleteNats(namespace)]);
   },
   getAffinity: (namespace: NamespaceDocument, role: NamespaceStatusComponentName): V1Affinity => {
     const name = KubernetesNamespace.getName(namespace._id);
@@ -158,3 +132,32 @@ export const KubernetesNamespace = {
     ]);
   },
 };
+
+async function deleteMinio(namespace: NamespaceDocument) {
+  const name = KubernetesNamespace.getName(namespace._id);
+
+  try {
+    await minio.removeBucket(name);
+  } catch (e) {
+    if (e.code !== 'NoSuchBucket') {
+      throw e;
+    }
+  }
+}
+
+async function deleteMongo(namespace: NamespaceDocument) {
+  const name = KubernetesNamespace.getName(namespace._id);
+
+  const connection = await createConnection({
+    connectionString: process.env.MONGO_CONNECTION_STRING,
+    databaseName: name,
+  });
+
+  await connection.dropDatabase();
+}
+
+function deleteNats(namespace: NamespaceDocument) {
+  const name = KubernetesNamespace.getName(namespace._id);
+
+  return nats.deleteStream(name);
+}

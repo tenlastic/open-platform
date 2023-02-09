@@ -27,7 +27,6 @@ export async function replicateFromNats(
     ack_wait: 60 * 1000 * 1000 * 1000,
     deliver_policy: DeliverPolicy.StartTime,
     durable_name: options.durable,
-    inactive_threshold: 30 * 24 * 60 * 60 * 1000 * 1000 * 1000,
     max_deliver: 5,
     opt_start_time: options.start?.toISOString(),
   });
