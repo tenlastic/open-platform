@@ -52,6 +52,7 @@ export interface IPopulate {
 export interface IReferences<TDocument extends mongoose.Document> {
   apiKey?: string;
   authorization?: any;
+  now?: Date;
   record?: TDocument;
   user?: any;
 }
@@ -148,6 +149,8 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
     if (where === null) {
       throw new PermissionError();
     }
+
+    console.log(where);
 
     const query = this.Model.find(where)
       .sort(override.sort || params.sort)
@@ -326,6 +329,7 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
     return {
       apiKey: apiKey ?? null,
       authorization: authorization ? toPlainObject(authorization, true) : null,
+      now: new Date(),
       record: record ? toPlainObject(record, true) : null,
       user: user ? toPlainObject(user, true) : null,
     } as IReferences<TDocument>;

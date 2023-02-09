@@ -37,12 +37,12 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(BuildMode
         AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.BuildsRead]),
         {
           ...AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.BuildsReadPublished]),
-          publishedAt: { $lte: new Date() },
+          publishedAt: { $lte: { $ref: 'now' } },
         },
       ],
     },
     'user-read': {},
-    'user-read-published': { publishedAt: { $lte: new Date() } },
+    'user-read-published': { publishedAt: { $lte: { $ref: 'now' } } },
   },
   populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
   read: {
