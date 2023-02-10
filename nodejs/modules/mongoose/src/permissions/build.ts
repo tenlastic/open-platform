@@ -10,7 +10,6 @@ const administrator = {
     'createdAt',
     'entrypoint',
     'files.*',
-    'logs',
     'name',
     'namespaceId',
     'platform',
@@ -57,12 +56,18 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(BuildMode
       'publishedAt',
       'updatedAt',
     ],
+    'namespace-logs': ['logs'],
     'namespace-read': administrator.read,
+    'system-logs': ['logs'],
     'system-read': administrator.read,
+    'user-logs': ['logs'],
     'user-read': administrator.read,
   },
   roles: {
     default: {},
+    'namespace-logs': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+      AuthorizationRole.BuildLogsRead,
+    ]),
     'namespace-read': {
       $or: [
         AuthorizationPermissionsHelpers.getNamespaceRoleQuery([AuthorizationRole.BuildsRead]),
@@ -77,6 +82,9 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(BuildMode
     'namespace-write': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
       AuthorizationRole.BuildsWrite,
     ]),
+    'system-logs': AuthorizationPermissionsHelpers.getSystemRoleQuery([
+      AuthorizationRole.BuildLogsRead,
+    ]),
     'system-read': {
       $or: [
         AuthorizationPermissionsHelpers.getSystemRoleQuery([AuthorizationRole.BuildsRead]),
@@ -90,6 +98,9 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(BuildMode
     },
     'system-write': AuthorizationPermissionsHelpers.getSystemRoleQuery([
       AuthorizationRole.BuildsWrite,
+    ]),
+    'user-logs': AuthorizationPermissionsHelpers.getUserRoleQuery([
+      AuthorizationRole.BuildLogsRead,
     ]),
     'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([AuthorizationRole.BuildsRead]),
     'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([AuthorizationRole.BuildsWrite]),

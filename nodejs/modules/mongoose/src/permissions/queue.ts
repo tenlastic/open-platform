@@ -29,7 +29,6 @@ const administrator = {
     'description',
     'gameServerTemplateId',
     'invitationSeconds',
-    'logs',
     'memory',
     'name',
     'namespaceId',
@@ -87,23 +86,35 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(QueueMode
       'updatedAt',
       'usersPerTeam',
     ],
+    'namespace-logs': ['logs'],
     'namespace-read': administrator.read,
+    'system-logs': ['logs'],
     'system-read': administrator.read,
+    'user-logs': ['logs'],
     'user-read': administrator.read,
   },
   roles: {
     default: {},
+    'namespace-logs': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+      AuthorizationRole.QueueLogsRead,
+    ]),
     'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
       AuthorizationRole.QueuesRead,
     ]),
     'namespace-write': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
       AuthorizationRole.QueuesWrite,
     ]),
+    'system-logs': AuthorizationPermissionsHelpers.getSystemRoleQuery([
+      AuthorizationRole.QueueLogsRead,
+    ]),
     'system-read': AuthorizationPermissionsHelpers.getSystemRoleQuery([
       AuthorizationRole.QueuesRead,
     ]),
     'system-write': AuthorizationPermissionsHelpers.getSystemRoleQuery([
       AuthorizationRole.QueuesWrite,
+    ]),
+    'user-logs': AuthorizationPermissionsHelpers.getUserRoleQuery([
+      AuthorizationRole.QueueLogsRead,
     ]),
     'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([AuthorizationRole.QueuesRead]),
     'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([AuthorizationRole.QueuesWrite]),

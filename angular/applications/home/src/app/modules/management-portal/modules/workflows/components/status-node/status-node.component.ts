@@ -2,6 +2,8 @@ import { Component, Input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Order } from '@datorama/akita';
 import {
+  AuthorizationQuery,
+  IAuthorization,
   IWorkflow,
   SubscriptionService,
   WorkflowLogModel,
@@ -14,6 +16,7 @@ import {
 import { map } from 'rxjs/operators';
 import { v4 as uuid } from 'uuid';
 
+import { IdentityService } from '../../../../../../core/services';
 import { environment } from '../../../../../../../environments/environment';
 import { LogsDialogComponent, LogsDialogComponentData } from '../../../../../../shared/components';
 
@@ -28,6 +31,7 @@ export class WorkflowStatusNodeComponent {
   @Input() public node: WorkflowStatusNodeWithParent;
   @Input() public workflow: WorkflowModel;
 
+  public hasLogAuthorization: boolean;
   public phaseToIcon = {
     Error: 'cancel',
     Failed: 'cancel',
@@ -41,6 +45,8 @@ export class WorkflowStatusNodeComponent {
   }
 
   constructor(
+    private authorizationQuery: AuthorizationQuery,
+    private identityService: IdentityService,
     private matDialog: MatDialog,
     private subscriptionService: SubscriptionService,
     private workflowLogQuery: WorkflowLogQuery,
@@ -48,6 +54,14 @@ export class WorkflowStatusNodeComponent {
     private workflowLogStore: WorkflowLogStore,
     private workflowQuery: WorkflowQuery,
   ) {}
+
+  public ngOnInit() {
+    const userId = this.identityService.user?._id;
+    const logRoles = [IAuthorization.Role.WorkflowLogsRead];
+    this.hasLogAuthorization =
+      this.authorizationQuery.hasRoles(null, logRoles, userId) ||
+      this.authorizationQuery.hasRoles(this.workflow.namespaceId, logRoles, userId);
+  }
 
   public getLabel(displayName: string) {
     return displayName

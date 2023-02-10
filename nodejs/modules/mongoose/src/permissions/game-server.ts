@@ -26,7 +26,6 @@ const administrator = {
     'createdAt',
     'currentUserIds',
     'description',
-    'logs',
     'matchId',
     'memory',
     'metadata.*',
@@ -99,23 +98,35 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
       'status.phase',
       'updatedAt',
     ],
+    'namespace-logs': ['logs'],
     'namespace-read': administrator.read,
+    'system-logs': ['logs'],
     'system-read': administrator.read,
+    'user-logs': ['logs'],
     'user-read': administrator.read,
   },
   roles: {
     default: {},
+    'namespace-logs': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+      AuthorizationRole.GameServerLogsRead,
+    ]),
     'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
       AuthorizationRole.GameServersRead,
     ]),
     'namespace-write': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
       AuthorizationRole.GameServersWrite,
     ]),
+    'system-logs': AuthorizationPermissionsHelpers.getSystemRoleQuery([
+      AuthorizationRole.GameServerLogsRead,
+    ]),
     'system-read': AuthorizationPermissionsHelpers.getSystemRoleQuery([
       AuthorizationRole.GameServersRead,
     ]),
     'system-write': AuthorizationPermissionsHelpers.getSystemRoleQuery([
       AuthorizationRole.GameServersWrite,
+    ]),
+    'user-logs': AuthorizationPermissionsHelpers.getUserRoleQuery([
+      AuthorizationRole.GameServerLogsRead,
     ]),
     'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([
       AuthorizationRole.GameServersRead,

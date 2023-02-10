@@ -433,7 +433,7 @@ export class UpdateService {
   }
 
   private onAuthorizationChange(record: AuthorizationModel) {
-    if (record.userId !== this.identityService.user._id) {
+    if (!record.namespaceId || record.userId !== this.identityService.user._id) {
       return;
     }
 
@@ -441,10 +441,6 @@ export class UpdateService {
   }
 
   private onBuildChange(record: BuildModel) {
-    if (!record.namespaceId) {
-      return;
-    }
-
     this.checkForUpdates(record.namespaceId);
   }
 

@@ -11,6 +11,7 @@ resources:
   - ./dynamic/flux/bitnami.helmrepository.yaml
   - ./dynamic/flux/open-platform.gitrepository.yaml
   - ./dynamic/network-policies/default.yaml
+  - ./dynamic/rbac/aggregation-api.yaml
   - ./dynamic/rbac/api.yaml
   - ./dynamic/rbac/build.yaml
   - ./dynamic/rbac/build-sidecar.yaml

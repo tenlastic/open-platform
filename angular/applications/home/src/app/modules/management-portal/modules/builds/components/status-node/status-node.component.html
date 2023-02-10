@@ -44,7 +44,7 @@
           phase="Succeeded">Succeeded on {{ node.finishedAt | date:"MMM d, y 'at' h:mm a" }}</div>
 </div>
 
-<app-button *ngIf="node.type === 'Pod'"
+<app-button *ngIf="hasLogAuthorization && node.type === 'Pod'"
             color="accent"
             layout="left"
             (OnClick)="showLogsDialog()">

@@ -56,7 +56,6 @@ export const WorkflowPermissions = new MongoosePermissions<WorkflowDocument>(Wor
       '_id',
       'cpu',
       'createdAt',
-      'logs',
       'memory',
       'name',
       'namespaceId',
@@ -66,20 +65,32 @@ export const WorkflowPermissions = new MongoosePermissions<WorkflowDocument>(Wor
       'storage',
       'updatedAt',
     ],
+    'namespace-logs': ['logs'],
+    'system-logs': ['logs'],
+    'user-logs': ['logs'],
   },
   roles: {
     default: {},
+    'namespace-logs': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+      AuthorizationRole.WorkflowLogsRead,
+    ]),
     'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
       AuthorizationRole.WorkflowsRead,
     ]),
     'namespace-write': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
       AuthorizationRole.WorkflowsWrite,
     ]),
+    'system-logs': AuthorizationPermissionsHelpers.getSystemRoleQuery([
+      AuthorizationRole.WorkflowLogsRead,
+    ]),
     'system-read': AuthorizationPermissionsHelpers.getSystemRoleQuery([
       AuthorizationRole.WorkflowsRead,
     ]),
     'system-write': AuthorizationPermissionsHelpers.getSystemRoleQuery([
       AuthorizationRole.WorkflowsWrite,
+    ]),
+    'user-logs': AuthorizationPermissionsHelpers.getUserRoleQuery([
+      AuthorizationRole.WorkflowLogsRead,
     ]),
     'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([
       AuthorizationRole.WorkflowsRead,

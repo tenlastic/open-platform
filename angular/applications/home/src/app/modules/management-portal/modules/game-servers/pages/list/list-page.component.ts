@@ -47,6 +47,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
 
   public dataSource = new MatTableDataSource<GameServerModel>();
   public displayedColumns = ['name', 'description', 'build', 'status', 'actions'];
+  public hasLogAuthorization: boolean;
   public hasWriteAuthorization: boolean;
   public message: string;
   public get queueId() {
@@ -81,11 +82,15 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
       this.message = 'Loading...';
       this.params = params;
 
-      const roles = [IAuthorization.Role.GameServersWrite];
       const userId = this.identityService.user?._id;
+      const logRoles = [IAuthorization.Role.GameServerLogsRead];
+      this.hasLogAuthorization =
+        this.authorizationQuery.hasRoles(null, logRoles, userId) ||
+        this.authorizationQuery.hasRoles(params.namespaceId, logRoles, userId);
+      const writeRoles = [IAuthorization.Role.GameServersWrite];
       this.hasWriteAuthorization =
-        this.authorizationQuery.hasRoles(null, roles, userId) ||
-        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
+        this.authorizationQuery.hasRoles(null, writeRoles, userId) ||
+        this.authorizationQuery.hasRoles(params.namespaceId, writeRoles, userId);
 
       await this.fetchGameServers(params);
 

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Order } from '@datorama/akita';
 import {
@@ -10,10 +10,13 @@ import {
   BuildQuery,
   BuildLogService,
   SubscriptionService,
+  IAuthorization,
+  AuthorizationQuery,
 } from '@tenlastic/http';
 import { map } from 'rxjs/operators';
 import { v4 as uuid } from 'uuid';
 
+import { IdentityService } from '../../../../../../core/services';
 import { environment } from '../../../../../../../environments/environment';
 import { LogsDialogComponent, LogsDialogComponentData } from '../../../../../../shared/components';
 
@@ -24,10 +27,11 @@ type BuildStatusNodeWithParent = IBuild.Node & { parent: string };
   selector: 'app-build-status-node',
   styleUrls: ['./status-node.component.scss'],
 })
-export class BuildStatusNodeComponent {
+export class BuildStatusNodeComponent implements OnInit {
   @Input() public build: BuildModel;
   @Input() public node: BuildStatusNodeWithParent;
 
+  public hasLogAuthorization: boolean;
   public phaseToIcon = {
     Error: 'cancel',
     Failed: 'cancel',
@@ -41,13 +45,23 @@ export class BuildStatusNodeComponent {
   }
 
   constructor(
+    private authorizationQuery: AuthorizationQuery,
     private buildLogQuery: BuildLogQuery,
     private buildLogService: BuildLogService,
     private buildLogStore: BuildLogStore,
     private buildQuery: BuildQuery,
+    private identityService: IdentityService,
     private matDialog: MatDialog,
     private subscriptionService: SubscriptionService,
   ) {}
+
+  public ngOnInit() {
+    const userId = this.identityService.user?._id;
+    const logRoles = [IAuthorization.Role.BuildLogsRead];
+    this.hasLogAuthorization =
+      this.authorizationQuery.hasRoles(null, logRoles, userId) ||
+      this.authorizationQuery.hasRoles(this.build.namespaceId, logRoles, userId);
+  }
 
   public getLabel(displayName: string) {
     return displayName

@@ -44,6 +44,7 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
 
   public dataSource = new MatTableDataSource<NamespaceModel>();
   public displayedColumns = ['name', 'status', 'createdAt', 'updatedAt', 'actions'];
+  public hasLogAuthorization: boolean;
   public hasWriteAuthorization: boolean;
   public message: string;
 
@@ -66,9 +67,11 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
   public async ngOnInit() {
     this.message = 'Loading...';
 
-    const roles = [IAuthorization.Role.NamespacesWrite];
     const userId = this.identityService.user?._id;
-    this.hasWriteAuthorization = this.authorizationQuery.hasRoles(null, roles, userId);
+    const logRoles = [IAuthorization.Role.NamespaceLogsRead];
+    this.hasLogAuthorization = this.authorizationQuery.hasRoles(null, logRoles, userId);
+    const writeRoles = [IAuthorization.Role.NamespacesWrite];
+    this.hasWriteAuthorization = this.authorizationQuery.hasRoles(null, writeRoles, userId);
 
     await this.fetchNamespaces();
 

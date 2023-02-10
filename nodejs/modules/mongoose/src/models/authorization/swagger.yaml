@@ -37,11 +37,13 @@ components:
         - Articles:ReadWrite
         - Authorizations:Read
         - Authorizations:ReadWrite
+        - BuildLogs:Read
         - Builds:Read
         - Builds:ReadPublished
         - Builds:ReadWrite
         - Collections:Read
         - Collections:ReadWrite
+        - GameServerLogs:Read
         - GameServers:Read
         - GameServers:ReadAuthorized
         - GameServers:ReadWrite
@@ -49,8 +51,10 @@ components:
         - Matches:Read
         - Matches:ReadStarted
         - Matches:ReadWrite
+        - NamespaceLogs:Read
         - Namespaces:Read
         - Namespaces:ReadWrite
+        - QueueLogs:Read
         - Queues:Read
         - Queues:ReadWrite
         - Records:Read
@@ -61,5 +65,6 @@ components:
         - Users:ReadWrite
         - WebSockets:Read
         - WebSockets:ReadWrite
+        - WorkflowLogs:Read
         - Workflows:Read
         - Workflows:ReadWrite

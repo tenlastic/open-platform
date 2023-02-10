@@ -47,6 +47,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
 
   public dataSource = new MatTableDataSource<QueueModel>();
   public displayedColumns = ['name', 'description', 'gameServerTemplate', 'status', 'actions'];
+  public hasLogAuthorization: boolean;
   public hasWriteAuthorization: boolean;
   public message: string;
 
@@ -78,11 +79,15 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
       this.message = 'Loading...';
       this.params = params;
 
-      const roles = [IAuthorization.Role.QueuesWrite];
       const userId = this.identityService.user?._id;
+      const logRoles = [IAuthorization.Role.QueuesLogRead];
+      this.hasLogAuthorization =
+        this.authorizationQuery.hasRoles(null, logRoles, userId) ||
+        this.authorizationQuery.hasRoles(params.namespaceId, logRoles, userId);
+      const writeRoles = [IAuthorization.Role.QueuesWrite];
       this.hasWriteAuthorization =
-        this.authorizationQuery.hasRoles(null, roles, userId) ||
-        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
+        this.authorizationQuery.hasRoles(null, writeRoles, userId) ||
+        this.authorizationQuery.hasRoles(params.namespaceId, writeRoles, userId);
 
       await this.fetchQueues(params);
 
