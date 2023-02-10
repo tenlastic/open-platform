@@ -13,10 +13,17 @@ import {
 import axios from 'axios';
 import { isDeepStrictEqual } from 'util';
 
+interface Status {
+  components: Component[];
+  message: string;
+  nodes: Node[];
+  version: string;
+}
+
 import { version } from '../package.json';
-import { getComponents } from './get-components';
+import { Component, getComponents } from './get-components';
 import { getMessage } from './get-message';
-import { getNodes } from './get-nodes';
+import { getNodes, Node } from './get-nodes';
 
 const apiKey = process.env.API_KEY;
 const endpoint = process.env.ENDPOINT;
@@ -84,6 +91,7 @@ async function update() {
   console.log(`Updating status...`);
   startedUpdatingAt = now;
 
+  let status: Status;
   try {
     const d = Object.values(deployments);
     const j = Object.values(jobs);
@@ -94,24 +102,32 @@ async function update() {
     const message = getMessage(d, events, j, ss);
     const nodes = getNodes(p);
 
-    // Do not update status if nothing has changed.
-    const status = { components, message, nodes, version };
-    if (isDeepStrictEqual(previousStatus, status)) {
-      console.log('Status has not changed. Skipping update.');
-      return;
-    }
+    status = { components, message, nodes, version };
+  } catch (e) {
+    console.error(e);
+    process.exit(1);
+  }
 
+  // Do not update status if nothing has changed.
+  if (isDeepStrictEqual(previousStatus, status)) {
+    console.log('Status has not changed. Skipping update.');
+    return;
+  }
+
+  try {
     const headers = { 'X-Api-Key': apiKey };
     await axios({ headers, data: { status }, method: 'patch', url: endpoint });
-    previousStatus = status;
-
-    console.log('Status updated successfully.');
   } catch (e) {
     console.error(e);
 
     clearTimeout(timeout);
     timeout = setTimeout(update, throttle - now - startedUpdatingAt);
+
+    return;
   }
+
+  console.log('Status updated successfully.');
+  previousStatus = status;
 }
 
 function watchDeployments() {

@@ -8,6 +8,18 @@ import { isDeepStrictEqual } from 'util';
 
 import { getEndpoints } from './get-endpoints';
 
+interface Status {
+  endpoints: StatusEndpoint[];
+}
+
+interface StatusEndpoint {
+  externalIp: string;
+  externalPort: number;
+  internalIp: string;
+  internalPort: number;
+  protocol: string;
+}
+
 const apiKey = process.env.API_KEY;
 const container = process.env.CONTAINER;
 const endpoint = process.env.ENDPOINT;
@@ -39,28 +51,37 @@ async function update() {
   console.log(`Updating endpoints...`);
   startedUpdatingAt = now;
 
+  let status: Status;
   try {
     const pod = Object.values(pods).find((p) => !p.metadata.deletionTimestamp);
     const endpoints = await getEndpoints(container, pod);
 
-    // Do not update status if nothing has changed.
-    const status = { endpoints };
-    if (isDeepStrictEqual(previousStatus, status)) {
-      console.log('Status has not changed. Skipping update.');
-      return;
-    }
+    status = { endpoints };
+  } catch (e) {
+    console.error(e);
+    process.exit(1);
+  }
 
+  // Do not update status if nothing has changed.
+  if (isDeepStrictEqual(previousStatus, status)) {
+    console.log('Status has not changed. Skipping update.');
+    return;
+  }
+
+  try {
     const headers = { 'X-Api-Key': apiKey };
     await axios({ headers, data: { status }, method: 'patch', url: endpoint });
-    previousStatus = status;
-
-    console.log('Endpoints updated successfully.');
   } catch (e) {
     console.error(e);
 
     clearTimeout(timeout);
     timeout = setTimeout(update, throttle - now - startedUpdatingAt);
+
+    return;
   }
+
+  console.log('Status updated successfully.');
+  previousStatus = status;
 }
 
 function watchPods() {

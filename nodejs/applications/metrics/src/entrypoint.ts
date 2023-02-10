@@ -16,6 +16,16 @@ import { getMemory } from './get-memory';
 import { getMinioStorage } from './get-minio-storage';
 import { getMongoStorage } from './get-mongo-storage';
 
+interface Status {
+  limits: StatusLimits;
+}
+
+interface StatusLimits {
+  cpu: number;
+  memory: number;
+  storage: number;
+}
+
 const apiKey = process.env.API_KEY;
 const endpoint = process.env.ENDPOINT;
 const labelSelector = process.env.LABEL_SELECTOR;
@@ -86,7 +96,7 @@ async function update() {
   console.log(`Updating status...`);
   startedUpdatingAt = now;
 
-  // Send the status to the endpoint.
+  let status: Status;
   try {
     const cpu = getCpu(Object.values(resourceQuotas));
     const memory = getMemory(Object.values(resourceQuotas));
@@ -96,24 +106,32 @@ async function update() {
     ]);
     const storage = minioStorage + mongoStorage;
 
-    // Do not update status if nothing has changed.
-    const status = { limits: { cpu, memory, storage } };
-    if (isDeepStrictEqual(previousStatus, status)) {
-      console.log('Status has not changed. Skipping update.');
-      return;
-    }
+    status = { limits: { cpu, memory, storage } };
+  } catch (e) {
+    console.error(e);
+    process.exit(1);
+  }
 
+  // Do not update status if nothing has changed.
+  if (isDeepStrictEqual(previousStatus, status)) {
+    console.log('Status has not changed. Skipping update.');
+    return;
+  }
+
+  try {
     const headers = { 'X-Api-Key': apiKey };
     await axios({ headers, data: { status }, method: 'patch', url: endpoint });
-    previousStatus = status;
-
-    console.log('Status updated successfully.');
   } catch (e) {
     console.error(e);
 
     clearTimeout(timeout);
     timeout = setTimeout(update, throttle - now - startedUpdatingAt);
+
+    return;
   }
+
+  console.log('Status updated successfully.');
+  previousStatus = status;
 }
 
 /**

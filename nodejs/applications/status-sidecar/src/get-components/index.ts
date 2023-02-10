@@ -12,7 +12,7 @@ export function getComponents(
   jobs: V1Job[],
   pods: V1Pod[],
   statefulSets: V1StatefulSet[],
-) {
+): Component[] {
   const components = [
     ...deployments.map(getReplicaSetComponents),
     ...jobs.map((job) => getJobComponents(job, pods)),
