@@ -10,7 +10,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: nats
-      version: 0.18.1
+      version: 0.19.9
   interval: 5m
   releaseName: nats
   values:
