@@ -147,8 +147,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
       const storefront = results[2][0];
 
       // Update the background image.
-      const value = storefront.background || '/assets/images/background.jpg';
-      this.backgroundService.subject.next(value);
+      this.backgroundService.set(storefront.background);
 
       // Update the Articles.
       this.$guide = this.articleQuery
@@ -196,7 +195,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
   }
 
   public ngOnDestroy() {
-    this.backgroundService.subject.next(null);
+    this.backgroundService.unset();
     this.subscribe$.unsubscribe();
     this.webSocketService.close(this.webSocketUrl);
   }

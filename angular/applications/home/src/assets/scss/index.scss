@@ -4,6 +4,10 @@
 @import './scrollbar.scss';
 @import './theme.scss';
 
+:root {
+  --background-image: url('/assets/images/background.jpg');
+}
+
 * {
   font-family: 'Oswald', sans-serif;
   text-shadow: $text-shadow;
@@ -24,7 +28,7 @@ app-toggle-section:last-of-type > .row:last-of-type {
 }
 
 body {
-  background: url('/assets/images/background.jpg');
+  background: var(--background-image);
   background-attachment: fixed;
   background-position: center;
   background-size: cover;

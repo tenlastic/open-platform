@@ -1,11 +1,9 @@
 import {
   Component,
   ElementRef,
-  HostBinding,
   Input,
   OnChanges,
   OnDestroy,
-  OnInit,
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
@@ -27,7 +25,7 @@ import {
 import { Subscription, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { BackgroundService, IdentityService } from '../../../core/services';
+import { IdentityService } from '../../../core/services';
 import { InputDialogComponent } from '../input-dialog/input-dialog.component';
 import { PromptComponent } from '../prompt/prompt.component';
 
@@ -36,8 +34,7 @@ import { PromptComponent } from '../prompt/prompt.component';
   styleUrls: ['./group-messages.component.scss'],
   templateUrl: 'group-messages.component.html',
 })
-export class GroupMessagesComponent implements OnChanges, OnDestroy, OnInit {
-  @HostBinding('style.background-image') private background = this.backgroundService.value;
+export class GroupMessagesComponent implements OnChanges, OnDestroy {
   @Input() public group: GroupModel;
   @ViewChild('messagesScrollContainer') public messagesScrollContainer: ElementRef;
 
@@ -62,7 +59,6 @@ export class GroupMessagesComponent implements OnChanges, OnDestroy, OnInit {
   private setGroup$ = new Subscription();
 
   constructor(
-    private backgroundService: BackgroundService,
     private groupInvitationService: GroupInvitationService,
     private groupService: GroupService,
     private groupStore: GroupStore,
@@ -74,10 +70,6 @@ export class GroupMessagesComponent implements OnChanges, OnDestroy, OnInit {
     private userQuery: UserQuery,
     private userService: UserService,
   ) {}
-
-  public ngOnInit() {
-    this.setBackground$ = this.backgroundService.subject.subscribe((v) => (this.background = v));
-  }
 
   public async ngOnChanges(changes: SimpleChanges) {
     if (

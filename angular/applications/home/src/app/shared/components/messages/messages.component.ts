@@ -1,13 +1,4 @@
-import {
-  Component,
-  ElementRef,
-  HostBinding,
-  Input,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import { Component, ElementRef, Input, OnChanges, OnDestroy, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import {
   FriendModel,
@@ -31,15 +22,14 @@ import {
 import { Subscription, Observable, combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 
-import { BackgroundService, IdentityService } from '../../../core/services';
+import { IdentityService } from '../../../core/services';
 
 @Component({
   selector: 'app-messages',
   styleUrls: ['./messages.component.scss'],
   templateUrl: 'messages.component.html',
 })
-export class MessagesComponent implements OnChanges, OnDestroy, OnInit {
-  @HostBinding('style.background-image') private background = this.backgroundService.value;
+export class MessagesComponent implements OnChanges, OnDestroy {
   @Input() public user: UserModel;
   @ViewChild('messagesScrollContainer')
   public messagesScrollContainer: ElementRef;
@@ -93,7 +83,6 @@ export class MessagesComponent implements OnChanges, OnDestroy, OnInit {
   private setBackground$ = new Subscription();
 
   constructor(
-    private backgroundService: BackgroundService,
     private friendQuery: FriendQuery,
     private friendService: FriendService,
     private groupQuery: GroupQuery,
@@ -109,10 +98,6 @@ export class MessagesComponent implements OnChanges, OnDestroy, OnInit {
     private userStore: UserStore,
     private webSocketQuery: WebSocketQuery,
   ) {}
-
-  public ngOnInit() {
-    this.setBackground$ = this.backgroundService.subject.subscribe((v) => (this.background = v));
-  }
 
   public async ngOnChanges() {
     return this.setUser();

@@ -4,14 +4,20 @@ import { Subject } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class BackgroundService {
-  public subject = new Subject<string>();
-  public value: string;
+  private readonly default = '/assets/images/background.jpg';
+  private subject = new Subject<string>();
 
   constructor(@Inject(DOCUMENT) private document: Document) {
-    this.subject.subscribe((url) => {
-      const value = url ? `url('${url}')` : `url('/assets/images/background.jpg')`;
-      this.document.body.style.backgroundImage = value;
-      this.value = value;
+    this.subject.subscribe((value) => {
+      this.document.documentElement.style.setProperty('--background-image', value);
     });
+  }
+
+  public set(value: string) {
+    this.subject.next(`url('${value || this.default}')`);
+  }
+
+  public unset() {
+    this.subject.next(null);
   }
 }
