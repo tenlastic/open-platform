@@ -54,28 +54,7 @@ spec:
           cpu: 50m
           memory: 250M
     natsbox:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: tenlastic.com/low-priority
-                    operator: Exists
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 1
-              podAffinityTerm:
-                labelSelector:
-                  matchExpressions:
-                    - key: app.kubernetes.io/name
-                      operator: In
-                      values:
-                        - nats
-                topologyKey: kubernetes.io/hostname
-      resources:
-        requests:
-          cpu: 50m
-          memory: 50M
+      enabled: false
   valuesFrom:
     - kind: Secret
       name: nats
