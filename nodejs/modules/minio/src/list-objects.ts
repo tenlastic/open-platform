@@ -13,7 +13,7 @@ export async function listObjects(
   try {
     result = client.listObjectsV2(bucketName, prefix, true);
   } catch (e) {
-    if (e?.code !== 'SlowDown' || timeout > TIMEOUT_LIMIT) {
+    if (e.code !== 'SlowDown' || timeout > TIMEOUT_LIMIT) {
       throw e;
     }
 

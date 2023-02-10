@@ -13,7 +13,7 @@ export async function listenBucketNotification(
   try {
     return client.listenBucketNotification(bucketName, prefix, suffix, events);
   } catch (e) {
-    if (e?.code !== 'SlowDown' || timeout > TIMEOUT_LIMIT) {
+    if (e.code !== 'SlowDown' || timeout > TIMEOUT_LIMIT) {
       throw e;
     }
 

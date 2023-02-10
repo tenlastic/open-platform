@@ -9,7 +9,7 @@ export async function removeObjects(
   try {
     return await client.removeObjects(bucketName, objectsList);
   } catch (e) {
-    if (e?.code !== 'SlowDown' || timeout > TIMEOUT_LIMIT) {
+    if (e.code !== 'SlowDown' || timeout > TIMEOUT_LIMIT) {
       throw e;
     }
 

@@ -10,7 +10,7 @@ export async function makeBucket(bucketName: string, timeout = TIMEOUT): Promise
 
     return await client.makeBucket(bucketName, 'us-east-1');
   } catch (e) {
-    if (e?.code !== 'SlowDown' || timeout > TIMEOUT_LIMIT) {
+    if (e.code !== 'SlowDown' || timeout > TIMEOUT_LIMIT) {
       throw e;
     }
 

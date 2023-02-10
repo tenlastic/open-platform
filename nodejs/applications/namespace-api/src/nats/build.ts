@@ -13,6 +13,17 @@ import { MinioBuild } from '../minio';
 // Log the message.
 BuildEvent.sync(log);
 
+// Create, delete, and update Kubernetes resources.
+BuildEvent.async(async (payload) => {
+  if (payload.operationType === 'delete') {
+    await KubernetesBuild.delete(payload.fullDocument, payload.operationType);
+  } else if (payload.operationType === 'insert') {
+    await KubernetesBuild.upsert(payload.fullDocument);
+  } else if (payload.operationType === 'update' && payload.fullDocument.status.finishedAt) {
+    await KubernetesBuild.delete(payload.fullDocument);
+  }
+});
+
 // Delete files from Minio if associated Build is deleted.
 // Delete zip file from Minio if associated Build is finished.
 BuildEvent.async(async (payload) => {
@@ -24,17 +35,6 @@ BuildEvent.async(async (payload) => {
   ) {
     const objectName = MinioBuild.getZipObjectName(payload.fullDocument);
     return minio.removeObject(process.env.MINIO_BUCKET, objectName);
-  }
-});
-
-// Create, delete, and update Kubernetes resources.
-BuildEvent.async(async (payload) => {
-  if (payload.operationType === 'delete') {
-    await KubernetesBuild.delete(payload.fullDocument, payload.operationType);
-  } else if (payload.operationType === 'insert') {
-    await KubernetesBuild.upsert(payload.fullDocument);
-  } else if (payload.operationType === 'update' && payload.fullDocument.status.finishedAt) {
-    await KubernetesBuild.delete(payload.fullDocument);
   }
 });
 

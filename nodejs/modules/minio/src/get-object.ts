@@ -11,7 +11,7 @@ export async function getObject(
   try {
     return await client.getObject(bucketName, objectName);
   } catch (e) {
-    if (e?.code !== 'SlowDown' || timeout > TIMEOUT_LIMIT) {
+    if (e.code !== 'SlowDown' || timeout > TIMEOUT_LIMIT) {
       throw e;
     }
 

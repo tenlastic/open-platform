@@ -10,7 +10,7 @@ export async function fGetObject(
   try {
     return await client.fGetObject(bucketName, objectName, filePath);
   } catch (e) {
-    if (e?.code !== 'SlowDown' || timeout > TIMEOUT_LIMIT) {
+    if (e.code !== 'SlowDown' || timeout > TIMEOUT_LIMIT) {
       throw e;
     }
 

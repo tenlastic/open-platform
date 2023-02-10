@@ -13,7 +13,7 @@ export async function fPutObject(
   try {
     return await client.fPutObject(bucketName, objectName, filePath, metaData);
   } catch (e) {
-    if (e?.code !== 'SlowDown' || timeout > TIMEOUT_LIMIT) {
+    if (e.code !== 'SlowDown' || timeout > TIMEOUT_LIMIT) {
       throw e;
     }
 

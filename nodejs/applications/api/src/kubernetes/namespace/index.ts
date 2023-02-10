@@ -14,13 +14,7 @@ import {
   statefulSetApiV1,
   workflowApiV1,
 } from '@tenlastic/kubernetes';
-import * as minio from '@tenlastic/minio';
-import {
-  createConnection,
-  NamespaceDocument,
-  NamespaceStatusComponentName,
-} from '@tenlastic/mongoose';
-import * as nats from '@tenlastic/nats';
+import { NamespaceDocument, NamespaceStatusComponentName } from '@tenlastic/mongoose';
 import * as mongoose from 'mongoose';
 
 import { KubernetesNamespaceApi } from './api';
@@ -38,12 +32,8 @@ import { KubernetesNamespaceSidecar } from './sidecar';
 
 export const KubernetesNamespace = {
   delete: async (namespace: NamespaceDocument) => {
-    /**
-     * =======================
-     * KUBERNETES RESOURCES
-     * =======================
-     */
     const query: BaseListQuery = { labelSelector: `tenlastic.com/namespaceId=${namespace._id}` };
+
     await Promise.all([
       deploymentApiV1.deleteCollection('dynamic', query),
       ingressApiV1.deleteCollection('dynamic', query),
@@ -58,13 +48,6 @@ export const KubernetesNamespace = {
       statefulSetApiV1.deleteCollection('dynamic', query),
       workflowApiV1.deleteCollection('dynamic', query),
     ]);
-
-    /**
-     * =======================
-     * SERVICES
-     * =======================
-     */
-    await Promise.all([deleteMinio(namespace), deleteMongo(namespace), deleteNats(namespace)]);
   },
   getAffinity: (namespace: NamespaceDocument, role: NamespaceStatusComponentName): V1Affinity => {
     const name = KubernetesNamespace.getName(namespace._id);
@@ -132,32 +115,3 @@ export const KubernetesNamespace = {
     ]);
   },
 };
-
-async function deleteMinio(namespace: NamespaceDocument) {
-  const name = KubernetesNamespace.getName(namespace._id);
-
-  try {
-    await minio.removeBucket(name);
-  } catch (e) {
-    if (e.code !== 'NoSuchBucket') {
-      throw e;
-    }
-  }
-}
-
-async function deleteMongo(namespace: NamespaceDocument) {
-  const name = KubernetesNamespace.getName(namespace._id);
-
-  const connection = await createConnection({
-    connectionString: process.env.MONGO_CONNECTION_STRING,
-    databaseName: name,
-  });
-
-  await connection.dropDatabase();
-}
-
-function deleteNats(namespace: NamespaceDocument) {
-  const name = KubernetesNamespace.getName(namespace._id);
-
-  return nats.deleteStream(name);
-}

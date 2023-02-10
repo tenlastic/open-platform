@@ -14,7 +14,7 @@ export async function putObject(
   try {
     return await client.putObject(bucketName, objectName, stream, metadata);
   } catch (e) {
-    if (e?.code !== 'SlowDown' || timeout > TIMEOUT_LIMIT) {
+    if (e.code !== 'SlowDown' || timeout > TIMEOUT_LIMIT) {
       throw e;
     }
 
