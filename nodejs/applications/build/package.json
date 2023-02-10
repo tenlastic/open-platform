@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "name": "@tenlastic/build",
   "private": true,
-  "version": "0.0.384",
+  "version": "0.0.385",
   "scripts": {
     "build": "../../scripts/build.sh",
     "lint": "../../scripts/lint.sh",
@@ -14,10 +14,10 @@
     "test:watch": "../../scripts/test.sh --watch"
   },
   "dependencies": {
-    "@tenlastic/dependency-injection": "0.0.384",
-    "@tenlastic/http": "0.0.384",
-    "@tenlastic/logging": "0.0.384",
-    "@tenlastic/minio": "0.0.384",
+    "@tenlastic/dependency-injection": "0.0.385",
+    "@tenlastic/http": "0.0.385",
+    "@tenlastic/logging": "0.0.385",
+    "@tenlastic/minio": "0.0.385",
     "axios": "0.27.2",
     "source-map-support": "0.5.12",
     "unzipper": "0.10.11"
