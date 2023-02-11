@@ -30,7 +30,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: argo
-      version: 0.22.8
+      version: 0.22.10
   interval: 5m
   releaseName: argo-workflows
   values:

@@ -26,6 +26,9 @@ spec:
   arguments:
     parameters:
       - name: revision
+  artifactGC:
+    serviceAccountName: argo-workflows
+    strategy: OnWorkflowDeletion
   entrypoint: entrypoint
   podGC:
     strategy: OnWorkflowSuccess
