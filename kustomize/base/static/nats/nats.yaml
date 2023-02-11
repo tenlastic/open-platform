@@ -9,8 +9,8 @@ spec:
       chart: nats
       sourceRef:
         kind: HelmRepository
-        name: nats
-      version: 0.19.9
+        name: bitnami
+      version: 7.5.9
   interval: 5m
   releaseName: nats
   values:
@@ -32,30 +32,13 @@ spec:
                     values:
                       - nats
               topologyKey: kubernetes.io/hostname
-    auth:
+    existingSecret: nats
+    persistence:
       enabled: true
-      systemAccount: system
-    cluster:
-      enabled: true
-      replicas: 5
-    nats:
-      jetstream:
-        enabled: true
-        fileStorage:
-          enabled: true
-          size: 8G
-          storageDirectory: /data/
-          storageClassName: balanced-expandable
-        memStorage:
-          enabled: true
-          size: 2G
-      resources:
-        requests:
-          cpu: 50m
-          memory: 250M
-    natsbox:
-      enabled: false
-  valuesFrom:
-    - kind: Secret
-      name: nats
-      valuesKey: values.yaml
+      size: 8G
+      storageClass: balanced-expandable
+    replicaCount: 5
+    resources:
+      requests:
+        cpu: 50m
+        memory: 250M

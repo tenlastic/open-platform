@@ -5,9 +5,4 @@ metadata:
   namespace: static
 spec:
   values:
-    cluster:
-      enabled: false
-    nats:
-      logging:
-        debug: true
-        trace: true
+    replicaCount: 1
