@@ -12,7 +12,7 @@ BuildEvent.async(async (payload) => {
   const { updateDescription } = payload;
 
   if (
-    payload.operationType === 'insert' ||
+    (payload.operationType === 'insert' && payload.fullDocument.publishedAt) ||
     (payload.operationType === 'update' && updateDescription.updatedFields.publishedAt)
   ) {
     await GameServerTemplateModel.updateMany({ buildId: referenceBuildId }, { buildId });

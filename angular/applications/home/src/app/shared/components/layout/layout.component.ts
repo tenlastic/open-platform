@@ -14,7 +14,6 @@ import {
 } from '@tenlastic/http';
 import { Observable } from 'rxjs';
 
-import { environment } from '../../../../environments/environment';
 import { ElectronService, IdentityService, UpdateStatus } from '../../../core/services';
 import { PromptComponent } from '../prompt/prompt.component';
 
@@ -128,6 +127,7 @@ export class LayoutComponent implements OnInit {
 
     const dialogRef = this.matDialog.open(PromptComponent, {
       data: {
+        autoFocus: false,
         buttons,
         message: `Are you sure you want to close the launcher?`,
       },
