@@ -37,6 +37,8 @@ spec:
       enabled: true
       size: 8G
       storageClass: balanced-expandable
+    podSecurityContext:
+      enabled: true
     replicaCount: 5
     resources:
       requests:
