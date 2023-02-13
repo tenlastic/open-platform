@@ -93,10 +93,11 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
     $event.stopPropagation();
 
     if (build.platform === IBuild.Platform.Server64 && build.reference) {
-      const referenceBuild = await this.buildService.findOne(
-        build.namespaceId,
-        build.reference._id,
-      );
+      let referenceBuild: BuildModel;
+
+      try {
+        referenceBuild = await this.buildService.findOne(build.namespaceId, build.reference._id);
+      } catch {}
 
       const dialogRef = this.matDialog.open(PromptComponent, {
         data: {
@@ -104,22 +105,22 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
             { color: 'primary', label: 'No' },
             { color: 'accent', label: 'Yes' },
           ],
-          message:
-            `Publishing this Build will restart and update Game Servers that use its Reference Build ` +
-            `(${referenceBuild.name}). Are you sure you want to publish this Build?`,
+          message: referenceBuild
+            ? `Publishing this Build will restart and update Game Servers that use its Reference Build (${referenceBuild.name}). ` +
+              `Are you sure you want to publish this Build?`
+            : `Publishing this Build will restart and update Game Servers that use its Reference Build. ` +
+              `Are you sure you want to publish this Build?`,
         },
       });
 
       dialogRef.afterClosed().subscribe(async (result) => {
         if (result === 'Yes') {
           await this.buildService.update(build.namespaceId, build._id, { publishedAt: new Date() });
-
           this.matSnackBar.open('Build published successfully.');
         }
       });
     } else {
       await this.buildService.update(build.namespaceId, build._id, { publishedAt: new Date() });
-
       this.matSnackBar.open('Build published successfully.');
     }
   }
@@ -130,10 +131,11 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
     let dialogRef: MatDialogRef<PromptComponent>;
 
     if (record.platform === IBuild.Platform.Server64 && record.reference) {
-      const referenceBuild = await this.buildService.findOne(
-        record.namespaceId,
-        record.reference._id,
-      );
+      let referenceBuild: BuildModel;
+
+      try {
+        referenceBuild = await this.buildService.findOne(record.namespaceId, record.reference._id);
+      } catch {}
 
       dialogRef = this.matDialog.open(PromptComponent, {
         data: {
@@ -141,9 +143,11 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
             { color: 'primary', label: 'No' },
             { color: 'accent', label: 'Yes' },
           ],
-          message:
-            `Deleting this Build will restart and rollback Game Servers to use its Reference Build ` +
-            `(${referenceBuild.name}). Are you sure you want to delete this Build?`,
+          message: referenceBuild
+            ? `Deleting this Build will restart and rollback Game Servers to use its Reference Build (${referenceBuild.name}). ` +
+              'Are you sure you want to delete this Build?'
+            : 'Deleting this Build will restart and rollback Game Servers to use its Reference Build. ' +
+              'Are you sure you want to delete this Build?',
         },
       });
     } else {
@@ -153,7 +157,7 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
             { color: 'primary', label: 'No' },
             { color: 'accent', label: 'Yes' },
           ],
-          message: `Are you sure you want to delete this Build?`,
+          message: 'Are you sure you want to delete this Build?',
         },
       });
     }
@@ -170,10 +174,11 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
     $event.stopPropagation();
 
     if (build.platform === IBuild.Platform.Server64 && build.reference) {
-      const referenceBuild = await this.buildService.findOne(
-        build.namespaceId,
-        build.reference._id,
-      );
+      let referenceBuild: BuildModel;
+
+      try {
+        referenceBuild = await this.buildService.findOne(build.namespaceId, build.reference._id);
+      } catch {}
 
       const dialogRef = this.matDialog.open(PromptComponent, {
         data: {
@@ -181,22 +186,22 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
             { color: 'primary', label: 'No' },
             { color: 'accent', label: 'Yes' },
           ],
-          message:
-            `Unpublishing this Build will restart and rollback Game Servers to use its Reference Build ` +
-            `(${referenceBuild.name}). Are you sure you want to unpublish this Build?`,
+          message: referenceBuild
+            ? `Unpublishing this Build will restart and rollback Game Servers to use its Reference Build (${referenceBuild.name}). ` +
+              `Are you sure you want to unpublish this Build?`
+            : `Unpublishing this Build will restart and rollback Game Servers to use its Reference Build. ` +
+              `Are you sure you want to unpublish this Build?`,
         },
       });
 
       dialogRef.afterClosed().subscribe(async (result) => {
         if (result === 'Yes') {
           await this.buildService.update(build.namespaceId, build._id, { publishedAt: null });
-
           this.matSnackBar.open('Build unpublished successfully.');
         }
       });
     } else {
       await this.buildService.update(build.namespaceId, build._id, { publishedAt: null });
-
       this.matSnackBar.open('Build unpublished successfully.');
     }
   }
