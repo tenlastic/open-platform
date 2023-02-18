@@ -39,7 +39,7 @@ spec:
       storageClass: balanced-expandable
     podSecurityContext:
       enabled: true
-    replicaCount: 5
+    replicaCount: 1
     resources:
       requests:
         cpu: 50m

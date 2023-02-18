@@ -1,12 +1,11 @@
+import { getStream } from './get-stream';
 import { getJetStreamManager } from './jet-stream-manager';
 
 export async function deleteStream(subject: string) {
   const name = subject.split('.')[0];
-
   const jsm = await getJetStreamManager();
-  const streams = await jsm.streams.list().next();
-  const stream = streams.find((s) => s.config.name === name);
 
+  const stream = await getStream(name);
   if (!stream) {
     return false;
   }

@@ -7,12 +7,11 @@ export async function upsertStream(subject: string, options?: Partial<StreamConf
 
   const max_age = 7 * 24 * 60 * 60 * 1000 * 1000 * 1000;
   const name = subject.split('.')[0];
-  const num_replicas = process.env.NATS_REPLICAS ? Number(process.env.NATS_REPLICAS) : 1;
   const subjects = [`${name}.>`];
 
   let stream: StreamInfo;
   try {
-    stream = await jsm.streams.add({ max_age, num_replicas, ...options, name, subjects });
+    stream = await jsm.streams.add({ max_age, ...options, name, subjects });
   } catch (e) {
     if (e.api_error?.code !== 400 || e.api_error?.err_code !== 10058) {
       throw e;
