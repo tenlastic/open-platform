@@ -259,7 +259,13 @@ export class UpdateService {
     status.state = UpdateServiceState.RequestingAuthorization;
     status.text = 'Requesting authorization...';
 
-    const roles = [IAuthorization.Role.BuildsReadPublished];
+    const roles = [
+      IAuthorization.Role.ArticlesReadPublished,
+      IAuthorization.Role.BuildsReadPublished,
+      IAuthorization.Role.CollectionsRead,
+      IAuthorization.Role.GameServersReadAuthorized,
+      IAuthorization.Role.QueuesRead,
+    ];
 
     if (status.authorizationRequest) {
       await this.authorizationRequestService.update(namespaceId, status.authorizationRequest._id, {
