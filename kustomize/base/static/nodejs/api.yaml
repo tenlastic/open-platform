@@ -71,7 +71,7 @@ metadata:
   name: api
   namespace: static
 spec:
-  replicas: 5
+  replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: api
