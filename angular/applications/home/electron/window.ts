@@ -6,7 +6,7 @@ import { createTray } from './tray';
 
 const args = process.argv.slice(1);
 let isQuitting = false;
-const serve = args.some((val) => val === '--serve');
+const serve = args.some((a) => a === '--serve');
 let window: BrowserWindow;
 
 export function createWindow() {
