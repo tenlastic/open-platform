@@ -150,8 +150,6 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       throw new PermissionError();
     }
 
-    console.log(where);
-
     const query = this.Model.find(where)
       .sort(override.sort || params.sort)
       .skip(override.skip || params.skip)
@@ -344,12 +342,14 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
     }
 
     const roles: string[] = [];
-    for (const [key, value] of Object.entries(this.options.roles)) {
+    for (const [role, query] of Object.entries(this.options.roles)) {
       try {
-        if (isJsonValid(references, value)) {
-          roles.push(key);
+        if (isJsonValid(references, query)) {
+          roles.push(role);
         }
-      } catch {}
+      } catch (e) {
+        console.error(e);
+      }
     }
 
     return roles;
@@ -358,9 +358,9 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
   /**
    * Populates a record if paths have not been populated already.
    */
-  private populateRecord(credentials: ICredentials, record: mongoose.Document) {
+  private async populateRecord(credentials: ICredentials, record: mongoose.Document) {
     if (!this.options.populate) {
-      return Promise.resolve(record);
+      return record;
     }
 
     const paths = this.options.populate.map((p) => this.getPaths(p)).flat() || [];
@@ -373,6 +373,6 @@ export class MongoosePermissions<TDocument extends mongoose.Document> {
       }
     }
 
-    return Promise.resolve(record);
+    return record;
   }
 }

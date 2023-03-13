@@ -6,12 +6,6 @@ AuthorizationEvent.sync(log);
 
 // Delete Authorizations if associated Namespace is deleted.
 NamespaceEvent.async(async (payload) => {
-  console.log({
-    documentKey: payload.documentKey,
-    ns: payload.ns,
-    operationType: payload.operationType,
-  });
-
   switch (payload.operationType) {
     case 'delete':
       return AuthorizationModel.deleteMany({ namespaceId: payload.fullDocument._id });
@@ -20,12 +14,6 @@ NamespaceEvent.async(async (payload) => {
 
 // Delete Authorizations if associated User is deleted.
 UserEvent.async(async (payload) => {
-  console.log({
-    documentKey: payload.documentKey,
-    ns: payload.ns,
-    operationType: payload.operationType,
-  });
-
   switch (payload.operationType) {
     case 'delete':
       return AuthorizationModel.deleteMany({ userId: payload.fullDocument._id });

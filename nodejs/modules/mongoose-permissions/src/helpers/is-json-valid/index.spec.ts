@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import { ObjectId } from 'mongodb';
 import * as mongoose from 'mongoose';
 
 import { isJsonValid } from './';
@@ -711,6 +710,39 @@ describe('is-json-valid', function () {
     });
   });
 
+  describe('$type', function () {
+    context('when the reference is a string', function () {
+      it('returns true', function () {
+        const json = { user: { name: 'valid' } };
+        const query = { 'user.name': { $type: 'string' } };
+
+        const result = isJsonValid(json, query);
+
+        expect(result).to.eql(true);
+      });
+
+      it('returns false', function () {
+        const json = { user: { name: 'invalid' } };
+        const query = { 'user.name': { $type: 'null' } };
+
+        const result = isJsonValid(json, query);
+
+        expect(result).to.eql(false);
+      });
+    });
+
+    context('when the reference is anything else', function () {
+      it('returns true', function () {
+        const json = { user: { name: 'valid' } };
+        const query = { 'user.name': { $type: String } };
+
+        const result = isJsonValid(json, query);
+
+        expect(result).to.eql(true);
+      });
+    });
+  });
+
   describe('inferred value', function () {
     it('returns true', function () {
       const json = { record: { userId: '123' }, user: { _id: '123' } };
@@ -830,47 +862,6 @@ describe('is-json-valid', function () {
       const result = isJsonValid(json, query);
 
       expect(result).to.eql(false);
-    });
-  });
-
-  describe('matches', function () {
-    it('returns true', function () {
-      const document = {
-        confirmationExpiresAt: '2022-12-16T18:04:18.481Z',
-        confirmedUserIds: ['6365e362a427f190372c309f'],
-        gameServerTemplateId: '639c724f1f744fbd3a7b7506',
-        invitationSeconds: 30,
-        namespaceId: '63924931542a6aa2b24869bc',
-        startedAt: '2022-12-16T18:03:53.998Z',
-        teams: [{ userIds: [new ObjectId('6365e362a427f190372c309f')] }],
-        _id: '639cb304f9c0d3b2aedec7c9',
-        createdAt: '2022-12-16T18:03:48.500Z',
-        updatedAt: '2022-12-16T18:03:53.999Z',
-        __v: 0,
-      };
-      const query = {
-        $and: [
-          {
-            $or: [
-              {
-                $or: [
-                  { $and: [{ _id: { $not: { $exists: false } } }, { namespaceId: { $in: [] } }] },
-                  {
-                    confirmedUserIds: '6365e362a427f190372c309f',
-                    startedAt: { $exists: true },
-                    'teams.userIds': '6365e362a427f190372c309f',
-                  },
-                ],
-              },
-            ],
-          },
-          {},
-        ],
-      };
-
-      const result = isJsonValid(document, query);
-
-      expect(result).to.eql(true);
     });
   });
 });

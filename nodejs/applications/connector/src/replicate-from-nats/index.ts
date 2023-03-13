@@ -1,5 +1,5 @@
 import { DatabasePayload } from '@tenlastic/mongoose-nats';
-import * as mongoosePermissions from '@tenlastic/mongoose-permissions';
+import { isJsonValid } from '@tenlastic/mongoose-permissions';
 import * as nats from '@tenlastic/nats';
 import { Document as MongooseDocument, Model as MongooseModel, Query } from 'mongoose';
 import { AckPolicy, DeliverPolicy } from 'nats';
@@ -53,20 +53,21 @@ export async function eachMessage(
   payload: DatabasePayload<MongooseDocument>,
   where?: any,
 ) {
+  const { documentKey, ns, operationType, updateDescription } = payload;
+
   if (process.env.NODE_ENV !== 'test') {
-    const _id = payload.fullDocument._id;
-    console.log(`${payload.operationType} - ${payload.ns.db}.${payload.ns.coll} - ${_id}`);
+    console.log({ documentKey, ns, operationType });
   }
 
   if (where) {
     const fullDocument = new Model(payload.fullDocument);
+    const json = fullDocument.toJSON({ virtuals: true });
 
-    if (!mongoosePermissions.isJsonValid(fullDocument.toJSON({ virtuals: true }), where)) {
+    if (!isJsonValid(json, where)) {
       return;
     }
   }
 
-  const { documentKey, operationType, updateDescription } = payload;
   if (operationType === 'delete') {
     await Model.deleteOne(documentKey);
   } else if (operationType === 'insert') {

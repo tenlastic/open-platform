@@ -38,8 +38,8 @@ export function watch(
       }
 
       if (process.env.NODE_ENV !== 'test') {
-        const _id = change.fullDocument?._id ?? change.fullDocumentBeforeChange?._id;
-        console.log(`${change.operationType} - ${change.ns.db}.${change.ns.coll} - ${_id}`);
+        const { documentKey, ns, operationType } = change;
+        console.log({ documentKey, ns, operationType });
       }
 
       const message: DatabasePayload<any> = {

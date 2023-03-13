@@ -25,6 +25,15 @@ describe('substitute-reference-values', function () {
     expect(result).to.eql({ _id: references.user._id, name: { first: 'first', last: 'last' } });
   });
 
+  it('handles objects with missing references', function () {
+    const json = { _id: { $ref: 'user._id' }, name: { first: 'first', last: 'last' } };
+    const references = {};
+
+    const result = substituteReferenceValues(json, references);
+
+    expect(result).to.eql({ _id: { $type: 'null' }, name: { first: 'first', last: 'last' } });
+  });
+
   it('handles primitive values', function () {
     const json = 5;
     const references = { user: { _id: new mongoose.Types.ObjectId() } };

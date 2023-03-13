@@ -1,7 +1,7 @@
 /**
  * Primarily used to convert ObjectId instances into regular strings.
  */
-export function toPlainObject(obj: any, virtuals = false) {
-  const json = obj?.toJSON ? obj.toJSON({ virtuals }) : obj;
-  return json ? JSON.parse(JSON.stringify(json)) : json;
+export function toPlainObject(input: any, virtuals = false) {
+  const output = input?.toJSON ? input.toJSON({ virtuals }) : input;
+  return output ? JSON.parse(JSON.stringify(output)) : output;
 }

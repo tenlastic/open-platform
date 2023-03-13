@@ -1,7 +1,5 @@
 import * as mongoose from 'mongoose';
 
-import { isPathValid } from '../is-path-valid';
-
 export type FilterObjectAction = 'create' | 'read' | 'update';
 
 /**
@@ -59,6 +57,10 @@ function filterObjectRecursively<T>(
   }, {});
 }
 
+/**
+ * Returns true if the action in 'filter' schema option is true.
+ * Example: { filter: { create: true, read: true, update: true } }.
+ */
 function isPathFilteredOut(
   action: FilterObjectAction,
   key: string,
@@ -78,4 +80,41 @@ function isPathFilteredOut(
   }
 
   return filter === true || filter[action] === true;
+}
+
+/**
+ * Returns if the permissions allow the property to be accessed.
+ */
+function isPathValid(key: string, paths: string[], permissions: string[]) {
+  const p = permissions.reduce((previous, current) => {
+    if (current.includes('.*')) {
+      previous.push(current.replace('.*', ''));
+    }
+
+    const split = current.split('.');
+    for (let i = 1; i <= split.length; i++) {
+      const permutation = split.slice(0, i).join('.');
+      previous.push(permutation);
+    }
+
+    return previous;
+  }, []);
+
+  const absolutePath = paths.concat(key).join('.');
+  if (p.indexOf(absolutePath) >= 0) {
+    return true;
+  }
+
+  let isFound = false;
+  for (let i = 0; i < paths.length + 1; i++) {
+    const pathSlice = paths.slice(0, i);
+    const wildcardPath = pathSlice.concat('*').join('.');
+
+    if (p.indexOf(wildcardPath) >= 0) {
+      isFound = true;
+      break;
+    }
+  }
+
+  return isFound;
 }

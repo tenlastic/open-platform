@@ -71,18 +71,18 @@ export async function subscribe(
     for await (const message of subscription) {
       try {
         const decoding = new TextDecoder().decode(message.data);
-        const json = JSON.parse(decoding) as DatabasePayload<any>;
+        const payload = JSON.parse(decoding) as DatabasePayload<any>;
+        const document = new Model(payload.fullDocument);
 
         // Filter by operation type.
-        if (options.operationType && !options.operationType.includes(json.operationType)) {
+        if (options.operationType && !options.operationType.includes(payload.operationType)) {
           continue;
         }
 
         // Handle the where clause.
-        const document = new Model(json.fullDocument);
+        const json = document.toJSON({ virtuals: true });
         const where = await Permissions.where(credentials, options?.where || {});
-
-        if (!isJsonValid(document.toJSON({ virtuals: true }), where)) {
+        if (!isJsonValid(json, where)) {
           continue;
         }
 
@@ -91,9 +91,9 @@ export async function subscribe(
 
         // Strip update description of unauthorized information.
         let updateDescription: UpdateDescription;
-        if (json.updateDescription) {
+        if (payload.updateDescription) {
           const permissions = await Permissions.getFieldPermissions(credentials, 'read', document);
-          const { removedFields, updatedFields } = json.updateDescription;
+          const { removedFields, updatedFields } = payload.updateDescription;
 
           updateDescription = {
             removedFields: removedFields.filter((rf) => permissions.includes(rf)),
@@ -104,7 +104,12 @@ export async function subscribe(
         // Send the result.
         const result: Response = {
           _id,
-          body: { fullDocument, operationType: json.operationType, resumeToken, updateDescription },
+          body: {
+            fullDocument,
+            operationType: payload.operationType,
+            resumeToken,
+            updateDescription,
+          },
           status: StatusCode.PartialContent,
         };
         ctx.ws.send(result);

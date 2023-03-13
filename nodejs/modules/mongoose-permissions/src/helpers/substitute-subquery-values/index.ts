@@ -12,7 +12,12 @@ export interface SubqueryOptions {
  * Substitute { $query } subdocuments within JSON with subquery results.
  */
 export async function substituteSubqueryValues(mongoose: Connection, object: any) {
-  if (object && object.constructor === Object) {
+  if (object?.constructor === Array) {
+    const promises = object.map((q) => substituteSubqueryValues(mongoose, q));
+    return Promise.all(promises);
+  }
+
+  if (object?.constructor === Object) {
     const copy = {};
     const keys = Object.keys(object);
 
@@ -25,12 +30,9 @@ export async function substituteSubqueryValues(mongoose: Connection, object: any
     }
 
     return copy;
-  } else if (object && object.constructor === Array) {
-    const promises = object.map((q) => substituteSubqueryValues(mongoose, q));
-    return Promise.all(promises);
-  } else {
-    return object;
   }
+
+  return object;
 }
 
 async function executeQuery(mongoose: Connection, options: SubqueryOptions) {

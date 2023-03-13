@@ -23,7 +23,8 @@
   },
   "dependencies": {
     "deepmerge": "4.0.0",
-    "mongoose": "6.7.3"
+    "mongoose": "6.7.3",
+    "sift": "13.5.4"
   },
   "devDependencies": {
     "eslint": "^7.26.0",
