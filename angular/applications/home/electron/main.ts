@@ -83,7 +83,7 @@ if (instanceLock) {
 }
 
 // ==================
-// REMOVE
+// REMOTE
 // ==================
 app.on('browser-window-created', (event, window) => remote.enable(window.webContents));
 remote.initialize();

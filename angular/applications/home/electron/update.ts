@@ -4,11 +4,8 @@ import { autoUpdater } from 'electron-updater';
 
 import { getWindow } from './window';
 
-const args = process.argv.slice(1);
-const serve = args.some((a) => a === '--serve');
-
 export function update() {
-  if (serve) {
+  if (!app.isPackaged) {
     return;
   }
 

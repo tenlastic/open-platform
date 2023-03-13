@@ -1,12 +1,11 @@
-import { BrowserWindow, shell } from 'electron';
+import { app, BrowserWindow, shell } from 'electron';
 import * as path from 'path';
-import { format } from 'url';
+import { pathToFileURL } from 'url';
 
 import { createTray } from './tray';
 
-const args = process.argv.slice(1);
+const isDevelopment = !app.isPackaged;
 let isQuitting = false;
-const serve = args.some((a) => a === '--serve');
 let window: BrowserWindow;
 
 export function createWindow() {
@@ -17,30 +16,25 @@ export function createWindow() {
   window = new BrowserWindow({
     frame: false,
     height: 720,
-    resizable: serve,
+    resizable: isDevelopment,
     webPreferences: {
-      allowRunningInsecureContent: serve,
+      allowRunningInsecureContent: isDevelopment,
       contextIsolation: false,
       nodeIntegration: true,
       webSecurity: false,
     },
-    width: serve ? 1780 : 1280,
+    width: isDevelopment ? 1780 : 1280,
     x: 0,
     y: 0,
   });
   window.center();
 
-  if (serve) {
+  if (isDevelopment) {
     window.loadURL('http://www.local.tenlastic.com');
     window.webContents.openDevTools();
   } else {
-    window.loadURL(
-      format({
-        pathname: path.join(__dirname, '../angular/index.html'),
-        protocol: 'file:',
-        slashes: true,
-      }),
-    );
+    const url = pathToFileURL(path.join(__dirname, '../angular/index.html'));
+    window.loadURL(url.href);
   }
 
   // Open links in browser.
