@@ -40,11 +40,17 @@ export const ROUTES: Routes = [
         path: 'store',
       },
       {
-        canActivate: [IdentityGuard],
-        loadChildren: () => import('./modules/home/home.module').then((m) => m.HomeModule),
+        children: [
+          ElectronService.isElectron
+            ? { path: '', redirectTo: '/store' }
+            : {
+                canActivate: [IdentityGuard],
+                loadChildren: () => import('./modules/home/home.module').then((m) => m.HomeModule),
+                path: '',
+              },
+        ],
         path: '',
       },
-      { path: '**', redirectTo: ElectronService.isElectron ? '/store' : '' },
     ],
     component: LayoutComponent,
     path: '',

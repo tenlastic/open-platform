@@ -2,7 +2,7 @@
   "appId": "tenlastic-launcher",
   "artifactName": "TenlasticLauncherSetup.${ext}",
   "directories": {
-    "output": "release/"
+    "output": "./release/"
   },
   "files": [
     "**/*",
