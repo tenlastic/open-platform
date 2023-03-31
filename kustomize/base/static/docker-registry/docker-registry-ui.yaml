@@ -6,7 +6,7 @@ metadata:
   name: docker-registry-ui
   namespace: static
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app.kubernetes.io/name: docker-registry-ui

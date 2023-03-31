@@ -33,7 +33,7 @@ spec:
                       values:
                         - ingress-ginx
                 topologyKey: kubernetes.io/hostname
-      replicaCount: 1
+      replicaCount: 3
       resources:
         requests:
           cpu: 25m

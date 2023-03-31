@@ -4,4 +4,4 @@ metadata:
   name: home-ui
   namespace: static
 spec:
-  replicas: 1
+  replicas: 3
