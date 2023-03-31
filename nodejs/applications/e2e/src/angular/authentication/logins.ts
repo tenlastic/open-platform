@@ -14,14 +14,14 @@ describe('/angular/authentication/logins', () => {
   let username: string;
 
   before(async function () {
+    // Generate a username for the test User.
+    username = chance.hash({ length: 24 });
+
     // Open a new browser and load the home page.
     browser = await puppeteer.launch({ args: ['--disable-setuid-sandbox', '--no-sandbox'] });
     page = await browser.newPage();
     page.setViewport({ width: 1920, height: 1080 });
     await page.goto(process.env.E2E_WWW_URL, { waitUntil: 'networkidle0' });
-
-    // Generate a username for the test User.
-    username = chance.hash({ length: 24 });
   });
 
   after(async function () {

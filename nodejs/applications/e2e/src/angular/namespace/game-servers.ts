@@ -20,17 +20,17 @@ describe('/angular/namespace/game-servers', () => {
   let page: puppeteer.Page;
 
   before(async function () {
+    // Generate a name for the Namespace.
+    build = chance.hash({ length: 64 });
+    gameServer = chance.hash({ length: 64 });
+    namespace = chance.hash({ length: 64 });
+
     // Open a new browser and load the home page.
     browser = await puppeteer.launch({ args: ['--disable-setuid-sandbox', '--no-sandbox'] });
     page = await browser.newPage();
     page.setViewport({ width: 1920, height: 1080 });
     await helpers.setTokensOnPageLoad(administratorAccessToken, page, administratorRefreshToken);
     await page.goto(process.env.E2E_WWW_URL, { waitUntil: 'networkidle0' });
-
-    // Generate a name for the Namespace.
-    build = chance.hash({ length: 64 });
-    gameServer = chance.hash({ length: 64 });
-    namespace = chance.hash({ length: 64 });
   });
 
   after(async function () {
