@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "name": "@tenlastic/aggregation-api",
   "private": "true",
-  "version": "0.0.391",
+  "version": "0.0.392",
   "scripts": {
     "build": "../../scripts/build.sh",
     "lint": "../../scripts/lint.sh",
@@ -15,13 +15,13 @@
     "version": "../../scripts/version.sh aggregation-api"
   },
   "dependencies": {
-    "@tenlastic/logging": "0.0.391",
-    "@tenlastic/mongoose": "0.0.391",
-    "@tenlastic/mongoose-nats": "0.0.391",
-    "@tenlastic/mongoose-permissions": "0.0.391",
-    "@tenlastic/nats": "0.0.391",
-    "@tenlastic/web-server": "0.0.391",
-    "@tenlastic/web-socket-server": "0.0.391",
+    "@tenlastic/logging": "0.0.392",
+    "@tenlastic/mongoose": "0.0.392",
+    "@tenlastic/mongoose-nats": "0.0.392",
+    "@tenlastic/mongoose-permissions": "0.0.392",
+    "@tenlastic/nats": "0.0.392",
+    "@tenlastic/web-server": "0.0.392",
+    "@tenlastic/web-socket-server": "0.0.392",
     "koa-router": "12.0.0",
     "source-map-support": "0.5.12"
   },
