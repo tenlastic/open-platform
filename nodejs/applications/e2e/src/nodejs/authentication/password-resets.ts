@@ -28,7 +28,7 @@ describe('/nodejs/authentication/password-resets', function () {
   let user: UserModel;
   let username: string;
 
-  beforeEach(async function () {
+  before(async function () {
     email = process.env.E2E_EMAIL_ADDRESS;
     username = chance.hash({ length: 24 });
 
@@ -51,7 +51,7 @@ describe('/nodejs/authentication/password-resets', function () {
     await Promise.all(messages.map((m) => read(m.id)));
   });
 
-  afterEach(async function () {
+  after(async function () {
     await dependencies.userService.delete(user._id);
   });
 
