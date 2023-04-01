@@ -6,6 +6,7 @@ import * as Chance from 'chance';
 import { google } from 'googleapis';
 
 import dependencies from '../../dependencies';
+import { step } from '../../step';
 
 const chance = new Chance();
 use(chaiAsPromised);
@@ -54,14 +55,14 @@ describe('/nodejs/authentication/password-resets', function () {
     await dependencies.userService.delete(user._id);
   });
 
-  it('sends a Password Reset email', async function () {
+  step('sends a Password Reset email', async function () {
     await dependencies.passwordResetService.create(email);
 
     hash = await wait(5 * 1000, 2 * 60 * 1000, () => getPasswordResetHash());
     expect(hash).to.match(/[A-Za-z0-9]+/);
   });
 
-  it('resets the password', async function () {
+  step('resets the password', async function () {
     const password = chance.hash();
     await dependencies.passwordResetService.delete(hash, password);
 
@@ -70,7 +71,7 @@ describe('/nodejs/authentication/password-resets', function () {
     expect(response.refreshToken).to.exist;
   });
 
-  it('invalidates the old refresh token', async function () {
+  step('invalidates the old refresh token', async function () {
     const promise = dependencies.loginService.createWithRefreshToken(refreshToken);
     return expect(promise).to.be.rejected;
   });
