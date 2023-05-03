@@ -31,7 +31,7 @@ spec:
                     - key: app.kubernetes.io/name
                       operator: In
                       values:
-                        - ingress-ginx
+                        - ingress-nginx
                 topologyKey: kubernetes.io/hostname
       config:
         use-gzip: "true"
