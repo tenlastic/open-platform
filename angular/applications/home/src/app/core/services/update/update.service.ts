@@ -347,6 +347,10 @@ export class UpdateService {
         })
         .on('data', (data) => {
           downloadedBytes += data.length;
+          if (downloadedBytes > totalBytes) {
+            downloadedBytes = totalBytes;
+          }
+
           status.progress = {
             current: downloadedBytes,
             speed: (downloadedBytes / (performance.now() - start)) * 1000,
