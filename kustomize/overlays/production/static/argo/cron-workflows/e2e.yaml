@@ -29,7 +29,7 @@ spec:
     templates:
       - name: e2e
         container:
-          image: tenlastic/e2e:0.0.392
+          image: tenlastic/e2e:0.0.393
           envFrom:
             - secretRef:
                 name: e2e

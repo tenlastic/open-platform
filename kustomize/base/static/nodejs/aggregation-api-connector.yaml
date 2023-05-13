@@ -36,7 +36,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
       containers:
         - name: api-connector
-          image: tenlastic/connector:0.0.392
+          image: tenlastic/connector:0.0.393
           env:
             - name: MONGO_COLLECTION_NAMES
               value: authorizations,authorization-requests,namespaces,users
@@ -69,7 +69,7 @@ spec:
               cpu: 25m
               memory: 75M
         - name: social-api-connector
-          image: tenlastic/connector:0.0.392
+          image: tenlastic/connector:0.0.393
           env:
             - name: MONGO_COLLECTION_NAMES
               value: friends,groups,group-invitations,ignorations,messages
