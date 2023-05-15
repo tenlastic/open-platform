@@ -37,7 +37,7 @@
           *matHeaderCellDef
           mat-sort-header>Properties</th>
       <td mat-cell
-          *matCellDef="let element">{{ (element.properties | keyvalue)?.length || 0 }}</td>
+          *matCellDef="let element">{{ (element.jsonSchema?.properties | keyvalue)?.length || 0 }}</td>
     </ng-container>
 
     <ng-container matColumnDef="roles">
