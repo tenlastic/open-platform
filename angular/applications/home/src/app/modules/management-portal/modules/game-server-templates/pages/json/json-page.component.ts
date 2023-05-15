@@ -99,6 +99,7 @@ export class GameServerTemplatesJsonPageComponent implements OnInit {
       'memory',
       'metadata',
       'name',
+      'ports',
       'preemptible',
       'probes',
     ];
