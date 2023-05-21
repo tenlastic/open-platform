@@ -88,10 +88,10 @@ spec:
             periodSeconds: 30
           resources:
             limits:
-              cpu: 1000m
+              cpu: 2000m
               memory: 1G
             requests:
-              cpu: 250m
+              cpu: 500m
               memory: 1G
           securityContext:
             runAsUser: 10001
