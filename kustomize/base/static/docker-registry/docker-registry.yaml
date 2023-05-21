@@ -60,16 +60,14 @@ spec:
                   - key: tenlastic.com/low-priority
                     operator: Exists
         podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 1
-              podAffinityTerm:
-                labelSelector:
-                  matchExpressions:
-                    - key: app
-                      operator: In
-                      values:
-                        - docker-registry
-                topologyKey: kubernetes.io/hostname
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                      - docker-registry
+              topologyKey: kubernetes.io/hostname
       containers:
         - name: docker-registry
           image: registry:2.7.1

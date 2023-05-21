@@ -43,16 +43,14 @@ spec:
                   - key: tenlastic.com/low-priority
                     operator: Exists
         podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 1
-              podAffinityTerm:
-                labelSelector:
-                  matchExpressions:
-                    - key: app.kubernetes.io/name
-                      operator: In
-                      values:
-                        - argo-workflows-workflow-controller
-                topologyKey: kubernetes.io/hostname
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                      - argo-workflows-workflow-controller
+              topologyKey: kubernetes.io/hostname
       containerRuntimeExecutor: emissary
       extraEnv:
         - name: POD_NAMES
@@ -86,16 +84,14 @@ spec:
                   - key: tenlastic.com/low-priority
                     operator: Exists
         podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 1
-              podAffinityTerm:
-                labelSelector:
-                  matchExpressions:
-                    - key: app.kubernetes.io/name
-                      operator: In
-                      values:
-                        - argo-workflows-server
-                topologyKey: kubernetes.io/hostname
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                      - argo-workflows-server
+              topologyKey: kubernetes.io/hostname
       extraArgs:
         - --auth-mode=server
       extraEnv:

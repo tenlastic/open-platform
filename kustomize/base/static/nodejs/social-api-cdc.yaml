@@ -24,16 +24,14 @@ spec:
                   - key: tenlastic.com/low-priority
                     operator: Exists
         podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 1
-              podAffinityTerm:
-                labelSelector:
-                  matchExpressions:
-                    - key: app
-                      operator: In
-                      values:
-                        - social-api-cdc
-                topologyKey: kubernetes.io/hostname
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                      - social-api-cdc
+              topologyKey: kubernetes.io/hostname
       containers:
         - name: cdc
           image: tenlastic/cdc:0.0.393
