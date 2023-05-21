@@ -64,7 +64,10 @@ spec:
               topologyKey: kubernetes.io/hostname
       containers:
         - name: verdaccio
-          image: verdaccio/verdaccio:5.1.1
+          image: verdaccio/verdaccio:5.24.1
+          env:
+            - name: VERDACCIO_PORT
+              value: "4873"
           ports:
             - containerPort: 4873
               name: http
