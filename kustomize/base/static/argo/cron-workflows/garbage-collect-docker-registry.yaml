@@ -168,11 +168,11 @@ spec:
                   key: s3SecretKey
           resources:
             limits:
-              cpu: 100m
-              memory: 50M
+              cpu: 500m
+              memory: 100M
             requests:
-              cpu: 25m
-              memory: 50M
+              cpu: 100m
+              memory: 100M
           volumeMounts:
             - name: docker-registry-config
               mountPath: /etc/docker/registry/

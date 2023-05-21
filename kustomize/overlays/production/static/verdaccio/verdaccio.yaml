@@ -86,10 +86,10 @@ spec:
           resources:
             limits:
               cpu: 500m
-              memory: 250M
+              memory: 500M
             requests:
               cpu: 100m
-              memory: 250M
+              memory: 500M
           volumeMounts:
             - mountPath: /verdaccio/storage
               name: storage
