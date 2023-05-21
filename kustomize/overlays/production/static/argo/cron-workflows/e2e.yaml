@@ -36,11 +36,11 @@ spec:
           imagePullPolicy: IfNotPresent
           resources:
             limits:
-              cpu: 250m
-              memory: 250M
+              cpu: 1000m
+              memory: 1G
             requests:
-              cpu: 50m
-              memory: 250M
+              cpu: 500m
+              memory: 1G
         outputs:
           artifacts:
             - name: puppeteer
