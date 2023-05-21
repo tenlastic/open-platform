@@ -144,7 +144,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: verdaccio-internal
+                name: verdaccio
                 port:
                   number: 4873
     - host: wss.tenlastic.com
