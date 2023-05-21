@@ -53,8 +53,11 @@ spec:
           enabled: true
           size: 2G
       resources:
+        limits:
+          cpu: 500m
+          memory: 2.5G
         requests:
-          cpu: 50m
-          memory: 250M
+          cpu: 100m
+          memory: 2.5G
     natsbox:
       enabled: false

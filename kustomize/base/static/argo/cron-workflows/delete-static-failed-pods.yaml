@@ -66,8 +66,12 @@ spec:
           image: bitnami/kubectl:latest
           imagePullPolicy: IfNotPresent
           resources:
+            limits:
+              cpu: 100m
+              memory: 50M
             requests:
-              cpu: 50m
+              cpu: 25m
+              memory: 50M
           source: |
             COMMAND="kubectl get pods -n static -o name --field-selector status.phase=Failed"
             if [ "$($COMMAND | wc -l)" -gt 0 ]; then

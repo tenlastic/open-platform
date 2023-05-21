@@ -36,5 +36,9 @@ spec:
     installCRDs: true
     replicaCount: 1
     resources:
+      limits:
+        cpu: 100m
+        memory: 100M
       requests:
-        cpu: 50m
+        cpu: 25m
+        memory: 100M

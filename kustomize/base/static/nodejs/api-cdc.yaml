@@ -46,6 +46,9 @@ spec:
             - secretRef:
                 name: nodejs
           resources:
+            limits:
+              cpu: 100m
+              memory: 250M
             requests:
               cpu: 25m
-              memory: 75M
+              memory: 250M

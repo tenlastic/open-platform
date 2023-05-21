@@ -40,9 +40,12 @@ spec:
           ports:
             - containerPort: 4321
           resources:
+            limits:
+              cpu: 100m
+              memory: 50M
             requests:
               cpu: 25m
-              memory: 25M
+              memory: 50M
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy

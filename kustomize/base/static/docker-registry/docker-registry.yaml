@@ -104,9 +104,12 @@ spec:
               path: /
               port: 5000
           resources:
+            limits:
+              cpu: 100m
+              memory: 100M
             requests:
               cpu: 25m
-              memory: 25M
+              memory: 100M
           volumeMounts:
             - name: auth
               mountPath: /auth

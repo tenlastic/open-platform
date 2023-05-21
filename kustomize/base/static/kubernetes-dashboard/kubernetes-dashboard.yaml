@@ -78,9 +78,12 @@ spec:
       create: false
     replicaCount: 3
     resources:
+      limits:
+        cpu: 250m
+        memory: 100M
       requests:
-        cpu: 75m
-        memory: 50M
+        cpu: 50m
+        memory: 100M
     serviceAccount:
       create: false
       name: kubernetes-dashboard

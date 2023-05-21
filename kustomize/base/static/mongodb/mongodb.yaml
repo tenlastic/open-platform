@@ -48,6 +48,9 @@ spec:
                       - mongodb
               topologyKey: kubernetes.io/hostname
       resources:
+        limits:
+          cpu: 250m
+          memory: 250M
         requests:
           cpu: 50m
           memory: 250M
@@ -63,6 +66,9 @@ spec:
       periodSeconds: 30
     replicaCount: 5
     resources:
+      limits:
+        cpu: 1000m
+        memory: 1G
       requests:
-        cpu: 200m
-        memory: 250M
+        cpu: 250m
+        memory: 1G

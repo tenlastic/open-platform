@@ -63,9 +63,12 @@ spec:
                   apiVersion: v1
                   fieldPath: metadata.name
           resources:
+            limits:
+              cpu: 100m
+              memory: 250M
             requests:
               cpu: 25m
-              memory: 75M
+              memory: 250M
         - name: social-api-connector
           image: tenlastic/connector:0.0.393
           env:
@@ -96,6 +99,9 @@ spec:
                   apiVersion: v1
                   fieldPath: metadata.name
           resources:
+            limits:
+              cpu: 100m
+              memory: 250M
             requests:
               cpu: 25m
-              memory: 75M
+              memory: 250M

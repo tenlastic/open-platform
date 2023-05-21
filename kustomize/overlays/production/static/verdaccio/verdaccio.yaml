@@ -36,7 +36,7 @@ metadata:
   name: verdaccio
   namespace: static
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: verdaccio
@@ -81,9 +81,12 @@ spec:
               port: http
             initialDelaySeconds: 5
           resources:
+            limits:
+              cpu: 100m
+              memory: 250M
             requests:
               cpu: 25m
-              memory: 75M
+              memory: 250M
           securityContext:
             runAsUser: 10001
           volumeMounts:

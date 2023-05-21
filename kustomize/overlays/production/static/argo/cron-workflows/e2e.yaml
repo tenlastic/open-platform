@@ -35,8 +35,12 @@ spec:
                 name: e2e
           imagePullPolicy: IfNotPresent
           resources:
+            limits:
+              cpu: 250m
+              memory: 250M
             requests:
               cpu: 50m
+              memory: 250M
         outputs:
           artifacts:
             - name: puppeteer

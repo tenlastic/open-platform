@@ -26,7 +26,11 @@ spec:
             - secretRef:
                 name: nodejs
           resources:
+            limits:
+              cpu: 100m
+              memory: 250M
             requests:
-              cpu: 50m
+              cpu: 25m
+              memory: 250M
       restartPolicy: OnFailure
   ttlSecondsAfterFinished: 0

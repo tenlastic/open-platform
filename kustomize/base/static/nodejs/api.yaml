@@ -111,9 +111,12 @@ spec:
           ports:
             - containerPort: 3000
           resources:
+            limits:
+              cpu: 100m
+              memory: 250M
             requests:
               cpu: 25m
-              memory: 75M
+              memory: 250M
       serviceAccountName: api
 ---
 apiVersion: v1

@@ -99,8 +99,12 @@ spec:
           image: bitnami/kubectl:latest
           imagePullPolicy: IfNotPresent
           resources:
+            limits:
+              cpu: 100m
+              memory: 50M
             requests:
-              cpu: 50m
+              cpu: 25m
+              memory: 50M
           source: |
             kubectl annotate deployments docker-registry fluxcd.io/ignore="false" --overwrite
             kubectl patch deployments.apps docker-registry --type=json \
@@ -121,8 +125,12 @@ spec:
           image: bitnami/kubectl:latest
           imagePullPolicy: IfNotPresent
           resources:
+            limits:
+              cpu: 100m
+              memory: 50M
             requests:
-              cpu: 50m
+              cpu: 25m
+              memory: 50M
           source: |
             kubectl annotate deployments docker-registry fluxcd.io/ignore="true" --overwrite
             kubectl patch deployments.apps docker-registry --type=json \
@@ -159,8 +167,12 @@ spec:
                   name: docker-registry
                   key: s3SecretKey
           resources:
+            limits:
+              cpu: 100m
+              memory: 50M
             requests:
-              cpu: 50m
+              cpu: 25m
+              memory: 50M
           volumeMounts:
             - name: docker-registry-config
               mountPath: /etc/docker/registry/
