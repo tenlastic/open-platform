@@ -41,6 +41,9 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: verdaccio
+  strategy:
+    type: Recreate
+    rollingUpdate: null
   template:
     metadata:
       labels:
@@ -90,6 +93,8 @@ spec:
             requests:
               cpu: 100m
               memory: 500M
+          securityContext:
+            runAsUser: 10001
           volumeMounts:
             - mountPath: /verdaccio/storage
               name: storage
