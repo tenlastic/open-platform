@@ -170,11 +170,6 @@ export class UpdateService {
         return;
       }
 
-      // Delete files no longer listed in the Build.
-      status.progress = null;
-      status.text = 'Deleting stale files...';
-      await this.deleteRemovedFiles(localFiles, namespaceId, status.build.files);
-
       // Calculate which files either don't exist locally or have a different checksum.
       status.progress = null;
       status.text = 'Calculating updated files...';
@@ -288,8 +283,20 @@ export class UpdateService {
   }
 
   public async update(namespaceId: string) {
+    const { glob } = this.electronService;
     const status = this.getStatus(namespaceId);
 
+    // Calculate local file checksums.
+    status.progress = null;
+    status.text = 'Checking local files...';
+    const localFiles = glob.sync(`${this.installPath}/${namespaceId}/**/*`, { nodir: true });
+
+    // Delete files no longer listed in the Build.
+    status.progress = null;
+    status.text = 'Deleting deprecated files...';
+    await this.deleteRemovedFiles(localFiles, namespaceId, status.build.files);
+
+    // Download new files.
     status.progress = null;
     status.state = UpdateServiceState.Updating;
     status.text = 'Downloading and installing update...';
@@ -306,14 +313,14 @@ export class UpdateService {
   }
 
   private async deleteRemovedFiles(
-    localFiles: { md5: string; path: string }[],
+    localFiles: string[],
     namespaceId: string,
     remoteFiles: IBuild.File[],
   ) {
     const { fs } = this.electronService;
 
     for (const localFile of localFiles) {
-      const localPath = localFile.path.replace(`${this.installPath}/${namespaceId}/`, '');
+      const localPath = localFile.replace(`${this.installPath}/${namespaceId}/`, '');
       const remotePaths = remoteFiles.map((rf) => rf.path);
 
       if (!remotePaths.includes(localPath)) {
