@@ -11,7 +11,7 @@ describe('/nodejs/namespace/collections', function () {
   let namespace: NamespaceModel;
 
   afterEach(async function () {
-    await dependencies.namespaceService.delete(namespace._id);
+    await helpers.deleteNamespace(namespace?._id);
   });
 
   it('creates a Namespace, Collection, and Record', async function () {

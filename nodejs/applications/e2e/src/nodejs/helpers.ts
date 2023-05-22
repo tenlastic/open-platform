@@ -61,3 +61,19 @@ export async function createNamespace() {
 
   return namespace;
 }
+
+export async function deleteNamespace(_id: string) {
+  if (!_id) {
+    return;
+  }
+
+  return dependencies.namespaceService.delete(_id);
+}
+
+export async function deleteUser(_id: string) {
+  if (!_id) {
+    return;
+  }
+
+  return dependencies.userService.delete(_id);
+}

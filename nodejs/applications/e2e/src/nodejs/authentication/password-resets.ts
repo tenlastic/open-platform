@@ -6,6 +6,7 @@ import * as Chance from 'chance';
 import { google } from 'googleapis';
 
 import dependencies from '../../dependencies';
+import * as helpers from '../helpers';
 
 const chance = new Chance();
 use(chaiAsPromised);
@@ -53,7 +54,7 @@ describe('/nodejs/authentication/password-resets', function () {
   });
 
   afterEach(async function () {
-    await dependencies.userService.delete(user._id);
+    await helpers.deleteUser(user?._id);
   });
 
   it('sends a Password Reset email', async function () {

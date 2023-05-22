@@ -12,7 +12,7 @@ describe('/nodejs/namespace/workflows', function () {
   let namespace: NamespaceModel;
 
   afterEach(async function () {
-    await dependencies.namespaceService.delete(namespace._id);
+    await helpers.deleteNamespace(namespace?._id);
   });
 
   it('creates a Namespace and Workflow', async function () {

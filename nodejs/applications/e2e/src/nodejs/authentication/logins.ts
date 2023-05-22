@@ -5,6 +5,7 @@ import * as Chance from 'chance';
 
 import dependencies from '../../dependencies';
 import { administratorAccessToken } from '../../';
+import * as helpers from '../helpers';
 
 const chance = new Chance();
 use(chaiAsPromised);
@@ -22,7 +23,7 @@ describe('/nodejs/authentication/logins', function () {
   });
 
   afterEach(async function () {
-    await dependencies.userService.delete(user._id);
+    await helpers.deleteUser(user?._id);
   });
 
   describe('login with credentials', function () {
