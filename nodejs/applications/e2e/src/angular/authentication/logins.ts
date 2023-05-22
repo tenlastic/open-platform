@@ -30,7 +30,7 @@ describe('/angular/authentication/logins', () => {
     await helpers.clickAndNavigate(createAccountButton, page, 'Create Account | Tenlastic');
 
     // Register a new User.
-    const username = chance.hash({ length: 24 });
+    username = chance.hash({ length: 24 });
     const registrationUsernameInput = await helpers.getInputByLabel('Username', page);
     await helpers.type(registrationUsernameInput, page, username);
 

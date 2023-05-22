@@ -46,8 +46,8 @@ describe('/nodejs/namespace/game-servers', function () {
     const hostname = externalIp === '127.0.0.1' ? 'kubernetes.local.tenlastic.com' : externalIp;
     const url = new URL(`http://${hostname}:${externalPort}`);
 
-    const response = await axios({ method: 'get', url: url.href });
-    expect(response.data).to.include('Welcome to echo-server!');
+    const { data } = await axios({ method: 'get', url: url.href });
+    expect(data).to.include('Welcome to echo-server!');
 
     // Check for Game Server Logs.
     const logs = await wait(2.5 * 1000, 5 * 1000, async () => {

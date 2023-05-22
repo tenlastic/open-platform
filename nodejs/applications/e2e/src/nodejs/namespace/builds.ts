@@ -23,11 +23,11 @@ describe('/nodejs/namespace/builds', function () {
     const build = await helpers.createBuild(dockerfile, namespace);
 
     // Download the Build.
-    const response = await dependencies.buildService.download(namespace._id, build._id, {
+    const stream = await dependencies.buildService.download(namespace._id, build._id, {
       responseType: 'stream',
     });
     const result = await new Promise<{ content: string; path: string }>((resolve, reject) => {
-      response.data
+      stream.data
         .pipe(unzipper.Parse())
         .on('close', resolve)
         .on('entry', async (entry) => {

@@ -43,7 +43,7 @@ describe('/nodejs/namespace/workflows', function () {
     });
 
     // Wait for the Workflow to finish successfully.
-    const phase = await wait(5 * 1000, 2 * 60 * 1000, async () => {
+    await wait(5 * 1000, 2 * 60 * 1000, async () => {
       workflow = await dependencies.workflowService.findOne(namespace._id, workflow._id);
       return workflow.status.phase === 'Succeeded';
     });
