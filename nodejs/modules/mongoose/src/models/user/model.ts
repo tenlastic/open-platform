@@ -11,13 +11,14 @@ import * as bcrypt from 'bcryptjs';
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
+import { collation } from '../../constants';
 import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 import { alphanumericValidator, emailValidator } from '../../validators';
 import { AuthorizationDocument } from '../authorization/model';
 
 @index({ email: 1 }, { partialFilterExpression: { email: { $exists: true } }, unique: true })
-@index({ username: 1 }, { collation: { locale: 'en', strength: 1 }, unique: true })
-@modelOptions({ schemaOptions: { collection: 'users', timestamps: true } })
+@index({ username: 1 }, { collation, unique: true })
+@modelOptions({ schemaOptions: { collation, collection: 'users', timestamps: true } })
 @plugin(duplicateKeyErrorPlugin)
 @plugin(unsetPlugin)
 @pre('save', async function (this: UserDocument) {

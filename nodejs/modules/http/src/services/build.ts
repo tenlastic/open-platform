@@ -78,11 +78,7 @@ export class BuildService {
     config: AxiosRequestConfig = { responseType: 'blob' },
   ) {
     const url = this.getUrl(namespaceId);
-    return this.apiService.request({
-      method: 'get',
-      url: `${url}/${_id}/files`,
-      ...config,
-    });
+    return this.apiService.request({ method: 'get', url: `${url}/${_id}/files`, ...config });
   }
 
   /**

@@ -9,6 +9,7 @@ import {
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
+import { collation } from '../../constants';
 import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 import { AuthorizationDocument } from '../authorization';
 import { NamespaceLimitsDocument, NamespaceLimitsModel, NamespaceLimitsSchema } from './limits';
@@ -25,8 +26,8 @@ export class NamespaceLimitError extends Error {
   }
 }
 
-@index({ name: 1 }, { collation: { locale: 'en', strength: 1 }, unique: true })
-@modelOptions({ schemaOptions: { collection: 'namespaces', timestamps: true } })
+@index({ name: 1 }, { collation, unique: true })
+@modelOptions({ schemaOptions: { collation, collection: 'namespaces', timestamps: true } })
 @plugin(duplicateKeyErrorPlugin)
 @plugin(unsetPlugin)
 export class NamespaceSchema {

@@ -60,6 +60,6 @@
     <div *ngIf="progressText">{{ progressText }}</div>
   </div>
 
-  <mat-progress-bar [mode]="progress ? 'determinate' : 'indeterminate'"
-                    [value]="progress"></mat-progress-bar>
+  <mat-progress-bar [mode]="hasProgress ? 'determinate' : 'indeterminate'"
+                    [value]="progressPercentage * 100"></mat-progress-bar>
 </div>

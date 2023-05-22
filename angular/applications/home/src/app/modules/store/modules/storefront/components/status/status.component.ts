@@ -87,6 +87,9 @@ export class StatusComponent implements OnDestroy, OnInit {
         return 'Updating...';
     }
   }
+  public get hasProgress() {
+    return Boolean(this.status?.progress);
+  }
   public get isButtonVisible() {
     switch (this.status.state) {
       case UpdateServiceState.AuthorizationRequestDenied:
@@ -106,7 +109,7 @@ export class StatusComponent implements OnDestroy, OnInit {
   public get namespaceId() {
     return this.params.namespaceId;
   }
-  public get progress() {
+  public get progressPercentage() {
     if (!this.status.progress) {
       return null;
     }
@@ -116,7 +119,7 @@ export class StatusComponent implements OnDestroy, OnInit {
       case UpdateServiceState.Deleting:
       case UpdateServiceState.Installing:
       case UpdateServiceState.Updating:
-        return (this.status.progress.current / this.status.progress.total) * 100;
+        return this.status.progress.current / this.status.progress.total;
 
       default:
         return null;

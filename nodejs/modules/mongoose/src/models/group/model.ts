@@ -9,18 +9,15 @@ import {
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
+import { collation } from '../../constants';
 import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 
 @index(
   { name: 1 },
-  {
-    collation: { locale: 'en', strength: 1 },
-    partialFilterExpression: { name: { $exists: true } },
-    unique: true,
-  },
+  { collation, partialFilterExpression: { name: { $exists: true } }, unique: true },
 )
 @index({ userIds: 1 }, { unique: true })
-@modelOptions({ schemaOptions: { collection: 'groups', timestamps: true } })
+@modelOptions({ schemaOptions: { collation, collection: 'groups', timestamps: true } })
 @plugin(duplicateKeyErrorPlugin)
 @plugin(unsetPlugin)
 export class GroupSchema {
