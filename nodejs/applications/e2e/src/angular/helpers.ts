@@ -173,15 +173,16 @@ export async function getTextareaByLabel(label: string, page: Page, timeout = 25
   return elements[0];
 }
 
-export async function newPage() {
+export async function newPage(logIn = false) {
   const browser = await launch({ args: ['--disable-setuid-sandbox', '--no-sandbox'] });
-
   const page = await browser.newPage();
   page.setViewport({ width: 1920, height: 1080 });
 
-  await setTokensOnPageLoad(administratorAccessToken, page, administratorRefreshToken);
-  await page.goto(process.env.E2E_WWW_URL, { waitUntil: 'networkidle0' });
+  if (logIn) {
+    await setTokensOnPageLoad(administratorAccessToken, page, administratorRefreshToken);
+  }
 
+  await page.goto(process.env.E2E_WWW_URL, { waitUntil: 'networkidle0' });
   return page;
 }
 

@@ -11,7 +11,7 @@ describe('/angular/namespace/queues', () => {
   let page: Page;
 
   beforeEach(async function () {
-    page = await helpers.newPage();
+    page = await helpers.newPage(true);
   });
 
   afterEach(async function () {

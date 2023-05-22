@@ -10,7 +10,7 @@ describe('/angular/namespace/collections', () => {
   let page: Page;
 
   beforeEach(async function () {
-    page = await helpers.newPage();
+    page = await helpers.newPage(true);
   });
 
   afterEach(async function () {
