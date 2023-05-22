@@ -15,4 +15,11 @@ RUN npm install --production --registry "https://verdaccio.tenlastic.com"
 COPY ./dist/ ./dist/
 COPY ./fixtures/ ./fixtures/
 
-ENTRYPOINT ["./node_modules/.bin/mocha", "--exit", "--retries", "2", "--timeout", "600000", "./dist/**/*.js"]
+ENTRYPOINT [
+  "./node_modules/.bin/mocha", 
+  "--exit",
+  "--require", "source-map-support/register",
+  "--retries", "2", 
+  "--timeout", "600000", 
+  "./dist/**/*.js"
+]

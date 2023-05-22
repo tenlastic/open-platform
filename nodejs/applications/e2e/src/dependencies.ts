@@ -16,6 +16,8 @@ import {
   GameServerTemplateService,
   GameServerTemplateStore,
   LoginService,
+  MatchService,
+  MatchStore,
   NamespaceService,
   NamespaceStore,
   PasswordResetService,
@@ -127,6 +129,15 @@ const services: injector.Injection[] = [
       new LoginService(apiService, environmentService),
   },
   {
+    deps: [ApiService, EnvironmentService, MatchStore],
+    provide: MatchService,
+    useFactory: (
+      apiService: ApiService,
+      environmentService: EnvironmentService,
+      matchStore: MatchStore,
+    ) => new MatchService(apiService, environmentService, matchStore),
+  },
+  {
     deps: [ApiService, EnvironmentService, NamespaceStore],
     provide: NamespaceService,
     useFactory: (
@@ -234,6 +245,7 @@ const stores: injector.Injection[] = [
   { provide: GameServerLogStore, useValue: new GameServerLogStore() },
   { provide: GameServerStore, useValue: new GameServerStore() },
   { provide: GameServerTemplateStore, useValue: new GameServerTemplateStore() },
+  { provide: MatchStore, useValue: new MatchStore() },
   { provide: NamespaceStore, useValue: new NamespaceStore() },
   { provide: QueueLogStore, useValue: new QueueLogStore() },
   { provide: QueueMemberStore, useValue: new QueueMemberStore() },
@@ -260,6 +272,8 @@ export default {
   gameServerTemplateService: injector.get(GameServerTemplateService),
   gameServerTemplateStore: injector.get(GameServerTemplateStore),
   loginService: injector.get(LoginService),
+  matchService: injector.get(MatchService),
+  matchStore: injector.get(MatchStore),
   namespaceService: injector.get(NamespaceService),
   passwordResetService: injector.get(PasswordResetService),
   queueLogService: injector.get(QueueLogService),

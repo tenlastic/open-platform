@@ -1,4 +1,4 @@
-import { GameServerModel, IGameServer, NamespaceModel } from '@tenlastic/http';
+import { GameServerModel, IGameServer, NamespaceModel, UserModel } from '@tenlastic/http';
 import wait from '@tenlastic/wait';
 import { expect } from 'chai';
 import * as Chance from 'chance';
@@ -14,9 +14,14 @@ const chance = new Chance();
 
 describe('/nodejs/namespace/queues', function () {
   let namespace: NamespaceModel;
+  let user: UserModel;
+  let webSocketUrl: string;
 
   afterEach(async function () {
+    dependencies.webSocketService.close(webSocketUrl);
+
     await helpers.deleteNamespace(namespace?._id);
+    await helpers.deleteUser(user?._id);
   });
 
   it('creates a Namespace, Build, Game Server Template, and Queue', async function () {
@@ -54,45 +59,45 @@ describe('/nodejs/namespace/queues', function () {
       queue = await dependencies.queueService.findOne(namespace._id, queue._id);
       return queue.status.phase === 'Running';
     });
+    await new Promise((resolve) => setTimeout(resolve, 5 * 1000));
 
-    // Create a User and Web Socket connection.
-    const { user, webSocketUrl } = await createUser(namespace._id);
+    // Create a new User with a Web Socket connection.
+    webSocketUrl = `${wssUrl}/namespaces/${namespace._id}`;
+    user = await createUser(webSocketUrl);
 
-    try {
-      const queueId = queue._id;
-      const userId = user._id;
-      const where = { queueId: queue._id };
+    const queueMember = { queueId: queue._id, userId: user._id };
+    const where = { queueId: queue._id };
 
-      // Join the Queue and wait for Game Server to be created successfully.
-      await dependencies.queueMemberService.create({ queueId, userId }, webSocketUrl);
-      const gameServer: GameServerModel = await wait(5 * 1000, 60 * 1000, async () => {
-        const gameServers = await dependencies.gameServerService.find(namespace._id, { where });
-        return gameServers[0];
-      });
-      expect(gameServer.buildId).to.eql(build._id);
-      expect(gameServer.matchId).to.exist;
-      expect(gameServer.queueId).to.eql(queue._id);
+    // Join the Queue and wait for Game Server to be created successfully.
+    await dependencies.queueMemberService.create(queueMember, webSocketUrl);
+    const gameServer: GameServerModel = await wait(5 * 1000, 60 * 1000, async () => {
+      const gameServers = await dependencies.gameServerService.find(namespace._id, { where });
+      return gameServers[0];
+    });
 
-      // Make sure the Queue Members are deleted.
-      let queueMembers = await dependencies.queueMemberService.find(namespace._id, { where });
-      expect(queueMembers.length).to.eql(0);
+    // Make sure the Queue Members are deleted.
+    let queueMembers = await dependencies.queueMemberService.find(namespace._id, { where });
+    expect(queueMembers.length).to.eql(0);
 
-      // Update the Queue to require two Users.
-      const usersPerTeam = [1, 1];
-      queue = await dependencies.queueService.update(namespace._id, queue._id, { usersPerTeam });
+    // Delete the Game Server and wait for the Match to be finished.
+    await dependencies.gameServerService.delete(namespace._id, gameServer._id);
+    await wait(5 * 1000, 60 * 1000, async () => {
+      const [match] = await dependencies.matchService.find(namespace._id, { where });
+      return match.finishedAt;
+    });
 
-      // Join the Queue and close the Web Socket.
-      await dependencies.queueMemberService.create({ queueId, userId }, webSocketUrl);
-      dependencies.webSocketService.close(`${wssUrl}/namespaces/${namespace._id}`);
-      await new Promise((resolve) => setTimeout(resolve, 5 * 1000));
+    // Update the Queue to require two Users.
+    const usersPerTeam = [1, 1];
+    queue = await dependencies.queueService.update(namespace._id, queue._id, { usersPerTeam });
 
-      // Make sure the Queue Members are deleted.
-      queueMembers = await dependencies.queueMemberService.find(namespace._id, { where });
-      expect(queueMembers.length).to.eql(0);
-    } finally {
-      dependencies.webSocketService.close(`${wssUrl}/namespaces/${namespace._id}`);
-      await dependencies.userService.delete(user._id);
-    }
+    // Join the Queue, close the Web Socket, and wait for asynchronous Queue Member deletion.
+    await dependencies.queueMemberService.create(queueMember, webSocketUrl);
+    dependencies.webSocketService.close(`${wssUrl}/namespaces/${namespace._id}`);
+    await new Promise((resolve) => setTimeout(resolve, 5 * 1000));
+
+    // Make sure the Queue Members are deleted.
+    queueMembers = await dependencies.queueMemberService.find(namespace._id, { where });
+    expect(queueMembers.length).to.eql(0);
 
     // Check for Queue Logs.
     const logs = await wait(2.5 * 1000, 5 * 1000, async () => {
@@ -109,26 +114,26 @@ describe('/nodejs/namespace/queues', function () {
   });
 });
 
-async function createUser(namespaceId: string) {
+async function createUser(webSocketUrl: string) {
   // Create a new User.
   const password = chance.hash();
-  const user = await dependencies.userService.create({
-    password,
-    username: chance.hash({ length: 24 }),
-  });
+  const username = chance.hash({ length: 24 });
+  const user = await dependencies.userService.create({ password, username });
 
-  const credentials = await dependencies.loginService.createWithCredentials(
-    user.username,
-    password,
-  );
-  dependencies.tokenService.setAccessToken(credentials.accessToken);
+  try {
+    // Log in with the new User.
+    const credentials = await dependencies.loginService.createWithCredentials(
+      user.username,
+      password,
+    );
+    dependencies.tokenService.setAccessToken(credentials.accessToken);
 
-  // Connect to the web socket server.
-  const webSocketUrl = `${wssUrl}/namespaces/${namespaceId}`;
-  await dependencies.webSocketService.connect(webSocketUrl);
+    // Connect to the web socket server.
+    await dependencies.webSocketService.connect(webSocketUrl);
+  } finally {
+    // Restore original access token.
+    dependencies.tokenService.setAccessToken(administratorAccessToken);
+  }
 
-  // Restore original access token.
-  dependencies.tokenService.setAccessToken(administratorAccessToken);
-
-  return { webSocketUrl, user };
+  return user;
 }

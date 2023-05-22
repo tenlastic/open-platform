@@ -130,14 +130,16 @@ export class QueueMemberSchema {
    * Throws an error if a User is already in a Match.
    */
   private async checkMatches(this: QueueMemberDocument) {
-    const matches = await MatchModel.find({ 'teams.userIds': { $in: this.userIds } });
-
+    const matches = await MatchModel.find({
+      finishedAt: { $exists: false },
+      'teams.userIds': { $in: this.userIds },
+    });
     if (matches.length === 0) {
       return;
     }
 
     const userIds = matches.map((m) => m.userIds).flat();
-    const intersection = this.userIds.filter((ui) => userIds.includes(ui));
+    const intersection = this.userIds.filter((userId) => userIds.some((ui) => ui.equals(userId)));
 
     throw new QueueMemberMatchError(intersection);
   }

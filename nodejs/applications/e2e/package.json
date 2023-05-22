@@ -25,6 +25,7 @@
     "jszip": "3.10.0",
     "mocha": "7.1.2",
     "puppeteer": "16.1.1",
+    "source-map-support": "0.5.12",
     "unzipper": "0.10.11"
   },
   "devDependencies": {
