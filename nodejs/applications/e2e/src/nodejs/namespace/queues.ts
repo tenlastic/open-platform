@@ -46,7 +46,7 @@ describe('/nodejs/namespace/queues', function () {
       namespaceId: namespace._id,
       preemptible: true,
       replicas: 1,
-      usersPerTeam: [1, 1],
+      usersPerTeam: [1],
     });
 
     // Wait for the Queue to run successfully.
@@ -63,19 +63,6 @@ describe('/nodejs/namespace/queues', function () {
       const userId = user._id;
       const where = { queueId: queue._id };
 
-      // Join the Queue and close the Web Socket.
-      await dependencies.queueMemberService.create({ queueId, userId }, webSocketUrl);
-      dependencies.webSocketService.close(`${wssUrl}/namespaces/${namespace._id}`);
-      await new Promise((resolve) => setTimeout(resolve, 5 * 1000));
-
-      // Make sure the Queue Members are deleted.
-      let queueMembers = await dependencies.queueMemberService.find(namespace._id, { where });
-      expect(queueMembers.length).to.eql(0);
-
-      // Update the Queue to require only 1 User.
-      const usersPerTeam = [1];
-      queue = await dependencies.queueService.update(namespace._id, queue._id, { usersPerTeam });
-
       // Join the Queue and wait for Game Server to be created successfully.
       await dependencies.queueMemberService.create({ queueId, userId }, webSocketUrl);
       const gameServer: GameServerModel = await wait(5 * 1000, 60 * 1000, async () => {
@@ -85,6 +72,19 @@ describe('/nodejs/namespace/queues', function () {
       expect(gameServer.buildId).to.eql(build._id);
       expect(gameServer.matchId).to.exist;
       expect(gameServer.queueId).to.eql(queue._id);
+
+      // Make sure the Queue Members are deleted.
+      let queueMembers = await dependencies.queueMemberService.find(namespace._id, { where });
+      expect(queueMembers.length).to.eql(0);
+
+      // Update the Queue to require two Users.
+      const usersPerTeam = [1, 1];
+      queue = await dependencies.queueService.update(namespace._id, queue._id, { usersPerTeam });
+
+      // Join the Queue and close the Web Socket.
+      await dependencies.queueMemberService.create({ queueId, userId }, webSocketUrl);
+      dependencies.webSocketService.close(`${wssUrl}/namespaces/${namespace._id}`);
+      await new Promise((resolve) => setTimeout(resolve, 5 * 1000));
 
       // Make sure the Queue Members are deleted.
       queueMembers = await dependencies.queueMemberService.find(namespace._id, { where });

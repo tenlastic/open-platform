@@ -14,11 +14,12 @@ describe('/angular/namespace/collections', () => {
   });
 
   afterEach(async function () {
+    await helpers.screenshot(this, page);
+
     const browser = page.browser();
     await browser.close();
 
-    helpers.deleteNamespace(namespace);
-    helpers.screenshot(this, page);
+    await helpers.deleteNamespace(namespace);
   });
 
   it('creates a Namespace, Collection, and Record', async function () {

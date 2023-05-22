@@ -20,16 +20,24 @@ spec:
     artifactGC:
       serviceAccountName: argo-workflows
       strategy: OnWorkflowDeletion
-    entrypoint: e2e
+    entrypoint: entrypoint
     podGC:
       strategy: OnWorkflowSuccess
     serviceAccountName: argo-workflows
     ttlStrategy:
       secondsAfterSuccess: 86400
     templates:
-      - name: e2e
+      - name: entrypoint
+        steps:
+          - - name: angular
+              template: angular
+            - name: nodejs
+              template: nodejs
+
+      - name: angular
         container:
           image: tenlastic/e2e:0.0.395
+          args: [--fgrep, angular]
           envFrom:
             - secretRef:
                 name: e2e
@@ -45,3 +53,19 @@ spec:
           artifacts:
             - name: puppeteer
               path: /usr/src/test-results/puppeteer/
+
+      - name: nodejs
+        container:
+          image: tenlastic/e2e:0.0.395
+          args: [--fgrep, nodejs]
+          envFrom:
+            - secretRef:
+                name: e2e
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              cpu: 250m
+              memory: 250M
+            requests:
+              cpu: 50m
+              memory: 250M

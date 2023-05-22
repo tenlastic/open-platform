@@ -14,11 +14,12 @@ describe('/angular/authentication/logins', () => {
   });
 
   afterEach(async function () {
+    await helpers.screenshot(this, page);
+
     const browser = page.browser();
     await browser.close();
 
     await helpers.deleteUser(username);
-    await helpers.screenshot(this, page);
   });
 
   it('registers a new User, logs out, and logs in', async function () {

@@ -17,11 +17,12 @@ describe('/angular/namespace/game-servers', () => {
   });
 
   afterEach(async function () {
+    await helpers.screenshot(this, page);
+
     const browser = page.browser();
     await browser.close();
 
-    helpers.deleteNamespace(namespace);
-    helpers.screenshot(this, page);
+    await helpers.deleteNamespace(namespace);
   });
 
   it('creates a Namespace, Build, and Game Server', async function () {
