@@ -34,7 +34,7 @@ spec:
               topologyKey: kubernetes.io/hostname
       containers:
         - name: cdc
-          image: tenlastic/cdc:0.0.398
+          image: tenlastic/cdc:0.0.399
           env:
             - name: MONGO_DATABASE_NAME
               value: api
