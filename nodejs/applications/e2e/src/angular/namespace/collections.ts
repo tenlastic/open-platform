@@ -1,101 +1,42 @@
-import wait from '@tenlastic/wait';
 import * as Chance from 'chance';
-import * as fs from 'fs';
-import * as puppeteer from 'puppeteer';
+import { Page } from 'puppeteer';
 
-import { step } from '../../step';
-import { administratorAccessToken, administratorRefreshToken } from '../../';
 import * as helpers from '../helpers';
-import dependencies from '../../dependencies';
 
 const chance = new Chance();
 
 describe('/angular/namespace/collections', () => {
-  let browser: puppeteer.Browser;
-  let collection: string;
   let namespace: string;
-  let page: puppeteer.Page;
+  let page: Page;
 
-  before(async function () {
-    // Generate a name for the Namespace.
-    collection = chance.hash({ length: 64 });
-    namespace = chance.hash({ length: 64 });
-
-    // Open a new browser and load the home page.
-    browser = await puppeteer.launch({ args: ['--disable-setuid-sandbox', '--no-sandbox'] });
-    page = await browser.newPage();
-    page.setViewport({ width: 1920, height: 1080 });
-    await helpers.setTokensOnPageLoad(administratorAccessToken, page, administratorRefreshToken);
-    await page.goto(process.env.E2E_WWW_URL, { waitUntil: 'networkidle0' });
-  });
-
-  after(async function () {
-    await browser.close();
-
-    // Delete the test Namespace.
-    const namespaces = await dependencies.namespaceService.find({ where: { name: namespace } });
-    if (namespaces.length) {
-      await dependencies.namespaceService.delete(namespaces[0]._id);
-    }
+  beforeEach(async function () {
+    page = await helpers.newPage();
   });
 
   afterEach(async function () {
-    fs.mkdirSync('./test-results/puppeteer', { recursive: true });
-    await page.screenshot({ path: `./test-results/puppeteer/${this.currentTest.title}.png` });
+    const browser = page.browser();
+    await browser.close();
+
+    helpers.deleteNamespace(namespace);
+    helpers.screenshot(this, page);
   });
 
-  step('navigates to the Namespaces page', async function () {
-    const button = await helpers.getButtonByText(page, 'Management Portal');
-    await helpers.clickAndNavigate(button, page, 'Namespaces | Tenlastic');
-  });
+  it('creates a Namespace, Collection, and Record', async function () {
+    // Create the Namespace.
+    namespace = chance.hash({ length: 64 });
+    await helpers.createNamespace(namespace, page);
 
-  step('navigates to the New Namespace page', async function () {
-    const button = await helpers.getButtonByText(page, 'New Namespace');
-    await helpers.clickAndNavigate(button, page, 'New Namespace | Tenlastic');
-  });
+    // Navigate to the "New Collection" page.
+    const collectionsPage = await helpers.getButtonByText(page, 'Collections');
+    await helpers.clickAndNavigate(collectionsPage, page, 'Collections | Tenlastic');
 
-  step('creates a Namespace', async function () {
-    const bandwidthInput = await helpers.getInputByLabel('Bandwidth', page);
-    await helpers.type(bandwidthInput, page, `${1 * 1000 * 1000 * 1000}`);
+    const newCollectionPage = await helpers.getButtonByText(page, 'New Collection');
+    await helpers.clickAndNavigate(newCollectionPage, page, 'New Collection | Tenlastic');
 
-    const cpuInput = await helpers.getInputByLabel('CPU', page);
-    await helpers.type(cpuInput, page, `${1}`);
-
-    const memoryInput = await helpers.getInputByLabel('Memory', page);
-    await helpers.type(memoryInput, page, `${1 * 1000 * 1000 * 1000}`);
-
-    const nameInput = await helpers.getInputByLabel('Name', page);
-    await helpers.type(nameInput, page, namespace);
-
-    const storageInput = await helpers.getInputByLabel('Storage', page);
-    await helpers.type(storageInput, page, `${10 * 1000 * 1000 * 1000}`);
-
-    const button = await helpers.getButtonByText(page, 'Save');
-    await helpers.clickAndNavigate(button, page, 'Edit Namespace | Tenlastic');
-  });
-
-  step('runs the Namespace successfully', async function () {
-    await wait(100, 2 * 60 * 1000, async () => {
-      const [input] = await page.$x(`//mat-form-field[.//mat-label[contains(., 'Phase')]]//input`);
-      const value = await page.evaluate((i) => i.value, input);
-
-      return value === 'Running';
-    });
-  });
-
-  step('navigates to the Collections page', async function () {
-    const button = await helpers.getButtonByText(page, 'Collections');
-    await helpers.clickAndNavigate(button, page, 'Collections | Tenlastic');
-  });
-
-  step('navigates to the New Collection page', async function () {
-    const button = await helpers.getButtonByText(page, 'New Collection');
-    await helpers.clickAndNavigate(button, page, 'New Collection | Tenlastic');
-  });
-
-  step('creates a Collection', async function () {
-    const nameInput = await helpers.getInputByLabel('Name', page);
-    await helpers.type(nameInput, page, collection);
+    // Create the Collection.
+    const collection = chance.hash({ length: 64 });
+    const collectionNameInput = await helpers.getInputByLabel('Name', page);
+    await helpers.type(collectionNameInput, page, collection);
 
     const keyInput = await helpers.getInputByLabel('Key', page);
     await helpers.type(keyInput, page, 'name');
@@ -111,25 +52,21 @@ describe('/angular/namespace/collections', () => {
 
     await helpers.sleep(1000);
 
-    const button = await helpers.getButtonByText(page, 'Save');
-    await helpers.clickAndNavigate(button, page, 'Edit Collection | Tenlastic');
-  });
+    const saveCollectionButton = await helpers.getButtonByText(page, 'Save');
+    await helpers.clickAndNavigate(saveCollectionButton, page, 'Edit Collection | Tenlastic');
 
-  step('navigates to the Records page', async function () {
-    const button = await helpers.getButtonByText(page, 'Records');
-    await helpers.clickAndNavigate(button, page, 'Records | Tenlastic');
-  });
+    // Navigate to the "New Record" page.
+    const recordsButton = await helpers.getButtonByText(page, 'Records');
+    await helpers.clickAndNavigate(recordsButton, page, 'Records | Tenlastic');
 
-  step('navigates to the New Record page', async function () {
-    const button = await helpers.getButtonByText(page, 'New Record');
-    await helpers.clickAndNavigate(button, page, 'New Record | Tenlastic');
-  });
+    const newRecordButton = await helpers.getButtonByText(page, 'New Record');
+    await helpers.clickAndNavigate(newRecordButton, page, 'New Record | Tenlastic');
 
-  step('creates a Record', async function () {
-    const nameInput = await helpers.getInputByLabel('Name', page);
-    await helpers.type(nameInput, page, collection);
+    // Create the Record.
+    const recordNameInput = await helpers.getInputByLabel('Name', page);
+    await helpers.type(recordNameInput, page, collection);
 
-    const button = await helpers.getButtonByText(page, 'Save');
-    await helpers.clickAndNavigate(button, page, 'Edit Record | Tenlastic');
+    const saveRecordButton = await helpers.getButtonByText(page, 'Save');
+    await helpers.clickAndNavigate(saveRecordButton, page, 'Edit Record | Tenlastic');
   });
 });

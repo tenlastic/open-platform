@@ -1,91 +1,33 @@
-import { BuildModel, GameServerModel, IBuild, IGameServer, NamespaceModel } from '@tenlastic/http';
+import { IGameServer, NamespaceModel } from '@tenlastic/http';
 import wait from '@tenlastic/wait';
 import axios from 'axios';
-import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
+import { expect } from 'chai';
 import * as Chance from 'chance';
-import * as FormData from 'form-data';
 import * as fs from 'fs';
-import * as JSZip from 'jszip';
 import { URL } from 'url';
 
 import dependencies from '../../dependencies';
-import { step } from '../../step';
+import * as helpers from '../helpers';
 
 const chance = new Chance();
-use(chaiAsPromised);
 
 describe('/nodejs/namespace/game-servers', function () {
-  let build: BuildModel;
-  let gameServer: GameServerModel;
   let namespace: NamespaceModel;
 
-  after(async function () {
+  afterEach(async function () {
     await dependencies.namespaceService.delete(namespace._id);
   });
 
-  step('creates a Namespace', async function () {
-    namespace = await dependencies.namespaceService.create({
-      limits: {
-        bandwidth: 1 * 1000 * 1000 * 1000,
-        cpu: 1,
-        memory: 1 * 1000 * 1000 * 1000,
-        storage: 10 * 1000 * 1000 * 1000,
-      },
-      name: chance.hash({ length: 64 }),
-    });
-    expect(namespace).to.exist;
-  });
+  it('creates a Namespace, Build, and Game Server', async function () {
+    // Create the Namespace.
+    namespace = await helpers.createNamespace();
 
-  step('runs the Namespace successfully', async function () {
-    await wait(5 * 1000, 60 * 1000, async () => {
-      namespace = await dependencies.namespaceService.findOne(namespace._id);
-      return namespace.status.phase === 'Running';
-    });
-  });
-
-  step('creates a Build', async function () {
-    // Get Dockerfile from filesystem.
+    // Create the Build.
     const dockerfile = fs.readFileSync('./fixtures/Dockerfile', 'utf8');
+    const build = await helpers.createBuild(dockerfile, namespace);
 
-    // Generate a zip stream.
-    const zip = new JSZip();
-    zip.file('Dockerfile', dockerfile);
-    const buffer = await zip.generateAsync({
-      compression: 'DEFLATE',
-      compressionOptions: { level: 1 },
-      type: 'nodebuffer',
-    });
-
-    // Create a Build.
-    build = await dependencies.buildService.create(namespace._id, () => {
-      const formData = new FormData();
-      formData.append(
-        'record',
-        JSON.stringify({
-          entrypoint: 'Dockerfile',
-          name: chance.hash({ length: 64 }),
-          platform: IBuild.Platform.Server64,
-        } as BuildModel),
-      );
-      formData.append('zip', buffer, { contentType: 'application/zip', filename: 'example.zip' });
-      return formData;
-    });
-
-    expect(build).to.exist;
-  });
-
-  step('finishes the Build successfully', async function () {
-    const phase = await wait(5 * 1000, 2 * 60 * 1000, async () => {
-      build = await dependencies.buildService.findOne(namespace._id, build._id);
-      return build.status.finishedAt ? build.status.phase : null;
-    });
-
-    expect(phase).to.eql('Succeeded');
-  });
-
-  step('creates a Game Server', async function () {
-    gameServer = await dependencies.gameServerService.create(namespace._id, {
+    // Create the Game Server.
+    let gameServer = await dependencies.gameServerService.create(namespace._id, {
       buildId: build._id,
       cpu: 0.1,
       memory: 500 * 1000 * 1000,
@@ -94,26 +36,20 @@ describe('/nodejs/namespace/game-servers', function () {
       preemptible: true,
     });
 
-    expect(gameServer).to.exist;
-  });
-
-  step('runs the Game Server successfully', async function () {
     await wait(5 * 1000, 60 * 1000, async () => {
       gameServer = await dependencies.gameServerService.findOne(namespace._id, gameServer._id);
       return gameServer.status.endpoints.length > 0 && gameServer.status.phase === 'Running';
     });
-  });
 
-  step('allows connections', async function () {
+    // Connect to the Game Server.
     const { externalIp, externalPort } = gameServer.status.endpoints[0];
     const hostname = externalIp === '127.0.0.1' ? 'kubernetes.local.tenlastic.com' : externalIp;
     const url = new URL(`http://${hostname}:${externalPort}`);
 
     const response = await axios({ method: 'get', url: url.href });
     expect(response.data).to.include('Welcome to echo-server!');
-  });
 
-  step('generates logs', async function () {
+    // Check for Game Server Logs.
     const logs = await wait(2.5 * 1000, 5 * 1000, async () => {
       const response = await dependencies.gameServerLogService.find(
         namespace._id,
@@ -124,7 +60,6 @@ describe('/nodejs/namespace/game-servers', function () {
       );
       return response.length > 0 ? response : null;
     });
-
     expect(logs.length).to.be.greaterThan(0);
   });
 });

@@ -6,7 +6,6 @@ import * as Chance from 'chance';
 import { google } from 'googleapis';
 
 import dependencies from '../../dependencies';
-import { step } from '../../step';
 
 const chance = new Chance();
 use(chaiAsPromised);
@@ -28,7 +27,7 @@ describe('/nodejs/authentication/password-resets', function () {
   let user: UserModel;
   let username: string;
 
-  before(async function () {
+  beforeEach(async function () {
     email = process.env.E2E_EMAIL_ADDRESS;
     username = chance.hash({ length: 24 });
 
@@ -40,9 +39,11 @@ describe('/nodejs/authentication/password-resets', function () {
       }
     }
 
+    // Create a User with a random password.
     const password = chance.hash();
     user = await dependencies.userService.create({ email, password, username });
 
+    // Create a Refresh Token for the User.
     const response = await dependencies.loginService.createWithCredentials(username, password);
     refreshToken = response.refreshToken;
 
@@ -51,27 +52,26 @@ describe('/nodejs/authentication/password-resets', function () {
     await Promise.all(messages.map((m) => read(m.id)));
   });
 
-  after(async function () {
+  afterEach(async function () {
     await dependencies.userService.delete(user._id);
   });
 
-  step('sends a Password Reset email', async function () {
+  it('sends a Password Reset email', async function () {
+    // Request a Password Reset.
     await dependencies.passwordResetService.create(email);
 
     hash = await wait(5 * 1000, 2 * 60 * 1000, () => getPasswordResetHash());
     expect(hash).to.match(/[A-Za-z0-9]+/);
-  });
 
-  step('resets the password', async function () {
+    // Reset the password.
     const password = chance.hash();
     await dependencies.passwordResetService.delete(hash, password);
 
     const response = await dependencies.loginService.createWithCredentials(username, password);
     expect(response.accessToken).to.exist;
     expect(response.refreshToken).to.exist;
-  });
 
-  step('invalidates the old refresh token', async function () {
+    // Invalidate the old Refresh Token
     const promise = dependencies.loginService.createWithRefreshToken(refreshToken);
     return expect(promise).to.be.rejected;
   });
