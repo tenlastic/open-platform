@@ -9,7 +9,3 @@ export function connect(options: minio.ClientOptions) {
 
   client = new minio.Client(options);
 }
-
-export function getClient() {
-  return client;
-}
