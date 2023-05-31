@@ -68,15 +68,18 @@ export const KubernetesNamespace = {
         },
       },
       podAntiAffinity: {
-        requiredDuringSchedulingIgnoredDuringExecution: [
+        preferredDuringSchedulingIgnoredDuringExecution: [
           {
-            labelSelector: {
-              matchExpressions: [
-                { key: 'tenlastic.com/app', operator: 'In', values: [name] },
-                { key: 'tenlastic.com/role', operator: 'In', values: [role] },
-              ],
+            podAffinityTerm: {
+              labelSelector: {
+                matchExpressions: [
+                  { key: 'tenlastic.com/app', operator: 'In', values: [name] },
+                  { key: 'tenlastic.com/role', operator: 'In', values: [role] },
+                ],
+              },
+              topologyKey: 'kubernetes.io/hostname',
             },
-            topologyKey: 'kubernetes.io/hostname',
+            weight: 100,
           },
         ],
       },

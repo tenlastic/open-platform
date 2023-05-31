@@ -22,14 +22,16 @@ spec:
                 - key: tenlastic.com/low-priority
                   operator: Exists
       podAntiAffinity:
-        requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-                - key: app.kubernetes.io/name
-                  operator: In
-                  values:
-                    - minio
-            topologyKey: kubernetes.io/hostname
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                      - minio
+              topologyKey: kubernetes.io/hostname
     auth:
       existingSecret: minio
     mode: distributed

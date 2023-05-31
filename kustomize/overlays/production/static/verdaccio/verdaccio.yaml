@@ -57,14 +57,16 @@ spec:
                   - key: tenlastic.com/low-priority
                     operator: Exists
         podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchExpressions:
-                  - key: app.kubernetes.io/name
-                    operator: In
-                    values:
-                      - verdaccio
-              topologyKey: kubernetes.io/hostname
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        - verdaccio
+                topologyKey: kubernetes.io/hostname
       containers:
         - name: verdaccio
           image: verdaccio/verdaccio:5.24.1

@@ -23,14 +23,16 @@ spec:
                   - key: tenlastic.com/low-priority
                     operator: Exists
         podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchExpressions:
-                  - key: app.kubernetes.io/name
-                    operator: In
-                    values:
-                      - home-ui
-              topologyKey: kubernetes.io/hostname
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        - home-ui
+                topologyKey: kubernetes.io/hostname
       containers:
         - name: home-ui
           image: tenlastic/home-ui:0.0.344
