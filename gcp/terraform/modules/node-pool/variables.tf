@@ -12,7 +12,7 @@ variable "labels" {
 }
 
 variable "location" {
-  default = "us-central1-a"
+  default = "us-east4-a"
   type    = string
 }
 

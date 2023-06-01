@@ -19,7 +19,7 @@ spec:
         requiredDuringSchedulingIgnoredDuringExecution:
           nodeSelectorTerms:
             - matchExpressions:
-                - key: tenlastic.com/low-priority
+                - key: tenlastic.com/high-priority
                   operator: Exists
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -34,9 +34,8 @@ spec:
               topologyKey: kubernetes.io/hostname
     auth:
       existingSecret: minio
-    mode: distributed
     persistence:
-      size: 8G
+      size: 25G
       storageClass: balanced-expandable
     provisioning:
       buckets:
@@ -50,9 +49,6 @@ spec:
           policy: download
           purge: "false"
       enabled: true
-    statefulset:
-      drivesPerNode: 1
-      replicaCount: 5
     resources:
       limits:
         cpu: 1000m

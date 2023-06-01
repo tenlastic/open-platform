@@ -9,4 +9,4 @@ spec:
       extraArgs:
         default-ssl-certificate: static/default-tls
       service:
-        loadBalancerIP: 104.198.79.102
+        loadBalancerIP: 34.85.146.3

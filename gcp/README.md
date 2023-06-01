@@ -51,5 +51,5 @@ cd ../
 
 # Connect to cluster.
 gcloud container clusters get-credentials primary \
-  --zone "us-central1-a"
+  --zone "us-east4-a"
 ```

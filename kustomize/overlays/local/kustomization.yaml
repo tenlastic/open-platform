@@ -40,15 +40,11 @@ patchesStrategicMerge:
   - ./static/docker-registry/docker-registry-ui.yaml
   - ./static/ingress-nginx/ingress-nginx.yaml
   - ./static/kubernetes-dashboard/kubernetes-dashboard.yaml
-  - ./static/minio/minio.yaml
-  - ./static/mongodb/mongodb.yaml
   - ./static/mongodb/mongodb-gui.yaml
-  - ./static/nats/nats.yaml
   - ./static/nodejs/aggregation-api.yaml
   - ./static/nodejs/api.yaml
   - ./static/nodejs/documentation.yaml
   - ./static/nodejs/social-api.yaml
-  - ./static/redis/redis.yaml
 resources:
   - ./cluster/cluster-role-bindings/docker-for-desktop-binding.yaml
   - ./dynamic/secrets/docker-registry.secret.example.yaml

@@ -30,8 +30,8 @@ module "high_priority_pool" {
 
   cluster_name   = google_container_cluster.primary.name
   disk_size_gb   = 50
-  machine_type   = "n2d-standard-2"
-  max_node_count = 5
+  machine_type   = "n2d-standard-4"
+  max_node_count = 3
   min_node_count = 0
   name           = "high-priority-pool"
 
@@ -46,8 +46,8 @@ module "low_priority_pool" {
   cluster_name   = google_container_cluster.primary.name
   disk_size_gb   = 50
   machine_type   = "n2d-standard-4"
-  max_node_count = 10
-  min_node_count = 5
+  max_node_count = 5
+  min_node_count = 0
   name           = "low-priority-pool"
   preemptible    = true
 

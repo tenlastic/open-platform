@@ -131,7 +131,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 8G
+      storage: 10G
   storageClassName: balanced-expandable
 ---
 apiVersion: v1

@@ -19,7 +19,7 @@ spec:
         requiredDuringSchedulingIgnoredDuringExecution:
           nodeSelectorTerms:
             - matchExpressions:
-                - key: tenlastic.com/low-priority
+                - key: tenlastic.com/high-priority
                   operator: Exists
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -34,9 +34,6 @@ spec:
               topologyKey: kubernetes.io/hostname
     auth:
       enabled: true
-    cluster:
-      enabled: true
-      replicas: 5
     nats:
       customConfigSecret:
         name: nats
@@ -48,7 +45,7 @@ spec:
         enabled: true
         fileStorage:
           enabled: true
-          size: 8G
+          size: 10G
           storageDirectory: /data/
           storageClassName: balanced-expandable
         memStorage:

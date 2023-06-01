@@ -4,11 +4,11 @@ variable "project" {
 }
 
 variable "region" {
-  default = "us-central1"
+  default = "us-east4"
   type    = string
 }
 
 variable "zone" {
-  default = "us-central1-a"
+  default = "us-east4-a"
   type    = string
 }

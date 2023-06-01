@@ -23,7 +23,7 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
               - matchExpressions:
-                  - key: tenlastic.com/low-priority
+                  - key: tenlastic.com/high-priority
                     operator: Exists
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -42,7 +42,7 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
               - matchExpressions:
-                  - key: tenlastic.com/low-priority
+                  - key: tenlastic.com/high-priority
                     operator: Exists
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -57,7 +57,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
       persistence:
         storageClass: standard-expandable
-      replicaCount: 5
+      replicaCount: 1
       resources:
         limits:
           cpu: 250m
@@ -68,7 +68,7 @@ spec:
     sentinel:
       downAfterMilliseconds: 10000
       enabled: true
-      quorum: 2
+      quorum: 1
       resources:
         requests:
           cpu: 50m

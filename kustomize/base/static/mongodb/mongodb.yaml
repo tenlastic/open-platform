@@ -19,7 +19,7 @@ spec:
         requiredDuringSchedulingIgnoredDuringExecution:
           nodeSelectorTerms:
             - matchExpressions:
-                - key: tenlastic.com/low-priority
+                - key: tenlastic.com/high-priority
                   operator: Exists
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
@@ -33,42 +33,18 @@ spec:
                       - mongodb
               topologyKey: kubernetes.io/hostname
     arbiter:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: tenlastic.com/low-priority
-                    operator: Exists
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 100
-              podAffinityTerm:
-                labelSelector:
-                  matchExpressions:
-                    - key: app.kubernetes.io/name
-                      operator: In
-                      values:
-                        - mongodb
-                topologyKey: kubernetes.io/hostname
-      resources:
-        limits:
-          cpu: 250m
-          memory: 250M
-        requests:
-          cpu: 50m
-          memory: 250M
+      enabled: false
     architecture: replicaset
     auth:
       existingSecret: mongodb
     livenessProbe:
       periodSeconds: 30
     persistence:
-      size: 8G
+      size: 10G
       storageClass: balanced-expandable
     readinessProbe:
       periodSeconds: 30
-    replicaCount: 5
+    replicaCount: 1
     resources:
       limits:
         cpu: 1000m
