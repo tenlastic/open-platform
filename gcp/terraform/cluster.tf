@@ -5,6 +5,10 @@ resource "google_container_cluster" "primary" {
   remove_default_node_pool = true
 
   addons_config {
+    dns_cache_config {
+      enabled = true
+    }
+    
     network_policy_config {
       disabled = false
     }
