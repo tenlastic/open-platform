@@ -5,16 +5,16 @@
   "license": "Apache-2.0",
   "name": "@tenlastic/api-migrations",
   "private": true,
-  "version": "0.0.400",
+  "version": "0.0.401",
   "scripts": {
     "build": "../../scripts/build.sh",
     "lint": "../../scripts/lint.sh",
     "start": "../../scripts/start.sh"
   },
   "dependencies": {
-    "@tenlastic/logging": "0.0.400",
-    "@tenlastic/mongoose": "0.0.400",
-    "@tenlastic/nats": "0.0.400",
+    "@tenlastic/logging": "0.0.401",
+    "@tenlastic/mongoose": "0.0.401",
+    "@tenlastic/nats": "0.0.401",
     "@typegoose/typegoose": "9.13.1",
     "source-map-support": "0.5.12"
   },
