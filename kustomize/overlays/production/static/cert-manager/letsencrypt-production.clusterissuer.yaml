@@ -14,5 +14,5 @@ spec:
           cloudDNS:
             project: production-303220
             serviceAccountSecretRef:
-              name: cert-manager-credentials
               key: dns-admin.json
+              name: cert-manager-credentials

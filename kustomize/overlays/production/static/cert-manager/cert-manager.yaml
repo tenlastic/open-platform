@@ -10,7 +10,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: jetstack
-      version: 1.8.2
+      version: 1.12.1
   interval: 5m
   releaseName: cert-manager
   values:
@@ -32,6 +32,7 @@ spec:
                     values:
                       - cert-manager
               topologyKey: kubernetes.io/hostname
+    extraArgs: "{--v=4}"
     ingressShim:
       defaultIssuerName: letsencrypt-production
       defaultIssuerKind: ClusterIssuer

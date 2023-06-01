@@ -7,7 +7,7 @@ export PROJECT="production-303220"
 kubectl config set-context --current --namespace=static
 
 # Download Service Account credentials for CertManager.
-gcloud iam service-accounts keys create "../../../../gcp/service-accounts/dns-admin.json" \
+gcloud iam service-accounts keys create "../../../gcp/service-accounts/dns-admin.json" \
   --iam-account "dns-admin@${PROJECT}.iam.gserviceaccount.com"
 
 # Update NGINX load balancer IP address.
