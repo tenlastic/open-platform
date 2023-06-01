@@ -1,6 +1,6 @@
 import { StreamConfig, StreamInfo } from 'nats';
 
-import { getJetStreamManager } from './jet-stream-manager';
+import { getJetStreamManager } from '../jet-stream-manager';
 
 export async function upsertStream(subject: string, options?: Partial<StreamConfig>) {
   const jsm = await getJetStreamManager();

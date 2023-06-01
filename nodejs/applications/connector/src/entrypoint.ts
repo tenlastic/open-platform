@@ -43,12 +43,16 @@ const where = process.env.WHERE ? JSON.parse(process.env.WHERE) : {};
     await fetchSchemasFromMongo(SchemaModel, toConnection);
 
     console.log(`Watching NATS (${mongoFromDatabaseName}.schemas) for schema updates...`);
-    fetchSchemasFromNats(mongoFromDatabaseName, fromConnection, start, toConnection).catch(
-      (err) => {
-        console.error(err);
-        process.exit(1);
-      },
-    );
+    fetchSchemasFromNats(
+      mongoFromDatabaseName,
+      `${podName}-schemas`,
+      fromConnection,
+      start,
+      toConnection,
+    ).catch((err) => {
+      console.error(err);
+      process.exit(1);
+    });
 
     // Replicate from MongoDB to MongoDB.
     const starts: { [key: string]: Date } = {};

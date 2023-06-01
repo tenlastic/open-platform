@@ -6,6 +6,11 @@ const format = winston.format((info: any) => {
     return false;
   }
 
+  // Hide NATS information error.
+  if (info.message.includes && info.message.includes('consumers framework is beta functionality')) {
+    return false;
+  }
+
   // Hide websocket disconnection error.
   if (info.message.includes && info.message.includes('Error: read ECONNRESET')) {
     return false;

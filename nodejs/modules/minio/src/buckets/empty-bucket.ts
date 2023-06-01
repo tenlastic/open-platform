@@ -2,7 +2,7 @@ import { removeObject, streamObjects } from '../objects';
 
 export async function emptyBucket(bucketName: string) {
   const promises = [];
-  const stream = streamObjects(bucketName, null);
+  const stream = streamObjects(bucketName);
 
   await new Promise<void>((resolve, reject) => {
     stream.on('data', (data) => {

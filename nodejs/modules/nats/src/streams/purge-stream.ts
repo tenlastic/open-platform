@@ -1,5 +1,5 @@
 import { getStream } from './get-stream';
-import { getJetStreamManager } from './jet-stream-manager';
+import { getJetStreamManager } from '../jet-stream-manager';
 
 export async function purgeStream(subject: string) {
   const jsm = await getJetStreamManager();

@@ -3,10 +3,11 @@ import '@tenlastic/logging';
 
 import * as minio from '@tenlastic/minio';
 import * as mongoose from '@tenlastic/mongoose';
+import * as nats from '@tenlastic/mongoose-nats';
 import { URL } from 'url';
 
 import mailgun from './mailgun';
-import * as nats from './nats';
+import './nats';
 import * as webServer from './web-server';
 
 const mailgunDomain = process.env.MAILGUN_DOMAIN;
@@ -38,7 +39,11 @@ const natsConnectionString = process.env.NATS_CONNECTION_STRING;
     });
 
     // NATS.
-    await nats.setup({ connectionString: natsConnectionString, database: mongoDatabaseName });
+    await nats.connect({ connectionString: natsConnectionString });
+    nats.subscribe({ database: mongoDatabaseName }).catch((err) => {
+      console.error(err);
+      process.exit(1);
+    });
 
     // Web Server.
     webServer.setup();

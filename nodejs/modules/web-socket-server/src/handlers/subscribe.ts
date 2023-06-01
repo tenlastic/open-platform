@@ -51,11 +51,12 @@ export async function subscribe(
     ack_wait: wait * 1000 * 1000,
     durable_name: durable,
     inactive_threshold: 1 * 24 * 60 * 60 * 1000 * 1000 * 1000,
+    max_batch: 1,
     max_deliver: 3,
   });
 
   // Register unsubscribe callback.
-  setUnsubscribeCallback(_id, () => subscription.unsubscribe(), ctx.ws);
+  setUnsubscribeCallback(_id, () => subscription.stop(), ctx.ws);
 
   // Disconnect the NATS consumer on WebSocket disconnect.
   ctx.ws.on('close', () => {
@@ -63,7 +64,7 @@ export async function subscribe(
     deleteNakCallback(_id, ctx.ws);
     deleteUnsubscribeCallback(_id, ctx.ws);
 
-    subscription.unsubscribe();
+    subscription.stop();
   });
 
   // Parse messages asynchronously so we don't block the request.

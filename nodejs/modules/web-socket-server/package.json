@@ -27,7 +27,7 @@
     "@tenlastic/nats": "0.0.400",
     "@tenlastic/web-server": "0.0.400",
     "axios": "0.27.2",
-    "jsonwebtoken": "8.5.1",
+    "jsonwebtoken": "9.0.0",
     "ws": "7.2.1"
   },
   "devDependencies": {

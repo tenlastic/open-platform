@@ -32,6 +32,7 @@ export async function fetchSchemasFromMongo(
 
 export async function fetchSchemasFromNats(
   databaseName: string,
+  durable: string,
   fromConnection: mongoose.Connection,
   start: Date,
   toConnection: mongoose.Connection,
@@ -40,6 +41,7 @@ export async function fetchSchemasFromNats(
     ack_policy: AckPolicy.Explicit,
     ack_wait: 60 * 1000 * 1000 * 1000,
     deliver_policy: DeliverPolicy.StartTime,
+    durable_name: durable,
     max_deliver: 5,
     opt_start_time: start.toISOString(),
   });

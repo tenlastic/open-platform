@@ -44,7 +44,7 @@ describe('watch', function () {
       names.splice(index, 1);
 
       if (names.length === 0) {
-        await subscription.destroy();
+        subscription.stop();
       }
     }
   });
