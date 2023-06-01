@@ -35,16 +35,6 @@ patchesStrategicMerge:
   - ./cluster/storage-classes/balanced-expandable.yaml
   - ./cluster/storage-classes/ssd-expandable.yaml
   - ./cluster/storage-classes/standard-expandable.yaml
-  - ./static/angular/home-ui.yaml
-  - ./static/argo/argo-workflows.yaml
-  - ./static/docker-registry/docker-registry-ui.yaml
-  - ./static/ingress-nginx/ingress-nginx.yaml
-  - ./static/kubernetes-dashboard/kubernetes-dashboard.yaml
-  - ./static/mongodb/mongodb-gui.yaml
-  - ./static/nodejs/aggregation-api.yaml
-  - ./static/nodejs/api.yaml
-  - ./static/nodejs/documentation.yaml
-  - ./static/nodejs/social-api.yaml
 resources:
   - ./cluster/cluster-role-bindings/docker-for-desktop-binding.yaml
   - ./dynamic/secrets/docker-registry.secret.example.yaml

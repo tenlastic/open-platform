@@ -78,7 +78,7 @@ spec:
     protocolHttp: true
     rbac:
       create: false
-    replicaCount: 3
+    replicaCount: 1
     resources:
       limits:
         cpu: 250m
