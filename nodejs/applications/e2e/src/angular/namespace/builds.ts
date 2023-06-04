@@ -34,7 +34,7 @@ describe('/angular/namespace/builds', () => {
 
     // Check for Build Logs.
     const logsButton = await helpers.getButtonByText(page, 'Logs');
-    await logsButton.click();
+    await helpers.click(logsButton, page);
 
     await helpers.waitForXPath(
       page,

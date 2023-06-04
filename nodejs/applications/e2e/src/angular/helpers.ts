@@ -10,8 +10,12 @@ export interface WaitForXPathOptions {
   timeout?: number;
 }
 
+export function click(element: ElementHandle, page: Page) {
+  return page.evaluate((e) => e.click(), element);
+}
+
 export async function clickAndNavigate(element: ElementHandle, page: Page, title: string) {
-  await element.click();
+  await click(element, page);
 
   return wait(100, 2500, async () => {
     const t = await page.title();

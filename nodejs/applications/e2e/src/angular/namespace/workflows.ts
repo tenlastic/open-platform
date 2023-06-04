@@ -56,7 +56,7 @@ describe('/angular/namespace/workflows', () => {
       page,
       'Add Environment Variable',
     );
-    await addEnvironmentVariableButton.click();
+    await helpers.click(addEnvironmentVariableButton, page);
 
     const keyInput = await helpers.getInputByPlaceholder(page, 'MESSAGE');
     await helpers.type(keyInput, page, 'MESSAGE');
@@ -76,7 +76,7 @@ describe('/angular/namespace/workflows', () => {
 
     // Check for Workflow Logs.
     const logsButton = await helpers.getButtonByText(page, 'Logs');
-    await logsButton.click();
+    await helpers.click(logsButton, page);
 
     await helpers.waitForXPath(page, `//app-logs-dialog//div[contains(., 'Hello World!')]`, {
       timeout: 2500,

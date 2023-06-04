@@ -39,7 +39,7 @@ describe('/angular/namespace/game-servers', () => {
     await helpers.clickAndNavigate(buildsButton, page, 'Builds | Tenlastic');
 
     const publishButton = await helpers.getButtonByTooltip(page, 'Publish');
-    await publishButton.click();
+    await helpers.click(publishButton, page);
 
     // Navigate the "New Game Server" page.
     const gameServersButton = await helpers.getButtonByText(page, 'Game Servers');
@@ -79,7 +79,7 @@ describe('/angular/namespace/game-servers', () => {
     await helpers.clickAndNavigate(gameServersButton, page, 'Game Servers | Tenlastic');
 
     const logsButton = await helpers.getButtonByTooltip(page, 'Logs');
-    await logsButton.click();
+    await helpers.click(logsButton, page);
 
     await helpers.waitForXPath(
       page,

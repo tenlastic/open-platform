@@ -37,7 +37,7 @@ describe('/angular/namespace/queues', () => {
     await helpers.clickAndNavigate(buildsButton, page, 'Builds | Tenlastic');
 
     const publishButton = await helpers.getButtonByTooltip(page, 'Publish');
-    await publishButton.click();
+    await helpers.click(publishButton, page);
 
     // Navigate to the "New Game Server Template" page.
     const gameServerTemplatesButton = await helpers.getButtonByText(page, 'Game Server Templates');
@@ -111,10 +111,10 @@ describe('/angular/namespace/queues', () => {
     await helpers.clickAndNavigate(queuesButton, page, 'Queues | Tenlastic');
 
     const logsButton = await helpers.getButtonByTooltip(page, 'Logs');
-    await logsButton.click();
+    await helpers.click(logsButton, page);
 
     const startLiveTailButton = await helpers.getButtonByText(page, 'Start Live Tail');
-    await startLiveTailButton.click();
+    await helpers.click(startLiveTailButton, page);
 
     await helpers.waitForXPath(page, `//app-logs-dialog//div[contains(., 'Connected to Redis.')]`, {
       timeout: 10 * 1000,
