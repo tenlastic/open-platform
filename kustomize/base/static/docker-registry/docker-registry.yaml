@@ -107,11 +107,11 @@ spec:
               port: 5000
           resources:
             limits:
-              cpu: 100m
-              memory: 100M
+              cpu: 250m
+              memory: 500M
             requests:
-              cpu: 25m
-              memory: 100M
+              cpu: 50m
+              memory: 500M
           volumeMounts:
             - name: auth
               mountPath: /auth

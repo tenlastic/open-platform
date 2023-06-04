@@ -10,16 +10,14 @@ export async function subscribe(subject: string, options?: Partial<nats.Consumer
   const stream = subject.split('.')[0];
 
   const consumerOptions: Partial<nats.ConsumerConfig> = {
-    ack_policy: nats.AckPolicy.None,
+    ack_policy: nats.AckPolicy.Explicit,
     deliver_policy: nats.DeliverPolicy.New,
     filter_subject: subject,
     inactive_threshold: 7 * 24 * 60 * 60 * 1000 * 1000 * 1000,
+    max_ack_pending: 10,
     max_batch: 100,
     ...options,
   };
-  if (consumerOptions.ack_policy !== nats.AckPolicy.None) {
-    consumerOptions.max_ack_pending = options.max_ack_pending || 10;
-  }
 
   let consumerInfo = await getConsumerInfo(consumerOptions, stream);
   if (!consumerInfo) {

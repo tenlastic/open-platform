@@ -7,7 +7,6 @@ spec:
   concurrencyPolicy: Allow
   schedule: 0 */3 * * *
   startingDeadlineSeconds: 0
-  suspend: true
   timezone: America/New_York
   workflowSpec:
     affinity:
