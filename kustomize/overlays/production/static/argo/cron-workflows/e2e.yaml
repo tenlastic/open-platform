@@ -36,7 +36,7 @@ spec:
 
       - name: angular
         container:
-          image: tenlastic/e2e:0.0.404
+          image: tenlastic/e2e:0.0.405
           args: [--fgrep, angular]
           envFrom:
             - secretRef:
@@ -56,7 +56,7 @@ spec:
 
       - name: nodejs
         container:
-          image: tenlastic/e2e:0.0.404
+          image: tenlastic/e2e:0.0.405
           args: [--fgrep, nodejs]
           envFrom:
             - secretRef:

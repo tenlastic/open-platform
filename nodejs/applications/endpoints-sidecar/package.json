@@ -5,15 +5,15 @@
   "license": "Apache-2.0",
   "name": "@tenlastic/endpoints-sidecar",
   "private": true,
-  "version": "0.0.404",
+  "version": "0.0.405",
   "scripts": {
     "build": "../../scripts/build.sh",
     "lint": "../../scripts/lint.sh",
     "start": "../../scripts/start.sh --watch"
   },
   "dependencies": {
-    "@tenlastic/kubernetes": "0.0.404",
-    "@tenlastic/logging": "0.0.404",
+    "@tenlastic/kubernetes": "0.0.405",
+    "@tenlastic/logging": "0.0.405",
     "axios": "0.27.2",
     "source-map-support": "0.5.12"
   },
