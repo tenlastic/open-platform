@@ -9,7 +9,7 @@
     "type": "git",
     "url": "ssh://git@github.com/tenlastic/open-platform.git"
   },
-  "version": "0.0.406",
+  "version": "0.0.407",
   "publishConfig": {
     "access": "public"
   },
@@ -22,16 +22,16 @@
     "test:watch": "../../scripts/test.sh --watch"
   },
   "dependencies": {
-    "@tenlastic/kubernetes": "0.0.406",
-    "@tenlastic/mongoose-permissions": "0.0.406",
-    "@tenlastic/nats": "0.0.406",
-    "@tenlastic/web-server": "0.0.406",
+    "@tenlastic/kubernetes": "0.0.407",
+    "@tenlastic/mongoose-permissions": "0.0.407",
+    "@tenlastic/nats": "0.0.407",
+    "@tenlastic/web-server": "0.0.407",
     "axios": "0.27.2",
     "jsonwebtoken": "9.0.0",
     "ws": "7.2.1"
   },
   "devDependencies": {
-    "@tenlastic/mongoose-nats": "0.0.406",
+    "@tenlastic/mongoose-nats": "0.0.407",
     "eslint": "^7.26.0",
     "mocha": "7.1.2",
     "nyc": "15.0.0",
