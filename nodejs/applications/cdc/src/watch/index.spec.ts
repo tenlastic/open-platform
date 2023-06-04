@@ -43,7 +43,9 @@ describe('watch', function () {
       const index = names.indexOf(json.fullDocument.name);
       names.splice(index, 1);
 
-      if (names.length === 0) {
+      if (names.length > 0) {
+        message.ack();
+      } else {
         subscription.stop();
       }
     }
