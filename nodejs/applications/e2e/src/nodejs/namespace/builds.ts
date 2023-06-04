@@ -13,7 +13,7 @@ describe('/nodejs/namespace/builds', function () {
   let namespace: string;
 
   beforeEach(function () {
-    namespace = chance.hash({ length: 32 });
+    namespace = `Angular - Builds (${chance.hash({ length: 16 })})`;
   });
 
   afterEach(async function () {

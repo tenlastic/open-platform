@@ -94,12 +94,12 @@ export async function createNamespace(namespace: string, page: Page) {
 
 export async function deleteNamespace(name: string) {
   if (!name) {
-    return;
+    return true;
   }
 
   const namespaces = await dependencies.namespaceService.find({ where: { name } });
   if (namespaces.length === 0) {
-    return;
+    return true;
   }
 
   return dependencies.namespaceService.delete(namespaces[0]._id);
@@ -107,12 +107,12 @@ export async function deleteNamespace(name: string) {
 
 export async function deleteUser(username: string) {
   if (!username) {
-    return;
+    return true;
   }
 
   const users = await dependencies.userService.find({ where: { username } });
   if (users.length === 0) {
-    return;
+    return true;
   }
 
   return dependencies.userService.delete(users[0]._id);

@@ -18,7 +18,7 @@ describe('/nodejs/namespace/queues', function () {
   let webSocketUrl: string;
 
   beforeEach(function () {
-    namespace = chance.hash({ length: 32 });
+    namespace = `Angular - Builds (${chance.hash({ length: 16 })})`;
     username = chance.hash({ length: 24 });
   });
 

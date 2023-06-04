@@ -11,7 +11,7 @@ describe('/angular/namespace/queues', () => {
   let page: Page;
 
   beforeEach(async function () {
-    namespace = chance.hash({ length: 32 });
+    namespace = `Angular - Builds (${chance.hash({ length: 16 })})`;
     page = await helpers.newPage(true);
   });
 
