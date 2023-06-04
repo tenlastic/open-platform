@@ -20,11 +20,11 @@
     "!tsconfig.json"
   ],
   "linux": {
-    "icon": "./dist/angular/assets/images/favicon-256x256.png",
+    "icon": "./dist/angular/assets/images/favicon-256.png",
     "target": ["AppImage"]
   },
   "mac": {
-    "icon": "./dist/angular/assets/images/favicon-256x256.png",
+    "icon": "./dist/angular/assets/images/favicon-256.png",
     "target": ["dmg", "zip"]
   },
   "nsis": {
@@ -37,7 +37,7 @@
     "provider": "s3"
   },
   "win": {
-    "icon": "./dist/angular/assets/images/favicon-256x256.png",
+    "icon": "./dist/angular/assets/images/favicon-256.png",
     "target": ["nsis"]
   }
 }

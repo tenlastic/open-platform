@@ -10,7 +10,7 @@ export function createTray() {
     return tray;
   }
 
-  tray = new Tray(path.join(__dirname, '../angular/assets/images/favicon-256x256.png'));
+  tray = new Tray(path.join(__dirname, '../angular/assets/images/favicon-256.png'));
   tray.on('click', showWindow);
   tray.setContextMenu(
     Menu.buildFromTemplate([
