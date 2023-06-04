@@ -1,3 +1,4 @@
+import wait from '@tenlastic/wait';
 import * as Chance from 'chance';
 import { Page } from 'puppeteer';
 
@@ -10,25 +11,25 @@ describe('/angular/namespace/builds', () => {
   let page: Page;
 
   beforeEach(async function () {
+    namespace = chance.hash({ length: 32 });
     page = await helpers.newPage(true);
   });
 
   afterEach(async function () {
-    await helpers.screenshot(this, page);
+    await helpers.screenshot(`builds`, page);
 
     const browser = page.browser();
     await browser.close();
 
-    await helpers.deleteNamespace(namespace);
+    await wait(1 * 1000, 15 * 1000, () => helpers.deleteNamespace(namespace));
   });
 
   it('creates a Namespace and Build', async function () {
     // Create the Namespace.
-    namespace = chance.hash({ length: 64 });
     await helpers.createNamespace(namespace, page);
 
     // Create the Build.
-    const build = chance.hash({ length: 64 });
+    const build = chance.hash({ length: 32 });
     await helpers.createBuild(build, page);
 
     // Check for Build Logs.

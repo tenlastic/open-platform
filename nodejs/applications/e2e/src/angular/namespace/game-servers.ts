@@ -13,25 +13,25 @@ describe('/angular/namespace/game-servers', () => {
   let page: Page;
 
   beforeEach(async function () {
+    namespace = chance.hash({ length: 32 });
     page = await helpers.newPage(true);
   });
 
   afterEach(async function () {
-    await helpers.screenshot(this, page);
+    await helpers.screenshot(`game-servers`, page);
 
     const browser = page.browser();
     await browser.close();
 
-    await helpers.deleteNamespace(namespace);
+    await wait(1 * 1000, 15 * 1000, () => helpers.deleteNamespace(namespace));
   });
 
   it('creates a Namespace, Build, and Game Server', async function () {
     // Create the Namespace.
-    namespace = chance.hash({ length: 64 });
     await helpers.createNamespace(namespace, page);
 
     // Create the Build.
-    const build = chance.hash({ length: 64 });
+    const build = chance.hash({ length: 32 });
     await helpers.createBuild(build, page);
 
     // Publish the Build.
@@ -49,7 +49,7 @@ describe('/angular/namespace/game-servers', () => {
     await helpers.clickAndNavigate(newGameServerButton, page, 'New Game Server | Tenlastic');
 
     // Create the Game Server.
-    const gameServer = chance.hash({ length: 64 });
+    const gameServer = chance.hash({ length: 32 });
     const nameInput = await helpers.getInputByLabel('Name', page);
     await helpers.type(nameInput, page, gameServer);
 

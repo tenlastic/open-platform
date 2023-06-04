@@ -1,4 +1,4 @@
-import { NamespaceModel } from '@tenlastic/http';
+import wait from '@tenlastic/wait';
 import { expect } from 'chai';
 import * as Chance from 'chance';
 
@@ -8,18 +8,22 @@ import * as helpers from '../helpers';
 const chance = new Chance();
 
 describe('/nodejs/namespace/collections', function () {
-  let namespace: NamespaceModel;
+  let namespace: string;
+
+  beforeEach(function () {
+    namespace = chance.hash({ length: 32 });
+  });
 
   afterEach(async function () {
-    await helpers.deleteNamespace(namespace?._id);
+    await wait(1 * 1000, 15 * 1000, () => helpers.deleteNamespace(namespace));
   });
 
   it('creates a Namespace, Collection, and Record', async function () {
     // Create the Namespace.
-    namespace = await helpers.createNamespace();
+    const { _id } = await helpers.createNamespace(namespace);
 
     // Create the Collection.
-    const collection = await dependencies.collectionService.create(namespace._id, {
+    const collection = await dependencies.collectionService.create(_id, {
       jsonSchema: {
         properties: {
           email: { type: 'string' },
@@ -28,7 +32,7 @@ describe('/nodejs/namespace/collections', function () {
         required: ['email', 'name'],
         type: 'object',
       },
-      name: chance.hash({ length: 64 }),
+      name: chance.hash({ length: 32 }),
       permissions: {
         create: { public: ['properties.*'] },
         delete: { public: true },
@@ -43,7 +47,7 @@ describe('/nodejs/namespace/collections', function () {
     expect(collection).to.exist;
 
     // Create the Record.
-    const record = await dependencies.recordService.create(namespace._id, collection._id, {
+    const record = await dependencies.recordService.create(_id, collection._id, {
       properties: { email: chance.email(), name: chance.hash() },
     });
     expect(record).to.exist;

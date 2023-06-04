@@ -1,4 +1,3 @@
-import { NamespaceModel } from '@tenlastic/http';
 import wait from '@tenlastic/wait';
 import { expect } from 'chai';
 import * as Chance from 'chance';
@@ -9,21 +8,25 @@ import * as helpers from '../helpers';
 const chance = new Chance();
 
 describe('/nodejs/namespace/workflows', function () {
-  let namespace: NamespaceModel;
+  let namespace: string;
+
+  beforeEach(function () {
+    namespace = chance.hash({ length: 32 });
+  });
 
   afterEach(async function () {
-    await helpers.deleteNamespace(namespace?._id);
+    await wait(1 * 1000, 15 * 1000, () => helpers.deleteNamespace(namespace));
   });
 
   it('creates a Namespace and Workflow', async function () {
     // Create the Namespace.
-    namespace = await helpers.createNamespace();
+    const { _id } = await helpers.createNamespace(namespace);
 
     // Create the Workflow.
-    let workflow = await dependencies.workflowService.create(namespace._id, {
+    let workflow = await dependencies.workflowService.create(_id, {
       cpu: 0.1,
       memory: 100 * 1000 * 1000,
-      name: chance.hash({ length: 64 }),
+      name: chance.hash({ length: 32 }),
       preemptible: true,
       spec: {
         entrypoint: 'entrypoint',
@@ -44,7 +47,7 @@ describe('/nodejs/namespace/workflows', function () {
 
     // Wait for the Workflow to finish successfully.
     await wait(5 * 1000, 2 * 60 * 1000, async () => {
-      workflow = await dependencies.workflowService.findOne(namespace._id, workflow._id);
+      workflow = await dependencies.workflowService.findOne(_id, workflow._id);
       return workflow.status.phase === 'Succeeded';
     });
 
@@ -52,7 +55,7 @@ describe('/nodejs/namespace/workflows', function () {
     const logs = await wait(2.5 * 1000, 5 * 1000, async () => {
       const node = workflow.status.nodes.find((n) => n.type === 'Pod');
       const response = await dependencies.workflowLogService.find(
-        namespace._id,
+        _id,
         workflow._id,
         node.pod,
         node.container,

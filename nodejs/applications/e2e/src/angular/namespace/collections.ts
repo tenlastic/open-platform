@@ -1,3 +1,4 @@
+import wait from '@tenlastic/wait';
 import * as Chance from 'chance';
 import { Page } from 'puppeteer';
 
@@ -10,21 +11,21 @@ describe('/angular/namespace/collections', () => {
   let page: Page;
 
   beforeEach(async function () {
+    namespace = chance.hash({ length: 32 });
     page = await helpers.newPage(true);
   });
 
   afterEach(async function () {
-    await helpers.screenshot(this, page);
+    await helpers.screenshot(`collections`, page);
 
     const browser = page.browser();
     await browser.close();
 
-    await helpers.deleteNamespace(namespace);
+    await wait(1 * 1000, 15 * 1000, () => helpers.deleteNamespace(namespace));
   });
 
   it('creates a Namespace, Collection, and Record', async function () {
     // Create the Namespace.
-    namespace = chance.hash({ length: 64 });
     await helpers.createNamespace(namespace, page);
 
     // Navigate to the "New Collection" page.
@@ -35,7 +36,7 @@ describe('/angular/namespace/collections', () => {
     await helpers.clickAndNavigate(newCollectionPage, page, 'New Collection | Tenlastic');
 
     // Create the Collection.
-    const collection = chance.hash({ length: 64 });
+    const collection = chance.hash({ length: 32 });
     const collectionNameInput = await helpers.getInputByLabel('Name', page);
     await helpers.type(collectionNameInput, page, collection);
 

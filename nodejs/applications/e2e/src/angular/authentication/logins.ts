@@ -1,3 +1,4 @@
+import wait from '@tenlastic/wait';
 import * as Chance from 'chance';
 import * as puppeteer from 'puppeteer';
 
@@ -11,15 +12,16 @@ describe('/angular/authentication/logins', () => {
 
   beforeEach(async function () {
     page = await helpers.newPage();
+    username = chance.hash({ length: 24 });
   });
 
   afterEach(async function () {
-    await helpers.screenshot(this, page);
+    await helpers.screenshot(`authentication`, page);
 
     const browser = page.browser();
     await browser.close();
 
-    await helpers.deleteUser(username);
+    await wait(1 * 1000, 15 * 1000, () => helpers.deleteUser(username));
   });
 
   it('registers a new User, logs out, and logs in', async function () {
@@ -31,7 +33,6 @@ describe('/angular/authentication/logins', () => {
     await helpers.clickAndNavigate(createAccountButton, page, 'Create Account | Tenlastic');
 
     // Register a new User.
-    username = chance.hash({ length: 24 });
     const registrationUsernameInput = await helpers.getInputByLabel('Username', page);
     await helpers.type(registrationUsernameInput, page, username);
 

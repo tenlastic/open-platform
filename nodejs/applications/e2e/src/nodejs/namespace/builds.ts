@@ -1,29 +1,35 @@
-import { NamespaceModel } from '@tenlastic/http';
 import wait from '@tenlastic/wait';
 import { expect } from 'chai';
+import * as Chance from 'chance';
 import * as fs from 'fs';
 import * as unzipper from 'unzipper';
 
 import dependencies from '../../dependencies';
 import * as helpers from '../helpers';
 
+const chance = new Chance();
+
 describe('/nodejs/namespace/builds', function () {
-  let namespace: NamespaceModel;
+  let namespace: string;
+
+  beforeEach(function () {
+    namespace = chance.hash({ length: 32 });
+  });
 
   afterEach(async function () {
-    await helpers.deleteNamespace(namespace?._id);
+    await wait(1 * 1000, 15 * 1000, () => helpers.deleteNamespace(namespace));
   });
 
   it('creates a Namespace and Build', async function () {
     // Create the Namespace.
-    namespace = await helpers.createNamespace();
+    const { _id } = await helpers.createNamespace(namespace);
 
     // Create the Build.
     const dockerfile = fs.readFileSync('./fixtures/Dockerfile', 'utf8');
-    const build = await helpers.createBuild(dockerfile, namespace);
+    const build = await helpers.createBuild(dockerfile, _id);
 
     // Download the Build.
-    const stream = await dependencies.buildService.download(namespace._id, build._id, {
+    const stream = await dependencies.buildService.download(_id, build._id, {
       responseType: 'stream',
     });
     const result = await new Promise<{ content: string; path: string }>((resolve, reject) => {
@@ -54,7 +60,7 @@ describe('/nodejs/namespace/builds', function () {
     const logs = await wait(2.5 * 1000, 5 * 1000, async () => {
       const node = build.status.nodes.find((n) => n.type === 'Pod');
       const response = await dependencies.buildLogService.find(
-        namespace._id,
+        _id,
         build._id,
         node.pod,
         node.container,

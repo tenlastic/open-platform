@@ -1,4 +1,3 @@
-import { UserModel } from '@tenlastic/http';
 import wait from '@tenlastic/wait';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
@@ -11,21 +10,19 @@ import * as helpers from '../helpers';
 const chance = new Chance();
 use(chaiAsPromised);
 
+const clientId = process.env.E2E_GMAIL_CLIENT_ID;
+const clientSecret = process.env.E2E_GMAIL_CLIENT_SECRET;
 const gmail = google.gmail({ version: 'v1' });
-const oauth2Client = new google.auth.OAuth2(
-  process.env.E2E_GMAIL_CLIENT_ID,
-  process.env.E2E_GMAIL_CLIENT_SECRET,
-);
+const oauth2Client = new google.auth.OAuth2(clientId, clientSecret);
 const userId = 'me';
 
-oauth2Client.setCredentials({ refresh_token: process.env.E2E_GMAIL_REFRESH_TOKEN });
 google.options({ auth: oauth2Client });
+oauth2Client.setCredentials({ refresh_token: process.env.E2E_GMAIL_REFRESH_TOKEN });
 
 describe('/nodejs/authentication/password-resets', function () {
   let email: string;
   let hash: string;
   let refreshToken: string;
-  let user: UserModel;
   let username: string;
 
   beforeEach(async function () {
@@ -35,6 +32,7 @@ describe('/nodejs/authentication/password-resets', function () {
     // Delete existing User if exists.
     if (email) {
       const users = await dependencies.userService.find({ where: { email } });
+
       if (users.length > 0) {
         await dependencies.userService.delete(users[0]._id);
       }
@@ -42,7 +40,7 @@ describe('/nodejs/authentication/password-resets', function () {
 
     // Create a User with a random password.
     const password = chance.hash();
-    user = await dependencies.userService.create({ email, password, username });
+    await dependencies.userService.create({ email, password, username });
 
     // Create a Refresh Token for the User.
     const response = await dependencies.loginService.createWithCredentials(username, password);
@@ -54,7 +52,7 @@ describe('/nodejs/authentication/password-resets', function () {
   });
 
   afterEach(async function () {
-    await helpers.deleteUser(user?._id);
+    await wait(1 * 1000, 15 * 1000, () => helpers.deleteUser(username));
   });
 
   it('sends a Password Reset email', async function () {

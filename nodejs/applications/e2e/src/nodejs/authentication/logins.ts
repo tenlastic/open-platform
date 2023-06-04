@@ -1,4 +1,4 @@
-import { UserModel } from '@tenlastic/http';
+import wait from '@tenlastic/wait';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as Chance from 'chance';
@@ -12,18 +12,17 @@ use(chaiAsPromised);
 
 describe('/nodejs/authentication/logins', function () {
   let password: string;
-  let user: UserModel;
   let username: string;
 
   beforeEach(async function () {
     password = chance.hash();
     username = chance.hash({ length: 24 });
 
-    user = await dependencies.userService.create({ password, username });
+    await dependencies.userService.create({ password, username });
   });
 
   afterEach(async function () {
-    await helpers.deleteUser(user?._id);
+    await wait(1 * 1000, 15 * 1000, () => helpers.deleteUser(username));
   });
 
   describe('login with credentials', function () {

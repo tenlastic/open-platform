@@ -1,4 +1,4 @@
-import { IGameServer, NamespaceModel } from '@tenlastic/http';
+import { IGameServer } from '@tenlastic/http';
 import wait from '@tenlastic/wait';
 import axios from 'axios';
 import { expect } from 'chai';
@@ -12,32 +12,36 @@ import * as helpers from '../helpers';
 const chance = new Chance();
 
 describe('/nodejs/namespace/game-servers', function () {
-  let namespace: NamespaceModel;
+  let namespace: string;
+
+  beforeEach(function () {
+    namespace = chance.hash({ length: 32 });
+  });
 
   afterEach(async function () {
-    await helpers.deleteNamespace(namespace?._id);
+    await wait(1 * 1000, 15 * 1000, () => helpers.deleteNamespace(namespace));
   });
 
   it('creates a Namespace, Build, and Game Server', async function () {
     // Create the Namespace.
-    namespace = await helpers.createNamespace();
+    const { _id } = await helpers.createNamespace(namespace);
 
     // Create the Build.
     const dockerfile = fs.readFileSync('./fixtures/Dockerfile', 'utf8');
     const build = await helpers.createBuild(dockerfile, namespace);
 
     // Create the Game Server.
-    let gameServer = await dependencies.gameServerService.create(namespace._id, {
+    let gameServer = await dependencies.gameServerService.create(_id, {
       buildId: build._id,
       cpu: 0.1,
       memory: 500 * 1000 * 1000,
-      name: chance.hash({ length: 64 }),
+      name: chance.hash({ length: 32 }),
       ports: [{ port: 7777, protocol: IGameServer.Protocol.Tcp }],
       preemptible: true,
     });
 
     await wait(5 * 1000, 60 * 1000, async () => {
-      gameServer = await dependencies.gameServerService.findOne(namespace._id, gameServer._id);
+      gameServer = await dependencies.gameServerService.findOne(_id, gameServer._id);
       return gameServer.status.endpoints.length > 0 && gameServer.status.phase === 'Running';
     });
 
@@ -52,7 +56,7 @@ describe('/nodejs/namespace/game-servers', function () {
     // Check for Game Server Logs.
     const logs = await wait(2.5 * 1000, 5 * 1000, async () => {
       const response = await dependencies.gameServerLogService.find(
-        namespace._id,
+        _id,
         gameServer._id,
         gameServer.status.nodes[0].pod,
         gameServer.status.nodes[0].container,

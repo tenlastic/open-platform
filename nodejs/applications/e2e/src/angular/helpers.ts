@@ -98,7 +98,7 @@ export async function deleteNamespace(name: string) {
   }
 
   const namespaces = await dependencies.namespaceService.find({ where: { name } });
-  if (!namespaces.length) {
+  if (namespaces.length === 0) {
     return;
   }
 
@@ -111,7 +111,7 @@ export async function deleteUser(username: string) {
   }
 
   const users = await dependencies.userService.find({ where: { username } });
-  if (!users.length) {
+  if (users.length === 0) {
     return;
   }
 
@@ -186,9 +186,9 @@ export async function newPage(logIn = false) {
   return page;
 }
 
-export async function screenshot(context: Mocha.Context, page: Page) {
+export async function screenshot(filename: string, page: Page) {
   fs.mkdirSync('./test-results/puppeteer', { recursive: true });
-  await page.screenshot({ path: `./test-results/puppeteer/${context.currentTest.title}.png` });
+  await page.screenshot({ path: `./test-results/puppeteer/${filename}.png` });
 }
 
 export async function selectDropdownOptionByLabel(label: string, page: Page, timeout = 2500) {

@@ -1,4 +1,4 @@
-import { BuildModel, IBuild, NamespaceModel } from '@tenlastic/http';
+import { BuildModel, IBuild } from '@tenlastic/http';
 import wait from '@tenlastic/wait';
 import { Chance } from 'chance';
 import * as FormData from 'form-data';
@@ -8,7 +8,7 @@ import dependencies from '../dependencies';
 
 const chance = new Chance();
 
-export async function createBuild(dockerfile: string, namespace: NamespaceModel) {
+export async function createBuild(dockerfile: string, namespaceId: string) {
   // Generate a zip stream from the Dockerfile.
   const zip = new JSZip().file('Dockerfile', dockerfile);
   const buffer = await zip.generateAsync({
@@ -18,13 +18,13 @@ export async function createBuild(dockerfile: string, namespace: NamespaceModel)
   });
 
   // Create the Build.
-  let build = await dependencies.buildService.create(namespace._id, () => {
+  let build = await dependencies.buildService.create(namespaceId, () => {
     const formData = new FormData();
     formData.append(
       'record',
       JSON.stringify({
         entrypoint: 'Dockerfile',
-        name: chance.hash({ length: 64 }),
+        name: chance.hash({ length: 32 }),
         platform: IBuild.Platform.Server64,
       } as BuildModel),
     );
@@ -34,14 +34,14 @@ export async function createBuild(dockerfile: string, namespace: NamespaceModel)
 
   // Wait for the Build to finish successfully.
   await wait(5 * 1000, 2 * 60 * 1000, async () => {
-    build = await dependencies.buildService.findOne(namespace._id, build._id);
+    build = await dependencies.buildService.findOne(namespaceId, build._id);
     return build.status.phase === 'Succeeded';
   });
 
   return build;
 }
 
-export async function createNamespace() {
+export async function createNamespace(name: string) {
   // Create the Namespace.
   let namespace = await dependencies.namespaceService.create({
     limits: {
@@ -50,7 +50,7 @@ export async function createNamespace() {
       memory: 1 * 1000 * 1000 * 1000,
       storage: 10 * 1000 * 1000 * 1000,
     },
-    name: chance.hash({ length: 64 }),
+    name,
   });
 
   // Wait for the Namespace to run successfully.
@@ -62,18 +62,28 @@ export async function createNamespace() {
   return namespace;
 }
 
-export async function deleteNamespace(_id: string) {
-  if (!_id) {
+export async function deleteNamespace(name: string) {
+  if (!name) {
     return;
   }
 
-  return dependencies.namespaceService.delete(_id);
+  const namespaces = await dependencies.namespaceService.find({ where: { name } });
+  if (namespaces.length === 0) {
+    return;
+  }
+
+  return dependencies.namespaceService.delete(namespaces[0]._id);
 }
 
-export async function deleteUser(_id: string) {
-  if (!_id) {
+export async function deleteUser(username: string) {
+  if (!username) {
     return;
   }
 
-  return dependencies.userService.delete(_id);
+  const users = await dependencies.userService.find({ where: { username } });
+  if (users.length === 0) {
+    return;
+  }
+
+  return dependencies.userService.delete(users[0]._id);
 }

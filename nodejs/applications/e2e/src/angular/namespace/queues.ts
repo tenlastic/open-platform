@@ -11,25 +11,25 @@ describe('/angular/namespace/queues', () => {
   let page: Page;
 
   beforeEach(async function () {
+    namespace = chance.hash({ length: 32 });
     page = await helpers.newPage(true);
   });
 
   afterEach(async function () {
-    await helpers.screenshot(this, page);
+    await helpers.screenshot(`queues`, page);
 
     const browser = page.browser();
     await browser.close();
 
-    await helpers.deleteNamespace(namespace);
+    await wait(1 * 1000, 15 * 1000, () => helpers.deleteNamespace(namespace));
   });
 
   it('creates a Namespace, Build, Game Server Template, and Queue', async function () {
     // Create the Namespace.
-    namespace = chance.hash({ length: 64 });
     await helpers.createNamespace(namespace, page);
 
     // Create the Build.
-    const build = chance.hash({ length: 64 });
+    const build = chance.hash({ length: 32 });
     await helpers.createBuild(build, page);
 
     // Publish the Build.
@@ -58,7 +58,7 @@ describe('/angular/namespace/queues', () => {
     );
 
     // Create the Game Server Template.
-    const gameServerTemplate = chance.hash({ length: 64 });
+    const gameServerTemplate = chance.hash({ length: 32 });
     const gameServerTemplateNameInput = await helpers.getInputByLabel('Name', page);
     await helpers.type(gameServerTemplateNameInput, page, gameServerTemplate);
 
@@ -77,7 +77,7 @@ describe('/angular/namespace/queues', () => {
     await helpers.clickAndNavigate(newQueueButton, page, 'New Queue | Tenlastic');
 
     // Create the Queue.
-    const queue = chance.hash({ length: 64 });
+    const queue = chance.hash({ length: 32 });
     const queueNameInput = await helpers.getInputByLabel('Name', page);
     await helpers.type(queueNameInput, page, queue);
 
