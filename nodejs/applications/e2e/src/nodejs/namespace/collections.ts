@@ -11,7 +11,7 @@ describe('/nodejs/namespace/collections', function () {
   let namespace: string;
 
   beforeEach(function () {
-    namespace = `Angular - Builds (${chance.hash({ length: 16 })})`;
+    namespace = `NodeJS - Builds (${chance.hash({ length: 16 })})`;
   });
 
   afterEach(async function () {
