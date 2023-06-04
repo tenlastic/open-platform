@@ -11,12 +11,12 @@ describe('/angular/namespace/collections', () => {
   let page: Page;
 
   beforeEach(async function () {
-    namespace = `Angular - Builds (${chance.hash({ length: 16 })})`;
+    namespace = `Angular - Collections (${chance.hash({ length: 16 })})`;
     page = await helpers.newPage(true);
   });
 
   afterEach(async function () {
-    await helpers.screenshot(`collections`, page);
+    await helpers.screenshot(`Collections`, page);
 
     const browser = page.browser();
     await browser.close();

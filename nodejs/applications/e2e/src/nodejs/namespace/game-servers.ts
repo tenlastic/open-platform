@@ -15,7 +15,7 @@ describe('/nodejs/namespace/game-servers', function () {
   let namespace: string;
 
   beforeEach(function () {
-    namespace = `NodeJS - Builds (${chance.hash({ length: 16 })})`;
+    namespace = `NodeJS - Game Servers (${chance.hash({ length: 16 })})`;
   });
 
   afterEach(async function () {
@@ -28,7 +28,7 @@ describe('/nodejs/namespace/game-servers', function () {
 
     // Create the Build.
     const dockerfile = fs.readFileSync('./fixtures/Dockerfile', 'utf8');
-    const build = await helpers.createBuild(dockerfile, namespace);
+    const build = await helpers.createBuild(dockerfile, _id);
 
     // Create the Game Server.
     let gameServer = await dependencies.gameServerService.create(_id, {

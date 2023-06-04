@@ -16,7 +16,7 @@ describe('/angular/namespace/builds', () => {
   });
 
   afterEach(async function () {
-    await helpers.screenshot(`builds`, page);
+    await helpers.screenshot(`Builds`, page);
 
     const browser = page.browser();
     await browser.close();

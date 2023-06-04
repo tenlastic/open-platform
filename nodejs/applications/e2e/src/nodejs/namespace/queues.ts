@@ -18,7 +18,7 @@ describe('/nodejs/namespace/queues', function () {
   let webSocketUrl: string;
 
   beforeEach(function () {
-    namespace = `NodeJS - Builds (${chance.hash({ length: 16 })})`;
+    namespace = `NodeJS - Queues (${chance.hash({ length: 16 })})`;
     username = chance.hash({ length: 24 });
   });
 
@@ -35,7 +35,7 @@ describe('/nodejs/namespace/queues', function () {
 
     // Create the Build.
     const dockerfile = fs.readFileSync('./fixtures/Dockerfile', 'utf8');
-    const build = await helpers.createBuild(dockerfile, namespace);
+    const build = await helpers.createBuild(dockerfile, _id);
 
     // Create the Game Server.
     const gameServerTemplate = await dependencies.gameServerTemplateService.create(_id, {

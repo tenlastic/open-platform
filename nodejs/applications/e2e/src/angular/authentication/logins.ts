@@ -16,7 +16,7 @@ describe('/angular/authentication/logins', () => {
   });
 
   afterEach(async function () {
-    await helpers.screenshot(`authentication`, page);
+    await helpers.screenshot(`Authentication`, page);
 
     const browser = page.browser();
     await browser.close();

@@ -11,12 +11,12 @@ describe('/angular/namespace/workflows', () => {
   let page: Page;
 
   beforeEach(async function () {
-    namespace = `Angular - Builds (${chance.hash({ length: 16 })})`;
+    namespace = `Angular - Workflows (${chance.hash({ length: 16 })})`;
     page = await helpers.newPage(true);
   });
 
   afterEach(async function () {
-    await helpers.screenshot(`workflows`, page);
+    await helpers.screenshot(`Workflows`, page);
 
     const browser = page.browser();
     await browser.close();

@@ -13,12 +13,12 @@ describe('/angular/namespace/game-servers', () => {
   let page: Page;
 
   beforeEach(async function () {
-    namespace = `Angular - Builds (${chance.hash({ length: 16 })})`;
+    namespace = `Angular - Game Servers (${chance.hash({ length: 16 })})`;
     page = await helpers.newPage(true);
   });
 
   afterEach(async function () {
-    await helpers.screenshot(`game-servers`, page);
+    await helpers.screenshot(`Game Servers`, page);
 
     const browser = page.browser();
     await browser.close();

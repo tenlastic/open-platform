@@ -11,12 +11,12 @@ describe('/angular/namespace/queues', () => {
   let page: Page;
 
   beforeEach(async function () {
-    namespace = `Angular - Builds (${chance.hash({ length: 16 })})`;
+    namespace = `Angular - Queues (${chance.hash({ length: 16 })})`;
     page = await helpers.newPage(true);
   });
 
   afterEach(async function () {
-    await helpers.screenshot(`queues`, page);
+    await helpers.screenshot(`Queues`, page);
 
     const browser = page.browser();
     await browser.close();
