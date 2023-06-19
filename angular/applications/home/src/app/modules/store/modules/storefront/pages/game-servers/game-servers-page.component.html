@@ -23,7 +23,7 @@
     <ng-container matColumnDef="currentUsers">
       <th mat-header-cell
           *matHeaderCellDef
-          mat-sort-header>Current Users</th>
+          mat-sort-header>Population</th>
       <td mat-cell
           *matCellDef="let element">
         {{ element.status.phase === 'Running' ? element.currentUserIds.length : 0 }}
