@@ -14,7 +14,7 @@ spec:
         requiredDuringSchedulingIgnoredDuringExecution:
           nodeSelectorTerms:
             - matchExpressions:
-                - key: tenlastic.com/low-priority
+                - key: tenlastic.com/high-priority
                   operator: Exists
     archiveLogs: true
     artifactGC:
