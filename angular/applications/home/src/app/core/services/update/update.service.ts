@@ -343,16 +343,15 @@ export class UpdateService {
     const files = build.files.map((f) => (modifiedFilePaths.includes(f.path) ? 1 : 0));
     const { fs, request, unzipper } = this.electronService;
 
-    return new Promise(async (resolve, reject) => {
+    return new Promise<void>(async (resolve, reject) => {
       const accessToken = await this.tokenService.getAccessToken();
 
-      const stream = request.get({
-        headers: { Authorization: `Bearer ${accessToken.value}` },
-        qs: { files: files.join('') },
-        url: `${environment.apiUrl}/namespaces/${namespaceId}/builds/${status.build._id}/files`,
-      });
-
-      stream
+      const zip = request
+        .get({
+          headers: { Authorization: `Bearer ${accessToken.value}` },
+          qs: { files: files.join('') },
+          url: `${environment.apiUrl}/namespaces/${namespaceId}/builds/${status.build._id}/files`,
+        })
         .on('data', (data) => {
           downloadedBytes += data.length;
           if (downloadedBytes > totalBytes) {
@@ -366,9 +365,10 @@ export class UpdateService {
           };
         })
         .on('error', reject)
-        .pipe(unzipper.Parse())
-        .on('close', resolve)
-        .on('entry', (entry) => {
+        .pipe(unzipper.Parse({ forceStream: true, verbose: true }));
+
+      try {
+        for await (const entry of zip) {
           if (entry.type !== 'File') {
             entry.autodrain();
             return;
@@ -379,8 +379,12 @@ export class UpdateService {
           fs.mkdirSync(targetDirectory, { recursive: true });
 
           entry.pipe(fs.createWriteStream(target));
-        })
-        .on('error', (err) => stream.destroy(err));
+        }
+      } catch (e) {
+        return reject(e);
+      }
+
+      return resolve();
     });
   }
 
