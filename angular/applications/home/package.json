@@ -27,7 +27,7 @@
     "glob": "7.1.6",
     "request": "2.88.0",
     "swagger-ui-dist": "3.37.2",
-    "unzipper": "0.10.11"
+    "unzipper": "0.10.14"
   },
   "devDependencies": {
     "@angular/cli": "^14.1.2",
