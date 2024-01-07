@@ -367,7 +367,7 @@ export class UpdateService {
         .on('error', reject);
 
       stream
-        .pipe(unzipper.Parse({ verbose: true }))
+        .pipe(unzipper.Parse())
         .on('close', resolve)
         .on('entry', (entry) => {
           if (entry.type !== 'File') {
@@ -381,10 +381,7 @@ export class UpdateService {
 
           entry.pipe(fs.createWriteStream(target));
         })
-        .on('error', (err) => {
-          stream.destroy(err);
-          return reject(err);
-        });
+        .on('error', reject);
     });
   }
 
