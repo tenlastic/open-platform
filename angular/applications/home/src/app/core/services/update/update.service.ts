@@ -346,12 +346,13 @@ export class UpdateService {
     return new Promise(async (resolve, reject) => {
       const accessToken = await this.tokenService.getAccessToken();
 
-      request
-        .get({
-          headers: { Authorization: `Bearer ${accessToken.value}` },
-          qs: { files: files.join('') },
-          url: `${environment.apiUrl}/namespaces/${namespaceId}/builds/${status.build._id}/files`,
-        })
+      const stream = request.get({
+        headers: { Authorization: `Bearer ${accessToken.value}` },
+        qs: { files: files.join('') },
+        url: `${environment.apiUrl}/namespaces/${namespaceId}/builds/${status.build._id}/files`,
+      });
+
+      stream
         .on('data', (data) => {
           downloadedBytes += data.length;
           if (downloadedBytes > totalBytes) {
@@ -379,7 +380,7 @@ export class UpdateService {
 
           entry.pipe(fs.createWriteStream(target));
         })
-        .on('error', reject);
+        .on('error', (err) => stream.destroy(err));
     });
   }
 
