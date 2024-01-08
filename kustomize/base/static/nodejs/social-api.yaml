@@ -35,7 +35,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
       containers:
         - name: social-api
-          image: tenlastic/social-api:0.0.408
+          image: tenlastic/social-api:0.0.409
           envFrom:
             - secretRef:
                 name: nodejs
