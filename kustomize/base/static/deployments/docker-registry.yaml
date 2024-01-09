@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: docker-registry
+  name: docker-registry
+  namespace: static
+spec:
+  minReadySeconds: 5
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: docker-registry
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: docker-registry
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: tenlastic.com/low-priority
+                    operator: Exists
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        - docker-registry
+                topologyKey: kubernetes.io/hostname
+      containers:
+        - name: docker-registry
+          image: registry:2.7.1
+          command:
+            - /bin/registry
+            - serve
+            - /etc/docker/registry/config.yaml
+          env:
+            - name: REGISTRY_HTTP_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: docker-registry
+                  key: haSharedSecret
+            - name: REGISTRY_STORAGE_MAINTENANCE_READONLY
+              value: '{"enabled":false}'
+            - name: REGISTRY_STORAGE_S3_ACCESSKEY
+              valueFrom:
+                secretKeyRef:
+                  name: docker-registry
+                  key: s3AccessKey
+            - name: REGISTRY_STORAGE_S3_SECRETKEY
+              valueFrom:
+                secretKeyRef:
+                  name: docker-registry
+                  key: s3SecretKey
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 5000
+          ports:
+            - containerPort: 5000
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 5000
+          resources:
+            limits:
+              cpu: 250m
+              memory: 500M
+            requests:
+              cpu: 50m
+              memory: 500M
+          volumeMounts:
+            - name: auth
+              mountPath: /auth
+              readOnly: true
+            - name: docker-registry-config
+              mountPath: /etc/docker/registry/
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+      volumes:
+        - name: auth
+          secret:
+            secretName: docker-registry
+            items:
+              - key: htpasswd
+                path: htpasswd
+        - name: docker-registry-config
+          configMap:
+            name: docker-registry

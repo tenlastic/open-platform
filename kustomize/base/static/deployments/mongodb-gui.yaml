@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: mongodb-gui
+  name: mongodb-gui
+  namespace: static
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mongodb-gui
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mongodb-gui
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: tenlastic.com/low-priority
+                    operator: Exists
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        - mongodb-gui
+                topologyKey: kubernetes.io/hostname
+      containers:
+        - name: mongodb-gui
+          image: ugleiton/mongo-gui:latest
+          envFrom:
+            - secretRef:
+                name: mongodb-gui
+          ports:
+            - containerPort: 4321
+          resources:
+            limits:
+              cpu: 100m
+              memory: 50M
+            requests:
+              cpu: 25m
+              memory: 50M

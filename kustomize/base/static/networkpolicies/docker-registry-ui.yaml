@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: docker-registry-ui
+  namespace: static
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: docker-registry-ui
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: static
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: ingress-nginx

@@ -3,33 +3,36 @@ bases:
   - ../../base/
 kind: Kustomization
 patches:
-  - path: ./static/docker-registry/docker-registry.json
+  - path: ./static/deployments/docker-registry.json
     target:
       group: apps
       kind: Deployment
       name: docker-registry
       version: v1
 patchesStrategicMerge:
-  - ./static/ingress-nginx/ingress-nginx.yaml
+  - ./static/helmreleases/ingress-nginx.yaml
 resources:
-  - ./dynamic/secrets/docker-registry.sealedsecret.yaml
-  - ./dynamic/secrets/nodejs.sealedsecret.yaml
-  - ./static/argo/cron-workflows/e2e.yaml
-  - ./static/cert-manager/cert-manager-credentials.sealedsecret.yaml
-  - ./static/cert-manager/cert-manager.yaml
-  - ./static/cert-manager/letsencrypt-production.clusterissuer.yaml
-  - ./static/continuous-deployment/continuous-deployment.sealedsecret.yaml
-  - ./static/continuous-integration/continuous-integration.sealedsecret.yaml
-  - ./static/docker-registry/docker-registry-image-pull-secret.sealedsecret.yaml
-  - ./static/docker-registry/docker-registry.sealedsecret.yaml
-  - ./static/flux/open-platform.kustomization.yaml
-  - ./static/ingress-nginx/basic-authentication.sealedsecret.yaml
-  - ./static/minio/minio.sealedsecret.yaml
-  - ./static/mongodb/mongodb.sealedsecret.yaml
-  - ./static/mongodb/mongodb-gui.sealedsecret.yaml
-  - ./static/nats/nats.sealedsecret.yaml
-  - ./static/nodejs/e2e.sealedsecret.yaml
-  - ./static/nodejs/nodejs.sealedsecret.yaml
-  - ./static/redis/redis.sealedsecret.yaml
-  - ./static/verdaccio/verdaccio.sealedsecret.yaml
-  - ./static/verdaccio/verdaccio.yaml
+  - ./dynamic/sealedsecrets/docker-registry.yaml
+  - ./dynamic/sealedsecrets/nodejs.yaml
+  - ./static/clusterissuers/letsencrypt-production.yaml
+  - ./static/configmaps/verdaccio.yaml
+  - ./static/cronworkflows/e2e.yaml
+  - ./static/deployments/verdaccio.yaml
+  - ./static/helmreleases/cert-manager.yaml
+  - ./static/kustomizations/open-platform.yaml
+  - ./static/persistentvolumeclaims/verdaccio.yaml
+  - ./static/sealedsecrets/basic-authentication.yaml
+  - ./static/sealedsecrets/cert-manager-credentials.yaml
+  - ./static/sealedsecrets/continuous-deployment.yaml
+  - ./static/sealedsecrets/continuous-integration.yaml
+  - ./static/sealedsecrets/docker-registry-image-pull-secret.yaml
+  - ./static/sealedsecrets/docker-registry.yaml
+  - ./static/sealedsecrets/e2e.yaml
+  - ./static/sealedsecrets/minio.yaml
+  - ./static/sealedsecrets/mongodb-gui.yaml
+  - ./static/sealedsecrets/mongodb.yaml
+  - ./static/sealedsecrets/nats.yaml
+  - ./static/sealedsecrets/nodejs.yaml
+  - ./static/sealedsecrets/redis.yaml
+  - ./static/sealedsecrets/verdaccio.yaml
+  - ./static/services/verdaccio.yaml

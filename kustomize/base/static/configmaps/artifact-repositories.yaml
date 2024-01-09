@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  annotations:
+    workflows.argoproj.io/default-artifact-repository: default
+  name: artifact-repositories
+  namespace: static
+data:
+  default: |
+    s3:
+      accessKeySecret:
+        name: minio
+        key: root-user
+      bucket: argo
+      endpoint: minio.static:9000
+      insecure: true
+      secretKeySecret:
+        name: minio
+        key: root-password

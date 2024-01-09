@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/name: docker-registry
+  name: docker-registry
+  namespace: static
+spec:
+  type: ClusterIP
+  ports:
+    - name: registry
+      port: 5000
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: docker-registry

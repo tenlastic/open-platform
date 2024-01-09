@@ -1,0 +1,54 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: kubernetes-dashboard
+  namespace: static
+spec:
+  chart:
+    spec:
+      chart: kubernetes-dashboard
+      sourceRef:
+        kind: HelmRepository
+        name: kubernetes-dashboard
+      version: 5.7.0
+  interval: 5m
+  releaseName: kubernetes-dashboard
+  values:
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: tenlastic.com/low-priority
+                  operator: Exists
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                      - kubernetes-dashboard
+              topologyKey: kubernetes.io/hostname
+    extraArgs:
+      - --disable-settings-authorizer
+      - --enable-insecure-login
+      - --enable-skip-login
+    metricsScraper:
+      enabled: true
+    protocolHttp: true
+    rbac:
+      create: false
+    replicaCount: 1
+    resources:
+      limits:
+        cpu: 250m
+        memory: 100M
+      requests:
+        cpu: 50m
+        memory: 100M
+    serviceAccount:
+      create: false
+      name: kubernetes-dashboard

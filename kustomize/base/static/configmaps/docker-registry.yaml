@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/name: docker-registry
+  name: docker-registry
+  namespace: static
+data:
+  config.yaml: |-
+    auth:
+      htpasswd:
+        realm: Registry Realm
+        path: /auth/htpasswd
+    health:
+      storagedriver:
+        enabled: true
+        interval: 10s
+        threshold: 3
+    http:
+      addr: :5000
+      headers:
+        X-Content-Type-Options: [nosniff]
+      relativeurls: true
+    log:
+      fields:
+        service: registry
+    storage:
+      cache:
+        blobdescriptor: inmemory
+      delete:
+        enabled: true
+      s3:
+        bucket: docker-registry
+        region: us-east-1
+    version: 0.1

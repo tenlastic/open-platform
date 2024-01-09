@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: verdaccio
+  namespace: static
+data:
+  config.yaml: |-
+    auth:
+      htpasswd:
+        file: /verdaccio/storage/htpasswd
+    packages:
+      '@*/*':
+        access: $all
+        publish: $authenticated
+        proxy: npmjs
+      '**':
+        access: $all
+        publish: $authenticated
+        proxy: npmjs
+    storage: /verdaccio/storage/data
+    uplinks:
+      npmjs:
+        url: https://registry.npmjs.org/
+        agent_options:
+          keepAlive: true
+          maxSockets: 40
+          maxFreeSockets: 10
+    web:
+      enable: true
+      title: Verdaccio
