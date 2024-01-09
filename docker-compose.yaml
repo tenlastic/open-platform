@@ -3,7 +3,10 @@ services:
   development-cli:
     build:
       context: ./dockerfiles/development-cli/
+    user: ${USER_ID}:${GROUP_ID}
     volumes:
+      - /etc/group:/etc/group:ro
+      - /etc/passwd:/etc/passwd:ro
       - ~/.config/gcloud/:/root/.config/gcloud/
-      - ~/.kube/config/:/.kube/config/
+      - ~/.kube/:/.kube/
       - ./:/home/
