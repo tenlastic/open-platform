@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: workflow
+  namespace: dynamic
+secrets:
+  - name: workflow

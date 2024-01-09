@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: docker-registry-ui
+  name: docker-registry-ui
+  namespace: static
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: docker-registry-ui
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: docker-registry-ui
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: tenlastic.com/low-priority
+                    operator: Exists
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        - docker-registry-ui
+                topologyKey: kubernetes.io/hostname
+      containers:
+        - name: docker-registry-ui
+          image: joxit/docker-registry-ui:latest
+          env:
+            - name: DELETE_IMAGES
+              value: "true"
+            - name: NGINX_PROXY_PASS_URL
+              value: http://docker-registry:5000
+            - name: SINGLE_REGISTRY
+              value: "true"
+          ports:
+            - containerPort: 80
+          resources:
+            limits:
+              cpu: 100m
+              memory: 50M
+            requests:
+              cpu: 25m
+              memory: 50M

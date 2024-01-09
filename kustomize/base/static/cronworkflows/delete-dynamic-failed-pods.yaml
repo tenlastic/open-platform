@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: delete-dynamic-failed-pods
+  namespace: static
+spec:
+  concurrencyPolicy: Allow
+  schedule: "*/5 * * * *"
+  startingDeadlineSeconds: 0
+  timezone: America/New_York
+  workflowSpec:
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: tenlastic.com/low-priority
+                  operator: Exists
+    entrypoint: delete-dynamic-failed-pods
+    podGC:
+      strategy: OnWorkflowCompletion
+    serviceAccountName: delete-dynamic-failed-pods
+    ttlStrategy:
+      secondsAfterSuccess: 60
+    templates:
+      - name: delete-dynamic-failed-pods
+        script:
+          command: [sh]
+          image: bitnami/kubectl:latest
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              cpu: 100m
+              memory: 50M
+            requests:
+              cpu: 25m
+              memory: 50M
+          source: |
+            COMMAND="kubectl get pods -n dynamic -o name --field-selector status.phase=Failed"
+            if [ "$($COMMAND | wc -l)" -gt 0 ]; then
+              $COMMAND | xargs kubectl delete -n dynamic
+            fi

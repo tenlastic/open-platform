@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/name: api
+  name: api
+  namespace: static
+spec:
+  ports:
+    - name: http
+      port: 3000
+  selector:
+    app.kubernetes.io/name: api

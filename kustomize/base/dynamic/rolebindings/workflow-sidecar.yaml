@@ -1,0 +1,13 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: workflow-sidecar
+  namespace: dynamic
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: workflow-sidecar
+subjects:
+  - kind: ServiceAccount
+    name: workflow-sidecar
+    namespace: dynamic

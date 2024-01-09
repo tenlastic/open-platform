@@ -1,0 +1,91 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: argo-workflows
+  namespace: static
+spec:
+  chart:
+    spec:
+      chart: argo-workflows
+      sourceRef:
+        kind: HelmRepository
+        name: argo
+      version: 0.22.10
+  interval: 5m
+  releaseName: argo-workflows
+  values:
+    controller:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: tenlastic.com/low-priority
+                    operator: Exists
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        - argo-workflows-workflow-controller
+                topologyKey: kubernetes.io/hostname
+      containerRuntimeExecutor: emissary
+      extraEnv:
+        - name: POD_NAMES
+          value: v1
+      replicas: 1
+      resources:
+        requests:
+          cpu: 25m
+          memory: 25M
+      workflowNamespaces:
+        - dynamic
+        - static
+    executor:
+      resources:
+        requests:
+          cpu: 0
+          memory: 0
+    images:
+      pullPolicy: IfNotPresent
+    mainContainer:
+      resources:
+        requests:
+          cpu: 0
+          memory: 0
+    server:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: tenlastic.com/low-priority
+                    operator: Exists
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        - argo-workflows-server
+                topologyKey: kubernetes.io/hostname
+      extraArgs:
+        - --auth-mode=server
+      extraEnv:
+        - name: POD_NAMES
+          value: v1
+      replicas: 1
+      resources:
+        requests:
+          cpu: 25m
+          memory: 25M
+    workflow:
+      rbac:
+        create: false
