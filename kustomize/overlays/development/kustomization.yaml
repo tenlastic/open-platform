@@ -1,99 +1,114 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 bases:
-  - ../local/
+  - ../../base/
 kind: Kustomization
 patches:
-  - path: ./static/angular/home-ui.json
-    target:
-      group: apps
-      kind: Deployment
-      name: home-ui
-      namespace: static
-      version: v1
-  - path: ./static/argo/cron-workflows/e2e.json
+  - path: ./static/cronworkflows/e2e.json
     target:
       group: argoproj.io
       kind: CronWorkflow
       name: e2e
       namespace: static
       version: v1alpha1
-  - path: ./static/nodejs/aggregation-api.json
-    target:
-      group: apps
-      kind: StatefulSet
-      name: aggregation-api
-      namespace: static
-      version: v1
-  - path: ./static/nodejs/aggregation-api-cdc.json
-    target:
-      group: apps
-      kind: StatefulSet
-      name: aggregation-api-cdc
-      namespace: static
-      version: v1
-  - path: ./static/nodejs/aggregation-api-connector.json
-    target:
-      group: apps
-      kind: StatefulSet
-      name: aggregation-api-connector
-      namespace: static
-      version: v1
-  - path: ./static/nodejs/aggregation-api-migrations.json
-    target:
-      group: batch
-      kind: Job
-      name: aggregation-api-migrations
-      namespace: static
-      version: v1
-  - path: ./static/nodejs/api.json
+  - path: ./static/deployments/api.json
     target:
       group: apps
       kind: Deployment
       name: api
       namespace: static
       version: v1
-  - path: ./static/nodejs/api-cdc.json
+  - path: ./static/deployments/docker-registry.json
     target:
       group: apps
-      kind: StatefulSet
-      name: api-cdc
+      kind: Deployment
+      name: docker-registry
       namespace: static
       version: v1
-  - path: ./static/nodejs/api-migrations.json
-    target:
-      group: batch
-      kind: Job
-      name: api-migrations
-      namespace: static
-      version: v1
-  - path: ./static/nodejs/documentation.json
+  - path: ./static/deployments/documentation.json
     target:
       group: apps
       kind: Deployment
       name: documentation
       namespace: static
       version: v1
-  - path: ./static/nodejs/social-api.json
+  - path: ./static/deployments/home-ui.json
+    target:
+      group: apps
+      kind: Deployment
+      name: home-ui
+      namespace: static
+      version: v1
+  - path: ./static/deployments/social-api.json
     target:
       group: apps
       kind: Deployment
       name: social-api
       namespace: static
       version: v1
-  - path: ./static/nodejs/social-api-cdc.json
+  - path: ./static/ingresses/basic-authentication.json
+    target:
+      group: networking.k8s.io
+      kind: Ingress
+      name: basic-authentication
+      namespace: static
+      version: v1
+  - path: ./static/ingresses/default.json
+    target:
+      group: networking.k8s.io
+      kind: Ingress
+      name: default
+      namespace: static
+      version: v1
+  - path: ./static/statefulsets/aggregation-api.json
+    target:
+      group: apps
+      kind: StatefulSet
+      name: aggregation-api
+      namespace: static
+      version: v1
+  - path: ./static/statefulsets/aggregation-api-cdc.json
+    target:
+      group: apps
+      kind: StatefulSet
+      name: aggregation-api-cdc
+      namespace: static
+      version: v1
+  - path: ./static/statefulsets/aggregation-api-connector.json
+    target:
+      group: apps
+      kind: StatefulSet
+      name: aggregation-api-connector
+      namespace: static
+      version: v1
+  - path: ./static/statefulsets/api-cdc.json
+    target:
+      group: apps
+      kind: StatefulSet
+      name: api-cdc
+      namespace: static
+      version: v1
+  - path: ./static/statefulsets/social-api-cdc.json
     target:
       group: apps
       kind: StatefulSet
       name: social-api-cdc
       namespace: static
       version: v1
-  - path: ./static/nodejs/social-api-migrations.json
-    target:
-      group: batch
-      kind: Job
-      name: social-api-migrations
-      namespace: static
-      version: v1
 resources:
-  - ./static/workspace/workspace.secret.example.yaml
-  - ./static/workspace/workspace.pod.yaml
+  - ./dynamic/secrets/docker-registry.yaml
+  - ./dynamic/secrets/nodejs.yaml
+  - ./static/jobs/aggregation-api-migrations.yaml
+  - ./static/jobs/api-migrations.yaml
+  - ./static/jobs/social-api-migrations.yaml
+  - ./static/pods/workspace.yaml
+  - ./static/secrets/docker-registry-image-pull-secret.yaml
+  - ./static/secrets/docker-registry.yaml
+  - ./static/secrets/e2e.yaml
+  - ./static/secrets/minio.yaml
+  - ./static/secrets/mongodb-gui.yaml
+  - ./static/secrets/mongodb.yaml
+  - ./static/secrets/nats.yaml
+  - ./static/secrets/nodejs.yaml
+  - ./static/secrets/redis.yaml
+  - ./static/secrets/verdaccio.yaml
+  - ./static/secrets/workspace.yaml

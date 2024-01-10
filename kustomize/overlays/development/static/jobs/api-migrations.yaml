@@ -21,16 +21,29 @@ spec:
                     operator: Exists
       containers:
         - name: api-migrations
-          image: tenlastic/api-migrations:latest
+          image: tenlastic/node-development:latest
+          imagePullPolicy: IfNotPresent
+          command:
+            - npm
+            - run
+            - start
           envFrom:
             - secretRef:
                 name: nodejs
           resources:
             limits:
-              cpu: 100m
+              cpu: 1000m
               memory: 250M
             requests:
-              cpu: 25m
+              cpu: 100m
               memory: 250M
+          volumeMounts:
+            - name: workspace
+              mountPath: /usr/src/
+          workingDir: /usr/src/nodejs/applications/api-migrations/
       restartPolicy: OnFailure
+      volumes:
+        - name: workspace
+          hostPath:
+            path: /run/desktop/mnt/host/wsl/open-platform/
   ttlSecondsAfterFinished: 0
