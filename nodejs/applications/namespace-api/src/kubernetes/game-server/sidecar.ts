@@ -107,7 +107,7 @@ function getPodTemplate(gameServer: GameServerDocument) {
         ],
         serviceAccountName: 'game-server-sidecar',
         volumes: [
-          { hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' }, name: 'workspace' },
+          { hostPath: { path: '/usr/src/open-platform/' }, name: 'workspace' },
         ],
       },
     };

@@ -45,6 +45,32 @@ patches:
       name: social-api
       namespace: static
       version: v1
+  - path: ./static/ingresses/basic-authentication.json
+    target:
+      group: networking.k8s.io
+      kind: Ingress
+      name: basic-authentication
+      namespace: static
+      version: v1
+  - path: ./static/ingresses/default.json
+    target:
+      group: networking.k8s.io
+      kind: Ingress
+      name: default
+      namespace: static
+      version: v1
+  - path: ./static/services/documentation.json
+    target:
+      kind: Service
+      name: documentation
+      namespace: static
+      version: v1
+  - path: ./static/services/home-ui.json
+    target:
+      kind: Service
+      name: home-ui
+      namespace: static
+      version: v1
   - path: ./static/statefulsets/aggregation-api.json
     target:
       group: apps
@@ -85,18 +111,8 @@ patchesStrategicMerge:
   - ./cluster/storageclasses/ssd-expandable.yaml
   - ./cluster/storageclasses/standard-expandable.yaml
 resources:
-  - ./cluster/clusterrolebindings/docker-for-desktop-binding.yaml
   - ./dynamic/secrets/docker-registry.yaml
   - ./dynamic/secrets/nodejs.yaml
-  - ./kube-system/apiservices/v1beta1.metrics.k8s.io.yaml
-  - ./kube-system/clusterrolebindings/metrics-server:system:auth-delegator.yaml
-  - ./kube-system/clusterrolebindings/system:metrics-server.yaml
-  - ./kube-system/clusterroles/system:aggregated-metrics-reader.yaml
-  - ./kube-system/clusterroles/system:metrics-server.yaml
-  - ./kube-system/deployments/metrics-server.yaml
-  - ./kube-system/rolebindings/metrics-server-auth-reader.yaml
-  - ./kube-system/serviceaccounts/metrics-server.yaml
-  - ./kube-system/services/metrics-server.yaml
   - ./static/jobs/aggregation-api-migrations.yaml
   - ./static/jobs/api-migrations.yaml
   - ./static/jobs/social-api-migrations.yaml
@@ -112,3 +128,6 @@ resources:
   - ./static/secrets/redis.yaml
   - ./static/secrets/verdaccio.yaml
   - ./static/secrets/workspace.yaml
+  - ./static/workflowtemplates/angular.yaml
+  - ./static/workflowtemplates/e2e.yaml
+  - ./static/workflowtemplates/nodejs.yaml

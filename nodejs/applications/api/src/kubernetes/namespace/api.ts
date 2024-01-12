@@ -94,7 +94,7 @@ function getPodTemplate(namespace: NamespaceDocument): V1Pod {
         ],
         serviceAccountName: `namespace-api`,
         volumes: [
-          { hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' }, name: 'workspace' },
+          { hostPath: { path: '/usr/src/open-platform/' }, name: 'workspace' },
         ],
       },
     };

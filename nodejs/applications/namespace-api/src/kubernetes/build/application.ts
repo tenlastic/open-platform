@@ -95,7 +95,7 @@ export const KubernetesBuildApplication = {
           ],
           ttlStrategy: { secondsAfterCompletion: 3 * 60 * 60 },
           volumes: [
-            { hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' }, name: 'host' },
+            { hostPath: { path: '/usr/src/open-platform/' }, name: 'host' },
           ],
         },
       };

@@ -15,7 +15,7 @@ export const KubernetesNamespaceConnector = {
     const name = getName(namespace);
 
     const volumes = KubernetesNamespace.isDevelopment
-      ? [{ hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' }, name: 'workspace' }]
+      ? [{ hostPath: { path: '/usr/src/open-platform/' }, name: 'workspace' }]
       : [];
 
     await statefulSetApiV1.delete(name, 'dynamic');
