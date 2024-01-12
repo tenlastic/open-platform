@@ -29,7 +29,7 @@ sudo snap install microk8s --classic
 sudo microk8s status --wait-ready
 
 # Get the IP address of MicroK8s.
-IP_ADDRESS=$(microk8s kubectl get node -o json | jq '.items[].status.addresses[] | select(.type=="InternalIP") | .address')
+IP_ADDRESS=$(microk8s kubectl get node -o json | jq -r '.items[].status.addresses[] | select(.type=="InternalIP") | .address')
 
 # Enable addons.
 sudo microk8s enable dns
@@ -53,9 +53,14 @@ EOL'
 
 ## Configure Hosts File
 
-Add the following lines to your `hosts` file to properly route to your local Kubernetes cluster.
+Default location per platform:
 
-```
+- Linux: /etc/hosts
+- Windows: C:\Windows\System32\drivers\etc\hosts
+
+Add the following lines to the file, replacing `127.0.0.1` with `IP_ADDRESS` from above.
+
+```bash
 127.0.0.1 api.local.tenlastic.com
 127.0.0.1 argo.local.tenlastic.com
 127.0.0.1 docker-registry.local.tenlastic.com
@@ -68,11 +73,11 @@ Add the following lines to your `hosts` file to properly route to your local Kub
 127.0.0.1 www.local.tenlastic.com
 ```
 
-Default Location per Platform:
+To automatically update `/etc/hosts` on Linux:
 
-- Linux: /etc/hosts
-- Mac: /private/etc/hosts
-- Windows: C:/windows/system32/drivers/etc/hosts
+```bash
+./scripts/hosts.sh /etc/hosts $IP_ADDRESS
+```
 
 ## Deploy Resources
 
