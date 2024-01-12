@@ -42,7 +42,7 @@ export const ROUTES: Routes = [
       {
         children: [
           ElectronService.isElectron
-            ? { path: '', redirectTo: '/store' }
+            ? { path: '', pathMatch: 'full', redirectTo: '/store' }
             : {
                 canActivate: [IdentityGuard],
                 loadChildren: () => import('./modules/home/home.module').then((m) => m.HomeModule),
