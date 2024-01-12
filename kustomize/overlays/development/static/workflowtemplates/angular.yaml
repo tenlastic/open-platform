@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: angular
+  namespace: static
+spec:
+  entrypoint: entrypoint
+  podGC:
+    strategy: OnWorkflowSuccess
+  serviceAccountName: argo-workflows
+  ttlStrategy:
+    secondsAfterSuccess: 86400
+  volumes:
+    - name: workspace
+      hostPath:
+        path: /usr/src/open-platform/
+  templates:
+    - name: entrypoint
+      script:
+        image: tenlastic/node-development:latest
+        command: [bash]
+        source: |
+          lerna run lint
+          lerna run build
+          lerna run test
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - name: workspace
+            mountPath: /usr/src/
+        workingDir: /usr/src/angular/

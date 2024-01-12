@@ -84,7 +84,7 @@ function getPodTemplate(queue: QueueDocument) {
         ],
         priorityClassName: namespaceName,
         volumes: [
-          { hostPath: { path: '/run/desktop/mnt/host/wsl/open-platform/' }, name: 'workspace' },
+          { hostPath: { path: '/usr/src/open-platform/' }, name: 'workspace' },
         ],
       },
     };

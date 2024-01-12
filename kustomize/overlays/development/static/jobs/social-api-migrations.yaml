@@ -45,5 +45,5 @@ spec:
       volumes:
         - name: workspace
           hostPath:
-            path: /run/desktop/mnt/host/wsl/open-platform/
+            path: /usr/src/open-platform/
   ttlSecondsAfterFinished: 0

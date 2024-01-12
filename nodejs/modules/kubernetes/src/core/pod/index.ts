@@ -138,12 +138,12 @@ export class PodApiV1 extends BaseApiV1<k8s.V1Pod> {
   }
 
   private getBody(value: string) {
-    const matches = value.match(/^[0-9-]{10}T[0-9:]{8}\.[0-9]{3}[0-9]+Z (.*)/m);
+    const matches = value.match(/^[0-9-]{10}T[0-9:]{8}\.[0-9]{3}[0-9]+[0-9Z:-]+ (.*)/m);
     return matches ? matches[1] : value;
   }
 
   private getMicroseconds(value: string) {
-    const matches = value.match(/^[0-9-]{10}T[0-9:]{8}\.[0-9]{3}([0-9]+)Z/m);
+    const matches = value.match(/^[0-9-]{10}T[0-9:]{8}\.[0-9]{3}([0-9]+)[0-9Z:-]+/m);
     return matches ? parseInt(matches[1], 10) : null;
   }
 
@@ -158,13 +158,13 @@ export class PodApiV1 extends BaseApiV1<k8s.V1Pod> {
   }
 
   private getUnix(value: string) {
-    const matches = value.match(/^([0-9-]{10}T[0-9:]{8}\.[0-9]{3}[0-9]+Z)/m);
+    const matches = value.match(/^([0-9-]{10}T[0-9:]{8}\.[0-9]{3}[0-9]+[0-9Z:-]+)/m);
     return matches ? new Date(matches[1]).getTime() : null;
   }
 
   private split(value: string) {
     return value
-      .split(/^([0-9-]{10}T[0-9:]{8}\.[0-9]+Z .*)$/m)
+      .split(/^([0-9-]{10}T[0-9:]{8}\.[0-9]+[0-9Z:-]+ .*)$/m)
       .map((line) => line.replace(/\n/g, ''))
       .filter((line) => line);
   }

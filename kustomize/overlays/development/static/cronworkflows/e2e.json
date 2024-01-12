@@ -4,7 +4,7 @@
     "path": "/spec/workflowSpec/volumes",
     "value": [
       {
-        "hostPath": { "path": "/run/desktop/mnt/host/wsl/open-platform/" },
+        "hostPath": { "path": "/usr/src/open-platform/" },
         "name": "workspace"
       }
     ]

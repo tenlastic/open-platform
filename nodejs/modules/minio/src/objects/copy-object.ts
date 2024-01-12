@@ -1,4 +1,4 @@
-import { BucketItemCopy, CopyConditions } from 'minio';
+import { CopyConditions } from 'minio';
 
 import { client } from '../connect';
 import { execute } from '../execute';

@@ -1,4 +1,57 @@
-#### Configure Hosts File
+## Install MicroK8s on WSL2 and Ubuntu 22.04
+
+```powershell
+# Update WSL to the latest version and ensure WSL2 is set as the default version.
+wsl --update
+wsl --set-default-version 2
+
+# Enable systemd by running the following command in the WSL terminal.
+wsl sudo bash -c 'cat > /etc/wsl.conf << EOL
+[boot]
+systemd=true
+EOL'
+
+# Restart WSL.
+wsl --shutdown
+wsl
+
+# From this point, `systemd`` is enabled and snaps should work properly.
+wsl sudo snap list
+```
+
+## Set Up MicroK8s
+
+```bash
+# Install MicroK8s with Snap.
+sudo snap install microk8s --classic
+
+# Wait for MicroK8s to start.
+sudo microk8s status --wait-ready
+
+# Get the IP address of MicroK8s.
+IP_ADDRESS=$(microk8s kubectl get node -o json | jq '.items[].status.addresses[] | select(.type=="InternalIP") | .address')
+
+# Enable addons.
+sudo microk8s enable dns
+sudo microk8s enable helm
+sudo microk8s enable helm3
+sudo microk8s enable hostpath-storage
+sudo microk8s enable metallb:${IP_ADDRESS}-${IP_ADDRESS}
+sudo microk8s enable metrics-server
+sudo microk8s enable rbac
+
+# Enable insecure Docker Registry.
+sudo mkdir -p /var/snap/microk8s/current/args/certs.d/docker-registry.local.tenlastic.com
+sudo bash -c 'cat > /var/snap/microk8s/current/args/certs.d/docker-registry.local.tenlastic.com/hosts.toml << EOL
+# /var/snap/microk8s/current/args/certs.d/docker-registry.local.tenlastic.com/hosts.toml
+server = "http://docker-registry.local.tenlastic.com"
+
+[host."http://docker-registry.local.tenlastic.com"]
+capabilities = ["pull", "resolve"]
+EOL'
+```
+
+## Configure Hosts File
 
 Add the following lines to your `hosts` file to properly route to your local Kubernetes cluster.
 
@@ -17,18 +70,13 @@ Add the following lines to your `hosts` file to properly route to your local Kub
 
 Default Location per Platform:
 
+- Linux: /etc/hosts
 - Mac: /private/etc/hosts
 - Windows: C:/windows/system32/drivers/etc/hosts
 
-#### Deploy Resources
-
-If you would like to modify the Open Platform's Javascript source code, run the following command:
+## Deploy Resources
 
 ```bash
-# Bind local directory to directory accessible within Docker containers.
-mkdir /mnt/wsl/open-platform/
-sudo mount --bind /open-platform/ /mnt/wsl/open-platform/
-
 # Set default namespace to "static".
 kubectl config set-context --current --namespace=static
 
@@ -51,7 +99,7 @@ helm install \
 ./scripts/kustomize.sh
 ```
 
-#### SSH into Workspace Pod
+## SSH into Workspace Pod
 
 To make Javascript development easier, you can SSH into the Workspace Pod with the following command:
 

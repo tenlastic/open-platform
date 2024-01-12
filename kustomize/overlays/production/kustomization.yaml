@@ -36,3 +36,8 @@ resources:
   - ./static/sealedsecrets/redis.yaml
   - ./static/sealedsecrets/verdaccio.yaml
   - ./static/services/verdaccio.yaml
+  - ./static/workflowtemplates/angular.yaml
+  - ./static/workflowtemplates/checkout.yaml
+  - ./static/workflowtemplates/dockerfiles.yaml
+  - ./static/workflowtemplates/gcp.yaml
+  - ./static/workflowtemplates/nodejs.yaml
