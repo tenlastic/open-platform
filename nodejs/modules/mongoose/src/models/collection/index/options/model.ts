@@ -9,7 +9,12 @@ import {
 
 @modelOptions({
   options: { allowMixed: Severity.ALLOW },
-  schemaOptions: { _id: false, toJSON: { getters: true }, toObject: { getters: true } },
+  schemaOptions: {
+    _id: false,
+    minimize: false,
+    toJSON: { getters: true },
+    toObject: { getters: true },
+  },
 })
 export class CollectionIndexOptionsSchema {
   @prop({ type: CollectionIndexOptionsCollationSchema })
