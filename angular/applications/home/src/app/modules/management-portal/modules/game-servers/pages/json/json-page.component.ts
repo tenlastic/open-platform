@@ -86,6 +86,7 @@ export class GameServersJsonPageComponent implements OnInit {
       memory: IGameServer.Memory[0].value,
       metadata: {},
       name: '',
+      ports: [],
       preemptible: true,
     });
 
