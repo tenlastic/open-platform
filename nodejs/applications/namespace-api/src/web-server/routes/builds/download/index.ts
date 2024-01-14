@@ -18,6 +18,7 @@ export async function handler(ctx: Context) {
     throw new PermissionError();
   }
 
+  const compression = ctx.query.compression || 3;
   const files = ctx.request.rawQuery?.files
     ? build.files.filter((f, i) => ctx.request.rawQuery.files[i] === '1')
     : build.files;
@@ -32,7 +33,8 @@ export async function handler(ctx: Context) {
   }
 
   ctx.response.body = zip.generateNodeStream({
-    compression: 'DEFLATE',
-    compressionOptions: { level: 1 },
+    compression: compression > 0 ? 'DEFLATE' : 'STORE',
+    compressionOptions: { level: compression },
+    streamFiles: true,
   });
 }

@@ -381,7 +381,10 @@ export class UpdateService {
 
           entry.pipe(fs.createWriteStream(target));
         })
-        .on('error', reject);
+        .on('error', (err) => {
+          stream.abort(err);
+          return reject(err);
+        });
     });
   }
 

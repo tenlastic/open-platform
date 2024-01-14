@@ -18,10 +18,17 @@ paths:
             type: string
           required: true
         - in: query
+          name: compression
+          schema:
+            maximum: 9
+            minimum: 0
+            type: integer
+          description: 0 for no compression or any value between 1 (best speed) and 9 (best compression). Defaults to 3.
+        - in: query
           name: files
           schema:
             type: string
-          description: A string indicating if the file at the same index should be included (1) or excluded (0).
+          description: A string indicating if the file at the same index should be included (1) or excluded (0). Defaults to all files.
       responses:
         200:
           description: OK
