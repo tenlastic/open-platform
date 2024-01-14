@@ -12,7 +12,7 @@
     "start": "../../scripts/start.sh --watch",
     "test": "../../scripts/test.sh",
     "test:watch": "../../scripts/test.sh --watch",
-    "version": "../../scripts/version.sh api"
+    "version": "../../scripts/version.sh deployments api"
   },
   "dependencies": {
     "@tenlastic/kubernetes": "0.0.409",

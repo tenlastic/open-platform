@@ -12,7 +12,7 @@
     "start": "../../scripts/start.sh --watch",
     "test": "../../scripts/test.sh",
     "test:watch": "../../scripts/test.sh --watch",
-    "version": "../../scripts/version.sh aggregation-api"
+    "version": "../../scripts/version.sh statefulsets aggregation-api"
   },
   "dependencies": {
     "@tenlastic/logging": "0.0.409",

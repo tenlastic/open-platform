@@ -2,13 +2,14 @@
 set -e
 
 DIRECTORY="${1}"
-FILE="../../../kustomize/base/static/angular/${DIRECTORY}.yaml"
+FILE="${2}"
+PATH="../../../kustomize/base/static/${DIRECTORY}/${FILE}.yaml"
 VERSION=$(node -p "require('./package.json').version")
 
 # Bump image to the most recent version.
 sed -i \
   -e "s|\(image: tenlastic/[^:]*:\).*|\1${VERSION}|" \
-  "${FILE}"
+  "${PATH}"
 
 # Add file to Git commit.
-git add "${FILE}"
+git add "${PATH}"

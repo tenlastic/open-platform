@@ -9,7 +9,7 @@
   "scripts": {
     "build": "./scripts/build.sh",
     "start": "./scripts/start.sh",
-    "version": "../../scripts/version.sh documentation"
+    "version": "../../scripts/version.sh deployments documentation"
   },
   "devDependencies": {
     "eslint": "^7.26.0",
