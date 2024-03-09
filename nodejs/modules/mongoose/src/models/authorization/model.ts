@@ -40,6 +40,8 @@ export enum AuthorizationRole {
   QueuesWrite = 'Queues:Write',
   RecordsRead = 'Records:Read',
   RecordsWrite = 'Records:Write',
+  SteamApiKeysRead = 'SteamApiKeys:Read',
+  SteamApiKeysWrite = 'SteamApiKeys:Write',
   StorefrontsRead = 'Storefronts:Read',
   StorefrontsWrite = 'Storefronts:Write',
   UsersRead = 'Users:Read',

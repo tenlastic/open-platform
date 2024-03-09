@@ -8,6 +8,7 @@ import {
   PasswordResetModel,
   RefreshTokenModel,
   SchemaSchema,
+  SteamApiKeyModel,
   syncIndexes,
   UserModel,
   WebSocketModel,
@@ -27,6 +28,7 @@ export async function mongo(connectionString: string, databaseName: string) {
     syncIndexes(PasswordResetModel),
     syncIndexes(RefreshTokenModel),
     syncIndexes(SchemaModel),
+    syncIndexes(SteamApiKeyModel),
     syncIndexes(UserModel),
     syncIndexes(WebSocketModel),
   ]);
@@ -40,6 +42,7 @@ export async function mongo(connectionString: string, databaseName: string) {
     SchemaModel.sync(NamespaceModel),
     SchemaModel.sync(PasswordResetModel),
     SchemaModel.sync(RefreshTokenModel),
+    SchemaModel.sync(SteamApiKeyModel),
     SchemaModel.sync(UserModel),
     SchemaModel.sync(WebSocketModel),
   ]);
@@ -57,6 +60,7 @@ export async function mongo(connectionString: string, databaseName: string) {
     enablePrePostImages(NamespaceModel),
     enablePrePostImages(PasswordResetModel),
     enablePrePostImages(RefreshTokenModel),
+    enablePrePostImages(SteamApiKeyModel),
     enablePrePostImages(UserModel),
     enablePrePostImages(WebSocketModel),
   ]);
