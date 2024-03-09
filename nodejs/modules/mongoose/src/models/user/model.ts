@@ -36,6 +36,9 @@ export class UserSchema {
   @prop({ required: true, type: String })
   public password: string;
 
+  @prop({ maxlength: 64, trim: true, type: String })
+  public steamId: string;
+
   public updatedAt: Date;
 
   @prop({

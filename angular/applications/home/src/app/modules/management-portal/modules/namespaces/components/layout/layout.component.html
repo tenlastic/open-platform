@@ -126,6 +126,20 @@
       <div>Queues</div>
     </app-button>
 
+    <app-button *ngIf="$hasPermission(IAuthorization.steamApiKeyRoles) | async"
+                color="accent"
+                [disabled]="namespace.status.phase !== 'Running'"
+                layout="vertical"
+                [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
+                matTooltipPosition="right"
+                [routerLink]="namespace.status.phase === 'Running' ? ['steam-api-keys'] : null"
+                routerLinkActive="active"
+                text="left"
+                width="full">
+      <mat-icon>public</mat-icon>
+      <div>Steam API Keys</div>
+    </app-button>
+
     <app-button *ngIf="$hasPermission(IAuthorization.storefrontRoles) | async"
                 color="accent"
                 [disabled]="namespace.status.phase !== 'Running'"

@@ -72,6 +72,11 @@ export const ROUTES: Routes = [
         path: 'queues',
       },
       {
+        path: 'steam-api-keys',
+        loadChildren: () =>
+          import('../steam-api-keys/steam-api-keys.module').then((m) => m.SteamApiKeyModule),
+      },
+      {
         loadChildren: () =>
           import('../storefronts/storefronts.module').then((m) => m.StorefrontModule),
         path: 'storefront',

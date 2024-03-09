@@ -76,6 +76,9 @@ import {
   RefreshTokenService,
   RefreshTokenStore,
   RetryInterceptor,
+  SteamApiKeyQuery,
+  SteamApiKeyService,
+  SteamApiKeyStore,
   StorefrontQuery,
   StorefrontService,
   StorefrontStore,
@@ -233,6 +236,11 @@ const queries: Provider[] = [
     deps: [RefreshTokenStore],
     provide: RefreshTokenQuery,
     useFactory: (store: RefreshTokenStore) => new RefreshTokenQuery(store),
+  },
+  {
+    deps: [SteamApiKeyStore],
+    provide: SteamApiKeyQuery,
+    useFactory: (store: SteamApiKeyStore) => new SteamApiKeyQuery(store),
   },
   {
     deps: [StorefrontStore],
@@ -492,6 +500,15 @@ const services: Provider[] = [
     ) => new RefreshTokenService(apiService, environmentService, store),
   },
   {
+    deps: [ApiService, EnvironmentService, SteamApiKeyStore],
+    provide: SteamApiKeyService,
+    useFactory: (
+      apiService: ApiService,
+      environmentService: EnvironmentService,
+      store: SteamApiKeyStore,
+    ) => new SteamApiKeyService(apiService, environmentService, store),
+  },
+  {
     deps: [ApiService, EnvironmentService, StorefrontStore],
     provide: StorefrontService,
     useFactory: (
@@ -571,6 +588,7 @@ const stores: Provider[] = [
   { provide: QueueStore, useValue: new QueueStore() },
   { provide: RecordStore, useValue: new RecordStore() },
   { provide: RefreshTokenStore, useValue: new RefreshTokenStore() },
+  { provide: SteamApiKeyStore, useValue: new SteamApiKeyStore() },
   { provide: StorefrontStore, useValue: new StorefrontStore() },
   { provide: UserStore, useValue: new UserStore() },
   { provide: WebSocketStore, useValue: new WebSocketStore() },

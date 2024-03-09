@@ -59,6 +59,8 @@ components:
         - Queues:ReadWrite
         - Records:Read
         - Records:ReadWrite
+        - SteamApiKeys:Read
+        - SteamApiKeys:Write
         - Storefronts:Read
         - Storefronts:ReadWrite
         - Users:Read

@@ -28,6 +28,8 @@ export namespace IAuthorization {
     QueuesWrite = 'Queues:Write',
     RecordsRead = 'Records:Read',
     RecordsWrite = 'Records:Write',
+    SteamApiKeysRead = 'SteamApiKeys:Read',
+    SteamApiKeysWrite = 'SteamApiKeys:Write',
     StorefrontsRead = 'Storefronts:Read',
     StorefrontsWrite = 'Storefronts:Write',
     UsersRead = 'Users:Read',
@@ -52,6 +54,7 @@ export namespace IAuthorization {
   export const namespaceRoles = [Role.NamespacesRead, Role.NamespacesWrite];
   export const queueRoles = [Role.QueuesRead, Role.QueuesWrite];
   export const recordRoles = [Role.RecordsRead, Role.RecordsWrite];
+  export const steamApiKeyRoles = [Role.SteamApiKeysRead, Role.SteamApiKeysWrite];
   export const storefrontRoles = [Role.StorefrontsRead, Role.StorefrontsWrite];
   export const userRoles = [Role.UsersRead, Role.UsersWrite];
   export const webSocketRoles = [Role.WebSocketsRead, Role.WebSocketsWrite];
