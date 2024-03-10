@@ -59,7 +59,7 @@ export class LoginSchema {
     const filteredAuthorization = authorization
       ? { _id: authorization._id, roles: authorization.roles }
       : null;
-    const filteredUser = { _id: user._id, email: user.email, username: user.username };
+    const filteredUser = { _id: user._id, steamId: user.steamId, username: user.username };
 
     const options = { algorithm: 'RS256', expiresIn: '14d', jwtid: token._id.toString() };
     const privateKey = process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n');

@@ -18,7 +18,7 @@ export * from './queue';
 export * from './queue-member';
 export * from './record';
 export * from './refresh-token';
-export * from './steam-api-key';
+export * from './steam-integration';
 export * from './storefront';
 export * from './user';
 export * from './web-socket';

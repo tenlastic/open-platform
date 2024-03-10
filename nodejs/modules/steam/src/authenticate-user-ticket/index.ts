@@ -8,6 +8,10 @@ export interface AuthenticateUserTicketOptions {
 
 export interface AuthenticateUserTicketResponse {
   response: {
+    error: {
+      errorcode: number;
+      errordesc: string;
+    };
     params: {
       ownersteamid: string;
       publisherbanned: boolean;

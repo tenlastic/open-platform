@@ -33,7 +33,15 @@ export class UsersListPageComponent implements OnDestroy, OnInit {
 
   public $users: Observable<UserModel[]>;
   public dataSource = new MatTableDataSource<UserModel>();
-  public displayedColumns = ['webSocket', 'username', 'email', 'createdAt', 'updatedAt', 'actions'];
+  public displayedColumns = [
+    'webSocket',
+    'username',
+    'email',
+    'steamId',
+    'createdAt',
+    'updatedAt',
+    'actions',
+  ];
   public hasWriteAuthorization: boolean;
   public message: string;
   public get user() {

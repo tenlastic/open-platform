@@ -21,6 +21,3 @@ components:
           format: date-time
         username:
           type: string
-      required:
-        - password
-        - username

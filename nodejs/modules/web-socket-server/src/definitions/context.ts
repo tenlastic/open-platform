@@ -19,13 +19,13 @@ export class Context<T = { [key: string]: any }> {
 export interface Jwt {
   authorization?: { _id?: string; roles?: string[] };
   jti?: string;
-  user?: { _id?: string; email?: string; username?: string };
+  user?: { _id?: string; username?: string };
 }
 
 export interface State {
   apiKey?: string;
   authorization?: { _id?: string; roles?: string[] };
   jwt?: Jwt;
-  user?: { _id?: string; email?: string; username?: string };
+  user?: { _id?: string; username?: string };
   webSocket?: mongoose.Document;
 }

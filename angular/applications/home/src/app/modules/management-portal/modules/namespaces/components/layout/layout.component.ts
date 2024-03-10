@@ -160,7 +160,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
         }
       });
       this.subscribe$ = this.$namespace.subscribe((namespace) => {
-        if (namespace.status?.phase === 'Running') {
+        if (namespace?.status?.phase === 'Running') {
           this.connectSocket();
         }
       });

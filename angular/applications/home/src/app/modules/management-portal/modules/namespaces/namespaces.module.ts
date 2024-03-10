@@ -72,9 +72,11 @@ export const ROUTES: Routes = [
         path: 'queues',
       },
       {
-        path: 'steam-api-keys',
+        path: 'steam-integrations',
         loadChildren: () =>
-          import('../steam-api-keys/steam-api-keys.module').then((m) => m.SteamApiKeyModule),
+          import('../steam-integrations/steam-integrations.module').then(
+            (m) => m.SteamIntegrationModule,
+          ),
       },
       {
         loadChildren: () =>

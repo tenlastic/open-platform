@@ -1,0 +1,28 @@
+components:
+  schemas:
+    SteamIntegration:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ^[0-9a-f]{24}$
+        apiKey:
+          type: string
+        applicationId:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        name:
+          type: string
+        namespaceId:
+          type: string
+          format: ^[0-9a-f]{24}$
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - apiKey
+        - applicationId
+        - name
+        - namespaceId
