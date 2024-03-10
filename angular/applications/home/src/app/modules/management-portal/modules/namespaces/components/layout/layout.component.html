@@ -126,18 +126,18 @@
       <div>Queues</div>
     </app-button>
 
-    <app-button *ngIf="$hasPermission(IAuthorization.steamApiKeyRoles) | async"
+    <app-button *ngIf="$hasPermission(IAuthorization.steamIntegrationRoles) | async"
                 color="accent"
                 [disabled]="namespace.status.phase !== 'Running'"
                 layout="vertical"
                 [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
                 matTooltipPosition="right"
-                [routerLink]="namespace.status.phase === 'Running' ? ['steam-api-keys'] : null"
+                [routerLink]="namespace.status.phase === 'Running' ? ['steam-integrations'] : null"
                 routerLinkActive="active"
                 text="left"
                 width="full">
       <mat-icon>public</mat-icon>
-      <div>Steam API Keys</div>
+      <div>Steam Integrations</div>
     </app-button>
 
     <app-button *ngIf="$hasPermission(IAuthorization.storefrontRoles) | async"

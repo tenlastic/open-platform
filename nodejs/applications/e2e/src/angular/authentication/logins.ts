@@ -39,7 +39,7 @@ describe('/angular/authentication/logins', () => {
     const registrationPasswordInput = await helpers.getInputByLabel('Password', page);
     await helpers.type(registrationPasswordInput, page, 'Example');
 
-    const confirmPasswordInput = await helpers.getInputByLabel('Confirm password', page);
+    const confirmPasswordInput = await helpers.getInputByLabel('Confirm Password', page);
     await helpers.type(confirmPasswordInput, page, 'Example');
 
     const registrationSubmitButton = await helpers.getButtonByText(page, 'Submit');

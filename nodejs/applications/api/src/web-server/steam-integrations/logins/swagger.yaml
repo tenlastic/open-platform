@@ -1,0 +1,37 @@
+paths:
+  /namespaces/{namespaceId}/steam-integrations/{_id}/logins:
+    post:
+      summary: Log In with Steam
+      tags: [Logins, Steam Integrations]
+      description: Returns an access and refresh token.
+      parameters:
+        - in: path
+          name: _id
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: namespaceId
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ticket:
+                  type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                  refreshToken:
+                    type: string

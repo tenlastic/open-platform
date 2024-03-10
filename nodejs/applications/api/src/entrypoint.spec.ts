@@ -27,7 +27,7 @@ before(async function () {
     mongoose.NamespaceModel.syncIndexes(),
     mongoose.PasswordResetModel.syncIndexes(),
     mongoose.RefreshTokenModel.syncIndexes(),
-    mongoose.SteamApiKeyModel.syncIndexes(),
+    mongoose.SteamIntegrationModel.syncIndexes(),
     mongoose.UserModel.syncIndexes(),
     mongoose.WebSocketModel.syncIndexes(),
   ]);
@@ -46,7 +46,7 @@ beforeEach(async function () {
     mongoose.NamespaceModel.deleteMany(),
     mongoose.PasswordResetModel.deleteMany(),
     mongoose.RefreshTokenModel.deleteMany(),
-    mongoose.SteamApiKeyModel.deleteMany(),
+    mongoose.SteamIntegrationModel.deleteMany(),
     mongoose.UserModel.deleteMany(),
     mongoose.WebSocketModel.deleteMany(),
   ]);

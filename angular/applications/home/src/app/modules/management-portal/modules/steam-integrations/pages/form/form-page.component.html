@@ -1,0 +1,84 @@
+<ng-container *ngIf="form">
+  <div class="page">
+    <div class="row">
+      <div class="col-sm-6">
+        <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Steam Integration</app-title>
+        <app-title *ngIf="!hasWriteAuthorization">View Steam Integration</app-title>
+      </div>
+
+      <div *ngIf="hasWriteAuthorization"
+           class="col-sm-6 align-right">
+        <app-button color="accent"
+                    (OnClick)="navigateToJson()">
+          <mat-icon>code</mat-icon>
+          <div>{{ data?._id ? 'Edit' : 'Create' }} as JSON</div>
+        </app-button>
+      </div>
+    </div>
+
+    <form autocomplete="off"
+          [formGroup]="form"
+          id="form"
+          (ngSubmit)="save()">
+      <div class="row">
+        <mat-form-field floatLabel="always">
+          <mat-label>Name</mat-label>
+          <input appAutofocus
+                 formControlName="name"
+                 matInput
+                 maxlength="64"
+                 required />
+          <mat-error>Enter a valid name.</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="row">
+        <mat-form-field floatLabel="always">
+          <mat-label>API Key</mat-label>
+          <input formControlName="apiKey"
+                 matInput
+                 maxlength="64"
+                 required />
+          <mat-error>Enter a valid API Key.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>Application ID</mat-label>
+          <input formControlName="applicationId"
+                 matInput
+                 min="0"
+                 required
+                 type="number" />
+          <mat-error>Enter a valid Application ID.</mat-error>
+        </mat-form-field>
+      </div>
+    </form>
+  </div>
+
+  <div *ngIf="!form.disabled"
+       class="page-actions">
+    <div *ngFor="let error of errors"
+         class="form-error">
+      {{ error }}
+    </div>
+
+    <app-button *ngIf="!isSaving"
+                color="primary"
+                form="form"
+                size="large"
+                width="full">
+      <mat-icon>save</mat-icon>
+      <div>Save</div>
+    </app-button>
+    <app-button *ngIf="isSaving"
+                color="primary"
+                disabled
+                size="large"
+                width="full">
+      <mat-spinner diameter="20"></mat-spinner>
+      <div>Saving...</div>
+    </app-button>
+  </div>
+</ng-container>
+
+<app-loading-message *ngIf="!form">Loading...</app-loading-message>

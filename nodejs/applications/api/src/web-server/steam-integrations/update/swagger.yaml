@@ -1,0 +1,34 @@
+paths:
+  /namespaces/{namespaceId}/steam-integrations/{_id}:
+    patch:
+      summary: Update
+      tags: [Steam Integrations]
+      description: Updates an existing record.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: _id
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: namespaceId
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SteamIntegration'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  record:
+                    $ref: '#/components/schemas/SteamIntegration'

@@ -17,13 +17,31 @@ import { alphanumericValidator, emailValidator } from '../../validators';
 import { AuthorizationDocument } from '../authorization/model';
 
 @index({ email: 1 }, { partialFilterExpression: { email: { $exists: true } }, unique: true })
-@index({ username: 1 }, { collation, unique: true })
+@index({ steamId: 1 }, { partialFilterExpression: { steamId: { $exists: true } }, unique: true })
+@index(
+  { username: 1 },
+  { collation, partialFilterExpression: { username: { $exists: true } }, unique: true },
+)
 @modelOptions({ schemaOptions: { collation, collection: 'users', timestamps: true } })
 @plugin(duplicateKeyErrorPlugin)
 @plugin(unsetPlugin)
 @pre('save', async function (this: UserDocument) {
   if (this.isModified('password')) {
     this.password = await UserModel.hashPassword(this.password);
+  }
+})
+@pre('validate', function (this: UserDocument) {
+  if (!this.password && !this.steamId && !this.username) {
+    const message = 'Either (Username and Password) or (Steam ID) must be specified.';
+    this.invalidate('password', message, this.password);
+    this.invalidate('steamId', message, this.steamId);
+    this.invalidate('username', message, this.username);
+  } else if (this.password && !this.username) {
+    const message = 'Username must be specified.';
+    this.invalidate('username', message, this.username);
+  } else if (!this.password && this.username) {
+    const message = 'Password must be specified.';
+    this.invalidate('password', message, this.password);
   }
 })
 export class UserSchema {
@@ -33,7 +51,7 @@ export class UserSchema {
   @prop({ lowercase: true, maxlength: 256, trim: true, type: String, validate: [emailValidator] })
   public email: string;
 
-  @prop({ required: true, type: String })
+  @prop({ type: String })
   public password: string;
 
   @prop({ maxlength: 64, trim: true, type: String })
@@ -43,7 +61,6 @@ export class UserSchema {
 
   @prop({
     maxlength: 24,
-    required: true,
     trim: true,
     type: String,
     validate: alphanumericValidator,
