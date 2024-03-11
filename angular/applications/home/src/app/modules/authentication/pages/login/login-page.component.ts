@@ -18,9 +18,30 @@ export class LoginPageComponent implements OnInit {
   public hasErrors = false;
   public isLoggingIn = false;
   public loadingMessage: string;
+  public get steamUrl() {
+    const base = 'https://steamcommunity.com/openid/login';
+    const url = new URL(this.document.location.href);
+
+    const parameters = {
+      'openid.claimed_id': 'http://specs.openid.net/auth/2.0/identifier_select',
+      'openid.identity': 'http://specs.openid.net/auth/2.0/identifier_select',
+      'openid.mode': 'checkid_setup',
+      'openid.ns': 'http://specs.openid.net/auth/2.0',
+      'openid.realm': `${url.protocol}//${url.host}`,
+      'openid.return_to': `${url.protocol}//${url.host}/authentication/log-in`,
+    };
+    const querystring = new URLSearchParams(parameters).toString();
+
+    return `${base}?${querystring}`;
+  }
 
   private get isOAuth() {
     return this.activatedRoute.snapshot.queryParamMap.has('redirectUrl');
+  }
+
+  private get isSteam() {
+    const opEndpoint = this.activatedRoute.snapshot.queryParams['openid.op_endpoint'];
+    return opEndpoint == 'https://steamcommunity.com/openid/login';
   }
 
   constructor(
@@ -35,6 +56,10 @@ export class LoginPageComponent implements OnInit {
   public ngOnInit() {
     if (this.isOAuth && this.tokenService.getRefreshToken()) {
       this.refreshToken();
+    }
+
+    if (this.isSteam) {
+      this.logInWithSteam();
     }
   }
 
@@ -65,6 +90,35 @@ export class LoginPageComponent implements OnInit {
       this.document.location.href = redirectUrl.split('?')[0] + url.search;
     } else {
       this.router.navigateByUrl(this.electronService.isElectron ? '/store' : '/');
+    }
+  }
+
+  private async logInWithSteam() {
+    this.loadingMessage = 'Logging in with Steam...';
+
+    const assocHandle = this.activatedRoute.snapshot.queryParams['openid.assoc_handle'];
+    const claimedId = this.activatedRoute.snapshot.queryParams['openid.claimed_id'];
+    const identity = this.activatedRoute.snapshot.queryParams['openid.identity'];
+    const responseNonce = this.activatedRoute.snapshot.queryParams['openid.response_nonce'];
+    const returnTo = this.activatedRoute.snapshot.queryParams['openid.return_to'];
+    const sig = this.activatedRoute.snapshot.queryParams['openid.sig'];
+    const signed = this.activatedRoute.snapshot.queryParams['openid.signed'];
+
+    try {
+      await this.loginService.createWithSteam(
+        assocHandle,
+        claimedId,
+        identity,
+        responseNonce,
+        returnTo,
+        sig,
+        signed,
+      );
+
+      return this.logIn();
+    } catch (e) {
+      this.loadingMessage = null;
+      this.loginForm.error = 'Failed to log in with Steam. Please try again.';
     }
   }
 

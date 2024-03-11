@@ -57,6 +57,32 @@ export class LoginService {
   }
 
   /**
+   * Logs in with Steam.
+   */
+  public async createWithSteam(
+    assocHandle: string,
+    claimedId: string,
+    identity: string,
+    responseNonce: string,
+    returnTo: string,
+    sig: string,
+    signed: string,
+  ) {
+    const parameters = { assocHandle, claimedId, identity, responseNonce, returnTo, sig, signed };
+    const url = this.getUrl();
+    const response = await this.apiService.request({
+      data: parameters,
+      method: 'post',
+      url: `${url}/steam`,
+    });
+
+    const { accessToken, refreshToken } = response.data as LoginServiceResponse;
+    this.emitter.emit('login', { accessToken, refreshToken });
+
+    return { accessToken, refreshToken };
+  }
+
+  /**
    * Logs out.
    */
   public async delete() {

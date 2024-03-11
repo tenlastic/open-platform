@@ -4,7 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { UserModel, UserService } from '@tenlastic/http';
 
-import { IdentityService } from '../../../../core/services';
+import { FormService, IdentityService } from '../../../../core/services';
 
 @Component({
   styleUrls: ['./information-page.component.scss'],
@@ -19,6 +19,7 @@ export class InformationPageComponent implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
+    private formService: FormService,
     public identityService: IdentityService,
     private matSnackBar: MatSnackBar,
     private userService: UserService,
@@ -64,7 +65,10 @@ export class InformationPageComponent implements OnInit {
       await this.userService.create(data);
       this.matSnackBar.open('User created successfully.');
     } catch (e) {
-      this.errors = ['That email is already taken.'];
+      this.errors = this.formService.handleHttpError(e, {
+        email: 'Email Address',
+        username: 'Username',
+      });
     }
   }
 
@@ -73,8 +77,11 @@ export class InformationPageComponent implements OnInit {
 
     this.form = this.formBuilder.group({
       email: [this.data.email],
-      username: [this.data.username, Validators.required],
+      steamId: [this.data.steamId],
+      username: [this.data.username, this.data.steamId ? null : Validators.required],
     });
+
+    this.form.get('steamId').disable({ emitEvent: false });
 
     this.form.valueChanges.subscribe(() => (this.errors = []));
   }
@@ -86,7 +93,10 @@ export class InformationPageComponent implements OnInit {
       await this.userService.update(data._id, data);
       this.matSnackBar.open('User updated successfully.');
     } catch (e) {
-      this.errors = ['That email is already taken.'];
+      this.errors = this.formService.handleHttpError(e, {
+        email: 'Email Address',
+        username: 'Username',
+      });
     }
   }
 }

@@ -20,6 +20,16 @@
       </mat-form-field>
     </div>
 
+    <div *ngIf="form.get('steamId').value"
+         class="row">
+      <mat-form-field floatLabel="always">
+        <mat-label>Steam ID</mat-label>
+        <input matInput
+               formControlName="steamId" />
+        <mat-error>Enter a valid Steam ID.</mat-error>
+      </mat-form-field>
+    </div>
+
     <div class="row">
       <mat-form-field floatLabel="always">
         <mat-label>Username</mat-label>

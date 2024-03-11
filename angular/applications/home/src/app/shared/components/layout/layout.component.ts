@@ -13,6 +13,7 @@ import {
   WebSocketService,
 } from '@tenlastic/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { ElectronService, IdentityService, UpdateStatus } from '../../../core/services';
 import { PromptComponent } from '../prompt/prompt.component';
@@ -27,6 +28,9 @@ export class LayoutComponent implements OnInit {
   }
   public $namespaces: Observable<NamespaceModel[]>;
   public $storefronts: Observable<StorefrontModel[]>;
+  public get $username() {
+    return this.identityService.$user.pipe(map((u) => u?.username ?? `Steam ID: ${u?.steamId}`));
+  }
   public get isConnected() {
     const webSockets = this.webSocketService.webSockets.values();
 

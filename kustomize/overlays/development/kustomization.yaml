@@ -130,4 +130,5 @@ resources:
   - ./static/secrets/workspace.yaml
   - ./static/workflowtemplates/angular.yaml
   - ./static/workflowtemplates/e2e.yaml
+  - ./static/workflowtemplates/migrations.yaml
   - ./static/workflowtemplates/nodejs.yaml

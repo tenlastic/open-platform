@@ -180,15 +180,15 @@
     &::ng-deep {
       img {
         filter: $drop-shadow;
-        max-height: 20px;
-        margin: 0px 8px 0px 0px;
+        max-height: 16px;
+        margin: -2px 8px 0px 0px;
       }
 
       mat-icon.mat-icon {
         color: #ffff55;
         font-size: 16px;
         height: 20px;
-        line-height: 20px;
+        line-height: 18px;
         margin-right: 6px;
         vertical-align: text-bottom;
         width: 16px;

@@ -27,7 +27,7 @@ export const UserPermissions = new MongoosePermissions<UserDocument>(UserModel, 
     'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([AuthorizationRole.UsersWrite]),
   },
   update: {
-    owner: ['email', 'password', 'username'],
-    'user-write': ['email', 'password', 'username'],
+    owner: ['email', 'username'],
+    'user-write': ['email', 'username'],
   },
 });

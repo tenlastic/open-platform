@@ -36,12 +36,12 @@ import { AuthorizationDocument } from '../authorization/model';
     this.invalidate('password', message, this.password);
     this.invalidate('steamId', message, this.steamId);
     this.invalidate('username', message, this.username);
+  } else if (!this.password && !this.steamId && this.username) {
+    const message = 'Password must be specified.';
+    this.invalidate('password', message, this.password);
   } else if (this.password && !this.username) {
     const message = 'Username must be specified.';
     this.invalidate('username', message, this.username);
-  } else if (!this.password && this.username) {
-    const message = 'Password must be specified.';
-    this.invalidate('password', message, this.password);
   }
 })
 export class UserSchema {

@@ -30,8 +30,6 @@ describe('web-server/steam-integrations/logins', function () {
 
   beforeEach(async function () {
     sandbox = sinon.createSandbox();
-
-    await UserModel.mock({ password: 'password' }).save();
   });
 
   context('when ticket is not provided', function () {

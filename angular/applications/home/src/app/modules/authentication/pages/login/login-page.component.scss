@@ -1,5 +1,12 @@
 @import 'src/assets/scss/theme.scss';
 
+div > img {
+  display: block;
+  filter: $drop-shadow;
+  margin: 0px auto 28px;
+  width: 300px;
+}
+
 h2 {
   color: white;
   font-size: 32px;
@@ -10,13 +17,6 @@ h2 {
     color: #ffff55;
     margin-right: 4px;
   }
-}
-
-img {
-  display: block;
-  filter: $drop-shadow;
-  margin: 0px auto 28px;
-  width: 300px;
 }
 
 app-button {
@@ -30,9 +30,36 @@ app-loading-message {
 }
 
 .row {
+  justify-content: center;
   margin: 32px 0px 0px;
+
+  a img {
+    height: 36px;
+  }
 
   .col-sm-6 {
     padding: 0px;
+  }
+}
+
+.separator {
+  align-items: center;
+  display: flex;
+  margin: 32px 0px 0px;
+  text-align: center;
+
+  &::after,
+  &::before {
+    border-bottom: 1px solid #ffffff;
+    content: '';
+    flex: 1;
+  }
+
+  &:not(:empty)::after {
+    margin-left: 0.25em;
+  }
+
+  &:not(:empty)::before {
+    margin-right: 0.25em;
   }
 }
