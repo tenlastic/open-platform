@@ -30,7 +30,7 @@
                 routerLink="/account"
                 routerLinkActive="active">
       <mat-icon>{{ isConnected ? 'person' : 'person_outline' }}</mat-icon>
-      <div>{{ user.username }}</div>
+      <div>{{ $username | async }}</div>
     </app-button>
   </ng-container>
 

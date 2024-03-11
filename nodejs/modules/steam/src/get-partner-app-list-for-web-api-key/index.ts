@@ -19,10 +19,8 @@ export interface GetPartnerAppListForWebApiKeyResponse {
 }
 
 export async function getPartnerAppListForWebApiKey(options: GetPartnerAppListForWebApiKeyOptions) {
-  const { key } = options;
-
   const method = 'get';
-  const params = { key };
+  const params = { key: options.key };
   const url = `https://partner.steam-api.com/ISteamApps/GetPartnerAppListForWebAPIKey/v2`;
 
   return request<GetPartnerAppListForWebApiKeyResponse>({ method, params, url });

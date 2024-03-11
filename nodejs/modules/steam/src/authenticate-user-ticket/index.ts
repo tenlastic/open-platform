@@ -23,10 +23,8 @@ export interface AuthenticateUserTicketResponse {
 }
 
 export async function authenticateUserTicket(options: AuthenticateUserTicketOptions) {
-  const { appid, key, ticket } = options;
-
   const method = 'get';
-  const params = { appid, key, ticket };
+  const params = { appid: options.appid, key: options.key, ticket: options.ticket };
   const url = `https://partner.steam-api.com/ISteamUserAuth/AuthenticateUserTicket/v1`;
 
   return request<AuthenticateUserTicketResponse>({ method, params, url });
