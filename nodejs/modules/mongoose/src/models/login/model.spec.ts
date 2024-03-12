@@ -36,10 +36,9 @@ describe('models/login', function () {
 
     it('updates an existing refreshToken', async function () {
       const existingRefreshToken = await RefreshTokenModel.mock({ userId: user._id }).save();
-      const { refreshToken } = await LoginModel.createAccessAndRefreshTokens(
-        user,
-        existingRefreshToken._id,
-      );
+      const { refreshToken } = await LoginModel.createAccessAndRefreshTokens(user, {
+        refreshTokenId: existingRefreshToken._id,
+      });
 
       const { jti } = jwt.decode(refreshToken) as any;
       const count = await RefreshTokenModel.countDocuments({ _id: jti, userId: user._id });
@@ -49,7 +48,7 @@ describe('models/login', function () {
 
     it('throws an error', async function () {
       const jti = new mongoose.Types.ObjectId();
-      const promise = LoginModel.createAccessAndRefreshTokens(user, jti);
+      const promise = LoginModel.createAccessAndRefreshTokens(user, { refreshTokenId: jti });
 
       return expect(promise).to.be.rejectedWith(`Cannot read properties of null (reading \'_id\')`);
     });

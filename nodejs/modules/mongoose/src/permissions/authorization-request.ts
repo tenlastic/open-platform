@@ -58,8 +58,8 @@ export const AuthorizationRequestPermissions =
       ]),
     },
     update: {
-      'namespace-write': ['deniedAt', 'grantedAt', 'roles'],
+      'namespace-write': ['deniedAt', 'grantedAt'],
       owner: ['roles'],
-      'user-write': ['deniedAt', 'grantedAt', 'roles'],
+      'user-write': ['deniedAt', 'grantedAt'],
     },
   });

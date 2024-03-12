@@ -1,4 +1,10 @@
-import { LoginModel, SteamIntegrationModel, UserModel } from '@tenlastic/mongoose';
+import {
+  AuthorizationModel,
+  AuthorizationRole,
+  LoginModel,
+  SteamIntegrationModel,
+  UserModel,
+} from '@tenlastic/mongoose';
 import steam from '@tenlastic/steam';
 import {
   Context,
@@ -18,25 +24,70 @@ export async function handler(ctx: Context) {
     throw new RecordNotFoundError('Record');
   }
 
-  const response = await steam.authenticateUserTicket({
-    appid: steamIntegration.applicationId,
+  // Authenticate the Session Ticket with Steam.
+  const authenticateUserTicketResponse = await steam.authenticateUserTicket({
+    appId: steamIntegration.applicationId,
     key: steamIntegration.apiKey,
     ticket,
   });
-  if (!response.data.response.params || response.status !== 200) {
+  if (
+    !authenticateUserTicketResponse.data?.response?.params ||
+    authenticateUserTicketResponse.status !== 200
+  ) {
     throw new UnauthorizedError();
   }
 
-  const steamId = response.data.response.params.steamid;
+  // Make sure the User owns the application.
+  const steamId = authenticateUserTicketResponse.data.response.params.steamid;
+  const checkAppOwnershipResponse = await steam.checkAppOwnership({
+    appId: steamIntegration.applicationId,
+    key: steamIntegration.apiKey,
+    steamId,
+  });
+  if (
+    !checkAppOwnershipResponse.data?.appownership?.ownsapp ||
+    checkAppOwnershipResponse.status !== 200
+  ) {
+    throw new UnauthorizedError();
+  }
+
+  // Upsert the Steam User.
   const user = await UserModel.findOneAndUpdate(
     { steamId },
     { steamId },
     { new: true, upsert: true },
   );
 
+  // Upsert the Steam User's roles.
+  await AuthorizationModel.findOneAndUpdate(
+    { namespaceId: ctx.params.namespaceId, userId: user._id },
+    {
+      $addToSet: {
+        roles: {
+          $each: [
+            AuthorizationRole.ArticlesReadPublished,
+            AuthorizationRole.BuildsReadPublished,
+            AuthorizationRole.CollectionsRead,
+            AuthorizationRole.GameServersReadAuthorized,
+            AuthorizationRole.QueuesRead,
+          ],
+        },
+      },
+      namespaceId: ctx.params.namespaceId,
+      userId: user._id,
+    },
+    { upsert: true },
+  );
+
   try {
-    const { accessToken, refreshToken } = await LoginModel.createAccessAndRefreshTokens(user);
-    ctx.response.body = { accessToken, refreshToken };
+    const { accessToken, refreshToken, refreshTokenId } =
+      await LoginModel.createAccessAndRefreshTokens(user, {
+        expiresIn: 1 * 24 * 60 * 60 * 1000,
+        provider: 'steam',
+      });
+    const record = await LoginModel.create({ refreshTokenId, userId: user._id });
+
+    ctx.response.body = { accessToken, record, refreshToken };
   } catch (e) {
     throw new UnauthorizedError();
   }

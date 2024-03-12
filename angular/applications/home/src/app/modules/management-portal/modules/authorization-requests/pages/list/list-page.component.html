@@ -63,7 +63,7 @@
       <td mat-cell
           *matCellDef="let element">
         <ng-container *ngIf="hasWriteAuthorization">
-          <app-button *ngIf="!element.deniedAt"
+          <app-button *ngIf="!element.deniedAt && !element.grantedAt"
                       color="accent"
                       appHighlight
                       matTooltip="Deny"
@@ -71,7 +71,7 @@
             <mat-icon>close</mat-icon>
           </app-button>
 
-          <app-button *ngIf="!element.grantedAt"
+          <app-button *ngIf="!element.deniedAt && !element.grantedAt"
                       color="accent"
                       appHighlight
                       matTooltip="Grant"

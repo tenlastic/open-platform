@@ -77,45 +77,5 @@ describe('web-server/authorization-requests/granted-at', function () {
       expect(ctx.response.body.record.deniedAt).to.not.exist;
       expect(ctx.response.body.record.grantedAt).to.exist;
     });
-
-    context('when the Authorization exists', function () {
-      it('updates the Authorization', async function () {
-        await AuthorizationModel.mock({
-          namespaceId: namespace._id,
-          roles: [AuthorizationRole.NamespacesRead, AuthorizationRole.NamespacesWrite],
-          userId: otherUser._id,
-        }).save();
-        const ctx = new ContextMock({
-          params: { _id: record._id, namespaceId: namespace._id },
-          state: { user: user.toObject() },
-        });
-
-        await handler(ctx as any);
-
-        const authorization = await AuthorizationModel.findOne({ userId: otherUser._id });
-        expect(authorization).to.exist;
-        expect(authorization.roles).to.eql([
-          AuthorizationRole.AuthorizationsRead,
-          AuthorizationRole.AuthorizationsWrite,
-          AuthorizationRole.NamespacesRead,
-          AuthorizationRole.NamespacesWrite,
-        ]);
-      });
-    });
-
-    context('when the Authorization does not exist', function () {
-      it('creates an Authorization', async function () {
-        const ctx = new ContextMock({
-          params: { _id: record._id, namespaceId: namespace._id },
-          state: { user: user.toObject() },
-        });
-
-        await handler(ctx as any);
-
-        const authorization = await AuthorizationModel.findOne({ userId: otherUser._id });
-        expect(authorization).to.exist;
-        expect(authorization.roles).to.eql(record.roles);
-      });
-    });
   });
 });

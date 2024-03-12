@@ -191,10 +191,11 @@ export class StatusComponent implements OnDestroy, OnInit {
     clearInterval(this.interval);
   }
 
-  public click() {
+  public async click() {
     if (this.status.state === UpdateServiceState.Ready && this.isRunning) {
       this.executableService.stop(this.namespaceId);
     } else if (this.status.state === UpdateServiceState.Ready && !this.isRunning) {
+      await this.updateService.checkForUpdates(this.namespaceId, true, true);
       this.executableService.start(this.status.build.entrypoint, this.namespaceId);
     } else if (this.status.state === UpdateServiceState.NotInstalled) {
       this.updateService.install(this.namespaceId);

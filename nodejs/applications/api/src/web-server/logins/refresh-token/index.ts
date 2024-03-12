@@ -37,10 +37,9 @@ export async function handler(ctx: Context) {
   }
 
   try {
-    const { accessToken, refreshToken } = await LoginModel.createAccessAndRefreshTokens(
-      user,
-      jwt.jti,
-    );
+    const { accessToken, refreshToken } = await LoginModel.createAccessAndRefreshTokens(user, {
+      refreshTokenId: jwt.jti,
+    });
     ctx.response.body = { accessToken, refreshToken };
   } catch (e) {
     throw new RefreshTokenError();

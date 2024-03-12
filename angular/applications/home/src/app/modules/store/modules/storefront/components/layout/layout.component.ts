@@ -17,7 +17,6 @@ import {
   GameServerStore,
   IArticle,
   IAuthorization,
-  NamespaceQuery,
   QueueMemberModel,
   QueueMemberService,
   QueueMemberStore,
@@ -119,7 +118,6 @@ export class LayoutComponent implements OnDestroy, OnInit {
     private gameServerService: GameServerService,
     private gameServerStore: GameServerStore,
     private identityService: IdentityService,
-    private namespaceQuery: NamespaceQuery,
     private queueMemberService: QueueMemberService,
     private queueMemberStore: QueueMemberStore,
     private queueService: QueueService,
@@ -182,15 +180,8 @@ export class LayoutComponent implements OnDestroy, OnInit {
       this.webSocketService.close(this.webSocketUrl);
 
       // Subscribe to the Namespace.
-      const $namespace = this.namespaceQuery.selectEntity(this.namespaceId);
-      this.subscribe$ = $namespace.subscribe(async (namespace) => {
-        if (namespace.status.phase !== 'Running') {
-          return;
-        }
-
-        await Promise.all([this.webSocketService.connect(this.webSocketUrl), this.subscribe()]);
-        this.subscribe$.unsubscribe();
-      });
+      await Promise.all([this.webSocketService.connect(this.webSocketUrl), this.subscribe()]);
+      this.subscribe$.unsubscribe();
     });
   }
 
