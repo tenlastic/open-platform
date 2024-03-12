@@ -18,38 +18,41 @@ import {
 } from '../../plugins';
 import { AuthorizationDocument, AuthorizationRole } from '../authorization';
 
-@index({ namespaceId: 1, userId: 1 }, { unique: true })
+@index(
+  { namespaceId: 1, userId: 1 },
+  { partialFilterExpression: { deniedAt: null, grantedAt: null }, unique: true },
+)
 @index({ roles: 1 })
 @modelOptions({ schemaOptions: { collection: 'authorization-requests', timestamps: true } })
 @plugin(duplicateKeyErrorPlugin)
 @plugin(modifiedPlugin)
 @plugin(unsetPlugin)
-@pre('save', function (this: AuthorizationRequestDocument) {
-  if (this.deniedAt && this.isModified('deniedAt')) {
-    this.grantedAt = undefined;
-  }
-
-  if (this.isModified('grantedAt') && this.grantedAt) {
-    this.deniedAt = undefined;
-  }
-
-  if (this.isModified('roles')) {
-    this.deniedAt = undefined;
-    this.grantedAt = undefined;
-  }
-})
 @pre('validate', function (this: AuthorizationRequestDocument) {
-  if (this.isModified('deniedAt') && this.isModified('grantedAt')) {
-    this.invalidate(
-      'deniedAt',
-      new Error('Cannot modify deniedAt and grantedAt at once.'),
-      this.deniedAt,
-    );
-    this.invalidate(
-      'grantedAt',
-      new Error('Cannot modify deniedAt and grantedAt at once.'),
-      this.grantedAt,
-    );
+  const deniedAtIsModified = this.isModified('deniedAt');
+  const grantedAtIsModified = this.isModified('grantedAt');
+
+  if (deniedAtIsModified && !this.deniedAt) {
+    this.invalidate('deniedAt', new Error('Cannot unset deniedAt.'), this.deniedAt);
+  }
+
+  if (grantedAtIsModified && !this.grantedAt) {
+    this.invalidate('grantedAt', new Error('Cannot unset grantedAt.'), this.grantedAt);
+  }
+
+  if (deniedAtIsModified && !grantedAtIsModified && this.deniedAt && this.grantedAt) {
+    const message = 'Cannot set deniedAt if grantedAt is already set.';
+    this.invalidate('deniedAt', new Error(message), this.deniedAt);
+  }
+
+  if (!deniedAtIsModified && grantedAtIsModified && this.deniedAt && this.grantedAt) {
+    const message = 'Cannot set grantedAt if deniedAt is already set.';
+    this.invalidate('grantedAt', new Error(message), this.grantedAt);
+  }
+
+  if (deniedAtIsModified && grantedAtIsModified && this.deniedAt && this.grantedAt) {
+    const message = 'Cannot set deniedAt and grantedAt at the same time.';
+    this.invalidate('deniedAt', new Error(message), this.deniedAt);
+    this.invalidate('grantedAt', new Error(message), this.grantedAt);
   }
 })
 export class AuthorizationRequestSchema implements ModifiedPlugin {
@@ -89,15 +92,6 @@ export class AuthorizationRequestSchema implements ModifiedPlugin {
     const defaults = { userId: new mongoose.Types.ObjectId() };
 
     return new this({ ...defaults, ...values });
-  }
-
-  /**
-   * Merges roles between the Authorization and Authorization Request.
-   */
-  public mergeRoles(this: AuthorizationRequestDocument, authorization: AuthorizationDocument) {
-    const result = [...authorization.roles, ...this.roles];
-
-    return result.filter((r, i) => i === result.indexOf(r)).sort();
   }
 
   /**

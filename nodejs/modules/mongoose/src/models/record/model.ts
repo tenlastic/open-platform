@@ -51,7 +51,11 @@ export class RecordSchema {
     // Register indexes with Mongoose.
     indexes.forEach((i) => {
       const key = i.keys.reduce((p, c) => ({ ...p, [c.field]: c.direction }), {});
-      schema.index(key, { ...i.options, name: `${i._id}` });
+      const options = Object.entries(i.options).reduce(
+        (p, [k, v]) => (v === undefined ? p : { ...p, [k]: v }),
+        {},
+      );
+      schema.index(key, { ...options, name: `${i._id}` });
     });
 
     // Remove cached Model from Mongoose.

@@ -155,7 +155,8 @@
     </form>
   </div>
 
-  <div class="page-actions">
+  <div *ngIf="!data.deniedAt && !data.grantedAt"
+       class="page-actions">
     <div *ngFor="let error of errors"
          class="form-error">
       {{ error }}
@@ -166,6 +167,7 @@
       <div class="col-sm-6">
         <app-button color="accent"
                     size="large"
+                    width="full"
                     (OnClick)="deny()">
           <mat-icon>close</mat-icon>
           <div>Deny</div>
@@ -175,6 +177,7 @@
       <div class="col-sm-6">
         <app-button color="primary"
                     size="large"
+                    width="full"
                     (OnClick)="grant()">
           <mat-icon>check</mat-icon>
           <div>Grant</div>

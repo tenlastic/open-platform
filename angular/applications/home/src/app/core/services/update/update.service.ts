@@ -117,7 +117,7 @@ export class UpdateService {
         return;
       } else if (!authorizations.some((a) => a.hasRoles(IAuthorization.buildRoles))) {
         const [authorizationRequest] = await this.authorizationRequestService.find(namespaceId, {
-          where: { userId: this.identityService.user?._id },
+          where: { grantedAt: null, userId: this.identityService.user?._id },
         });
 
         status.authorizationRequest = authorizationRequest;
@@ -263,16 +263,11 @@ export class UpdateService {
     ];
 
     if (status.authorizationRequest) {
-      await this.authorizationRequestService.update(namespaceId, status.authorizationRequest._id, {
-        roles: [...status.authorizationRequest.roles, ...roles],
-        userId: this.identityService.user?._id,
-      });
-    } else {
-      await this.authorizationRequestService.create(namespaceId, {
-        roles,
-        userId: this.identityService.user?._id,
-      });
+      await this.authorizationRequestService.delete(namespaceId, status.authorizationRequest._id);
     }
+
+    const userId = this.identityService.user?._id;
+    await this.authorizationRequestService.create(namespaceId, { roles, userId });
 
     status.state = UpdateServiceState.AuthorizationRequested;
   }

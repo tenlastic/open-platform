@@ -77,23 +77,5 @@ describe('web-server/authorization-requests/denied-at', function () {
       expect(ctx.response.body.record.deniedAt).to.exist;
       expect(ctx.response.body.record.grantedAt).to.not.exist;
     });
-
-    it('updates the Authorization', async function () {
-      await AuthorizationModel.mock({
-        namespaceId: namespace._id,
-        roles: [AuthorizationRole.AuthorizationsRead, AuthorizationRole.AuthorizationsWrite],
-        userId: otherUser._id,
-      }).save();
-      const ctx = new ContextMock({
-        params: { _id: record._id, namespaceId: namespace._id },
-        state: { user: user.toObject() },
-      });
-
-      await handler(ctx as any);
-
-      const authorization = await AuthorizationModel.findOne({ userId: otherUser._id });
-      expect(authorization).to.exist;
-      expect(authorization.roles).to.eql([]);
-    });
   });
 });

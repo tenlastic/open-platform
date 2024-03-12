@@ -33,7 +33,7 @@ describe('authenticate-user-ticket', function () {
     sandbox.stub(request, 'request').resolves({ data, status: 200 });
 
     const response = await authenticateUserTicket({
-      appid: chance.integer(),
+      appId: chance.integer(),
       key: chance.hash(),
       ticket: chance.hash(),
     });

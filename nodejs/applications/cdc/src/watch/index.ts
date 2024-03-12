@@ -1,7 +1,7 @@
 import { DatabasePayload } from '@tenlastic/mongoose-nats';
 import * as nats from '@tenlastic/nats';
 import Redis from 'ioredis';
-import { ChangeStream } from 'mongodb';
+import { ChangeStream, MongoChangeStreamError } from 'mongodb';
 import * as mongoose from 'mongoose';
 
 interface ChangeStreamDocument {
@@ -62,8 +62,14 @@ export function watch(
       process.exit(1);
     }
   });
-  changeStream.on('error', (err) => {
+  changeStream.on('error', async (err: MongoChangeStreamError) => {
     console.error(err);
+
+    // Delete Change Stream from Redis if ChangeStreamHistoryLost is received.
+    if (err.code === 286) {
+      await client.del(key);
+    }
+
     process.exit(1);
   });
 

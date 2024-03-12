@@ -14,6 +14,12 @@ import { AuthorizationModel } from '../authorization';
 import { RefreshTokenDocument, RefreshTokenModel } from '../refresh-token';
 import { UserDocument } from '../user';
 
+interface CreateAccessAndRefreshTokensOptions {
+  expiresIn?: number;
+  provider?: 'steam' | 'tenlastic';
+  refreshTokenId?: mongoose.Types.ObjectId | string;
+}
+
 @index({ userId: 1 })
 @modelOptions({ schemaOptions: { collection: 'logins', timestamps: true } })
 @plugin(unsetPlugin)
@@ -34,7 +40,7 @@ export class LoginSchema {
    */
   public static async createAccessAndRefreshTokens(
     user: UserDocument,
-    refreshTokenId?: mongoose.Types.ObjectId | string,
+    options?: CreateAccessAndRefreshTokensOptions,
   ) {
     // Get the User's Authorization.
     const authorization = await AuthorizationModel.findOne({
@@ -43,11 +49,12 @@ export class LoginSchema {
     });
 
     // Save the Refresh Token for renewal and revocation.
-    const expiresAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
+    const expiresIn = options?.expiresIn || 14 * 24 * 60 * 60 * 1000;
+    const expiresAt = new Date(Date.now() + expiresIn);
     let token: RefreshTokenDocument;
-    if (refreshTokenId) {
+    if (options?.refreshTokenId) {
       token = await RefreshTokenModel.findOneAndUpdate(
-        { _id: refreshTokenId, userId: user._id },
+        { _id: options.refreshTokenId, userId: user._id },
         { expiresAt, updatedAt: new Date() },
         { new: true },
       );
@@ -61,18 +68,24 @@ export class LoginSchema {
       : null;
     const filteredUser = { _id: user._id, steamId: user.steamId, username: user.username };
 
-    const options = { algorithm: 'RS256', expiresIn: '14d', jwtid: token._id.toString() };
+    const algorithm = 'RS256';
     const privateKey = process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n');
+    const provider = options?.provider || 'tenlastic';
 
     const accessToken = jsonwebtoken.sign(
-      { authorization: filteredAuthorization ?? undefined, type: 'access', user: filteredUser },
+      {
+        authorization: filteredAuthorization ?? undefined,
+        provider,
+        type: 'access',
+        user: filteredUser,
+      },
       privateKey,
-      { ...options, expiresIn: '30m' },
+      { algorithm, expiresIn: '30m' },
     );
     const refreshToken = jsonwebtoken.sign(
-      { type: 'refresh', user: filteredUser },
+      { provider, type: 'refresh', user: filteredUser },
       privateKey,
-      options,
+      { algorithm, expiresIn: expiresIn / 1000, jwtid: `${token._id}` },
     );
 
     return { accessToken, refreshToken, refreshTokenId: token._id };
