@@ -91,12 +91,20 @@ export class StorefrontsFormPageComponent implements OnInit {
       accumulator[property.key] = this.getJsonFromProperty(property);
       return accumulator;
     }, {});
+    const roles = Object.entries(this.form.get('roles').value).reduce((previous, [k, v]) => {
+      if (v) {
+        previous.push(k);
+      }
+
+      return previous;
+    }, []);
 
     const values: Partial<StorefrontModel> = {
       _id: this.data._id,
       description: this.form.get('description').value,
       metadata,
       namespaceId: this.params.namespaceId,
+      roles,
       subtitle: this.form.get('subtitle').value,
       title: this.form.get('title').value,
     };
@@ -153,10 +161,16 @@ export class StorefrontsFormPageComponent implements OnInit {
       });
     }
 
+    const roles = Object.values(IAuthorization.Role).reduce((previous, current) => {
+      previous[current] = this.data.roles?.includes(current) ?? false;
+      return previous;
+    }, {});
+
     this.form = this.formBuilder.group({
       description: [this.data.description],
       icon: [this.data.icon],
       metadata: this.formBuilder.array(metadata),
+      roles: this.formBuilder.group(roles),
       subtitle: [this.data.subtitle],
       title: [this.data.title, Validators.required],
     });

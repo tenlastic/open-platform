@@ -1,5 +1,6 @@
 import {
   DocumentType,
+  PropType,
   getModelForClass,
   index,
   modelOptions,
@@ -10,6 +11,7 @@ import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
 import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
+import { AuthorizationRole } from '../authorization';
 
 @index({ apiKey: 1, applicationId: 1, namespaceId: 1 }, { unique: true })
 @modelOptions({ schemaOptions: { collection: 'steam-integrations', timestamps: true } })
@@ -31,6 +33,9 @@ export class SteamIntegrationSchema {
 
   @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public namespaceId: mongoose.Types.ObjectId;
+
+  @prop({ enum: AuthorizationRole, type: String }, PropType.ARRAY)
+  public roles: AuthorizationRole[];
 
   public updatedAt: Date;
 

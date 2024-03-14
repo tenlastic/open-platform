@@ -12,7 +12,7 @@ import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
 import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
-import { AuthorizationDocument } from '../authorization';
+import { AuthorizationDocument, AuthorizationRole } from '../authorization';
 
 @index({ namespaceId: 1 }, { unique: true })
 @modelOptions({
@@ -49,6 +49,9 @@ export class StorefrontSchema {
 
   @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public namespaceId: mongoose.Types.ObjectId;
+
+  @prop({ enum: AuthorizationRole, type: String }, PropType.ARRAY)
+  public roles: AuthorizationRole[];
 
   @prop({ maxlength: 32, type: String })
   public subtitle: string;

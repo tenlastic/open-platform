@@ -21,6 +21,7 @@ export * from './metadata-fields/metadata-fields.component';
 export * from './port-fields/port-fields.component';
 export * from './probe-field/probe-field.component';
 export * from './prompt/prompt.component';
+export * from './role-fields/role-fields.component';
 export * from './sidenav/sidenav.component';
 export * from './social/social.component';
 export * from './swagger/swagger.component';

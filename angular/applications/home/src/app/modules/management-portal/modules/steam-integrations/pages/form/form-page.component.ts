@@ -81,12 +81,21 @@ export class SteamIntegrationsFormPageComponent implements OnDestroy, OnInit {
       return;
     }
 
+    const roles = Object.entries(this.form.get('roles').value).reduce((previous, [k, v]) => {
+      if (v) {
+        previous.push(k);
+      }
+
+      return previous;
+    }, []);
+
     const values: Partial<SteamIntegrationModel> = {
       _id: this.data._id,
       apiKey: this.form.get('apiKey').value,
       applicationId: this.form.get('applicationId').value,
       name: this.form.get('name').value,
       namespaceId: this.params.namespaceId,
+      roles,
     };
 
     try {
@@ -105,10 +114,16 @@ export class SteamIntegrationsFormPageComponent implements OnDestroy, OnInit {
   private setupForm() {
     this.data ??= new SteamIntegrationModel({ apiKey: '', applicationId: 0, name: '' });
 
+    const roles = Object.values(IAuthorization.Role).reduce((previous, current) => {
+      previous[current] = this.data.roles.includes(current);
+      return previous;
+    }, {});
+
     this.form = this.formBuilder.group({
       apiKey: [this.data.apiKey, Validators.required],
       applicationId: [this.data.applicationId, Validators.required],
       name: [this.data.name, Validators.required],
+      roles: this.formBuilder.group(roles),
     });
 
     if (!this.isNew) {

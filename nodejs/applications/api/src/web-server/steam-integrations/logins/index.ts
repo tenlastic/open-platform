@@ -58,26 +58,18 @@ export async function handler(ctx: Context) {
     { new: true, upsert: true },
   );
 
-  // Upsert the Steam User's roles.
-  await AuthorizationModel.findOneAndUpdate(
-    { namespaceId: ctx.params.namespaceId, userId: user._id },
-    {
-      $addToSet: {
-        roles: {
-          $each: [
-            AuthorizationRole.ArticlesReadPublished,
-            AuthorizationRole.BuildsReadPublished,
-            AuthorizationRole.CollectionsRead,
-            AuthorizationRole.GameServersReadAuthorized,
-            AuthorizationRole.QueuesRead,
-          ],
-        },
+  // Upsert roles associated with this Steam Integration.
+  if (steamIntegration.roles) {
+    await AuthorizationModel.findOneAndUpdate(
+      { namespaceId: ctx.params.namespaceId, userId: user._id },
+      {
+        $addToSet: { roles: { $each: steamIntegration.roles } },
+        namespaceId: ctx.params.namespaceId,
+        userId: user._id,
       },
-      namespaceId: ctx.params.namespaceId,
-      userId: user._id,
-    },
-    { upsert: true },
-  );
+      { upsert: true },
+    );
+  }
 
   try {
     const { accessToken, refreshToken, refreshTokenId } =

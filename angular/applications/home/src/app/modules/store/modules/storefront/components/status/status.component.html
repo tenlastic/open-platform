@@ -10,7 +10,8 @@
   </app-button>
 
   <ng-container *ngIf="status.state === UpdateServiceState.Ready">
-    <app-button color="accent"
+    <app-button *ngIf="$hasPermission(IAuthorization.gameServerRoles) | async"
+                color="accent"
                 [routerLink]="['/', 'store', namespaceId, 'game-servers']"
                 routerLinkActive="active"
                 size="large"
@@ -19,7 +20,8 @@
       <div>Game Servers</div>
     </app-button>
 
-    <app-button color="accent"
+    <app-button *ngIf="$hasPermission(IAuthorization.queueRoles) | async"
+                color="accent"
                 [routerLink]="['/', 'store', namespaceId, 'queues']"
                 routerLinkActive="active"
                 size="large"

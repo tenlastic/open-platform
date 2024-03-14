@@ -24,6 +24,10 @@ components:
         namespaceId:
           type: string
           format: ^[0-9a-f]{24}$
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuthorizationRole'
         subtitle:
           type: string
           format: ^.{2,40}$

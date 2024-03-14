@@ -4,9 +4,18 @@ import { AuthorizationRole, SteamIntegrationDocument, SteamIntegrationModel } fr
 import { AuthorizationPermissionsHelpers } from './authorization';
 
 const administrator = {
-  create: ['apiKey', 'applicationId', 'name', 'namespaceId'],
-  read: ['_id', 'apiKey', 'applicationId', 'createdAt', 'name', 'namespaceId', 'updatedAt'],
-  update: ['name'],
+  create: ['apiKey', 'applicationId', 'name', 'namespaceId', 'roles'],
+  read: [
+    '_id',
+    'apiKey',
+    'applicationId',
+    'createdAt',
+    'name',
+    'namespaceId',
+    'roles',
+    'updatedAt',
+  ],
+  update: ['name', 'roles'],
 };
 
 export const SteamIntegrationPermissions = new MongoosePermissions<SteamIntegrationDocument>(
