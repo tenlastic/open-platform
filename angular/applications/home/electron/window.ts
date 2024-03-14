@@ -29,17 +29,24 @@ export function createWindow() {
   });
   window.center();
 
+  const rootUrl = getRootUrl();
+  window.loadURL(rootUrl);
+
   if (isDevelopment) {
-    window.loadURL('http://www.local.tenlastic.com');
     window.webContents.openDevTools();
-  } else {
-    const url = pathToFileURL(path.join(__dirname, '../angular/index.html'));
-    window.loadURL(url.href);
   }
 
   // Open links in browser.
-  const handleRedirect = (e, url) => {
-    if (url !== window.webContents.getURL()) {
+  const handleRedirect = (e, url: string) => {
+    if (!isDevelopment && isTenlastic(url) && url.includes('?')) {
+      e.preventDefault();
+
+      const pathname = getPathname(url);
+      const rootUrl = getRootUrl();
+      const urlSearchParams = getURLSearchParams(url);
+
+      window.loadURL(`${rootUrl}#${pathname}?${urlSearchParams}`);
+    } else if (isExternal(url)) {
       e.preventDefault();
       shell.openExternal(url);
     }
@@ -47,6 +54,7 @@ export function createWindow() {
 
   window.webContents.on('new-window', handleRedirect);
   window.webContents.on('will-navigate', handleRedirect);
+  window.webContents.on('will-redirect', handleRedirect);
 
   // Emitted when the window is closed.
   window.on('close', (event) => {
@@ -69,4 +77,40 @@ export function getWindow() {
 
 export function setIsQuitting(value: boolean) {
   isQuitting = value;
+}
+
+function getPathname(input: string) {
+  const url = new URL(input);
+  return url.pathname;
+}
+
+function getRootUrl(): string {
+  if (isDevelopment) {
+    return 'http://www.local.tenlastic.com';
+  }
+
+  const url = pathToFileURL(path.join(__dirname, '../angular/index.html'));
+  return url.href;
+}
+
+function getURLSearchParams(input: string) {
+  const url = new URL(input);
+  return new URLSearchParams(url.search);
+}
+
+function isExternal(url: string) {
+  if (url.startsWith('https://steamcommunity.com/openid/')) {
+    return false;
+  }
+
+  if (url !== window.webContents.getURL()) {
+    return false;
+  }
+
+  return true;
+}
+
+function isTenlastic(input: string) {
+  const url = new URL(input);
+  return url.hostname.endsWith('tenlastic.com');
 }
