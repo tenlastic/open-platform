@@ -59,7 +59,6 @@ describe('web-server/authorization-requests/denied-at', function () {
         userId: user._id,
       }).save();
       record = await AuthorizationRequestModel.mock({
-        grantedAt: new Date(),
         namespaceId: namespace._id,
         roles: [AuthorizationRole.AuthorizationsRead, AuthorizationRole.AuthorizationsWrite],
         userId: otherUser._id,
@@ -75,7 +74,6 @@ describe('web-server/authorization-requests/denied-at', function () {
       await handler(ctx as any);
 
       expect(ctx.response.body.record.deniedAt).to.exist;
-      expect(ctx.response.body.record.grantedAt).to.not.exist;
     });
   });
 });

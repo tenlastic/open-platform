@@ -17,7 +17,8 @@ export async function handler(ctx: Context) {
   if (!app) {
     throw new HttpError(
       400,
-      'Invalid applicationId. Make sure the Steam Publisher Web API Key has ownership of this App ID.',
+      'Invalid applicationId. ' +
+        'Make sure the Steam Publisher Web API Key has ownership of this App ID.',
     );
   }
 
