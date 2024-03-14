@@ -29,7 +29,8 @@ describe('web-server/steam-integrations/logins', function () {
 
       return expect(promise).to.be.rejectedWith(
         RequiredFieldError,
-        'Missing required fields: assocHandle, claimedId, identity, responsedNonce, returnTo, sig, and signed.',
+        'Missing required fields: ' +
+          'assocHandle, claimedId, identity, responsedNonce, returnTo, sig, and signed.',
       );
     });
   });

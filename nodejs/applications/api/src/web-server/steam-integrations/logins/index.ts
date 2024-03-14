@@ -1,6 +1,5 @@
 import {
   AuthorizationModel,
-  AuthorizationRole,
   LoginModel,
   SteamIntegrationModel,
   UserModel,

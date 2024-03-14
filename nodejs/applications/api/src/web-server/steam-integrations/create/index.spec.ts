@@ -105,7 +105,8 @@ describe('web-server/steam-integrations/create', function () {
 
       return expect(promise).to.be.rejectedWith(
         HttpError,
-        'Invalid applicationId. Make sure the Steam Publisher Web API Key has ownership of this App ID.',
+        'Invalid applicationId. ' +
+          'Make sure the Steam Publisher Web API Key has ownership of this App ID.',
       );
     });
   });
