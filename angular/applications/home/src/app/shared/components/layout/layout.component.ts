@@ -29,7 +29,19 @@ export class LayoutComponent implements OnInit {
   public $namespaces: Observable<NamespaceModel[]>;
   public $storefronts: Observable<StorefrontModel[]>;
   public get $username() {
-    return this.identityService.$user.pipe(map((u) => u?.username ?? `Steam ID: ${u?.steamId}`));
+    return this.identityService.$user.pipe(
+      map((u) => {
+        if (u?.username) {
+          return u.username;
+        }
+
+        if (u?.steamId) {
+          return `Steam ID: ${u?.steamId}`;
+        }
+
+        return 'Unknown';
+      }),
+    );
   }
   public get isConnected() {
     const webSockets = this.webSocketService.webSockets.values();

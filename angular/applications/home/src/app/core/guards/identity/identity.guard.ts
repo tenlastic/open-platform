@@ -9,7 +9,7 @@ export class IdentityGuard implements CanActivate {
   constructor(private identityService: IdentityService, private tokenService: TokenService) {}
 
   public async canActivate() {
-    const accessToken = await this.tokenService.getAccessToken()
+    const accessToken = await this.tokenService.getAccessToken();
     this.identityService.setAccessToken(accessToken);
 
     return true;

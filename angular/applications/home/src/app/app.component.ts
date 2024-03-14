@@ -1,4 +1,5 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { Component, Inject, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import {
   AuthorizationModel,
@@ -139,6 +140,7 @@ export class AppComponent implements OnInit {
     private authorizationRequestStore: AuthorizationRequestStore,
     private authorizationService: AuthorizationService,
     private authorizationStore: AuthorizationStore,
+    @Inject(DOCUMENT) private document: Document,
     private electronService: ElectronService,
     private groupInvitationService: GroupInvitationService,
     private groupInvitationStore: GroupInvitationStore,
@@ -206,7 +208,7 @@ export class AppComponent implements OnInit {
 
       // Return to the previous URL.
       const url = localStorage.getItem('url');
-      if (url) {
+      if (!this.document.location.href.includes('?') && url) {
         await this.router.navigateByUrl(url);
       }
     }
