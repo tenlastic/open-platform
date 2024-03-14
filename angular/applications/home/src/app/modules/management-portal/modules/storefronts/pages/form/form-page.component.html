@@ -62,6 +62,10 @@
       <app-toggle-section title="Metadata">
         <app-metadata-fields [formArray]="form.get('metadata')"></app-metadata-fields>
       </app-toggle-section>
+
+      <app-toggle-section title="Roles">
+        <app-role-fields [form]="form"></app-role-fields>
+      </app-toggle-section>
     </form>
   </div>
 

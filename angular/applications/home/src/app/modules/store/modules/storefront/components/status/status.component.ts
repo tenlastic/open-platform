@@ -3,11 +3,15 @@ import { ActivatedRoute, Params } from '@angular/router';
 
 import {
   ExecutableService,
+  IdentityService,
   UpdateService,
   UpdateServiceState,
   UpdateServiceStatus,
 } from '../../../../../../core/services';
 import { FilesizePipe } from '../../../../../../shared/pipes';
+import { AuthorizationQuery, IAuthorization } from '@tenlastic/http';
+import { map } from 'rxjs/operators';
+import { combineLatest } from 'rxjs/internal/observable/combineLatest';
 
 @Component({
   selector: 'app-status',
@@ -15,6 +19,7 @@ import { FilesizePipe } from '../../../../../../shared/pipes';
   templateUrl: './status.component.html',
 })
 export class StatusComponent implements OnDestroy, OnInit {
+  public IAuthorization = IAuthorization;
   public get buttonAction() {
     switch (this.status.state) {
       case UpdateServiceState.NotAuthorized:
@@ -170,8 +175,10 @@ export class StatusComponent implements OnDestroy, OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
+    private authorizationQuery: AuthorizationQuery,
     private changeDetectorRef: ChangeDetectorRef,
     private executableService: ExecutableService,
+    private identityService: IdentityService,
     private updateService: UpdateService,
   ) {}
 
@@ -189,6 +196,15 @@ export class StatusComponent implements OnDestroy, OnInit {
 
   public ngOnDestroy() {
     clearInterval(this.interval);
+  }
+
+  public $hasPermission(roles: IAuthorization.Role[]) {
+    const userId = this.identityService.user?._id;
+
+    return combineLatest([
+      this.authorizationQuery.selectHasRoles(null, roles, userId),
+      this.authorizationQuery.selectHasRoles(this.namespaceId, roles, userId),
+    ]).pipe(map(([a, b]) => a || b));
   }
 
   public async click() {

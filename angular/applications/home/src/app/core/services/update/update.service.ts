@@ -254,22 +254,22 @@ export class UpdateService {
     status.state = UpdateServiceState.RequestingAuthorization;
     status.text = 'Requesting authorization...';
 
-    const roles = [
-      IAuthorization.Role.ArticlesReadPublished,
-      IAuthorization.Role.BuildsReadPublished,
-      IAuthorization.Role.CollectionsRead,
-      IAuthorization.Role.GameServersReadAuthorized,
-      IAuthorization.Role.QueuesRead,
-    ];
-
     if (status.authorizationRequest) {
       await this.authorizationRequestService.delete(namespaceId, status.authorizationRequest._id);
     }
 
-    const userId = this.identityService.user?._id;
-    await this.authorizationRequestService.create(namespaceId, { roles, userId });
+    try {
+      const [storefront] = await this.storefrontService.find(namespaceId, {});
 
-    status.state = UpdateServiceState.AuthorizationRequested;
+      const { roles } = storefront;
+      const userId = this.identityService.user?._id;
+      await this.authorizationRequestService.create(namespaceId, { roles, userId });
+
+      status.state = UpdateServiceState.AuthorizationRequested;
+    } catch (e) {
+      console.error(e);
+      status.state = UpdateServiceState.NotAuthorized;
+    }
   }
 
   public showInExplorer(namespaceId: string) {
@@ -472,8 +472,8 @@ export class UpdateService {
 
     this.buildService.emitter.on('update', this.onBuildChange.bind(this));
 
+    this.storefrontService.emitter.on('create', this.onStorefrontChange.bind(this));
     this.storefrontService.emitter.on('delete', this.onStorefrontChange.bind(this));
     this.storefrontService.emitter.on('update', this.onStorefrontChange.bind(this));
-    this.storefrontService.emitter.on('create', this.onStorefrontChange.bind(this));
   }
 }

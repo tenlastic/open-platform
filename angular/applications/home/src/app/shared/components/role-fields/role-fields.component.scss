@@ -1,0 +1,12 @@
+@import 'src/assets/scss/form.scss';
+
+div.row:last-of-type {
+  mat-radio-group {
+    margin-bottom: 0.75em;
+  }
+}
+
+mat-checkbox {
+  margin-bottom: 1.25em;
+  margin-right: 32px;
+}

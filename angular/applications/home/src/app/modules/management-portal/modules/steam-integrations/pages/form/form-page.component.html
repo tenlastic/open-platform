@@ -52,6 +52,10 @@
           <mat-error>Enter a valid Application ID.</mat-error>
         </mat-form-field>
       </div>
+
+      <app-toggle-section title="Roles">
+        <app-role-fields [form]="form"></app-role-fields>
+      </app-toggle-section>
     </form>
   </div>
 

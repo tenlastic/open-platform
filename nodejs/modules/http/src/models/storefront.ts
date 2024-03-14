@@ -1,3 +1,4 @@
+import { IAuthorization } from './authorization';
 import { BaseModel } from './base';
 
 export class StorefrontModel extends BaseModel {
@@ -8,6 +9,7 @@ export class StorefrontModel extends BaseModel {
   public logo: string;
   public metadata: any;
   public namespaceId: string;
+  public roles: IAuthorization.Role[];
   public subtitle: string;
   public title: string;
   public videos: string[];

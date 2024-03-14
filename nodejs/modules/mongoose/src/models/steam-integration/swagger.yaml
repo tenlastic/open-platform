@@ -18,6 +18,10 @@ components:
         namespaceId:
           type: string
           format: ^[0-9a-f]{24}$
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuthorizationRole'
         updatedAt:
           type: string
           format: date-time
