@@ -5,4 +5,5 @@ export const environment = {
   swaggerUrl: 'https://api.tenlastic.com/swagger/',
   useHash: true,
   wssUrl: 'wss://wss.tenlastic.com',
+  wwwUrl: 'https://www.tenlastic.com',
 };

@@ -3,6 +3,7 @@ import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LoginService, TokenService } from '@tenlastic/http';
 
+import { environment } from '../../../../../environments/environment';
 import { ElectronService } from '../../../../core/services';
 import { ILogIn, LoginFormComponent } from '../../components';
 
@@ -19,20 +20,17 @@ export class LoginPageComponent implements OnInit {
   public isLoggingIn = false;
   public loadingMessage: string;
   public get steamUrl() {
-    const base = 'https://steamcommunity.com/openid/login';
-    const url = new URL(this.document.location.href);
-
     const parameters = {
       'openid.claimed_id': 'http://specs.openid.net/auth/2.0/identifier_select',
       'openid.identity': 'http://specs.openid.net/auth/2.0/identifier_select',
       'openid.mode': 'checkid_setup',
       'openid.ns': 'http://specs.openid.net/auth/2.0',
-      'openid.realm': `${url.protocol}//${url.host}`,
-      'openid.return_to': `${url.protocol}//${url.host}/authentication/log-in`,
+      'openid.realm': `${environment.wwwUrl}`,
+      'openid.return_to': `${environment.wwwUrl}/authentication/log-in`,
     };
     const querystring = new URLSearchParams(parameters).toString();
 
-    return `${base}?${querystring}`;
+    return `https://steamcommunity.com/openid/login?${querystring}`;
   }
 
   private get isOAuth() {
