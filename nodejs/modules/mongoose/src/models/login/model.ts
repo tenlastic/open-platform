@@ -80,7 +80,7 @@ export class LoginSchema {
         user: filteredUser,
       },
       privateKey,
-      { algorithm, expiresIn: '30m' },
+      { algorithm, expiresIn: '30m', jwtid: `${token._id}` },
     );
     const refreshToken = jsonwebtoken.sign(
       { provider, type: 'refresh', user: filteredUser },
