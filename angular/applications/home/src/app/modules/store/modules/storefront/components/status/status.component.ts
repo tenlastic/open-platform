@@ -10,8 +10,8 @@ import {
 } from '../../../../../../core/services';
 import { FilesizePipe } from '../../../../../../shared/pipes';
 import { AuthorizationQuery, IAuthorization } from '@tenlastic/http';
+import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { combineLatest } from 'rxjs/internal/observable/combineLatest';
 
 @Component({
   selector: 'app-status',
