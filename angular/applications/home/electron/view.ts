@@ -12,7 +12,7 @@ export function createView(url: string) {
   window.setBrowserView(view);
 
   const [width, height] = window.getSize();
-  view.setBounds({ height: height - 32, width: width - size, x: 0, y: 32 });
+  view.setBounds({ height: height - 32, width: isDevelopment ? width - size : width, x: 0, y: 32 });
   view.webContents.loadURL(url);
 
   // Open links in browser.
