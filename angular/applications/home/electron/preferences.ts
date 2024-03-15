@@ -2,6 +2,8 @@ import { app } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path';
 
+export const size = 500;
+
 export function setPreferences() {
   if (app.isPackaged) {
     return;
@@ -21,7 +23,6 @@ export function setPreferences() {
   preferences.electron.devtools ??= {};
   preferences.electron.devtools.preferences ??= {};
 
-  const size = 500;
   const splitViewState = JSON.stringify({ horizontal: { size }, vertical: { size } });
   preferences.electron.devtools.preferences['InspectorView.splitViewState'] = splitViewState;
 

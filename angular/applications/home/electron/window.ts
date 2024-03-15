@@ -1,8 +1,9 @@
-import { app, BrowserWindow, shell } from 'electron';
+import { app, BrowserWindow, Event, ipcMain } from 'electron';
 import * as path from 'path';
 import { pathToFileURL } from 'url';
 
 import { createTray } from './tray';
+import { createView } from './view';
 
 const isDevelopment = !app.isPackaged;
 let isQuitting = false;
@@ -13,17 +14,19 @@ export function createWindow() {
     return window;
   }
 
+  const height = 720;
+  const width = 1280;
   window = new BrowserWindow({
     frame: false,
-    height: 720,
-    resizable: isDevelopment,
+    height,
+    resizable: false,
     webPreferences: {
       allowRunningInsecureContent: isDevelopment,
       contextIsolation: false,
       nodeIntegration: true,
       webSecurity: false,
     },
-    width: isDevelopment ? 1780 : 1280,
+    width: isDevelopment ? width + 500 : width,
     x: 0,
     y: 0,
   });
@@ -37,18 +40,20 @@ export function createWindow() {
   }
 
   // Open links in browser.
-  const handleRedirect = (e, url: string) => {
-    if (!isDevelopment && isTenlastic(url) && url.includes('?')) {
+  const handleRedirect = (e: Event, url: string) => {
+    if (url !== window.webContents.getURL()) {
       e.preventDefault();
 
-      const pathname = getPathname(url);
-      const rootUrl = getRootUrl();
-      const urlSearchParams = getURLSearchParams(url);
-
-      window.loadURL(`${rootUrl}#${pathname}?${urlSearchParams}`);
-    } else if (isExternal(url)) {
-      e.preventDefault();
-      shell.openExternal(url);
+      const view = createView(url);
+      ipcMain.on('view', (e, u) => {
+        if (u) {
+          view.webContents.loadURL(u);
+        } else {
+          ipcMain.removeAllListeners('view');
+          window.removeBrowserView(view);
+          window.webContents.send('view', null);
+        }
+      });
     }
   };
 
@@ -71,20 +76,7 @@ export function createWindow() {
   return window;
 }
 
-export function getWindow() {
-  return window;
-}
-
-export function setIsQuitting(value: boolean) {
-  isQuitting = value;
-}
-
-function getPathname(input: string) {
-  const url = new URL(input);
-  return url.pathname;
-}
-
-function getRootUrl(): string {
+export function getRootUrl(): string {
   if (isDevelopment) {
     return 'http://www.local.tenlastic.com';
   }
@@ -93,24 +85,10 @@ function getRootUrl(): string {
   return url.href;
 }
 
-function getURLSearchParams(input: string) {
-  const url = new URL(input);
-  return new URLSearchParams(url.search);
+export function getWindow() {
+  return window;
 }
 
-function isExternal(url: string) {
-  if (url.startsWith('https://steamcommunity.com/openid/')) {
-    return false;
-  }
-
-  if (url !== window.webContents.getURL()) {
-    return false;
-  }
-
-  return true;
-}
-
-function isTenlastic(input: string) {
-  const url = new URL(input);
-  return url.hostname.endsWith('tenlastic.com');
+export function setIsQuitting(value: boolean) {
+  isQuitting = value;
 }

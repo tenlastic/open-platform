@@ -37,11 +37,6 @@ export class LoginPageComponent implements OnInit {
     return this.activatedRoute.snapshot.queryParamMap.has('redirectUrl');
   }
 
-  private get isSteam() {
-    const opEndpoint = this.activatedRoute.snapshot.queryParams['openid.op_endpoint'];
-    return opEndpoint == 'https://steamcommunity.com/openid/login';
-  }
-
   constructor(
     private activatedRoute: ActivatedRoute,
     @Inject(DOCUMENT) private document: Document,
@@ -56,9 +51,14 @@ export class LoginPageComponent implements OnInit {
       this.refreshToken();
     }
 
-    if (this.isSteam) {
-      this.logInWithSteam();
-    }
+    this.activatedRoute.queryParams.subscribe((queryParams) => {
+      const opEndpoint = queryParams['openid.op_endpoint'];
+      const isSteam = opEndpoint == 'https://steamcommunity.com/openid/login';
+
+      if (isSteam) {
+        this.logInWithSteam();
+      }
+    });
   }
 
   public async onLogIn(data: ILogIn) {

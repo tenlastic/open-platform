@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { NavigationEnd, Router } from '@angular/router';
 import {
@@ -70,17 +70,20 @@ export class LayoutComponent implements OnInit {
   public get user() {
     return this.identityService.user;
   }
+  public view: string;
 
   private previousUrl: string;
   private urls = new Map<string, string>();
 
   constructor(
     private authorizationService: AuthorizationService,
+    private changeDetectorRef: ChangeDetectorRef,
     private electronService: ElectronService,
     private identityService: IdentityService,
     private matDialog: MatDialog,
     private namespaceQuery: NamespaceQuery,
     private namespaceService: NamespaceService,
+    private ngZone: NgZone,
     private router: Router,
     private storefrontQuery: StorefrontQuery,
     private storefrontService: StorefrontService,
@@ -91,6 +94,16 @@ export class LayoutComponent implements OnInit {
   public async ngOnInit() {
     this.$namespaces = this.$namespaces || this.namespaceQuery.selectAll();
     this.$storefronts = this.$storefronts || this.storefrontQuery.selectAll();
+
+    if (this.electronService.isElectron) {
+      this.electronService.ipcRenderer.on('redirect', (e, url) => {
+        this.ngZone.run(() => this.router.navigateByUrl(url));
+      });
+      this.electronService.ipcRenderer.on('view', (e, url) => {
+        this.view = url;
+        this.changeDetectorRef.detectChanges();
+      });
+    }
 
     this.previousUrl = this.router.url;
     this.router.events.subscribe((e) => {
@@ -160,6 +173,8 @@ export class LayoutComponent implements OnInit {
         this.electronService.remote.app.quit();
       }
     });
+
+    this.setView(null);
   }
 
   public maximize() {
@@ -207,5 +222,13 @@ export class LayoutComponent implements OnInit {
     }
 
     return 'home';
+  }
+
+  public setView(url: string) {
+    if (!this.electronService.isElectron) {
+      return;
+    }
+
+    this.electronService.ipcRenderer.send('view', url);
   }
 }
