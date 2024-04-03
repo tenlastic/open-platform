@@ -5,15 +5,15 @@
   "license": "Apache-2.0",
   "name": "@tenlastic/workflow-status-sidecar",
   "private": true,
-  "version": "0.0.412",
+  "version": "0.0.413",
   "scripts": {
     "build": "../../scripts/build.sh",
     "lint": "../../scripts/lint.sh",
     "start": "../../scripts/start.sh --watch"
   },
   "dependencies": {
-    "@tenlastic/kubernetes": "0.0.412",
-    "@tenlastic/logging": "0.0.412",
+    "@tenlastic/kubernetes": "0.0.413",
+    "@tenlastic/logging": "0.0.413",
     "axios": "0.27.2",
     "source-map-support": "0.5.12"
   },
