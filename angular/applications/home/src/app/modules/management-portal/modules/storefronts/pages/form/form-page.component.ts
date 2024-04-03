@@ -153,7 +153,7 @@ export class StorefrontsFormPageComponent implements OnInit {
         }
 
         const formGroup = this.formBuilder.group({
-          key: [key, [Validators.required, Validators.pattern(/^[0-9A-Za-z\-]{2,40}$/)]],
+          key: [key, [Validators.required, Validators.pattern(/^[0-9A-Za-z\-]{2,64}$/)]],
           value: [property, Validators.required],
           type,
         });

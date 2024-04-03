@@ -232,7 +232,7 @@ export class CollectionsFormPageComponent implements OnInit {
     return this.formBuilder.group({
       array: 'boolean',
       default: false as any,
-      key: ['', [Validators.required, Validators.pattern(/^[0-9A-Za-z\-]{2,40}$/)]],
+      key: ['', [Validators.required, Validators.pattern(/^[0-9A-Za-z\-]{2,64}$/)]],
       required: false,
       type: 'boolean',
     });
