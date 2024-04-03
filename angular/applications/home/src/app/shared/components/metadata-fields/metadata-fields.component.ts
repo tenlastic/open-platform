@@ -22,7 +22,7 @@ export class MetadataFieldsComponent {
 
   private getDefaultPropertyFormGroup() {
     return this.formBuilder.group({
-      key: ['', [Validators.required, Validators.pattern(/^[0-9A-Za-z\-]{2,40}$/)]],
+      key: ['', [Validators.required, Validators.pattern(/^[0-9A-Za-z\-]{2,64}$/)]],
       value: false,
       type: 'boolean',
     });
