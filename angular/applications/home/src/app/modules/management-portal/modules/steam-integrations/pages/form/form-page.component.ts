@@ -115,7 +115,7 @@ export class SteamIntegrationsFormPageComponent implements OnDestroy, OnInit {
     this.data ??= new SteamIntegrationModel({ apiKey: '', applicationId: 0, name: '' });
 
     const roles = Object.values(IAuthorization.Role).reduce((previous, current) => {
-      previous[current] = this.data.roles.includes(current);
+      previous[current] = this.data.roles?.includes(current);
       return previous;
     }, {});
 
