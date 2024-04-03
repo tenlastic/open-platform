@@ -86,9 +86,10 @@ export class SteamIntegrationsJsonPageComponent implements OnInit {
       apiKey: '',
       applicationId: 0,
       name: '',
+      roles: [],
     });
 
-    const keys = this.data._id ? ['name'] : ['apiKey', 'applicationId', 'name'];
+    const keys = this.data._id ? ['name'] : ['apiKey', 'applicationId', 'name', 'roles'];
 
     const data = Object.keys(this.data)
       .filter((key) => keys.includes(key))

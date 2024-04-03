@@ -84,11 +84,12 @@ export class StorefrontsJsonPageComponent implements OnInit {
     this.data ??= new StorefrontModel({
       description: '',
       metadata: {},
+      roles: [],
       subtitle: '',
       title: '',
     });
 
-    const keys = ['description', 'metadata', 'subtitle', 'title'];
+    const keys = ['description', 'metadata', 'roles', 'subtitle', 'title'];
     const data = Object.keys(this.data)
       .filter((key) => keys.includes(key))
       .sort()
