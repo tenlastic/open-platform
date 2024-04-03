@@ -46,7 +46,7 @@ export class GameServerSchema {
   @prop({ ref: 'UserSchema', type: mongoose.Schema.Types.ObjectId }, PropType.ARRAY)
   public currentUserIds: mongoose.Types.ObjectId[];
 
-  @prop({ maxlength: 128, trim: true, type: String })
+  @prop({ maxlength: 256, trim: true, type: String })
   public description: string;
 
   @prop({ ref: 'MatchSchema', type: mongoose.Schema.Types.ObjectId })
