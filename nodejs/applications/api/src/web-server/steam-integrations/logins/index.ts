@@ -72,10 +72,7 @@ export async function handler(ctx: Context) {
 
   try {
     const { accessToken, refreshToken, refreshTokenId } =
-      await LoginModel.createAccessAndRefreshTokens(user, {
-        expiresIn: 1 * 24 * 60 * 60 * 1000,
-        provider: 'steam',
-      });
+      await LoginModel.createAccessAndRefreshTokens(user, { provider: 'steam' });
     const record = await LoginModel.create({ refreshTokenId, userId: user._id });
 
     ctx.response.body = { accessToken, record, refreshToken };
