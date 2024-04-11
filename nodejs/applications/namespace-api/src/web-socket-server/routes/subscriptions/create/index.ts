@@ -9,6 +9,8 @@ import {
   GameServerPermissions,
   GameServerTemplateModel,
   GameServerTemplatePermissions,
+  MatchInvitationModel,
+  MatchInvitationPermissions,
   MatchModel,
   MatchPermissions,
   QueueMemberModel,
@@ -42,6 +44,9 @@ export async function handler(ctx: Context<SubscribeOptions>) {
 
     case 'game-servers':
       return subscribe(ctx, GameServerModel, GameServerPermissions);
+
+    case 'match-invitations':
+      return subscribe(ctx, MatchInvitationModel, MatchInvitationPermissions);
 
     case 'matches':
       return subscribe(ctx, MatchModel, MatchPermissions);

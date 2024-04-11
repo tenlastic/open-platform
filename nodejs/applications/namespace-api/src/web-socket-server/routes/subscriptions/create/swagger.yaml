@@ -17,6 +17,7 @@ paths:
               - collections
               - game-server-templates
               - game-servers
+              - match-invitations
               - matches
               - queue-members
               - queues
