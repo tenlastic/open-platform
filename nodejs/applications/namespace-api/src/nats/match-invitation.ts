@@ -38,6 +38,9 @@ NamespaceEvent.async(async (payload) => {
 QueueMemberEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
-      return MatchInvitationModel.deleteMany({ userId: { $in: payload.fullDocument.userIds } });
+      return MatchInvitationModel.deleteMany({
+        queueId: payload.fullDocument.queueId,
+        userId: { $in: payload.fullDocument.userIds },
+      });
   }
 });
