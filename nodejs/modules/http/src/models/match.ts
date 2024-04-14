@@ -7,11 +7,12 @@ export namespace IMatch {
 }
 
 export class MatchModel extends BaseModel {
-  public confirmationExpiresAt: Date;
-  public confirmedUserIds: string;
+  public acceptedUserIds: string[];
+  public declinedUserIds: string[];
   public finishedAt: Date;
   public gameServerTemplateId: string;
   public invitationSeconds: number;
+  public invitationsExpireAt: Date;
   public namespaceId: string;
   public queueId: string;
   public startedAt: Date;
@@ -23,8 +24,8 @@ export class MatchModel extends BaseModel {
   constructor(parameters?: Partial<MatchModel>) {
     super(parameters);
 
-    if (parameters?.confirmationExpiresAt) {
-      this.confirmationExpiresAt = new Date(parameters.confirmationExpiresAt);
+    if (parameters?.invitationsExpireAt) {
+      this.invitationsExpireAt = new Date(parameters.invitationsExpireAt);
     }
     if (parameters?.finishedAt) {
       this.finishedAt = new Date(parameters.finishedAt);

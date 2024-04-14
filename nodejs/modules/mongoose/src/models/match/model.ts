@@ -16,7 +16,7 @@ import { AuthorizationDocument } from '../authorization';
 import { MatchTeamDocument, MatchTeamModel, MatchTeamSchema } from './team';
 
 @index(
-  { confirmationExpiresAt: 1 },
+  { invitationsExpireAt: 1 },
   { expireAfterSeconds: 0, partialFilterExpression: { startedAt: null } },
 )
 @index(
@@ -28,19 +28,20 @@ import { MatchTeamDocument, MatchTeamModel, MatchTeamSchema } from './team';
 @plugin(duplicateKeyErrorPlugin)
 @plugin(unsetPlugin)
 @pre('save', function (this: MatchDocument) {
-  if (this.isNew && !this.confirmationExpiresAt) {
+  if (this.isNew && !this.invitationsExpireAt) {
     this.startedAt = this.createdAt;
   }
 })
 export class MatchSchema {
   public _id: mongoose.Types.ObjectId;
-  public createdAt: Date;
-
-  @prop({ type: Date })
-  public confirmationExpiresAt: Date;
 
   @prop({ ref: 'UserSchema', type: mongoose.Schema.Types.ObjectId }, PropType.ARRAY)
-  public confirmedUserIds: mongoose.Types.ObjectId[];
+  public acceptedUserIds: mongoose.Types.ObjectId[];
+
+  public createdAt: Date;
+
+  @prop({ ref: 'UserSchema', type: mongoose.Schema.Types.ObjectId }, PropType.ARRAY)
+  public declinedUserIds: mongoose.Types.ObjectId[];
 
   @prop({ type: Date })
   public finishedAt: Date;
@@ -50,6 +51,9 @@ export class MatchSchema {
 
   @prop({ default: 30, min: 0, type: Number })
   public invitationSeconds: number;
+
+  @prop({ type: Date })
+  public invitationsExpireAt: Date;
 
   @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public namespaceId: mongoose.Types.ObjectId;

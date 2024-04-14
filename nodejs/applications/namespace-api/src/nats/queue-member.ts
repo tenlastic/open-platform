@@ -26,7 +26,7 @@ GroupEvent.async(async (payload) => {
 
 // Delete Queue Members when Match is started.
 // Set MatchedAt on Queue Members when Match is created, but not started.
-// Unset MatchedAt from Queue Members when Match is deleted.
+// Delete declined and/or expired Queue Members. Unset MatchedAt on accepted Queue Members.
 MatchEvent.async(async (payload) => {
   if (
     (payload.operationType === 'insert' && payload.fullDocument.startedAt) ||
@@ -38,11 +38,22 @@ MatchEvent.async(async (payload) => {
       { userIds: { $in: payload.fullDocument.userIds } },
       { matchedAt: new Date() },
     );
-  } else if (payload.operationType === 'delete') {
-    return QueueMemberModel.updateMany(
-      { userIds: { $in: payload.fullDocument.userIds } },
-      { $unset: { matchedAt: 1 } },
-    );
+  } else if (payload.operationType === 'delete' && !payload.fullDocument.startedAt) {
+    const { acceptedUserIds, declinedUserIds, queueId, userIds } = payload.fullDocument;
+
+    if (declinedUserIds.length > 0) {
+      await QueueMemberModel.deleteMany({ queueId, userIds: { $in: declinedUserIds } });
+      await QueueMemberModel.updateMany(
+        { userIds: { $in: userIds, $nin: declinedUserIds } },
+        { $unset: { matchedAt: 1 } },
+      );
+    } else {
+      await QueueMemberModel.deleteMany({ queueId, userIds: { $nin: acceptedUserIds } });
+      await QueueMemberModel.updateMany(
+        { userIds: { $in: acceptedUserIds } },
+        { $unset: { matchedAt: 1 } },
+      );
+    }
   }
 });
 

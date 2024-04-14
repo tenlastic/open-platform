@@ -4,6 +4,7 @@ import {
   index,
   modelOptions,
   plugin,
+  pre,
   prop,
 } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
@@ -19,6 +20,34 @@ import { MatchDocument } from '../match';
 @modelOptions({ schemaOptions: { collection: 'match-invitations', timestamps: true } })
 @plugin(duplicateKeyErrorPlugin)
 @plugin(unsetPlugin)
+@pre('validate', function (this: MatchInvitationDocument) {
+  const acceptedAtIsModified = this.isModified('acceptedAt');
+  const declinedAtIsModified = this.isModified('declinedAt');
+
+  if (acceptedAtIsModified && !this.acceptedAt) {
+    this.invalidate('acceptedAt', new Error('Cannot unset acceptedAt.'), this.acceptedAt);
+  }
+
+  if (declinedAtIsModified && !this.declinedAt) {
+    this.invalidate('declinedAt', new Error('Cannot unset declinedAt.'), this.declinedAt);
+  }
+
+  if (acceptedAtIsModified && !declinedAtIsModified && this.acceptedAt && this.declinedAt) {
+    const message = 'Cannot set acceptedAt if declinedAt is already set.';
+    this.invalidate('acceptedAt', new Error(message), this.acceptedAt);
+  }
+
+  if (!acceptedAtIsModified && declinedAtIsModified && this.acceptedAt && this.declinedAt) {
+    const message = 'Cannot set declinedAt if acceptedAt is already set.';
+    this.invalidate('declinedAt', new Error(message), this.declinedAt);
+  }
+
+  if (acceptedAtIsModified && declinedAtIsModified && this.acceptedAt && this.declinedAt) {
+    const message = 'Cannot set declinedAt and acceptedAt at the same time.';
+    this.invalidate('acceptedAt', new Error(message), this.acceptedAt);
+    this.invalidate('declinedAt', new Error(message), this.declinedAt);
+  }
+})
 export class MatchInvitationSchema {
   public _id: mongoose.Types.ObjectId;
 
@@ -26,6 +55,9 @@ export class MatchInvitationSchema {
   public acceptedAt: Date;
 
   public createdAt: Date;
+
+  @prop({ filter: { create: true, update: true }, type: Date })
+  public declinedAt: Date;
 
   @prop({ required: true, type: Date })
   public expiresAt: Date;
@@ -56,8 +88,8 @@ export class MatchInvitationSchema {
     // If the Match required confirmation, use the confirmation time.
     // If not, use the invitation time.
     let expiresAt = new Date(Date.now() + match.invitationSeconds * 1000);
-    if (match.confirmationExpiresAt && !match.startedAt) {
-      expiresAt = match.confirmationExpiresAt;
+    if (match.invitationsExpireAt && !match.startedAt) {
+      expiresAt = match.invitationsExpireAt;
     }
 
     const values = { expiresAt, matchId: match._id, namespaceId, queueId };

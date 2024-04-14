@@ -49,11 +49,20 @@ export class MatchInvitationService {
   }
 
   /**
-   * Deletes a Record.
+   * Declines the Match Invitation.
    */
-  public async delete(namespaceId: string, _id: string) {
+  public async decline(namespaceId: string, _id: string) {
     const url = this.getUrl(namespaceId);
-    return this.baseService.delete(_id, url);
+    const response = await this.apiService.request({
+      method: 'patch',
+      url: `${url}/${_id}/declined-at`,
+    });
+
+    const record = new MatchInvitationModel(response.data.record);
+    this.emitter.emit('update', record);
+    this.matchInvitationStore.upsertMany([record]);
+
+    return record;
   }
 
   /**

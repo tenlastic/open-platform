@@ -122,7 +122,7 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
       return;
     }
 
-    const confirmationExpiresAt = this.form.get('confirmation').value
+    const invitationsExpireAt = this.form.get('confirmation').value
       ? new Date(Date.now() + this.form.get('invitationSeconds').value * 1000)
       : null;
     const teams: IMatch.Team[] = this.form.get('teams').value.map((t) => {
@@ -131,9 +131,9 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
 
     const values: Partial<MatchModel> = {
       _id: this.data._id,
-      confirmationExpiresAt,
       gameServerTemplateId: this.form.get('gameServerTemplateId').value,
       invitationSeconds: this.form.get('invitationSeconds').value,
+      invitationsExpireAt,
       namespaceId: this.form.get('namespaceId').value,
       queueId: this.form.get('queueId').value,
       teams,
@@ -153,8 +153,8 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
 
   private setupForm() {
     this.data ??= new MatchModel({
-      confirmationExpiresAt: new Date(),
       invitationSeconds: 30,
+      invitationsExpireAt: new Date(),
       teams: [{ userIds: [null] }, { userIds: [null] }],
     });
 
@@ -167,7 +167,7 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
     });
 
     this.form = this.formBuilder.group({
-      confirmation: [Boolean(this.data.confirmationExpiresAt) || false],
+      confirmation: [Boolean(this.data.invitationsExpireAt) || false],
       gameServerTemplateId: [
         this.data.gameServerTemplateId || this.gameServerTemplates[0]?._id,
         Validators.required,

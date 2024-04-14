@@ -113,7 +113,7 @@ export class MatchPromptComponent implements OnDestroy, OnInit {
       const { _id, namespaceId } = this.data.matchInvitation;
 
       try {
-        await this.matchInvitationService.delete(namespaceId, _id);
+        await this.matchInvitationService.decline(namespaceId, _id);
       } catch {}
     }
 

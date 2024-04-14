@@ -77,14 +77,14 @@ GameServerEvent.async(async (payload) => {
 // Creates a Game Server when a Match without confirmation is inserted.
 // Creates a Game Server when a Match with confirmation is started.
 MatchEvent.async(async (payload) => {
-  const { confirmationExpiresAt, gameServerTemplateId, startedAt } = payload.fullDocument;
+  const { gameServerTemplateId, invitationsExpireAt, startedAt } = payload.fullDocument;
   const updatedFields = payload.updateDescription?.updatedFields;
 
   if (payload.operationType === 'delete') {
     await GameServerModel.deleteMany({ matchId: payload.fullDocument._id });
   } else if (
-    (payload.operationType === 'insert' && !confirmationExpiresAt && startedAt) ||
-    (payload.operationType === 'update' && confirmationExpiresAt && updatedFields.startedAt)
+    (payload.operationType === 'insert' && !invitationsExpireAt && startedAt) ||
+    (payload.operationType === 'update' && invitationsExpireAt && updatedFields.startedAt)
   ) {
     const gameServerTemplate = await GameServerTemplateModel.findOne({ _id: gameServerTemplateId });
 

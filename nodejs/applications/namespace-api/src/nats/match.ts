@@ -20,37 +20,51 @@ GameServerEvent.async(async (payload) => {
 MatchEvent.sync(log);
 
 // Starts a Match if all Match Invitations have been accepted.
+// Deletes a Match if a Match Invitation has been declined.
 MatchEvent.async(async (payload) => {
+  if (payload.operationType !== 'update') {
+    return;
+  }
+
+  const { fullDocument } = payload;
+  if (!fullDocument.invitationsExpireAt || fullDocument.startedAt) {
+    return;
+  }
+
   if (
-    !payload.fullDocument.startedAt &&
-    payload.operationType === 'update' &&
-    payload.updateDescription.updatedFields.confirmedUserIds &&
-    payload.fullDocument.confirmationExpiresAt &&
-    payload.fullDocument.confirmedUserIds.length === payload.fullDocument.userIds.length
+    fullDocument.acceptedUserIds.length === fullDocument.userIds.length &&
+    payload.updateDescription.updatedFields.acceptedUserIds
   ) {
-    return MatchModel.findOneAndUpdate(
-      { _id: payload.fullDocument._id },
-      { startedAt: new Date() },
-    );
+    return MatchModel.findOneAndUpdate({ _id: fullDocument._id }, { startedAt: new Date() });
+  }
+
+  if (
+    fullDocument.declinedUserIds.length > 0 &&
+    payload.updateDescription.updatedFields.declinedUserIds
+  ) {
+    return MatchModel.deleteOne({
+      _id: fullDocument._id,
+      invitationsExpireAt: { $exists: true },
+      startedAt: { $exists: false },
+    });
   }
 });
 
-// Deletes a Match if a Match Invitation is deleted before confirmation.
-// Confirms the User if a Match Invitation is accepted.
+// Updates a Match when a Match Invitation has been accepted or declined.
 MatchInvitationEvent.async(async (payload) => {
-  if (payload.operationType === 'delete') {
-    return MatchModel.deleteOne({
-      _id: payload.fullDocument.matchId,
-      confirmationExpiresAt: { $exists: true },
-      startedAt: { $exists: false },
-    });
-  } else if (
-    payload.operationType === 'update' &&
-    payload.updateDescription.updatedFields.acceptedAt
-  ) {
+  if (payload.operationType !== 'update') {
+    return;
+  }
+
+  if (payload.updateDescription.updatedFields.acceptedAt) {
     return MatchModel.findOneAndUpdate(
       { _id: payload.fullDocument.matchId },
-      { $addToSet: { confirmedUserIds: payload.fullDocument.userId } },
+      { $addToSet: { acceptedUserIds: payload.fullDocument.userId } },
+    );
+  } else if (payload.updateDescription.updatedFields.declinedAt) {
+    return MatchModel.findOneAndUpdate(
+      { _id: payload.fullDocument.matchId },
+      { $addToSet: { declinedUserIds: payload.fullDocument.userId } },
     );
   }
 });

@@ -1,9 +1,9 @@
 paths:
-  /namespaces/{namespaceId}/match-invitations/{_id}:
-    delete:
-      summary: Delete
+  /namespaces/{namespaceId}/match-invitations/{_id}/declined-at:
+    patch:
+      summary: Decline
       tags: [Match Invitations]
-      description: Deletes an existing record.
+      description: Updates an existing record's date field to the current date and time.
       security:
         - AccessToken: []
       parameters:

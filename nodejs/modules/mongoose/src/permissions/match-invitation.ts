@@ -8,6 +8,7 @@ const administrator = {
     '_id',
     'acceptedAt',
     'createdAt',
+    'declinedAt',
     'expiresAt',
     'matchId',
     'namespaceId',
@@ -41,6 +42,7 @@ export const MatchInvitationPermissions = new MongoosePermissions<MatchInvitatio
         '_id',
         'acceptedAt',
         'createdAt',
+        'declinedAt',
         'expiresAt',
         'namespaceId',
         'queueId',
@@ -74,7 +76,7 @@ export const MatchInvitationPermissions = new MongoosePermissions<MatchInvitatio
       ]),
     },
     update: {
-      recipient: ['acceptedAt'],
+      recipient: ['acceptedAt', 'declinedAt'],
     },
   },
 );

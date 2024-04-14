@@ -12,6 +12,9 @@ components:
         createdAt:
           type: string
           format: date-time
+        declinedAt:
+          type: string
+          format: date-time
         expiresAt:
           type: string
           format: date-time
