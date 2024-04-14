@@ -89,12 +89,14 @@ resources:
   - ./static/rolebindings/aggregation-api.yaml
   - ./static/rolebindings/api.yaml
   - ./static/rolebindings/argo-workflows.yaml
+  - ./static/rolebindings/delete-dynamic-failed-pods.yaml
   - ./static/rolebindings/delete-static-failed-pods.yaml
   - ./static/rolebindings/garbage-collect-docker-registry.yaml
   - ./static/rolebindings/kubernetes-dashboard.yaml
   - ./static/roles/aggregation-api.yaml
   - ./static/roles/api.yaml
   - ./static/roles/argo-workflows.yaml
+  - ./static/roles/delete-dynamic-failed-pods.yaml
   - ./static/roles/delete-static-failed-pods.yaml
   - ./static/roles/garbage-collect-docker-registry.yaml
   - ./static/roles/kubernetes-dashboard.yaml

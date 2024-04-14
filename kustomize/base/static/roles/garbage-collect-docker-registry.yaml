@@ -38,3 +38,10 @@ rules:
     verbs:
       - get
       - patch
+  - apiGroups:
+      - argoproj.io
+    resources:
+      - workflowtaskresults
+    verbs:
+      - create
+      - patch
