@@ -16,6 +16,7 @@ export function getComponents(
   const components = [
     ...deployments.map(getReplicaSetComponents),
     ...jobs.map((job) => getJobComponents(job, pods)),
+    ...pods.map((pod) => getPodComponents(pod)).filter((pod) => pod),
     ...statefulSets.map(getReplicaSetComponents),
   ];
 
@@ -31,6 +32,23 @@ function getJobComponents(job: V1Job, pods: V1Pod[]) {
 
   const pod = pods.find((p) => job.metadata.name === p.metadata.labels['job-name']);
   if (!pod || pod.status.phase === 'Succeeded') {
+    return { current: 0, name, phase: 'Succeeded', total: 0 };
+  }
+
+  const condition = pod.status.conditions.find((c) => c.type === 'Ready');
+  const ready = condition.status === 'True' || condition.reason === 'PodCompleted';
+
+  return { current: ready ? 1 : 0, name, phase: ready ? 'Running' : 'Pending', total: 1 };
+}
+
+function getPodComponents(pod: V1Pod) {
+  if (pod.metadata.ownerReferences?.length > 0) {
+    return;
+  }
+
+  const name = pod.metadata.labels['tenlastic.com/role'];
+
+  if (pod.status.phase === 'Succeeded') {
     return { current: 0, name, phase: 'Succeeded', total: 0 };
   }
 
