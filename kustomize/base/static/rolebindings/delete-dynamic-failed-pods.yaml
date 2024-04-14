@@ -10,4 +10,4 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: delete-dynamic-failed-pods
-    namespace: dynamic
+    namespace: static
