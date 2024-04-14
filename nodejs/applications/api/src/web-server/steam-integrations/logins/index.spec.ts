@@ -130,6 +130,10 @@ describe('web-server/steam-integrations/logins', function () {
               data: { appownership: { ownsapp: true } },
               status: 200,
             });
+            sandbox.stub(steam, 'getPlayerSummaries').resolves({
+              data: { response: { players: [{ personaname: chance.hash() }] } },
+              status: 200,
+            });
 
             await handler(ctx);
 
@@ -155,6 +159,10 @@ describe('web-server/steam-integrations/logins', function () {
             });
             sandbox.stub(steam, 'checkAppOwnership').resolves({
               data: { appownership: { ownsapp: true } },
+              status: 200,
+            });
+            sandbox.stub(steam, 'getPlayerSummaries').resolves({
+              data: { response: { players: [{ personaname: chance.hash() }] } },
               status: 200,
             });
 

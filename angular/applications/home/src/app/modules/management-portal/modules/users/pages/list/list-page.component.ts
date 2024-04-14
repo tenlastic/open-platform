@@ -37,7 +37,7 @@ export class UsersListPageComponent implements OnDestroy, OnInit {
     'webSocket',
     'username',
     'email',
-    'steamId',
+    'steam',
     'createdAt',
     'updatedAt',
     'actions',

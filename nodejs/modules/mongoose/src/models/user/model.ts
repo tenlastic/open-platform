@@ -57,6 +57,9 @@ export class UserSchema {
   @prop({ maxlength: 64, trim: true, type: String })
   public steamId: string;
 
+  @prop({ maxlength: 128, trim: true, type: String })
+  public steamPersonaName: string;
+
   public updatedAt: Date;
 
   @prop({

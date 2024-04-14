@@ -78,10 +78,12 @@ export class InformationPageComponent implements OnInit {
     this.form = this.formBuilder.group({
       email: [this.data.email],
       steamId: [this.data.steamId],
+      steamPersonaName: [this.data.steamPersonaName],
       username: [this.data.username, this.data.steamId ? null : Validators.required],
     });
 
     this.form.get('steamId').disable({ emitEvent: false });
+    this.form.get('steamPersonaName').disable({ emitEvent: false });
 
     this.form.valueChanges.subscribe(() => (this.errors = []));
   }

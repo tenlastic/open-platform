@@ -18,6 +18,9 @@ import { IdentityService } from '../../../../../../core/services';
   styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent implements OnInit {
+  public get $displayName() {
+    return this.$user.pipe(map((u) => u.displayName));
+  }
   public get $hasRelated() {
     const roles = [...IAuthorization.webSocketRoles];
     const userId = this.identityService.user?._id;

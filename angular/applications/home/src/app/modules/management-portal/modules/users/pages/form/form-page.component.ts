@@ -80,11 +80,16 @@ export class UsersFormPageComponent implements OnInit {
 
     this.form = this.formBuilder.group({
       email: [this.data.email, Validators.email],
+      steamId: [this.data.steamId],
+      steamPersonaName: [this.data.steamPersonaName],
       username: [
         this.data.username,
         [Validators.required, Validators.pattern(/^[A-Za-z0-9]+$/), Validators.maxLength(20)],
       ],
     });
+
+    this.form.get('steamId').disable({ emitEvent: false });
+    this.form.get('steamPersonaName').disable({ emitEvent: false });
 
     if (!this.hasWriteAuthorization) {
       this.form.disable({ emitEvent: false });

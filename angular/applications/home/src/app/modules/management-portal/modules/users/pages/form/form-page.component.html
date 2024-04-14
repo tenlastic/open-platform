@@ -30,9 +30,7 @@
                  type="email" />
           <mat-error>Enter a valid email address.</mat-error>
         </mat-form-field>
-      </div>
 
-      <div class="row">
         <mat-form-field floatLabel="always">
           <mat-label>Username</mat-label>
           <input formControlName="username"
@@ -40,6 +38,25 @@
                  maxlength="24"
                  required />
           <mat-error>Enter a valid alphanumeric username.</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div *ngIf="form.get('steamId').value || form.get('steamPersonaName').value"
+           class="row">
+        <mat-form-field *ngIf="form.get('steamId').value"
+                        floatLabel="always">
+          <mat-label>Steam ID</mat-label>
+          <input matInput
+                 formControlName="steamId" />
+          <mat-error>Enter a valid Steam ID.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field *ngIf="form.get('steamPersonaName').value"
+                        floatLabel="always">
+          <mat-label>Steam Persona name</mat-label>
+          <input matInput
+                 formControlName="steamPersonaName" />
+          <mat-error>Enter a valid Steam Persona Name.</mat-error>
         </mat-form-field>
       </div>
     </form>

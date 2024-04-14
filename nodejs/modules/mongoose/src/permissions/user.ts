@@ -17,8 +17,16 @@ export const UserPermissions = new MongoosePermissions<UserDocument>(UserModel, 
   },
   read: {
     default: ['_id', 'createdAt', 'updatedAt', 'username'],
-    owner: ['_id', 'createdAt', 'email', 'steamId', 'updatedAt', 'username'],
-    'user-read': ['_id', 'createdAt', 'email', 'steamId', 'updatedAt', 'username'],
+    owner: ['_id', 'createdAt', 'email', 'steamId', 'steamPersonaName', 'updatedAt', 'username'],
+    'user-read': [
+      '_id',
+      'createdAt',
+      'email',
+      'steamId',
+      'steamPersonaName',
+      'updatedAt',
+      'username',
+    ],
   },
   roles: {
     default: {},

@@ -16,6 +16,8 @@ components:
           type: string
         steamId:
           type: string
+        steamPersonaName:
+          type: string
         updatedAt:
           type: string
           format: date-time
