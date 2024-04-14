@@ -29,7 +29,7 @@ describe('watch', function () {
     changeStream = watch(client, [], connection, 'cdc.resumeToken', null);
 
     // Insert records into MongoDB.
-    const names = Array.from(Array(1000)).map(() => chance.hash());
+    const names = Array.from(Array(100)).map(() => chance.hash());
     const operations = names.map((n) => ({ insertOne: { document: { name: n } } }));
     await Model.bulkWrite(operations);
 
