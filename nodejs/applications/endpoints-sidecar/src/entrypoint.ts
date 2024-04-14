@@ -27,7 +27,7 @@ const labelSelector = process.env.LABEL_SELECTOR;
 
 const pods: { [key: string]: V1Pod } = {};
 
-let previousStatus: any;
+let previousStatus: Status;
 let startedUpdatingAt = 0;
 let timeout: NodeJS.Timeout;
 
@@ -43,8 +43,12 @@ async function update() {
   const throttle = 2.5 * 1000;
 
   if (now - startedUpdatingAt < throttle) {
+    const ms = throttle - now - startedUpdatingAt;
+    console.log(`Throttling update. Will try again in ${ms}ms...`);
+
     clearTimeout(timeout);
-    timeout = setTimeout(update, throttle - now - startedUpdatingAt);
+    timeout = setTimeout(update, ms);
+
     return;
   }
 

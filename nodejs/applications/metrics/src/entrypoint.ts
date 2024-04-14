@@ -88,8 +88,12 @@ async function update() {
   const throttle = 2.5 * 1000;
 
   if (now - startedUpdatingAt < throttle) {
+    const ms = throttle - now - startedUpdatingAt;
+    console.log(`Throttling update. Will try again in ${ms}ms...`);
+
     clearTimeout(timeout);
-    timeout = setTimeout(update, throttle - now - startedUpdatingAt);
+    timeout = setTimeout(update, ms);
+
     return;
   }
 
