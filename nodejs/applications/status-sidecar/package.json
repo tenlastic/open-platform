@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "name": "@tenlastic/status-sidecar",
   "private": true,
-  "version": "0.0.414",
+  "version": "0.0.415",
   "scripts": {
     "build": "../../scripts/build.sh",
     "lint": "../../scripts/lint.sh",
@@ -14,8 +14,8 @@
     "test:watch": "../../scripts/test.sh --watch"
   },
   "dependencies": {
-    "@tenlastic/kubernetes": "0.0.414",
-    "@tenlastic/logging": "0.0.414",
+    "@tenlastic/kubernetes": "0.0.415",
+    "@tenlastic/logging": "0.0.415",
     "axios": "0.27.2",
     "source-map-support": "0.5.12"
   },
