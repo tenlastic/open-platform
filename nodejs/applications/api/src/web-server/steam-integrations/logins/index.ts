@@ -50,19 +50,22 @@ export async function handler(ctx: Context) {
     throw new UnauthorizedError();
   }
 
-  let personaName: string;
+  let steamPersonaName: string;
   try {
     const response = await steam.getPlayerSummaries({
       key: steamIntegration.apiKey,
       steamIds: [steamId],
     });
-    personaName = response.data.response.players[0]?.personaname;
+
+    if (response.status === 200 && response.data?.response?.players?.length > 0) {
+      steamPersonaName = response.data.response.players[0].personaname;
+    }
   } catch (e) {
     console.error(e);
   }
 
   // Upsert the Steam User.
-  const update = { ...(personaName ? { personaName } : {}), steamId };
+  const update = { steamId, ...(steamPersonaName ? { steamPersonaName } : {}) };
   const user = await UserModel.findOneAndUpdate({ steamId }, update, { new: true, upsert: true });
 
   // Upsert roles associated with this Steam Integration.
