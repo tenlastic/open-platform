@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "name": "@tenlastic/metrics",
   "private": true,
-  "version": "0.0.415",
+  "version": "0.0.416",
   "scripts": {
     "build": "../../scripts/build.sh",
     "lint": "../../scripts/lint.sh",
@@ -14,11 +14,11 @@
     "test:watch": "../../scripts/test.sh --watch"
   },
   "dependencies": {
-    "@tenlastic/kubernetes": "0.0.415",
-    "@tenlastic/logging": "0.0.415",
-    "@tenlastic/minio": "0.0.415",
-    "@tenlastic/mongoose": "0.0.415",
-    "@tenlastic/nats": "0.0.415",
+    "@tenlastic/kubernetes": "0.0.416",
+    "@tenlastic/logging": "0.0.416",
+    "@tenlastic/minio": "0.0.416",
+    "@tenlastic/mongoose": "0.0.416",
+    "@tenlastic/nats": "0.0.416",
     "axios": "0.27.2",
     "source-map-support": "0.5.12"
   },

@@ -35,7 +35,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
       containers:
         - name: documentation
-          image: tenlastic/documentation:0.0.415
+          image: tenlastic/documentation:0.0.416
           livenessProbe:
             httpGet:
               path: /swagger/api.json
