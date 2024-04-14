@@ -11,41 +11,40 @@
     </mat-select>
   </mat-form-field>
 
-  <ng-container *ngIf="type === ProbeType.Exec">
-    <mat-form-field floatLabel="always">
-      <mat-label>Command</mat-label>
-      <input formControlName="command"
-             matInput
-             maxlength="256" />
-      <mat-error>Enter a valid command.</mat-error>
-    </mat-form-field>
-  </ng-container>
+  <mat-form-field *ngIf="type === ProbeType.Exec"
+                  floatLabel="always">
+    <mat-label>Command</mat-label>
+    <input formControlName="command"
+           matInput
+           maxlength="256" />
+    <mat-error>Enter a valid command.</mat-error>
+  </mat-form-field>
 
-  <ng-container *ngIf="type === ProbeType.Http">
-    <mat-form-field floatLabel="always">
-      <mat-label>Path</mat-label>
-      <input formControlName="path"
-             matInput
-             maxlength="128" />
-      <mat-error>Enter a valid path.</mat-error>
-    </mat-form-field>
+  <mat-form-field *ngIf="type !== ProbeType.None"
+                  floatLabel="always">
+    <mat-label>Initial Delay Seconds</mat-label>
+    <input formControlName="initialDelaySeconds"
+           matInput
+           step="1"
+           type="number" />
+    <mat-error>Enter a valid number of seconds.</mat-error>
+  </mat-form-field>
 
-    <mat-form-field floatLabel="always">
-      <mat-label>Port</mat-label>
-      <input formControlName="port"
-             matInput
-             type="number" />
-      <mat-error>Enter a valid port.</mat-error>
-    </mat-form-field>
-  </ng-container>
+  <mat-form-field *ngIf="type === ProbeType.Http"
+                  floatLabel="always">
+    <mat-label>Path</mat-label>
+    <input formControlName="path"
+           matInput
+           maxlength="128" />
+    <mat-error>Enter a valid path.</mat-error>
+  </mat-form-field>
 
-  <ng-container *ngIf="type === ProbeType.Tcp">
-    <mat-form-field floatLabel="always">
-      <mat-label>Port</mat-label>
-      <input formControlName="port"
-             matInput
-             type="number" />
-      <mat-error>Enter a valid port.</mat-error>
-    </mat-form-field>
-  </ng-container>
+  <mat-form-field *ngIf="type === ProbeType.Http || type === ProbeType.Tcp"
+                  floatLabel="always">
+    <mat-label>Port</mat-label>
+    <input formControlName="port"
+           matInput
+           type="number" />
+    <mat-error>Enter a valid port.</mat-error>
+  </mat-form-field>
 </div>

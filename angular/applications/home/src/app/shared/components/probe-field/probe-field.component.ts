@@ -11,8 +11,13 @@ export enum ProbeType {
 
 export interface ProbeFormGroup {
   command?: string;
+  failureThreshold?: number;
+  initialDelaySeconds?: number;
   path?: string;
+  periodSeconds?: number;
   port?: number;
+  successThreshold?: number;
+  timeoutSeconds?: number;
   type?: ProbeType;
 }
 
@@ -33,7 +38,7 @@ export class ProbeFieldComponent implements OnInit {
     return new FormGroup({
       command: new FormControl(probe?.exec?.command.join(' ')),
       failureThreshold: new FormControl(probe?.failureThreshold),
-      initialDelaySeconds: new FormControl(probe?.initialDelaySeconds),
+      initialDelaySeconds: new FormControl(probe?.initialDelaySeconds || 0),
       path: new FormControl(probe?.http?.path || '/'),
       periodSeconds: new FormControl(probe?.periodSeconds),
       port: new FormControl(probe?.http?.port || probe?.tcp?.port || 80),
@@ -44,14 +49,22 @@ export class ProbeFieldComponent implements OnInit {
   }
 
   public static getJsonFromProbe(probe: ProbeFormGroup) {
+    const base: ProbeFormGroup = {
+      ...(probe.failureThreshold ? { failureThreshold: probe.failureThreshold } : {}),
+      ...(probe.initialDelaySeconds ? { initialDelaySeconds: probe.initialDelaySeconds } : {}),
+      ...(probe.periodSeconds ? { periodSeconds: probe.periodSeconds } : {}),
+      ...(probe.successThreshold ? { successThreshold: probe.successThreshold } : {}),
+      ...(probe.timeoutSeconds ? { timeoutSeconds: probe.timeoutSeconds } : {}),
+    };
+
     if (probe.type === ProbeType.Exec) {
-      return { exec: { command: probe.command.split(' ') } };
+      return { ...base, exec: { command: probe.command.split(' ') } };
     } else if (probe.type === ProbeType.Http) {
-      return { http: { path: probe.path, port: probe.port } };
+      return { ...base, http: { path: probe.path, port: probe.port } };
     } else if (probe.type === ProbeType.None) {
       return null;
     } else if (probe.type === ProbeType.Tcp) {
-      return { tcp: { port: probe.port } };
+      return { ...base, tcp: { port: probe.port } };
     }
   }
 
