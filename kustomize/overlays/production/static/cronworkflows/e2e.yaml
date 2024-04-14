@@ -18,6 +18,7 @@ spec:
                   operator: Exists
     archiveLogs: true
     artifactGC:
+      forceFinalizerRemoval: true
       serviceAccountName: argo-workflows
       strategy: OnWorkflowDeletion
     entrypoint: entrypoint

@@ -27,6 +27,7 @@ spec:
     parameters:
       - name: revision
   artifactGC:
+    forceFinalizerRemoval: true
     serviceAccountName: argo-workflows
     strategy: OnWorkflowDeletion
   entrypoint: entrypoint
