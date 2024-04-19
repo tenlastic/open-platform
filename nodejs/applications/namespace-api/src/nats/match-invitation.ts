@@ -38,9 +38,10 @@ NamespaceEvent.async(async (payload) => {
 QueueMemberEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
-      return MatchInvitationModel.deleteMany({
-        queueId: payload.fullDocument.queueId,
-        userId: { $in: payload.fullDocument.userIds },
-      });
+      const { queueId, userIds } = payload.fullDocument;
+      return MatchInvitationModel.updateMany(
+        { acceptedAt: { $exists: false }, queueId, userId: { $in: userIds } },
+        { declinedAt: new Date() },
+      );
   }
 });
