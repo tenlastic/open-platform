@@ -1,7 +1,7 @@
 import 'source-map-support/register';
 import '@tenlastic/logging';
 
-import { QueueMemberModel, QueueModel } from '@tenlastic/http';
+import { ApiError, QueueMemberModel, QueueModel } from '@tenlastic/http';
 
 import dependencies from './dependencies';
 
@@ -96,9 +96,9 @@ async function main() {
 
     return main();
   } catch (e) {
-    if (e.name === 'StatusCodeError') {
-      e.error.errors.forEach((error) => console.error(error));
-    } else if (!e.message.includes('Not enough QueueMembers.')) {
+    if (e instanceof ApiError) {
+      e.errors.forEach((error) => console.error(error));
+    } else if (!e.message.includes('Not enough Queue Members.')) {
       console.error(e);
     }
 

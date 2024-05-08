@@ -45,13 +45,13 @@ export async function createMatch(queue: QueueModel): Promise<MatchModel> {
       });
     }
   } catch (e) {
-    console.error(e);
-
     // If any Queue Members are already in a match, delete them and try again if successful.
     const deletedQueueMembers = await deleteConflictedQueueMembers(queue, matchedQueueMembers);
     if (deletedQueueMembers.length) {
       return createMatch(queue);
     }
+
+    throw e;
   }
 
   // Set MatchedAt on Queue Members.
