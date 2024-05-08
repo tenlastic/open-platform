@@ -60,6 +60,40 @@ export class MatchService {
   }
 
   /**
+   * Finishes the Match.
+   */
+  public async finish(namespaceId: string, _id: string) {
+    const url = this.getUrl(namespaceId);
+    const response = await this.apiService.request({
+      method: 'patch',
+      url: `${url}/${_id}/finished-at`,
+    });
+
+    const record = new MatchModel(response.data.record);
+    this.emitter.emit('update', record);
+    this.matchStore.upsertMany([record]);
+
+    return record;
+  }
+
+  /**
+   * Starts the Match.
+   */
+  public async start(namespaceId: string, _id: string) {
+    const url = this.getUrl(namespaceId);
+    const response = await this.apiService.request({
+      method: 'patch',
+      url: `${url}/${_id}/started-at`,
+    });
+
+    const record = new MatchModel(response.data.record);
+    this.emitter.emit('update', record);
+    this.matchStore.upsertMany([record]);
+
+    return record;
+  }
+
+  /**
    * Updates a Record.
    */
   public async update(namespaceId: string, _id: string, json: Partial<MatchModel>) {

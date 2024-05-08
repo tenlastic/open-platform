@@ -32,6 +32,13 @@ import { MatchTeamDocument, MatchTeamModel, MatchTeamSchema } from './team';
     this.startedAt = this.createdAt;
   }
 })
+@pre('validate', function (this: MatchDocument) {
+  if (this.finishedAt && !this.startedAt) {
+    const message = 'A Match cannot be finished before it is started.';
+    this.invalidate('finishedAt', message, this.finishedAt);
+    this.invalidate('startedAt', message, this.startedAt);
+  }
+})
 export class MatchSchema {
   public _id: mongoose.Types.ObjectId;
 
@@ -43,7 +50,7 @@ export class MatchSchema {
   @prop({ ref: 'UserSchema', type: mongoose.Schema.Types.ObjectId }, PropType.ARRAY)
   public declinedUserIds: mongoose.Types.ObjectId[];
 
-  @prop({ type: Date })
+  @prop({ filter: { create: true, update: true }, type: Date })
   public finishedAt: Date;
 
   @prop({ ref: 'GameServerTemplateSchema', required: true, type: mongoose.Schema.Types.ObjectId })
@@ -61,7 +68,7 @@ export class MatchSchema {
   @prop({ ref: 'QueueSchema', type: mongoose.Schema.Types.ObjectId })
   public queueId: mongoose.Types.ObjectId;
 
-  @prop({ type: Date })
+  @prop({ filter: { create: true, update: true }, type: Date })
   public startedAt: Date;
 
   @prop(

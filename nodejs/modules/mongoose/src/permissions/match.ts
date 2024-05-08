@@ -4,7 +4,14 @@ import { AuthorizationRole, MatchDocument, MatchModel } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
 const administrator = {
-  create: ['gameServerTemplateId', 'invitationsExpireAt', 'namespaceId', 'teams.*'],
+  create: [
+    'finishedAt',
+    'gameServerTemplateId',
+    'invitationsExpireAt',
+    'namespaceId',
+    'startedAt',
+    'teams.*',
+  ],
   read: [
     '_id',
     'acceptedUserIds',
@@ -20,7 +27,7 @@ const administrator = {
     'teams.*',
     'updatedAt',
   ],
-  update: ['teams.*'],
+  update: ['finishedAt', 'startedAt', 'teams.*'],
 };
 
 export const MatchPermissions = new MongoosePermissions<MatchDocument>(MatchModel, {
