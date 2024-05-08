@@ -12,7 +12,10 @@ GameServerEvent.async(async (payload) => {
   const { matchId } = payload.fullDocument;
 
   if (payload.operationType === 'delete' && matchId) {
-    return MatchModel.findOneAndUpdate({ _id: matchId }, { finishedAt: new Date() });
+    return MatchModel.findOneAndUpdate(
+      { _id: matchId, finishedAt: { $exists: false } },
+      { finishedAt: new Date() },
+    );
   }
 });
 
@@ -35,7 +38,10 @@ MatchEvent.async(async (payload) => {
     fullDocument.acceptedUserIds.length === fullDocument.userIds.length &&
     payload.updateDescription.updatedFields.acceptedUserIds
   ) {
-    return MatchModel.findOneAndUpdate({ _id: fullDocument._id }, { startedAt: new Date() });
+    return MatchModel.findOneAndUpdate(
+      { _id: fullDocument._id, startedAt: { $exists: false } },
+      { startedAt: new Date() },
+    );
   }
 
   if (
