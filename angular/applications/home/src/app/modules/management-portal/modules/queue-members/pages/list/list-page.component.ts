@@ -32,7 +32,7 @@ export class QueueMembersListPageComponent implements OnDestroy, OnInit {
 
   public $queueMembers: Observable<QueueMemberModel[]>;
   public dataSource = new MatTableDataSource<QueueMemberModel>();
-  public displayedColumns = ['username', 'createdAt', 'actions'];
+  public displayedColumns = ['username', 'steam', 'createdAt', 'actions'];
   public hasWriteAuthorization: boolean;
   public message: string;
 

@@ -2,11 +2,11 @@
 
 <div *ngIf="!message"
      class="page">
-  <app-title>Users</app-title>
+  <app-title>Queue Members</app-title>
 
   <div class="row">
     <div class="col-sm-3">
-      <app-data-source-filter [dataSource]="dataSource">Filter Users</app-data-source-filter>
+      <app-data-source-filter [dataSource]="dataSource">Filter Queue Members</app-data-source-filter>
     </div>
   </div>
 
@@ -21,6 +21,15 @@
           mat-sort-header>Username</th>
       <td mat-cell
           *matCellDef="let element">{{ getUser(element.userId).username }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="steam">
+      <th mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header>Steam ID / Persona Name</th>
+      <td mat-cell
+          *matCellDef="let element">{{ getUser(element.userId).steamPersonaName || getUser(element.userId).steamId }}
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="createdAt">
