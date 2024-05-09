@@ -1,3 +1,5 @@
+import * as mongoose from 'mongoose';
+
 export const duplicateValidator = {
   msg: 'Array cannot contain duplicate values.',
   validator: (values: any) => {
@@ -24,6 +26,10 @@ export const duplicateValidator = {
 
 function alphabetizeKeys(value: { [key: string]: any }) {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+    return value;
+  }
+
+  if (value instanceof mongoose.Types.ObjectId) {
     return value;
   }
 
