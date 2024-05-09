@@ -51,6 +51,9 @@ export class QueueSchema {
   @prop({ min: 100 * 1000 * 1000, required: true, type: Number })
   public memory: number;
 
+  @prop({ type: mongoose.Schema.Types.Mixed, unset: false })
+  public metadata: any;
+
   @prop({ maxlength: 64, required: true, trim: true, type: String })
   public name: string;
 

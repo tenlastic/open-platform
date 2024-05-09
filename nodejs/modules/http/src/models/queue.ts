@@ -61,6 +61,7 @@ export class QueueModel extends BaseModel {
   public gameServerTemplateId: string;
   public invitationSeconds: number;
   public memory: number;
+  public metadata: any;
   public name: string;
   public namespaceId: string;
   public preemptible: boolean;

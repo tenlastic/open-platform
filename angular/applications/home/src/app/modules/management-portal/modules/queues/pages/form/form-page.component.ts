@@ -20,6 +20,12 @@ import { Subscription } from 'rxjs';
 import { FormService, IdentityService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
 
+interface PropertyFormGroup {
+  key?: string;
+  type?: string;
+  value?: any;
+}
+
 @Component({
   templateUrl: 'form-page.component.html',
   styleUrls: ['./form-page.component.scss'],
@@ -112,6 +118,11 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       return;
     }
 
+    const metadata = this.form.get('metadata').value.reduce((accumulator, property) => {
+      accumulator[property.key] = this.getJsonFromProperty(property);
+      return accumulator;
+    }, {});
+
     const values: Partial<QueueModel> = {
       _id: this.data._id,
       confirmation: this.form.get('confirmation').value,
@@ -120,6 +131,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       gameServerTemplateId: this.form.get('gameServerTemplateId').value,
       invitationSeconds: this.form.get('invitationSeconds').value,
       memory: this.form.get('memory').value,
+      metadata,
       name: this.form.get('name').value,
       namespaceId: this.form.get('namespaceId').value,
       preemptible: this.form.get('preemptible').value,
@@ -170,6 +182,19 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
     return Object.keys(this.form.controls).filter((key) => this.form.get(key).dirty);
   }
 
+  private getJsonFromProperty(property: PropertyFormGroup) {
+    switch (property.type) {
+      case 'boolean':
+        return property.value || false;
+
+      case 'number':
+        return isNaN(parseFloat(property.value)) ? 0 : parseFloat(property.value);
+
+      default:
+        return property.value || '';
+    }
+  }
+
   private getThresholdFormGroups(thresholds: IQueue.Threshold[]) {
     return thresholds.map((t) => {
       const formControls = t.usersPerTeam.map((upt) =>
@@ -190,6 +215,25 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       usersPerTeam: [1, 1],
     });
 
+    const metadataFormGroups = [];
+    if (this.data.metadata) {
+      Object.entries(this.data.metadata).forEach(([key, property]) => {
+        let type = 'boolean';
+        if (typeof property === 'string' || property instanceof String) {
+          type = 'string';
+        } else if (typeof property === 'number') {
+          type = 'number';
+        }
+
+        const formGroup = this.formBuilder.group({
+          key: [key, [Validators.required, Validators.pattern(/^[0-9A-Za-z\-]{2,64}$/)]],
+          value: [property, Validators.required],
+          type,
+        });
+        metadataFormGroups.push(formGroup);
+      });
+    }
+
     const thresholdFormGroups = [];
     if (this.data?.thresholds?.length > 0) {
       thresholdFormGroups.push(...this.getThresholdFormGroups(this.data.thresholds));
@@ -209,6 +253,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       ],
       invitationSeconds: [this.data.invitationSeconds || 0],
       memory: [this.data.memory || this.memories[0].value, Validators.required],
+      metadata: this.formBuilder.array(metadataFormGroups),
       name: [this.data.name, Validators.required],
       namespaceId: [this.params.namespaceId],
       preemptible: [this.data.preemptible === false ? false : true],
