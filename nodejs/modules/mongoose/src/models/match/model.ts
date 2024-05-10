@@ -68,6 +68,9 @@ export class MatchSchema {
   @prop({ ref: 'QueueSchema', type: mongoose.Schema.Types.ObjectId })
   public queueId: mongoose.Types.ObjectId;
 
+  @prop({ type: mongoose.Schema.Types.Mixed, unset: false })
+  public results: any;
+
   @prop({ filter: { create: true, update: true }, type: Date })
   public startedAt: Date;
 

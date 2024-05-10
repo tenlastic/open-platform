@@ -37,6 +37,11 @@ components:
         queueId:
           type: string
           format: ^[0-9a-f]{24}$
+        results:
+          type: object
+        startedAt:
+          type: string
+          format: date-time
         teams:
           type: array
           items:

@@ -49,6 +49,7 @@ components:
         - GameServers:ReadWrite
         - Logins:Read
         - Matches:Read
+        - Matches:ReadFinished
         - Matches:ReadStarted
         - Matches:ReadWrite
         - NamespaceLogs:Read

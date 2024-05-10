@@ -4,7 +4,7 @@ import { AuthorizationRole, MatchDocument, MatchModel } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
 const administrator = {
-  create: ['gameServerTemplateId', 'invitationsExpireAt', 'namespaceId', 'teams.*'],
+  create: ['gameServerTemplateId', 'invitationsExpireAt', 'namespaceId', 'results.*', 'teams.*'],
   read: [
     '_id',
     'acceptedUserIds',
@@ -16,11 +16,12 @@ const administrator = {
     'invitationsExpireAt',
     'namespaceId',
     'queueId',
+    'results.*',
     'startedAt',
     'teams.*',
     'updatedAt',
   ],
-  update: ['finishedAt', 'teams.*'],
+  update: ['finishedAt', 'results.*', 'teams.*'],
 };
 
 export const MatchPermissions = new MongoosePermissions<MatchDocument>(MatchModel, {
@@ -38,6 +39,14 @@ export const MatchPermissions = new MongoosePermissions<MatchDocument>(MatchMode
     default: {
       $or: [
         AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.MatchesRead]),
+        {
+          ...AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.MatchesReadFinished]),
+          finishedAt: { $exists: true },
+        },
+        {
+          ...AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.MatchesReadStarted]),
+          startedAt: { $exists: true },
+        },
         {
           acceptedUserIds: { $ref: 'user._id' },
           startedAt: { $exists: true },
@@ -60,6 +69,7 @@ export const MatchPermissions = new MongoosePermissions<MatchDocument>(MatchMode
       'invitationsExpireAt',
       'namespaceId',
       'queueId',
+      'results.*',
       'startedAt',
       'teams.*',
       'updatedAt',
