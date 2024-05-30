@@ -15,7 +15,6 @@ export class MatchModel extends BaseModel {
   public invitationsExpireAt: Date;
   public namespaceId: string;
   public queueId: string;
-  public results: any;
   public startedAt: Date;
   public teams: IMatch.Team[];
   public get userIds(): string[] {
