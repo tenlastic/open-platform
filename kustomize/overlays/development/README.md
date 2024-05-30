@@ -29,7 +29,7 @@ sudo snap install microk8s --classic
 sudo microk8s status --wait-ready
 
 # Get the IP address of MicroK8s.
-IP_ADDRESS=$(microk8s kubectl get node -o json | jq -r '.items[].status.addresses[] | select(.type=="InternalIP") | .address')
+IP_ADDRESS=$(sudo microk8s kubectl get node -o json | jq -r '.items[].status.addresses[] | select(.type=="InternalIP") | .address')
 
 # Enable addons.
 sudo microk8s enable dns

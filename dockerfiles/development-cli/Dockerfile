@@ -12,7 +12,7 @@ ENV STERN_VERSION 1.22.0
 ENV TERRAFORM_VERSION 0.14.5
 
 USER root
-WORKDIR /home/
+WORKDIR /usr/src/
 
 # Run package update and install some basics.
 RUN apt-get update && apt-get upgrade -y

@@ -9,4 +9,4 @@ services:
       - /etc/passwd:/etc/passwd:ro
       - ~/.config/gcloud/:/root/.config/gcloud/
       - ~/.kube/:/.kube/
-      - ./:/home/
+      - ./:/usr/src/
