@@ -9,8 +9,8 @@ import {
   UpdateServiceStatus,
 } from '../../../../../../core/services';
 import { FilesizePipe } from '../../../../../../shared/pipes';
-import { AuthorizationQuery, IAuthorization } from '@tenlastic/http';
-import { combineLatest } from 'rxjs';
+import { AuthorizationQuery, IAuthorization, StorefrontQuery } from '@tenlastic/http';
+import { Observable, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 @Component({
@@ -19,7 +19,8 @@ import { map } from 'rxjs/operators';
   templateUrl: './status.component.html',
 })
 export class StatusComponent implements OnDestroy, OnInit {
-  public IAuthorization = IAuthorization;
+  public $showGameServers: Observable<boolean>;
+  public $showQueues: Observable<boolean>;
   public get buttonAction() {
     switch (this.status.state) {
       case UpdateServiceState.NotAuthorized:
@@ -95,6 +96,7 @@ export class StatusComponent implements OnDestroy, OnInit {
   public get hasProgress() {
     return Boolean(this.status?.progress);
   }
+  public IAuthorization = IAuthorization;
   public get isButtonVisible() {
     switch (this.status.state) {
       case UpdateServiceState.AuthorizationRequestDenied:
@@ -179,6 +181,7 @@ export class StatusComponent implements OnDestroy, OnInit {
     private changeDetectorRef: ChangeDetectorRef,
     private executableService: ExecutableService,
     private identityService: IdentityService,
+    private storefrontQuery: StorefrontQuery,
     private updateService: UpdateService,
   ) {}
 
@@ -188,6 +191,10 @@ export class StatusComponent implements OnDestroy, OnInit {
 
       this.status = this.updateService.getStatus(this.namespaceId);
       this.updateService.checkForUpdates(this.namespaceId, false, true);
+
+      const $storefront = this.storefrontQuery.selectEntity(this.namespaceId);
+      this.$showGameServers = $storefront.pipe(map((s) => s?.showGameServers));
+      this.$showQueues = $storefront.pipe(map((s) => s?.showQueues));
     });
 
     const { changeDetectorRef } = this;

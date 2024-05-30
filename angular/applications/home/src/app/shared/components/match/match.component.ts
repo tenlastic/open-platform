@@ -2,7 +2,6 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import {
   MatchInvitationModel,
-  MatchInvitationQuery,
   MatchInvitationService,
   MatchModel,
   MatchQuery,
@@ -10,10 +9,8 @@ import {
   QueueMemberModel,
   QueueMemberQuery,
   QueueMemberService,
-  QueueModel,
   QueueQuery,
   QueueService,
-  StorefrontModel,
   StorefrontQuery,
   StorefrontService,
 } from '@tenlastic/http';
@@ -164,12 +161,22 @@ export class MatchComponent implements OnDestroy, OnInit {
       return;
     }
 
+    const storefront = this.getStorefront(matchInvitation.namespaceId);
+    if (!storefront?.showQueues) {
+      return;
+    }
+
     this.focusWindow();
     this.openDialog({ matchInvitation });
   }
 
   private newMatchNotification(match: MatchModel) {
     if (!match.startedAt || !match.userIds.includes(this.identityService.user._id)) {
+      return;
+    }
+
+    const storefront = this.getStorefront(match.namespaceId);
+    if (!storefront?.showQueues) {
       return;
     }
 

@@ -10,6 +10,8 @@ export class StorefrontModel extends BaseModel {
   public metadata: any;
   public namespaceId: string;
   public roles: IAuthorization.Role[];
+  public showGameServers: boolean;
+  public showQueues: boolean;
   public subtitle: string;
   public title: string;
   public videos: string[];

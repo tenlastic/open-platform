@@ -53,6 +53,12 @@ export class StorefrontSchema {
   @prop({ enum: AuthorizationRole, type: String }, PropType.ARRAY)
   public roles: AuthorizationRole[];
 
+  @prop({ type: Boolean })
+  public showGameServers: boolean;
+
+  @prop({ type: Boolean })
+  public showQueues: boolean;
+
   @prop({ maxlength: 32, type: String })
   public subtitle: string;
 

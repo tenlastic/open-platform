@@ -28,6 +28,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AuthorizationRole'
+        showGameServers:
+          type: boolean
+        showQueues:
+          type: boolean
         subtitle:
           type: string
           format: ^.{2,40}$

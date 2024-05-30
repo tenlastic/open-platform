@@ -59,6 +59,24 @@
         </div>
       </div>
 
+      <div class="row">
+        <mat-form-field floatLabel="always">
+          <mat-label>Show Game Servers</mat-label>
+          <mat-select formControlName="showGameServers">
+            <mat-option [value]="true">Yes</mat-option>
+            <mat-option [value]="false">No</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field floatLabel="always">
+          <mat-label>Show Queues</mat-label>
+          <mat-select formControlName="showQueues">
+            <mat-option [value]="true">Yes</mat-option>
+            <mat-option [value]="false">No</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
       <app-toggle-section title="Metadata">
         <app-metadata-fields [formArray]="form.get('metadata')"></app-metadata-fields>
       </app-toggle-section>

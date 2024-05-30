@@ -105,6 +105,8 @@ export class StorefrontsFormPageComponent implements OnInit {
       metadata,
       namespaceId: this.params.namespaceId,
       roles,
+      showGameServers: this.form.get('showGameServers').value,
+      showQueues: this.form.get('showQueues').value,
       subtitle: this.form.get('subtitle').value,
       title: this.form.get('title').value,
     };
@@ -171,6 +173,8 @@ export class StorefrontsFormPageComponent implements OnInit {
       icon: [this.data.icon],
       metadata: this.formBuilder.array(metadata),
       roles: this.formBuilder.group(roles),
+      showGameServers: [this.data.showGameServers || false],
+      showQueues: [this.data.showQueues || false],
       subtitle: [this.data.subtitle],
       title: [this.data.title, Validators.required],
     });
