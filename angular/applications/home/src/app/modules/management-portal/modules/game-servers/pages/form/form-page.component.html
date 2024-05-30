@@ -106,6 +106,12 @@
         </div>
       </app-toggle-section>
 
+      <app-toggle-section *ngIf="!form.get('secrets').disabled || form.get('secrets').value.length"
+                          [isVisible]="false"
+                          title="Secrets">
+        <app-metadata-fields [formArray]="form.get('secrets')"></app-metadata-fields>
+      </app-toggle-section>
+
       <app-toggle-section *ngIf="data.status"
                           title="Status">
         <div class="row">

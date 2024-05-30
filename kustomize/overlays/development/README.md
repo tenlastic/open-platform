@@ -64,6 +64,7 @@ Add the following lines to the file, replacing `127.0.0.1` with `IP_ADDRESS` fro
 127.0.0.1 api.local.tenlastic.com
 127.0.0.1 argo.local.tenlastic.com
 127.0.0.1 docker-registry.local.tenlastic.com
+127.0.0.1 kubernetes-dashboard.local.tenlastic.com
 127.0.0.1 minio.local.tenlastic.com
 127.0.0.1 minio-console.local.tenlastic.com
 127.0.0.1 mongo.local.tenlastic.com

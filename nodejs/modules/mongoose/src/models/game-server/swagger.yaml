@@ -54,6 +54,8 @@ components:
         restartedAt:
           type: string
           format: date-time
+        secrets:
+          type: object
         status:
           $ref: '#/components/schemas/GameServerStatus'
         updatedAt:

@@ -19,6 +19,7 @@ upsert () {
 upsert api.local.tenlastic.com
 upsert argo.local.tenlastic.com
 upsert docker-registry.local.tenlastic.com
+upsert kubernetes-dashboard.local.tenlastic.com
 upsert minio.local.tenlastic.com
 upsert minio-console.local.tenlastic.com
 upsert mongo.local.tenlastic.com

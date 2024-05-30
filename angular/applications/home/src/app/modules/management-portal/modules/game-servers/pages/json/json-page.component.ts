@@ -88,6 +88,7 @@ export class GameServersJsonPageComponent implements OnInit {
       name: '',
       ports: [],
       preemptible: true,
+      secrets: {},
     });
 
     const keys = [
@@ -101,6 +102,7 @@ export class GameServersJsonPageComponent implements OnInit {
       'ports',
       'preemptible',
       'probes',
+      'secrets',
     ];
     const data = Object.keys(this.data)
       .filter((key) => keys.includes(key))

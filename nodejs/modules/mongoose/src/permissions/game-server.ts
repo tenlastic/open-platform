@@ -17,6 +17,7 @@ const administrator = {
     'ports.*',
     'preemptible',
     'probes.*',
+    'secrets.*',
   ],
   read: [
     '_id',
@@ -36,6 +37,7 @@ const administrator = {
     'probes.*',
     'queueId',
     'restartedAt',
+    'secrets.*',
     'status.*',
     'updatedAt',
   ],
@@ -52,6 +54,7 @@ const administrator = {
     'preemptible',
     'probes.*',
     'restartedAt',
+    'secrets.*',
   ],
 };
 

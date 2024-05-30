@@ -123,6 +123,7 @@ export class GameServerModel extends BaseModel {
   public probes: IGameServer.Probes;
   public queueId: string;
   public restartedAt: Date;
+  public secrets: any;
   public status: IGameServer.Status;
 
   constructor(parameters?: Partial<GameServerModel>) {

@@ -130,6 +130,10 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
       accumulator[property.key] = this.getJsonFromProperty(property);
       return accumulator;
     }, {});
+    const secrets = this.form.get('secrets').value.reduce((accumulator, property) => {
+      accumulator[property.key] = this.getJsonFromProperty(property);
+      return accumulator;
+    }, {});
 
     const values: Partial<GameServerModel> = {
       _id: this.data._id,
@@ -142,6 +146,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
       namespaceId: this.form.get('namespaceId').value,
       ports: this.form.get('ports').value,
       preemptible: this.form.get('preemptible').value,
+      secrets
     };
 
     const livenessProbe = ProbeFieldComponent.getJsonFromProbe(
@@ -196,6 +201,30 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
     return Object.keys(this.form.controls).filter((key) => this.form.get(key).dirty);
   }
 
+  private getFormGroups(input: any) {
+    const formGroups: FormGroup[] = [];
+
+    if (input) {
+      Object.entries(input).forEach(([key, property]) => {
+        let type = 'boolean';
+        if (typeof property === 'string' || property instanceof String) {
+          type = 'string';
+        } else if (typeof property === 'number') {
+          type = 'number';
+        }
+
+        const formGroup = this.formBuilder.group({
+          key: [key, [Validators.required, Validators.pattern(/^[0-9A-Za-z\-]{2,64}$/)]],
+          value: [property, Validators.required],
+          type,
+        });
+        formGroups.push(formGroup);
+      });
+    }
+
+    return formGroups;
+  }
+
   private getJsonFromProperty(property: PropertyFormGroup) {
     switch (property.type) {
       case 'boolean':
@@ -212,29 +241,14 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
   private setupForm() {
     this.data ??= this.gameServerTemplate?.toGameServer() ?? new GameServerModel();
 
-    const metadataFormGroups = [];
-    if (this.data.metadata) {
-      Object.entries(this.data.metadata).forEach(([key, property]) => {
-        let type = 'boolean';
-        if (typeof property === 'string' || property instanceof String) {
-          type = 'string';
-        } else if (typeof property === 'number') {
-          type = 'number';
-        }
-
-        const formGroup = this.formBuilder.group({
-          key: [key, [Validators.required, Validators.pattern(/^[0-9A-Za-z\-]{2,64}$/)]],
-          value: [property, Validators.required],
-          type,
-        });
-        metadataFormGroups.push(formGroup);
-      });
-    }
+    const metadataFormGroups = this.getFormGroups(this.data.metadata);
 
     const ports = this.data.ports || [{ port: 7777, protocol: IGameServer.Protocol.Tcp }];
     const portFormGroups = ports.map((p) =>
       this.formBuilder.group({ port: [p.port, Validators.required], protocol: p.protocol }),
     );
+
+    const secretsFormGroups = this.getFormGroups(this.data.secrets);
 
     this.form = this.formBuilder.group({
       buildId: [this.data.buildId || (this.builds[0] && this.builds[0]._id), Validators.required],
@@ -250,6 +264,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
         liveness: ProbeFieldComponent.getFormGroupFromProbe(this.data.probes?.liveness),
         readiness: ProbeFieldComponent.getFormGroupFromProbe(this.data.probes?.readiness),
       }),
+      secrets: this.formBuilder.array(secretsFormGroups),
     });
 
     if (!this.hasWriteAuthorization) {

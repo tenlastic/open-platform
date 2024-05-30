@@ -86,6 +86,9 @@ export class GameServerSchema {
   @prop({ filter: { create: true, update: true }, type: Date })
   public restartedAt: Date;
 
+  @prop({ type: mongoose.Schema.Types.Mixed, unset: false })
+  public secrets: any;
+
   @prop({ default: () => new GameServerStatusModel(), merge: true, type: GameServerStatusSchema })
   public status: GameServerStatusDocument;
 
