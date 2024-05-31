@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "name": "@tenlastic/social-api",
   "private": true,
-  "version": "0.0.421",
+  "version": "0.0.422",
   "scripts": {
     "build": "../../scripts/build.sh",
     "lint": "../../scripts/lint.sh",
@@ -15,12 +15,12 @@
     "version": "../../scripts/version.sh deployments social-api"
   },
   "dependencies": {
-    "@tenlastic/logging": "0.0.421",
-    "@tenlastic/mongoose": "0.0.421",
-    "@tenlastic/mongoose-nats": "0.0.421",
-    "@tenlastic/mongoose-permissions": "0.0.421",
-    "@tenlastic/nats": "0.0.421",
-    "@tenlastic/web-server": "0.0.421",
+    "@tenlastic/logging": "0.0.422",
+    "@tenlastic/mongoose": "0.0.422",
+    "@tenlastic/mongoose-nats": "0.0.422",
+    "@tenlastic/mongoose-permissions": "0.0.422",
+    "@tenlastic/nats": "0.0.422",
+    "@tenlastic/web-server": "0.0.422",
     "koa-router": "12.0.0",
     "source-map-support": "0.5.12"
   },
