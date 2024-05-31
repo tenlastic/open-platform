@@ -75,6 +75,9 @@ export class GameServerTemplateSchema {
   @prop({ type: GameServerProbesSchema })
   public probes: GameServerProbesDocument;
 
+  @prop({ type: mongoose.Schema.Types.Mixed, unset: false })
+  public secrets: any;
+
   public updatedAt: Date;
 
   @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })

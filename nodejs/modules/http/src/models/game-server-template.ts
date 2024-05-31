@@ -13,6 +13,7 @@ export class GameServerTemplateModel extends BaseModel {
   public ports: IGameServer.Port[];
   public preemptible: boolean;
   public probes: IGameServer.Probes;
+  public secrets: any;
 
   constructor(parameters?: Partial<GameServerTemplateModel>) {
     super(parameters);

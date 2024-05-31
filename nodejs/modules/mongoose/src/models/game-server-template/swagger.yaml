@@ -35,6 +35,8 @@ components:
           type: boolean
         probes:
           $ref: '#/components/schemas/GameServerProbes'
+        secrets:
+          type: object
         updatedAt:
           type: string
           format: date-time
