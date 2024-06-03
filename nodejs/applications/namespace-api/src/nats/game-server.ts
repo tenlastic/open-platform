@@ -102,6 +102,7 @@ MatchEvent.async(async (payload) => {
       preemptible: gameServerTemplate.preemptible,
       probes: gameServerTemplate.probes,
       queueId: payload.fullDocument.queueId,
+      secrets: gameServerTemplate.secrets,
     });
   }
 });
