@@ -7,6 +7,7 @@ import {
   pre,
   prop,
   PropType,
+  Severity,
 } from '@typegoose/typegoose';
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
@@ -23,10 +24,13 @@ import { QueueStatusModel, QueueStatusDocument, QueueStatusSchema } from './stat
 import { QueueThresholdDocument, QueueThresholdSchema } from './threshold';
 
 @index({ namespaceId: 1 })
-@modelOptions({ schemaOptions: { collection: 'queues', timestamps: true } })
+@modelOptions({
+  options: { allowMixed: Severity.ALLOW },
+  schemaOptions: { collection: 'queues', timestamps: true },
+})
 @plugin(unsetPlugin)
 @pre('save', function (this: QueueDocument) {
-  this.thresholds.sort((a, b) => (a.seconds > b.seconds ? 1 : -1));
+  this.thresholds.sort((a, b) => (a.seconds < b.seconds ? 1 : -1));
 })
 export class QueueSchema {
   public _id: mongoose.Types.ObjectId;
