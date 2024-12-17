@@ -6,9 +6,7 @@ import { CollectionIndexKeyModel } from './index';
 
 import { CollectionIndexModel } from './index';
 import { CollectionIndexOptionsModel } from './index/options';
-import { CollectionJsonSchemaModel, CollectionJsonSchemaType } from './json-schema';
-import { CollectionJsonSchemaPropertiesModel } from './json-schema/properties';
-import { CollectionModel } from './model';
+import { CollectionJsonSchemaType, CollectionModel } from './model';
 
 use(chaiAsPromised);
 
@@ -55,18 +53,46 @@ describe('models/collection', function () {
   });
 
   describe('jsonSchema', function () {
-    it('does not return an error', async function () {
+    it('does not save', async function () {
+      const jsonSchema = {
+        properties: {
+          number: {
+            default: 0,
+            type: CollectionJsonSchemaType.Number,
+            blah: 'blah',
+          },
+          string: {
+            default: '',
+            type: CollectionJsonSchemaType.String,
+          },
+        },
+        required: [],
+        type: 'object',
+      };
+
+      const promise = CollectionModel.mock({ jsonSchema: jsonSchema as any }).save();
+
+      return expect(promise).to.be.rejectedWith(
+        '/properties/number must NOT have additional properties',
+      );
+    });
+
+    it('saves', async function () {
       const record = await CollectionModel.mock({
-        jsonSchema: CollectionJsonSchemaModel.mock({
-          properties: new Map([
-            [
-              'name',
-              CollectionJsonSchemaPropertiesModel.mock({ type: CollectionJsonSchemaType.String }),
-            ],
-          ]),
-          required: ['name'],
-          type: CollectionJsonSchemaType.Object,
-        }),
+        jsonSchema: {
+          properties: {
+            number: {
+              default: 0,
+              type: CollectionJsonSchemaType.Number,
+            },
+            string: {
+              default: '',
+              type: CollectionJsonSchemaType.String,
+            },
+          },
+          required: [],
+          type: 'object',
+        },
       }).save();
 
       expect(record).to.exist;
@@ -76,16 +102,13 @@ describe('models/collection', function () {
   describe('setValidator()', function () {
     it('sets the validator on the collection within MongoDB', async function () {
       const collection = await CollectionModel.mock({
-        jsonSchema: CollectionJsonSchemaModel.mock({
-          properties: new Map([
-            [
-              'name',
-              CollectionJsonSchemaPropertiesModel.mock({ type: CollectionJsonSchemaType.String }),
-            ],
-          ]),
+        jsonSchema: {
+          properties: {
+            name: { type: CollectionJsonSchemaType.String },
+          },
           required: ['name'],
           type: CollectionJsonSchemaType.Object,
-        }),
+        },
       }).save();
 
       await collection.setValidator();

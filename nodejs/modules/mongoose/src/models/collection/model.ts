@@ -8,6 +8,7 @@ import {
   pre,
   prop,
   PropType,
+  Severity,
 } from '@typegoose/typegoose';
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
@@ -15,23 +16,44 @@ import * as mongoose from 'mongoose';
 import { enablePrePostImages } from '../../enable-pre-post-images';
 import { jsonToMongo } from '../../json-schema';
 import { duplicateKeyErrorPlugin, minimizePlugin, setPlugin, unsetPlugin } from '../../plugins';
+import { jsonSchemaValidator } from '../../validators';
 import { AuthorizationDocument } from '../authorization';
 import { RecordSchema } from '../record';
 import { SchemaSchema } from '../schema';
 import { CollectionIndexDocument, CollectionIndexSchema } from './index/index';
-import {
-  CollectionJsonSchemaDocument,
-  CollectionJsonSchemaModel,
-  CollectionJsonSchemaSchema,
-} from './json-schema';
 import {
   CollectionPermissionsDocument,
   CollectionPermissionsModel,
   CollectionPermissionsSchema,
 } from './permissions';
 
+export interface CollectionJsonSchema {
+  properties: { [s: string]: CollectionJsonSchemaProperties };
+  required?: string[];
+  type: 'object';
+}
+
+export interface CollectionJsonSchemaProperties {
+  default?: boolean | number | string;
+  format?: 'date-time';
+  items?: CollectionJsonSchemaProperties;
+  properties?: { [s: string]: CollectionJsonSchemaProperties };
+  type: CollectionJsonSchemaType;
+}
+
+export enum CollectionJsonSchemaType {
+  Array = 'array',
+  Boolean = 'boolean',
+  Integer = 'integer',
+  Null = 'null',
+  Number = 'number',
+  Object = 'object',
+  String = 'string',
+}
+
 @index({ name: 1, namespaceId: 1 }, { unique: true })
 @modelOptions({
+  options: { allowMixed: Severity.ALLOW },
   schemaOptions: { collection: 'collections', timestamps: true },
 })
 @plugin(duplicateKeyErrorPlugin)
@@ -67,8 +89,8 @@ export class CollectionSchema {
   @prop({ type: CollectionIndexSchema }, PropType.ARRAY)
   public indexes: CollectionIndexDocument[];
 
-  @prop({ required: true, type: CollectionJsonSchemaSchema })
-  public jsonSchema: CollectionJsonSchemaDocument;
+  @prop({ required: true, type: mongoose.Schema.Types.Mixed, validate: jsonSchemaValidator as any })
+  public jsonSchema: CollectionJsonSchema;
 
   @prop({ maxlength: 64, required: true, trim: true, type: String })
   public name: string;
@@ -94,7 +116,10 @@ export class CollectionSchema {
   public static mock(this: typeof CollectionModel, values: Partial<CollectionSchema> = {}) {
     const chance = new Chance();
     const defaults = {
-      jsonSchema: CollectionJsonSchemaModel.mock(),
+      jsonSchema: {
+        properties: { key: { type: 'string' } },
+        type: 'object',
+      },
       name: chance.hash(),
       namespaceId: new mongoose.Types.ObjectId(),
       permissions: CollectionPermissionsModel.mock(),

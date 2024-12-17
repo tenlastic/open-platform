@@ -19,8 +19,8 @@ const validate = [alphabeticalKeysValidator, excludeKeysValidator(keys)];
   schemaOptions: {
     _id: false,
     minimize: false,
-    toJSON: { getters: true },
-    toObject: { getters: true },
+    toJSON: { flattenMaps: true, getters: true },
+    toObject: { flattenMaps: true, getters: true },
   },
 })
 export class CollectionPermissionsSchema {

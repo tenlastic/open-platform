@@ -1,8 +1,6 @@
 import {
   CollectionDocument,
-  CollectionJsonSchemaPropertiesModel,
   CollectionJsonSchemaType,
-  CollectionJsonSchemaModel,
   CollectionModel,
   CollectionPermissionsModel,
   NamespaceDocument,
@@ -25,18 +23,12 @@ describe('web-server/records/find', function () {
     user = await UserModel.mock().save();
     namespace = await NamespaceModel.mock().save();
     collection = await CollectionModel.mock({
-      jsonSchema: CollectionJsonSchemaModel.mock({
-        properties: new Map([
-          [
-            'insertedAt',
-            CollectionJsonSchemaPropertiesModel.mock({
-              format: 'date-time',
-              type: CollectionJsonSchemaType.String,
-            }),
-          ],
-        ]),
+      jsonSchema: {
+        properties: {
+          insertedAt: { format: 'date-time', type: CollectionJsonSchemaType.String },
+        },
         type: CollectionJsonSchemaType.Object,
-      }),
+      },
       namespaceId: namespace._id,
       permissions: CollectionPermissionsModel.mock({
         create: new Map(Object.entries({ public: ['properties'] })),

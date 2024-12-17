@@ -24,6 +24,7 @@
   "dependencies": {
     "@tenlastic/mongoose-permissions": "0.0.424",
     "@typegoose/typegoose": "9.13.1",
+    "ajv": "8.17.1",
     "bcryptjs": "2.4.3",
     "chance": "1.0.16",
     "jsonwebtoken": "9.0.0",

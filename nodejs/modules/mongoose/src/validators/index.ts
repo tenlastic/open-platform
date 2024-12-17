@@ -9,5 +9,6 @@ export * from './email';
 export * from './entry-length';
 export * from './enum';
 export * from './exclude-keys';
+export * from './json-schema';
 export * from './key-length';
 export * from './string-length';

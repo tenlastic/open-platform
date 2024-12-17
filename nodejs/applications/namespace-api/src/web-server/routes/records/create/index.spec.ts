@@ -1,8 +1,6 @@
 import {
   CollectionDocument,
   CollectionModel,
-  CollectionJsonSchemaModel,
-  CollectionJsonSchemaPropertiesModel,
   CollectionJsonSchemaType,
   CollectionPermissionsModel,
   NamespaceModel,
@@ -28,19 +26,13 @@ describe('web-server/records/create', function () {
 
     const namespace = await NamespaceModel.mock().save();
     collection = await CollectionModel.mock({
-      jsonSchema: CollectionJsonSchemaModel.mock({
-        properties: new Map([
-          [
-            'email',
-            CollectionJsonSchemaPropertiesModel.mock({ type: CollectionJsonSchemaType.String }),
-          ],
-          [
-            'name',
-            CollectionJsonSchemaPropertiesModel.mock({ type: CollectionJsonSchemaType.String }),
-          ],
-        ]),
+      jsonSchema: {
+        properties: {
+          email: { type: CollectionJsonSchemaType.String },
+          name: { type: CollectionJsonSchemaType.String },
+        },
         type: CollectionJsonSchemaType.Object,
-      }),
+      },
       namespaceId: namespace._id,
       permissions: CollectionPermissionsModel.mock({
         create: new Map(Object.entries({ public: ['properties.email', 'properties.name'] })),

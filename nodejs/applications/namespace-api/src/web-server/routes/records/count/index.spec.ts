@@ -1,7 +1,5 @@
 import {
   CollectionDocument,
-  CollectionJsonSchemaModel,
-  CollectionJsonSchemaType,
   CollectionModel,
   CollectionPermissionsModel,
   NamespaceModel,
@@ -23,7 +21,6 @@ describe('web-server/records/count', function () {
 
     const namespace = await NamespaceModel.mock().save();
     collection = await CollectionModel.mock({
-      jsonSchema: CollectionJsonSchemaModel.mock({ type: CollectionJsonSchemaType.Object }),
       namespaceId: namespace._id,
       permissions: CollectionPermissionsModel.mock({
         create: new Map(Object.entries({ public: ['properties'] })),
