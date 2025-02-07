@@ -1,11 +1,13 @@
+import { ChangeStreamModel } from '@tenlastic/mongoose';
 import * as nats from '@tenlastic/nats';
+import { expect } from 'chai';
 import { Chance } from 'chance';
 import { ChangeStream } from 'mongodb';
 import * as mongoose from 'mongoose';
 import { DeliverPolicy } from 'nats';
 import { TextDecoder } from 'util';
 
-import { client, connection } from '../entrypoint.spec';
+import { connection } from '../entrypoint.spec';
 import { watch } from './';
 
 const chance = new Chance();
@@ -26,7 +28,8 @@ describe('watch', function () {
 
   it('handles many change events', async function () {
     // Start watching for changes.
-    changeStream = watch(client, [], connection, 'cdc.resumeToken', null);
+    const key = 'cdc.resumeToken';
+    changeStream = watch([], connection, key, null);
 
     // Insert records into MongoDB.
     const names = Array.from(Array(100)).map(() => chance.hash());
@@ -49,5 +52,9 @@ describe('watch', function () {
         subscription.stop();
       }
     }
+
+    // Make sure Change Stream is stored in MongoDB.
+    const record = await ChangeStreamModel.findOne({ key });
+    expect(record.resumeToken).to.exist;
   });
 });

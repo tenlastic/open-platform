@@ -2,6 +2,7 @@ export * from './article';
 export * from './authorization';
 export * from './authorization-request';
 export * from './build';
+export * from './change-stream';
 export * from './collection';
 export * from './friend';
 export * from './game-server';

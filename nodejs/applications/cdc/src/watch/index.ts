@@ -1,8 +1,8 @@
+import { ChangeStreamModel } from '@tenlastic/mongoose';
 import { DatabasePayload } from '@tenlastic/mongoose-nats';
 import * as nats from '@tenlastic/nats';
-import Redis from 'ioredis';
 import { ChangeStream, MongoChangeStreamError } from 'mongodb';
-import * as mongoose from 'mongoose';
+import { Connection } from 'mongoose';
 
 interface ChangeStreamDocument {
   _id: { _data: string };
@@ -17,12 +17,13 @@ interface ChangeStreamDocument {
 }
 
 export function watch(
-  client: Redis,
   collections: string[],
-  connection: mongoose.Connection,
+  connection: Connection,
   key: string,
   resumeAfter: string,
 ) {
+  const filter = { key };
+
   const pipeline = collections?.length ? [{ $match: { 'db.coll': { $in: collections } } }] : [];
   const changeStream = connection.db.watch(pipeline, {
     fullDocument: 'updateLookup',
@@ -32,8 +33,10 @@ export function watch(
 
   changeStream.on('change', async (change: ChangeStreamDocument) => {
     try {
+      const update = { key, resumeToken: change._id._data };
+
       if (!['delete', 'insert', 'replace', 'update'].includes(change.operationType)) {
-        await client.set(key, change._id._data);
+        await ChangeStreamModel.updateOne(filter, update, { upsert: true });
         return;
       }
 
@@ -56,7 +59,7 @@ export function watch(
       const subject = `${change.ns.db}.${change.ns.coll}`;
       await nats.publish(subject, message);
 
-      await client.set(key, change._id._data);
+      await ChangeStreamModel.updateOne(filter, update, { upsert: true });
     } catch (e) {
       console.error(e);
       process.exit(1);
@@ -65,9 +68,9 @@ export function watch(
   changeStream.on('error', async (err: MongoChangeStreamError) => {
     console.error(err);
 
-    // Delete Change Stream from Redis if ChangeStreamHistoryLost is received.
+    // Delete Change Stream from MongoDB if ChangeStreamHistoryLost is received.
     if (err.code === 286) {
-      await client.del(key);
+      await ChangeStreamModel.deleteOne({ key });
     }
 
     process.exit(1);
