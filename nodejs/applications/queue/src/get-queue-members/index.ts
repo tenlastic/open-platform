@@ -14,7 +14,7 @@ export async function getQueueMembers(
     where: { queueId, unix: { $mod: [replicas, index] } },
   });
 
-  if (limit == queueMembers.length) {
+  if (limit === queueMembers.length) {
     const additionalQueueMembers = await getQueueMembers(
       index,
       namespaceId,
