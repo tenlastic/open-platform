@@ -6,31 +6,26 @@ import { ApiError, QueueMemberModel, QueueModel } from '@tenlastic/http';
 import dependencies from './dependencies';
 
 import { createMatch } from './create-match';
-import * as redis from './redis';
+import { getQueueMembers } from './get-queue-members';
 
 const namespaceId = process.env.NAMESPACE_ID;
 const podName = process.env.POD_NAME;
 const queueId = process.env.QUEUE_ID;
+const replicas = parseInt(process.env.REPLICAS, 10);
 const wssUrl = process.env.WSS_URL;
 
 (async () => {
   try {
-    // Get initial Queue data.
-    const queue = await dependencies.queueService.findOne(namespaceId, queueId);
+    // Get initial Queue information.
+    await dependencies.queueService.findOne(namespaceId, queueId);
 
-    // Redis.
-    const client = await redis.start(queue);
+    // Get initial Queue Members.
+    const match = podName.match(/-(\d+)$/);
+    const index = match ? parseInt(match[1], 10) : null;
+    const startDate = new Date();
+    const queueMembers = await getQueueMembers(index, namespaceId, queueId, replicas);
 
-    // Log Queue Member changes.
-    dependencies.queueMemberService.emitter.on('create', (record) =>
-      console.log(`Created Queue Member with User IDs: ${record.userIds.join(',')}.`),
-    );
-    dependencies.queueMemberService.emitter.on('delete', (record) =>
-      console.log(`Deleted Queue Member with User IDs: ${record.userIds.join(',')}.`),
-    );
-    dependencies.queueMemberService.emitter.on('update', (record) =>
-      console.log(`Updated Queue Member with User IDs: ${record.userIds.join(',')}.`),
-    );
+    console.log(`Found ${queueMembers.length} existing Queue Members.`);
 
     // Web Sockets.
     await Promise.all([
@@ -46,24 +41,11 @@ const wssUrl = process.env.WSS_URL;
         { acks: true },
       ),
 
-      // Distribute new Queue Members among replicas.
+      // Watch for updates to the Queue Members.
       dependencies.subscriptionService.subscribe(
         QueueMemberModel,
         {
-          body: { operationType: ['insert'], resumeToken: `queue-${queueId}`, where: { queueId } },
-          path: '/subscriptions/queue-members',
-        },
-        dependencies.queueMemberService,
-        dependencies.queueMemberStore,
-        wssUrl,
-        { acks: true, callback: (response) => redis.upsert(client, response.body.fullDocument) },
-      ),
-
-      // Get all Queue Member deletions and updates.
-      dependencies.subscriptionService.subscribe(
-        QueueMemberModel,
-        {
-          body: { operationType: ['delete', 'update'], resumeToken: podName, where: { queueId } },
+          body: { startDate, where: { queueId, unix: { $mod: [replicas, index] } } },
           path: '/subscriptions/queue-members',
         },
         dependencies.queueMemberService,
@@ -72,10 +54,14 @@ const wssUrl = process.env.WSS_URL;
         {
           acks: true,
           callback: (response) => {
+            const { userIds } = response.body.fullDocument;
+
             if (response.body.operationType === 'delete') {
-              return redis.remove(client, response.body.fullDocument);
-            } else if (dependencies.queueMemberQuery.hasEntity(response.body.fullDocument._id)) {
-              return redis.upsert(client, response.body.fullDocument);
+              console.log(`Deleted Queue Member with User IDs: ${userIds.join(',')}.`);
+            } else if (response.body.operationType === 'insert') {
+              console.log(`Created Queue Member with User IDs: ${userIds.join(',')}.`);
+            } else {
+              console.log(`Updated Queue Member with User IDs: ${userIds.join(',')}.`);
             }
           },
         },

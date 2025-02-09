@@ -125,7 +125,6 @@ resources:
   - ./static/secrets/mongodb.yaml
   - ./static/secrets/nats.yaml
   - ./static/secrets/nodejs.yaml
-  - ./static/secrets/redis.yaml
   - ./static/secrets/verdaccio.yaml
   - ./static/secrets/workspace.yaml
   - ./static/workflowtemplates/angular.yaml

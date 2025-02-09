@@ -33,7 +33,6 @@ resources:
   - ./static/sealedsecrets/mongodb.yaml
   - ./static/sealedsecrets/nats.yaml
   - ./static/sealedsecrets/nodejs.yaml
-  - ./static/sealedsecrets/redis.yaml
   - ./static/sealedsecrets/verdaccio.yaml
   - ./static/services/verdaccio.yaml
   - ./static/workflowtemplates/angular.yaml

@@ -57,6 +57,5 @@ kubeseal -o yaml < ./static/mongodb/mongodb.secret.yaml > ./static/mongodb/mongo
 kubeseal -o yaml < ./static/nats/nats.secret.yaml > ./static/nats/nats.sealedsecret.yaml
 kubeseal -o yaml < ./static/nodejs/e2e.secret.yaml > ./static/nodejs/e2e.sealedsecret.yaml
 kubeseal -o yaml < ./static/nodejs/nodejs.secret.yaml > ./static/nodejs/nodejs.sealedsecret.yaml
-kubeseal -o yaml < ./static/redis/redis.secret.yaml > ./static/redis/redis.sealedsecret.yaml
 kubeseal -o yaml < ./static/verdaccio/verdaccio.secret.yaml > ./static/verdaccio/verdaccio.sealedsecret.yaml
 ```

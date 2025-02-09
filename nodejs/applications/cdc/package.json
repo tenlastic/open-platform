@@ -18,7 +18,6 @@
     "@tenlastic/logging": "0.0.425",
     "@tenlastic/mongoose": "0.0.425",
     "@tenlastic/nats": "0.0.425",
-    "@tenlastic/redis": "0.0.425",
     "source-map-support": "0.5.12"
   },
   "devDependencies": {

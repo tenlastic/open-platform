@@ -79,6 +79,9 @@ export class QueueMemberSchema {
   @prop({ ref: 'QueueSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public queueId: mongoose.Types.ObjectId;
 
+  @prop({ default: () => Date.now(), type: Number })
+  public unix: number;
+
   public updatedAt: Date;
 
   @prop({ ref: 'UserSchema', required: true, type: mongoose.Schema.Types.ObjectId })

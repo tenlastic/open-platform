@@ -72,7 +72,6 @@ resources:
   - ./static/helmreleases/minio.yaml
   - ./static/helmreleases/mongodb.yaml
   - ./static/helmreleases/nats.yaml
-  - ./static/helmreleases/redis.yaml
   - ./static/helmreleases/sealed-secrets.yaml
   - ./static/helmrepositories/argo.yaml
   - ./static/helmrepositories/bitnami.yaml

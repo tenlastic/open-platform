@@ -24,7 +24,9 @@ export function watch(
 ) {
   const filter = { key };
 
-  const pipeline = collections?.length ? [{ $match: { 'db.coll': { $in: collections } } }] : [];
+  const pipeline = collections?.length
+    ? [{ $match: { 'ns.coll': { $in: collections } } }]
+    : [{ $match: { 'ns.coll': { $ne: 'change-streams' } } }];
   const changeStream = connection.db.watch(pipeline, {
     fullDocument: 'updateLookup',
     fullDocumentBeforeChange: 'whenAvailable',
@@ -68,8 +70,9 @@ export function watch(
   changeStream.on('error', async (err: MongoChangeStreamError) => {
     console.error(err);
 
-    // Delete Change Stream from MongoDB if ChangeStreamHistoryLost is received.
-    if (err.code === 286) {
+    // Delete Change Stream from MongoDB if ChangeStreamFatalError
+    // or ChangeStreamHistoryLost is received.
+    if (err.code === 280 || err.code === 286) {
       await ChangeStreamModel.deleteOne({ key });
     }
 

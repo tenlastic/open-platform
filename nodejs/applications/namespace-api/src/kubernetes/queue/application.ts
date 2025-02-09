@@ -50,6 +50,7 @@ function getPodTemplate(queue: QueueDocument) {
     { name: 'NAMESPACE_ID', value: `${queue.namespaceId}` },
     { name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } },
     { name: 'QUEUE_ID', value: `${queue._id}` },
+    { name: 'REPLICAS', value: `${queue.replicas}` },
     { name: 'WSS_URL', value: `ws://${namespaceName}-api.dynamic:3000` },
   ];
   const envFrom: V1EnvFromSource[] = [
@@ -83,9 +84,7 @@ function getPodTemplate(queue: QueueDocument) {
           },
         ],
         priorityClassName: namespaceName,
-        volumes: [
-          { hostPath: { path: '/usr/src/open-platform/' }, name: 'workspace' },
-        ],
+        volumes: [{ hostPath: { path: '/usr/src/open-platform/' }, name: 'workspace' }],
       },
     };
   } else {

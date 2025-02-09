@@ -116,8 +116,10 @@ describe('/angular/namespace/queues', () => {
     const startLiveTailButton = await helpers.getButtonByText(page, 'Start Live Tail');
     await helpers.click(startLiveTailButton, page);
 
-    await helpers.waitForXPath(page, `//app-logs-dialog//div[contains(., 'Connected to Redis.')]`, {
-      timeout: 10 * 1000,
-    });
+    await helpers.waitForXPath(
+      page,
+      `//app-logs-dialog//div[contains(., 'Found 0 existing Queue Members.')]`,
+      { timeout: 10 * 1000 },
+    );
   });
 });

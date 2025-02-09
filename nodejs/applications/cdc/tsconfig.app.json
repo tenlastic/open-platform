@@ -12,8 +12,7 @@
     { "path": "../../modules/logging/tsconfig.app.json" },
     { "path": "../../modules/mongoose/tsconfig.app.json" },
     { "path": "../../modules/mongoose-nats/tsconfig.app.json" },
-    { "path": "../../modules/nats/tsconfig.app.json" },
-    { "path": "../../modules/redis/tsconfig.app.json" }
+    { "path": "../../modules/nats/tsconfig.app.json" }
   ],
   "ts-node": {
     "files": true

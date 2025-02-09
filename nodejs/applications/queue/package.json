@@ -17,7 +17,6 @@
     "@tenlastic/dependency-injection": "0.0.425",
     "@tenlastic/http": "0.0.425",
     "@tenlastic/logging": "0.0.425",
-    "@tenlastic/redis": "0.0.425",
     "axios": "0.27.2",
     "source-map-support": "0.5.12"
   },

@@ -233,18 +233,6 @@ spec:
             - /bin/sh
             - -c
             - trap "exit 0" SIGKILL && docker-entrypoint.sh --js
-        - name: redis
-          image: bitnami/redis:6.2.7
-          imagePullPolicy: IfNotPresent
-          env:
-            - name: REDIS_PASSWORD
-              value: password
-        - name: redis-sentinel
-          image: bitnami/redis-sentinel:6.2.7
-          imagePullPolicy: IfNotPresent
-          env:
-            - name: REDIS_MASTER_HOST
-              value: localhost
 
     - name: get-docker-images
       container:
