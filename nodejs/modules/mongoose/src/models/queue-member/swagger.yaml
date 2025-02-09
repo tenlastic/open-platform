@@ -21,8 +21,6 @@ components:
         queueId:
           type: string
           format: ^[0-9a-f]{24}$
-        unix:
-          type: number
         updatedAt:
           type: string
           format: date-time
