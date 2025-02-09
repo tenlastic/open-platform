@@ -17,6 +17,7 @@ export interface SubscribeRequest extends WebSocketRequest {
 export interface SubscribeRequestBody {
   operationType?: string[];
   resumeToken?: string;
+  startDate?: Date;
   where?: any;
 }
 
