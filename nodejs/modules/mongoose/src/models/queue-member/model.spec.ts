@@ -2,7 +2,7 @@ import { expect } from 'chai';
 
 import { BuildModel } from '../build';
 import { GameServerTemplateModel } from '../game-server-template';
-import { GroupModel } from '../group';
+import { GroupMemberModel, GroupModel } from '../group';
 import { NamespaceModel } from '../namespace';
 import { QueueModel } from '../queue';
 import { UserModel } from '../user';
@@ -18,7 +18,12 @@ describe('models/queue-member', function () {
         UserModel.mock().save(),
         UserModel.mock().save(),
       ]);
-      const group = await GroupModel.mock({ userIds: [users[1]._id, users[2]._id] }).save();
+      const group = await GroupModel.mock({
+        members: [
+          GroupMemberModel.mock({ userId: users[1]._id }),
+          GroupMemberModel.mock({ userId: users[2]._id }),
+        ],
+      }).save();
 
       const namespace = await NamespaceModel.mock().save();
       const build = await BuildModel.mock({ namespaceId: namespace._id }).save();

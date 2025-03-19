@@ -64,7 +64,6 @@ resources:
   - ./static/deployments/documentation.yaml
   - ./static/deployments/home-ui.yaml
   - ./static/deployments/mongodb-gui.yaml
-  - ./static/deployments/social-api.yaml
   - ./static/gitrepositories/open-platform.yaml
   - ./static/helmreleases/argo-workflows.yaml
   - ./static/helmreleases/ingress-nginx.yaml
@@ -113,9 +112,7 @@ resources:
   - ./static/services/documentation.yaml
   - ./static/services/home-ui.yaml
   - ./static/services/mongodb-gui.yaml
-  - ./static/services/social-api.yaml
   - ./static/statefulsets/aggregation-api-cdc.yaml
   - ./static/statefulsets/aggregation-api-connector.yaml
   - ./static/statefulsets/aggregation-api.yaml
   - ./static/statefulsets/api-cdc.yaml
-  - ./static/statefulsets/social-api-cdc.yaml

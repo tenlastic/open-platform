@@ -11,12 +11,15 @@ import * as mongoose from 'mongoose';
 
 import { collation } from '../../constants';
 import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
+import { arrayLengthValidator, arrayNullUndefinedValidator } from '../../validators';
+import { GroupMemberDocument, GroupMemberModel, GroupMemberSchema } from './member';
+import { AuthorizationDocument } from '../authorization';
 
 @index(
-  { name: 1 },
+  { name: 1, namespaceId: 1 },
   { collation, partialFilterExpression: { name: { $exists: true } }, unique: true },
 )
-@index({ userIds: 1 }, { unique: true })
+@index({ 'members.userId': 1, namespaceId: 1 }, { unique: true })
 @modelOptions({ schemaOptions: { collation, collection: 'groups', timestamps: true } })
 @plugin(duplicateKeyErrorPlugin)
 @plugin(unsetPlugin)
@@ -24,22 +27,32 @@ export class GroupSchema {
   public _id: mongoose.Types.ObjectId;
   public createdAt: Date;
 
-  @prop({ maxlength: 24, trim: true, type: String })
-  public name: string;
+  @prop(
+    {
+      required: true,
+      type: GroupMemberSchema,
+      validate: [arrayLengthValidator(Infinity, 1), arrayNullUndefinedValidator],
+    },
+    PropType.ARRAY,
+  )
+  public members: GroupMemberDocument[];
 
-  @prop({ type: Boolean })
-  public open: boolean;
+  @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
+  public namespaceId: mongoose.Types.ObjectId;
 
   public updatedAt: Date;
 
-  @prop({ ref: 'UserSchema', type: mongoose.Schema.Types.ObjectId }, PropType.ARRAY)
-  public userIds: mongoose.Types.ObjectId[];
+  @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
+  public authorizationDocuments: AuthorizationDocument[];
 
   /**
    * Creates a record with randomized required parameters if not specified.
    */
   public static mock(this: typeof GroupModel, values: Partial<GroupSchema> = {}) {
-    const defaults = {};
+    const defaults = {
+      members: [GroupMemberModel.mock()],
+      namespaceId: new mongoose.Types.ObjectId(),
+    };
 
     return new this({ ...defaults, ...values });
   }

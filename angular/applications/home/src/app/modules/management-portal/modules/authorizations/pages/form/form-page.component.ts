@@ -36,6 +36,9 @@ export class AuthorizationsFormPageComponent implements OnInit {
   public form: FormGroup;
   public hasWriteAuthorization: boolean;
   public isSaving: boolean;
+  public get namespaceId() {
+    return this.params.namespaceId;
+  }
   public get type() {
     return this.form.get('type').value;
   }

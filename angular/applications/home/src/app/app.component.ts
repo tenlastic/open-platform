@@ -14,6 +14,7 @@ import {
   GroupInvitationService,
   GroupInvitationStore,
   GroupModel,
+  GroupQuery,
   GroupService,
   GroupStore,
   LoginService,
@@ -24,9 +25,6 @@ import {
   MatchModel,
   MatchService,
   MatchStore,
-  MessageModel,
-  MessageService,
-  MessageStore,
   NamespaceModel,
   NamespaceService,
   NamespaceStore,
@@ -97,12 +95,6 @@ export class AppComponent implements OnInit {
       store: this.matchStore,
     },
     {
-      Model: MessageModel,
-      request: { _id: uuid(), path: '/subscriptions/messages' } as WebSocketRequest,
-      service: this.messageService,
-      store: this.messageStore,
-    },
-    {
       Model: NamespaceModel,
       request: { _id: uuid(), path: '/subscriptions/namespaces' } as WebSocketRequest,
       service: this.namespaceService,
@@ -144,6 +136,7 @@ export class AppComponent implements OnInit {
     private electronService: ElectronService,
     private groupInvitationService: GroupInvitationService,
     private groupInvitationStore: GroupInvitationStore,
+    private groupQuery: GroupQuery,
     private groupService: GroupService,
     private groupStore: GroupStore,
     private loginService: LoginService,
@@ -151,8 +144,6 @@ export class AppComponent implements OnInit {
     private matchInvitationStore: MatchInvitationStore,
     private matchService: MatchService,
     private matchStore: MatchStore,
-    private messageService: MessageService,
-    private messageStore: MessageStore,
     private namespaceService: NamespaceService,
     private namespaceStore: NamespaceStore,
     private queueMemberQuery: QueueMemberQuery,
@@ -217,6 +208,12 @@ export class AppComponent implements OnInit {
   public fetchMissingRecords() {
     this.authorizationQuery.selectAll().subscribe((records) => {
       const ids = records.map((r) => r.userId).filter((ui) => !this.userQuery.hasEntity(ui));
+      return ids.length > 0 ? this.userService.find({ where: { _id: { $in: ids } } }) : null;
+    });
+    this.groupQuery.selectAll().subscribe((records) => {
+      const ids = records
+        .flatMap((r) => r.members.map((m) => m.userId))
+        .filter((ui) => !this.userQuery.hasEntity(ui));
       return ids.length > 0 ? this.userService.find({ where: { _id: { $in: ids } } }) : null;
     });
     this.queueMemberQuery.selectAll().subscribe((records) => {

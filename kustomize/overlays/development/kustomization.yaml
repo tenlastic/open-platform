@@ -38,13 +38,6 @@ patches:
       name: home-ui
       namespace: static
       version: v1
-  - path: ./static/deployments/social-api.json
-    target:
-      group: apps
-      kind: Deployment
-      name: social-api
-      namespace: static
-      version: v1
   - path: ./static/ingresses/basic-authentication.json
     target:
       group: networking.k8s.io
@@ -99,13 +92,6 @@ patches:
       name: api-cdc
       namespace: static
       version: v1
-  - path: ./static/statefulsets/social-api-cdc.json
-    target:
-      group: apps
-      kind: StatefulSet
-      name: social-api-cdc
-      namespace: static
-      version: v1
 patchesStrategicMerge:
   - ./cluster/storageclasses/balanced-expandable.yaml
   - ./cluster/storageclasses/ssd-expandable.yaml
@@ -115,7 +101,6 @@ resources:
   - ./dynamic/secrets/nodejs.yaml
   - ./static/jobs/aggregation-api-migrations.yaml
   - ./static/jobs/api-migrations.yaml
-  - ./static/jobs/social-api-migrations.yaml
   - ./static/pods/workspace.yaml
   - ./static/secrets/docker-registry-image-pull-secret.yaml
   - ./static/secrets/docker-registry.yaml

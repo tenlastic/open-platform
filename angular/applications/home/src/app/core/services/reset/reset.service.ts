@@ -5,13 +5,10 @@ import {
   BuildLogStore,
   BuildStore,
   CollectionStore,
-  FriendStore,
   GameServerLogStore,
   GameServerStore,
   GroupInvitationStore,
   GroupStore,
-  IgnorationStore,
-  MessageStore,
   NamespaceLogStore,
   NamespaceStore,
   QueueLogStore,
@@ -34,13 +31,10 @@ export class ResetService {
     private buildLogStore: BuildLogStore,
     private buildStore: BuildStore,
     private collectionStore: CollectionStore,
-    private friendStore: FriendStore,
     private gameServerLogStore: GameServerLogStore,
     private gameServerStore: GameServerStore,
     private groupInvitationStore: GroupInvitationStore,
     private groupStore: GroupStore,
-    private ignorationStore: IgnorationStore,
-    private messageStore: MessageStore,
     private namespaceLogStore: NamespaceLogStore,
     private namespaceStore: NamespaceStore,
     private queueLogStore: QueueLogStore,
@@ -61,13 +55,10 @@ export class ResetService {
     this.buildLogStore.reset();
     this.buildStore.reset();
     this.collectionStore.reset();
-    this.friendStore.reset();
     this.gameServerLogStore.reset();
     this.gameServerStore.reset();
     this.groupInvitationStore.reset();
     this.groupStore.reset();
-    this.ignorationStore.reset();
-    this.messageStore.reset();
     this.namespaceLogStore.reset();
     this.namespaceStore.reset();
     this.queueLogStore.reset();

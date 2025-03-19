@@ -44,7 +44,6 @@ export const KubernetesNamespaceConnector = {
             containers: [
               getAggregationApiContainerTemplate(namespace),
               getApiContainerTemplate(namespace),
-              getSocialApiContainerTemplate(namespace),
             ],
             volumes,
           },
@@ -57,7 +56,14 @@ export const KubernetesNamespaceConnector = {
 function getAggregationApiContainerTemplate(namespace: NamespaceDocument): V1Container {
   const namespaceName = KubernetesNamespace.getName(namespace._id);
 
-  const collectionNames = ['match-invitations', 'matches', 'queue-members', 'storefronts'];
+  const collectionNames = [
+    'group-invitations',
+    'groups',
+    'match-invitations',
+    'matches',
+    'queue-members',
+    'storefronts',
+  ];
   const env: V1EnvVar[] = [
     { name: 'MONGO_COLLECTION_NAMES', value: collectionNames.join(',') },
     {
@@ -166,55 +172,4 @@ function getApiContainerTemplate(namespace: NamespaceDocument): V1Container {
 function getName(namespace: NamespaceDocument) {
   const name = KubernetesNamespace.getName(namespace._id);
   return `${name}-connector`;
-}
-
-function getSocialApiContainerTemplate(namespace: NamespaceDocument): V1Container {
-  const namespaceName = KubernetesNamespace.getName(namespace._id);
-
-  const collectionNames = ['groups'];
-  const env: V1EnvVar[] = [
-    { name: 'MONGO_COLLECTION_NAMES', value: collectionNames.join(',') },
-    {
-      name: 'MONGO_FROM_CONNECTION_STRING',
-      valueFrom: { secretKeyRef: { key: 'MONGO_CONNECTION_STRING', name: 'nodejs' } },
-    },
-    {
-      name: 'MONGO_FROM_DATABASE_NAME',
-      value: 'social-api',
-    },
-    {
-      name: 'MONGO_TO_CONNECTION_STRING',
-      valueFrom: { secretKeyRef: { key: 'MONGO_CONNECTION_STRING', name: 'nodejs' } },
-    },
-    {
-      name: 'MONGO_TO_DATABASE_NAME',
-      valueFrom: { secretKeyRef: { key: 'MONGO_DATABASE_NAME', name: namespaceName } },
-    },
-    {
-      name: 'NATS_CONNECTION_STRING',
-      valueFrom: { secretKeyRef: { key: 'NATS_CONNECTION_STRING', name: 'nodejs' } },
-    },
-    { name: 'POD_NAME', valueFrom: { fieldRef: { fieldPath: 'metadata.name' } } },
-  ];
-  const resources = { requests: { cpu: '25m', memory: '75M' } };
-
-  if (KubernetesNamespace.isDevelopment) {
-    return {
-      command: ['npm', 'run', 'start'],
-      env,
-      image: `tenlastic/node-development:latest`,
-      imagePullPolicy: 'IfNotPresent',
-      name: 'social-api',
-      resources: { limits: { cpu: '1000m' }, requests: resources.requests },
-      volumeMounts: [{ mountPath: '/usr/src/', name: 'workspace' }],
-      workingDir: `/usr/src/nodejs/applications/connector/`,
-    };
-  } else {
-    return {
-      env,
-      image: `tenlastic/connector:${version}`,
-      name: 'social-api',
-      resources,
-    };
-  }
 }

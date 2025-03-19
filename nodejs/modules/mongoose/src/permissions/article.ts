@@ -22,15 +22,12 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
       $or: [
         AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.ArticlesRead]),
         {
-          ...AuthorizationPermissionsHelpers.getFindQuery([
-            AuthorizationRole.ArticlesReadPublished,
-          ]),
+          ...AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.ArticlesPlay]),
           publishedAt: { $lte: { $ref: 'now' } },
         },
       ],
     },
     'user-read': {},
-    'user-read-published': { publishedAt: { $lte: { $ref: 'now' } } },
   },
   populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
   read: {
@@ -53,7 +50,7 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
         AuthorizationPermissionsHelpers.getNamespaceRoleQuery([AuthorizationRole.ArticlesRead]),
         {
           ...AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-            AuthorizationRole.ArticlesReadPublished,
+            AuthorizationRole.ArticlesPlay,
           ]),
           publishedAt: { $exists: true },
         },
@@ -63,9 +60,6 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
       AuthorizationRole.ArticlesWrite,
     ]),
     'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([AuthorizationRole.ArticlesRead]),
-    'user-read-published': AuthorizationPermissionsHelpers.getUserRoleQuery([
-      AuthorizationRole.ArticlesReadPublished,
-    ]),
     'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([
       AuthorizationRole.ArticlesWrite,
     ]),

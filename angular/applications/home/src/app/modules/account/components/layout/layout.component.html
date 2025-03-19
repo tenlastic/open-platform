@@ -11,33 +11,31 @@
 </app-header-toolbar>
 
 <div class="content">
-  <app-social>
-    <app-sidenav>
-      <div class="nav">
-        <app-button color="accent"
-                    layout="vertical"
-                    routerLink="/account"
-                    routerLinkActive="active"
-                    text="left"
-                    width="full">
-          <mat-icon>manage_accounts</mat-icon>
-          <div>Account Information</div>
-        </app-button>
+  <app-sidenav>
+    <div class="nav">
+      <app-button color="accent"
+                  layout="vertical"
+                  routerLink="/account"
+                  routerLinkActive="active"
+                  text="left"
+                  width="full">
+        <mat-icon>manage_accounts</mat-icon>
+        <div>Account Information</div>
+      </app-button>
 
-        <app-button color="accent"
-                    layout="vertical"
-                    routerLink="/authentication/log-out"
-                    routerLinkActive="active"
-                    text="left"
-                    width="full">
-          <mat-icon>logout</mat-icon>
-          <div>Log Out</div>
-        </app-button>
-      </div>
+      <app-button color="accent"
+                  layout="vertical"
+                  routerLink="/authentication/log-out"
+                  routerLinkActive="active"
+                  text="left"
+                  width="full">
+        <mat-icon>logout</mat-icon>
+        <div>Log Out</div>
+      </app-button>
+    </div>
 
-      <div class="content">
-        <router-outlet></router-outlet>
-      </div>
-    </app-sidenav>
-  </app-social>
+    <div class="content">
+      <router-outlet></router-outlet>
+    </div>
+  </app-sidenav>
 </div>

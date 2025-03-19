@@ -1,9 +1,0 @@
-paths:
-  /probes/readiness:
-    get:
-      summary: Readiness Probe
-      tags: [Probes]
-      description: Returns a 200 status code if the server is ready.
-      responses:
-        200:
-          description: OK

@@ -1,9 +1,0 @@
-paths:
-  /probes/liveness:
-    get:
-      summary: Liveness Probe
-      tags: [Probes]
-      description: Returns a 200 status code if the server is live.
-      responses:
-        200:
-          description: OK

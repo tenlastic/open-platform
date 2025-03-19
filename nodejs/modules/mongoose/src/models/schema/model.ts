@@ -36,7 +36,7 @@ export class SchemaSchema {
 
   public static sync(
     this: ReturnModelType<typeof SchemaSchema>,
-    Model: mongoose.Model<mongoose.Document>,
+    Model: mongoose.Model<mongoose.Document> | ReturnModelType<any>,
   ) {
     return this.findOneAndUpdate(
       { name: Model.collection.name },

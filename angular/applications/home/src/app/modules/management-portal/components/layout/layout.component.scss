@@ -6,20 +6,16 @@
   width: 100vw;
 }
 
-app-social {
-  div.content {
-    padding: 16px;
-  }
-}
-
 div.content {
   flex: 1 1 auto;
   overflow: hidden;
   padding: 0px;
   position: relative;
 
-  app-sidenav div.content {
-    overflow: auto;
+  ::ng-deep {
+    > ng-component {
+      width: 100%;
+    }
   }
 }
 

@@ -31,6 +31,7 @@ export class GameServerTemplateModel extends BaseModel {
       ports: this.ports,
       preemptible: this.preemptible,
       probes: this.probes,
+      secrets: this.secrets,
     });
   }
 }

@@ -18,6 +18,9 @@ components:
         groupId:
           type: string
           format: ^[0-9a-f]{24}$
+        namespaceId:
+          type: string
+          format: ^[0-9a-f]{24}$
         toUserId:
           type: string
           format: ^[0-9a-f]{24}$
@@ -27,4 +30,5 @@ components:
       required:
         - fromUserId
         - groupId
+        - namespaceId
         - toUserId

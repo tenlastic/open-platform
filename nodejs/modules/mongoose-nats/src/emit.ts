@@ -1,4 +1,5 @@
 import * as nats from '@tenlastic/nats';
+import { ReturnModelType } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 import { AckPolicy, ConsumerConfig, DeliverPolicy } from 'nats';
 import { TextDecoder } from 'util';
@@ -13,7 +14,7 @@ export async function emit<TDocument extends mongoose.Document>(
   database: string,
   durable: string,
   Event: EventEmitter<DatabasePayload<TDocument>>,
-  Model: mongoose.Model<mongoose.Document>,
+  Model: mongoose.Model<mongoose.Document> | ReturnModelType<any>,
   options?: Partial<ConsumerConfig>,
 ) {
   const collection = Model.collection.name;

@@ -32,42 +32,46 @@ components:
     AuthorizationRole:
       type: string
       enum:
+        - Articles:Play
         - Articles:Read
-        - Articles:ReadPublished
-        - Articles:ReadWrite
+        - Articles:Write
         - Authorizations:Read
-        - Authorizations:ReadWrite
+        - Authorizations:Write
         - BuildLogs:Read
+        - Builds:Play
         - Builds:Read
-        - Builds:ReadPublished
-        - Builds:ReadWrite
+        - Builds:Write
         - Collections:Read
-        - Collections:ReadWrite
+        - Collections:Write
         - GameServerLogs:Read
+        - GameServers:Play
         - GameServers:Read
-        - GameServers:ReadAuthorized
-        - GameServers:ReadWrite
+        - GameServers:Write
+        - Groups:Play
+        - Groups:Read
+        - Groups:Write
         - Logins:Read
         - Matches:Read
-        - Matches:ReadFinished
-        - Matches:ReadStarted
-        - Matches:ReadWrite
+        - Matches:Write
+        - Messages:Play
+        - Messages:Read
+        - Messages:Write
         - NamespaceLogs:Read
         - Namespaces:Read
-        - Namespaces:ReadWrite
+        - Namespaces:Write
         - QueueLogs:Read
         - Queues:Read
-        - Queues:ReadWrite
+        - Queues:Write
         - Records:Read
-        - Records:ReadWrite
+        - Records:Write
         - SteamIntegrations:Read
         - SteamIntegrations:Write
         - Storefronts:Read
-        - Storefronts:ReadWrite
+        - Storefronts:Write
         - Users:Read
-        - Users:ReadWrite
+        - Users:Write
         - WebSockets:Read
-        - WebSockets:ReadWrite
+        - WebSockets:Write
         - WorkflowLogs:Read
         - Workflows:Read
-        - Workflows:ReadWrite
+        - Workflows:Write

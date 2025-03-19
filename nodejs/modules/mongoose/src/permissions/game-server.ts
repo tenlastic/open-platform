@@ -74,9 +74,7 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
       $or: [
         AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.GameServersRead]),
         {
-          ...AuthorizationPermissionsHelpers.getFindQuery([
-            AuthorizationRole.GameServersReadAuthorized,
-          ]),
+          ...AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.GameServersPlay]),
           $or: [{ authorizedUserIds: { $size: 0 } }, { authorizedUserIds: { $ref: 'user._id' } }],
         },
       ],

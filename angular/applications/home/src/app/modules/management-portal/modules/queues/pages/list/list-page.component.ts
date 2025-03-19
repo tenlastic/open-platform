@@ -80,7 +80,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
       this.params = params;
 
       const userId = this.identityService.user?._id;
-      const logRoles = [IAuthorization.Role.QueuesLogRead];
+      const logRoles = [IAuthorization.Role.QueueLogsRead];
       this.hasLogAuthorization =
         this.authorizationQuery.hasRoles(null, logRoles, userId) ||
         this.authorizationQuery.hasRoles(params.namespaceId, logRoles, userId);

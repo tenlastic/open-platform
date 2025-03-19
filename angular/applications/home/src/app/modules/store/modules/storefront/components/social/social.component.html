@@ -1,0 +1,59 @@
+<div *ngIf="user"
+     class="nav">
+  <app-match *ngIf="isElectron"></app-match>
+
+  <ng-container *ngIf="($group | async) === undefined">
+    <app-group-invitation-button *ngFor="let groupInvitation of $groupInvitations | async"
+                                 [groupInvitation]="groupInvitation"></app-group-invitation-button>
+  </ng-container>
+
+  <app-button *ngIf="($group | async) === undefined"
+              color="accent"
+              layout="vertical"
+              text="left"
+              width="full"
+              (OnClick)="createGroup()">
+    <mat-icon>group_add</mat-icon>
+    <div>Start Group</div>
+  </app-button>
+
+  <ng-container *ngIf="$group | async as group">
+    <app-button color="accent"
+                layout="vertical"
+                text="left"
+                width="full">
+      <mat-icon>people</mat-icon>
+
+      <div>
+        <div>Group</div>
+        <div>{{ group.members.length }} {{ group.members.length > 1 ? 'Members' : 'Member' }}</div>
+      </div>
+    </app-button>
+
+    <app-button *ngFor="let member of $members | async"
+                color="accent"
+                layout="vertical"
+                text="left"
+                width="full"
+                (OnClick)="removeMember(group, member)">
+      <mat-icon>{{ isLeader(group, user._id) || member.userId === user._id ? 'remove' : 'person' }}</mat-icon>
+
+      <div class="label">
+        <div>{{ getUser(member.userId).displayName }}</div>
+      </div>
+    </app-button>
+
+    <app-button *ngIf="group.members.length < 5 && isLeader(group, user._id)"
+                color="accent"
+                layout="vertical"
+                text="left"
+                width="full"
+                (OnClick)="createGroupInvitation(group)">
+      <mat-icon>add</mat-icon>
+
+      <div class="label">
+        <div>Invite to Group</div>
+      </div>
+    </app-button>
+  </ng-container>
+</div>

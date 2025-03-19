@@ -22,7 +22,6 @@ spec:
         source: |
           npm run --prefix ./applications/aggregation-api-migrations/ start
           npm run --prefix ./applications/api-migrations/ start
-          npm run --prefix ./applications/social-api-migrations/ start
         envFrom:
           - secretRef:
               name: nodejs

@@ -90,7 +90,7 @@ export class QueueMemberSchema {
   @prop({ ref: 'UserSchema', type: mongoose.Schema.Types.ObjectId }, PropType.ARRAY)
   public userIds: mongoose.Types.ObjectId[];
 
-  @prop({ ref: 'WebSocketSchema', required: true })
+  @prop({ ref: 'WebSocketSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public webSocketId: mongoose.Types.ObjectId;
 
   @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
@@ -178,7 +178,7 @@ export class QueueMemberSchema {
         await this.populate('groupDocument');
       }
 
-      this.userIds = this.groupDocument?.userIds ?? [];
+      this.userIds = this.groupDocument?.members.map((m) => m.userId) ?? [];
     } else {
       this.userIds = [this.userId];
     }

@@ -2,7 +2,8 @@
   <ng-container [formGroupName]="formGroupName">
     <h4>Articles</h4>
     <div class="row">
-      <mat-checkbox formControlName="Articles:ReadPublished">Read (Published)</mat-checkbox>
+      <mat-checkbox *ngIf="play"
+                    formControlName="Articles:Play">Play</mat-checkbox>
       <mat-checkbox formControlName="Articles:Read">Read</mat-checkbox>
       <mat-checkbox formControlName="Articles:Write">Write</mat-checkbox>
     </div>
@@ -15,7 +16,8 @@
 
     <h4>Builds</h4>
     <div class="row">
-      <mat-checkbox formControlName="Builds:ReadPublished">Read (Published)</mat-checkbox>
+      <mat-checkbox *ngIf="play"
+                    formControlName="Builds:Play">Play</mat-checkbox>
       <mat-checkbox formControlName="Builds:Read">Read</mat-checkbox>
       <mat-checkbox formControlName="Builds:Write">Write</mat-checkbox>
     </div>
@@ -33,7 +35,8 @@
 
     <h4>Game Servers</h4>
     <div class="row">
-      <mat-checkbox formControlName="GameServers:ReadAuthorized">Read (Authorized)</mat-checkbox>
+      <mat-checkbox *ngIf="play"
+                    formControlName="GameServers:Play">Play</mat-checkbox>
       <mat-checkbox formControlName="GameServers:Read">Read</mat-checkbox>
       <mat-checkbox formControlName="GameServers:Write">Write</mat-checkbox>
     </div>
@@ -43,11 +46,17 @@
       <mat-checkbox formControlName="GameServerLogs:Read">Read</mat-checkbox>
     </div>
 
+    <h4>Groups</h4>
+    <div class="row">
+      <mat-checkbox *ngIf="play"
+                    formControlName="Groups:Play">Play</mat-checkbox>
+      <mat-checkbox formControlName="Groups:Read">Read</mat-checkbox>
+      <mat-checkbox formControlName="Groups:Write">Write</mat-checkbox>
+    </div>
+
     <h4>Matches</h4>
     <div class="row">
       <mat-checkbox formControlName="Matches:Read">Read</mat-checkbox>
-      <mat-checkbox formControlName="Matches:ReadFinished">Read (Finished)</mat-checkbox>
-      <mat-checkbox formControlName="Matches:ReadStarted">Read (Started)</mat-checkbox>
       <mat-checkbox formControlName="Matches:Write">Write</mat-checkbox>
     </div>
 

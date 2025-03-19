@@ -48,24 +48,6 @@ app-header-toolbar::ng-deep {
   }
 }
 
-app-social {
-  div.content {
-    display: flex;
-    flex-direction: column;
-    padding: 0px;
-    position: relative;
-
-    ::ng-deep {
-      ng-component {
-        display: flex;
-        flex: 1 1 auto;
-        flex-direction: column;
-        position: relative;
-      }
-    }
-  }
-}
-
 div.content {
   flex: 1 1 auto;
   overflow: hidden;

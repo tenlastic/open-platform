@@ -3,7 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { IArticle } from '@tenlastic/http';
 
 import { SharedModule } from '../../../../shared/shared.module';
-import { DownloadComponent, LayoutComponent, StatusComponent } from './components';
+import { DownloadComponent, LayoutComponent, SocialComponent, StatusComponent } from './components';
 import { StatusGuard } from './guards';
 import { GameServersPageComponent, QueuesPageComponent, StorefrontPageComponent } from './pages';
 
@@ -56,6 +56,7 @@ export const ROUTES: Routes = [
   declarations: [
     DownloadComponent,
     LayoutComponent,
+    SocialComponent,
     StatusComponent,
 
     GameServersPageComponent,

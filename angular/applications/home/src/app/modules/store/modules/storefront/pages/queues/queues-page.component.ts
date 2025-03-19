@@ -55,7 +55,9 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
       this.params = params;
 
       this.$group = this.groupQuery
-        .selectAll({ filterBy: (g) => g.userIds.includes(this.identityService.user._id) })
+        .selectAll({
+          filterBy: (g) => g.members?.some((m) => m.userId === this.identityService.user._id),
+        })
         .pipe(map((groups) => groups[0]));
       this.$queueMembers = this.queueMemberQuery.selectAll({
         filterBy: (qm) => qm.userId === this.identityService.user._id,
@@ -133,13 +135,13 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
 
   public $isGroupLeader() {
     return this.$group.pipe(
-      map((group) => group && group.userIds[0] === this.identityService.user._id),
+      map((group) => group?.members[0]?.userId === this.identityService.user._id),
     );
   }
 
   public $isGroupSmallEnough(queue: QueueModel) {
     const users = queue.usersPerTeam.reduce((a, b) => a + b, 0);
-    return this.$group.pipe(map((g) => g?.userIds.length <= users));
+    return this.$group.pipe(map((g) => g?.members.length <= users));
   }
 
   public async join(group: GroupModel, queue: QueueModel) {

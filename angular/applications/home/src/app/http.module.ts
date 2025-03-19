@@ -21,9 +21,6 @@ import {
   CollectionService,
   CollectionStore,
   EnvironmentService,
-  FriendQuery,
-  FriendService,
-  FriendStore,
   GameServerLogQuery,
   GameServerLogService,
   GameServerLogStore,
@@ -39,9 +36,6 @@ import {
   GroupQuery,
   GroupService,
   GroupStore,
-  IgnorationQuery,
-  IgnorationService,
-  IgnorationStore,
   InvalidRefreshTokenInterceptor,
   LoginService,
   MatchInvitationQuery,
@@ -50,9 +44,6 @@ import {
   MatchQuery,
   MatchService,
   MatchStore,
-  MessageQuery,
-  MessageService,
-  MessageStore,
   NamespaceLogQuery,
   NamespaceLogService,
   NamespaceLogStore,
@@ -152,11 +143,6 @@ const queries: Provider[] = [
     useFactory: (store: CollectionStore) => new CollectionQuery(store),
   },
   {
-    deps: [FriendStore, UserQuery],
-    provide: FriendQuery,
-    useFactory: (store: FriendStore, userQuery: UserQuery) => new FriendQuery(store, userQuery),
-  },
-  {
     deps: [GameServerLogStore],
     provide: GameServerLogQuery,
     useFactory: (store: GameServerLogStore) => new GameServerLogQuery(store),
@@ -177,15 +163,9 @@ const queries: Provider[] = [
     useFactory: (store: GroupInvitationStore) => new GroupInvitationQuery(store),
   },
   {
-    deps: [GroupStore, UserQuery],
+    deps: [GroupStore],
     provide: GroupQuery,
     useFactory: (store: GroupStore) => new GroupQuery(store),
-  },
-  {
-    deps: [IgnorationStore, UserQuery],
-    provide: IgnorationQuery,
-    useFactory: (store: IgnorationStore, userQuery: UserQuery) =>
-      new IgnorationQuery(store, userQuery),
   },
   {
     deps: [MatchInvitationStore],
@@ -196,11 +176,6 @@ const queries: Provider[] = [
     deps: [MatchStore],
     provide: MatchQuery,
     useFactory: (store: MatchStore) => new MatchQuery(store),
-  },
-  {
-    deps: [MessageStore],
-    provide: MessageQuery,
-    useFactory: (store: MessageStore) => new MessageQuery(store),
   },
   {
     deps: [NamespaceLogStore],
@@ -334,15 +309,6 @@ const services: Provider[] = [
     useValue: new EnvironmentService({ apiUrl: environment.apiUrl }),
   },
   {
-    deps: [ApiService, EnvironmentService, FriendStore],
-    provide: FriendService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      store: FriendStore,
-    ) => new FriendService(apiService, environmentService, store),
-  },
-  {
     deps: [ApiService, EnvironmentService, GameServerLogStore],
     provide: GameServerLogService,
     useFactory: (
@@ -379,22 +345,14 @@ const services: Provider[] = [
     ) => new GroupInvitationService(apiService, environmentService, store),
   },
   {
-    deps: [ApiService, EnvironmentService, GroupStore],
+    deps: [ApiService, EnvironmentService, GroupStore, WebSocketService],
     provide: GroupService,
     useFactory: (
       apiService: ApiService,
       environmentService: EnvironmentService,
       store: GroupStore,
-    ) => new GroupService(apiService, environmentService, store),
-  },
-  {
-    deps: [ApiService, EnvironmentService, IgnorationStore],
-    provide: IgnorationService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      store: IgnorationStore,
-    ) => new IgnorationService(apiService, environmentService, store),
+      webSocketService: WebSocketService,
+    ) => new GroupService(apiService, environmentService, store, webSocketService),
   },
   {
     deps: [ApiService, EnvironmentService],
@@ -419,15 +377,6 @@ const services: Provider[] = [
       environmentService: EnvironmentService,
       store: MatchStore,
     ) => new MatchService(apiService, environmentService, store),
-  },
-  {
-    deps: [ApiService, EnvironmentService, MessageStore],
-    provide: MessageService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      store: MessageStore,
-    ) => new MessageService(apiService, environmentService, store),
   },
   {
     deps: [ApiService, EnvironmentService, NamespaceLogStore],
@@ -571,16 +520,13 @@ const stores: Provider[] = [
   { provide: BuildLogStore, useValue: new BuildLogStore() },
   { provide: BuildStore, useValue: new BuildStore() },
   { provide: CollectionStore, useValue: new CollectionStore() },
-  { provide: FriendStore, useValue: new FriendStore() },
   { provide: GameServerLogStore, useValue: new GameServerLogStore() },
   { provide: GameServerStore, useValue: new GameServerStore() },
   { provide: GameServerTemplateStore, useValue: new GameServerTemplateStore() },
   { provide: GroupInvitationStore, useValue: new GroupInvitationStore() },
   { provide: GroupStore, useValue: new GroupStore() },
-  { provide: IgnorationStore, useValue: new IgnorationStore() },
   { provide: MatchInvitationStore, useValue: new MatchInvitationStore() },
   { provide: MatchStore, useValue: new MatchStore() },
-  { provide: MessageStore, useValue: new MessageStore() },
   { provide: NamespaceLogStore, useValue: new NamespaceLogStore() },
   { provide: NamespaceStore, useValue: new NamespaceStore() },
   { provide: QueueLogStore, useValue: new QueueLogStore() },

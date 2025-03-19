@@ -9,4 +9,5 @@ import { FormGroup } from '@angular/forms';
 export class RoleFieldsComponent {
   @Input() public form: FormGroup;
   @Input() public formGroupName = 'roles';
+  @Input() public play = false;
 }

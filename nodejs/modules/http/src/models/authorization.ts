@@ -2,30 +2,34 @@ import { BaseModel } from './base';
 
 export namespace IAuthorization {
   export enum Role {
+    ArticlesPlay = 'Articles:Play',
     ArticlesRead = 'Articles:Read',
-    ArticlesReadPublished = 'Articles:ReadPublished',
     ArticlesWrite = 'Articles:Write',
     AuthorizationsRead = 'Authorizations:Read',
     AuthorizationsWrite = 'Authorizations:Write',
     BuildLogsRead = 'BuildLogs:Read',
+    BuildsPlay = 'Builds:Play',
     BuildsRead = 'Builds:Read',
-    BuildsReadPublished = 'Builds:ReadPublished',
     BuildsWrite = 'Builds:Write',
     CollectionsRead = 'Collections:Read',
     CollectionsWrite = 'Collections:Write',
     GameServerLogsRead = 'GameServerLogs:Read',
+    GameServersPlay = 'GameServers:Play',
     GameServersRead = 'GameServers:Read',
-    GameServersReadAuthorized = 'GameServers:ReadAuthorized',
     GameServersWrite = 'GameServers:Write',
+    GroupsPlay = 'Groups:Play',
+    GroupsRead = 'Groups:Read',
+    GroupsWrite = 'Groups:Write',
     LoginsRead = 'Logins:Read',
     MatchesRead = 'Matches:Read',
-    MatchesReadFinished = 'Matches:ReadFinished',
-    MatchesReadStarted = 'Matches:ReadStarted',
     MatchesWrite = 'Matches:Write',
+    MessagesPlay = 'Messages:Play',
+    MessagesRead = 'Messages:Read',
+    MessagesWrite = 'Messages:Write',
     NamespaceLogsRead = 'NamespaceLogs:Read',
     NamespacesRead = 'Namespaces:Read',
     NamespacesWrite = 'Namespaces:Write',
-    QueuesLogRead = 'QueueLogs:Read',
+    QueueLogsRead = 'QueueLogs:Read',
     QueuesRead = 'Queues:Read',
     QueuesWrite = 'Queues:Write',
     RecordsRead = 'Records:Read',
@@ -43,16 +47,18 @@ export namespace IAuthorization {
     WorkflowsWrite = 'Workflows:Write',
   }
 
-  export const articleRoles = [Role.ArticlesRead, Role.ArticlesReadPublished, Role.ArticlesWrite];
+  export const articleRoles = [Role.ArticlesPlay, Role.ArticlesRead, Role.ArticlesWrite];
   export const authorizationRoles = [Role.AuthorizationsRead, Role.AuthorizationsWrite];
-  export const buildRoles = [Role.BuildsReadPublished, Role.BuildsRead, Role.BuildsWrite];
+  export const buildRoles = [Role.BuildsPlay, Role.BuildsRead, Role.BuildsWrite];
   export const collectionRoles = [Role.CollectionsRead, Role.CollectionsWrite];
   export const gameServerRoles = [
+    Role.GameServersPlay,
     Role.GameServersRead,
-    Role.GameServersReadAuthorized,
     Role.GameServersWrite,
   ];
+  export const groupRoles = [Role.GroupsPlay, Role.GroupsRead, Role.GroupsWrite];
   export const matchRoles = [Role.MatchesRead, Role.MatchesWrite];
+  export const messageRoles = [Role.MessagesPlay, Role.MessagesRead, Role.MatchesWrite];
   export const namespaceRoles = [Role.NamespacesRead, Role.NamespacesWrite];
   export const queueRoles = [Role.QueuesRead, Role.QueuesWrite];
   export const recordRoles = [Role.RecordsRead, Role.RecordsWrite];

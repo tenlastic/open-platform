@@ -3,6 +3,8 @@ export { default as buildRoutes } from './builds';
 export { default as collectionRoutes } from './collections';
 export { default as gameServerRoutes } from './game-servers';
 export { default as gameServerTemplateRoutes } from './game-server-templates';
+export { default as groupInvitationRoutes } from './group-invitations';
+export { default as groupRoutes } from './groups';
 export { default as matchRoutes } from './matches';
 export { default as matchInvitationRoutes } from './match-invitations';
 export { default as probeRoutes } from './probes';

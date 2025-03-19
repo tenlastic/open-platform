@@ -35,7 +35,7 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(BuildMode
       $or: [
         AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.BuildsRead]),
         {
-          ...AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.BuildsReadPublished]),
+          ...AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.BuildsPlay]),
           publishedAt: { $lte: { $ref: 'now' } },
         },
       ],
@@ -72,9 +72,7 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(BuildMode
       $or: [
         AuthorizationPermissionsHelpers.getNamespaceRoleQuery([AuthorizationRole.BuildsRead]),
         {
-          ...AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-            AuthorizationRole.BuildsReadPublished,
-          ]),
+          ...AuthorizationPermissionsHelpers.getNamespaceRoleQuery([AuthorizationRole.BuildsPlay]),
           publishedAt: { $exists: true },
         },
       ],
@@ -85,17 +83,9 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(BuildMode
     'system-logs': AuthorizationPermissionsHelpers.getSystemRoleQuery([
       AuthorizationRole.BuildLogsRead,
     ]),
-    'system-read': {
-      $or: [
-        AuthorizationPermissionsHelpers.getSystemRoleQuery([AuthorizationRole.BuildsRead]),
-        {
-          ...AuthorizationPermissionsHelpers.getSystemRoleQuery([
-            AuthorizationRole.BuildsReadPublished,
-          ]),
-          publishedAt: { $exists: true },
-        },
-      ],
-    },
+    'system-read': AuthorizationPermissionsHelpers.getSystemRoleQuery([
+      AuthorizationRole.BuildsRead,
+    ]),
     'system-write': AuthorizationPermissionsHelpers.getSystemRoleQuery([
       AuthorizationRole.BuildsWrite,
     ]),

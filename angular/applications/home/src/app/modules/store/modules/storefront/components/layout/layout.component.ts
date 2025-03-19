@@ -131,6 +131,11 @@ export class LayoutComponent implements OnDestroy, OnInit {
 
   public async ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
+      // Close previous stream.
+      if (this.params) {
+        this.webSocketService.close(this.webSocketUrl);
+      }
+
       this.params = params;
 
       const results = await Promise.all([
@@ -175,9 +180,6 @@ export class LayoutComponent implements OnDestroy, OnInit {
         })
         .pipe(map((a) => a[0]));
       this.$storefront = this.storefrontQuery.selectEntity(params.namespaceId);
-
-      // Close previous stream.
-      this.webSocketService.close(this.webSocketUrl);
 
       // Subscribe to the Namespace.
       await Promise.all([this.webSocketService.connect(this.webSocketUrl), this.subscribe()]);

@@ -11,54 +11,52 @@
 </app-header-toolbar>
 
 <div class="content">
-  <app-social>
-    <app-sidenav>
-      <div appNav
-           class="nav">
-        <app-button *ngIf="$hasPermission(IAuthorization.authorizationRoles) | async"
-                    color="accent"
-                    layout="vertical"
-                    routerLink="authorizations"
-                    routerLinkActive="active"
-                    text="left"
-                    width="full">
-          <mat-icon>vpn_key</mat-icon>
-          <div>Authorizations</div>
-        </app-button>
+  <app-sidenav>
+    <div appNav
+         class="nav">
+      <app-button *ngIf="$hasPermission(IAuthorization.authorizationRoles) | async"
+                  color="accent"
+                  layout="vertical"
+                  routerLink="authorizations"
+                  routerLinkActive="active"
+                  text="left"
+                  width="full">
+        <mat-icon>vpn_key</mat-icon>
+        <div>Authorizations</div>
+      </app-button>
 
-        <app-button color="accent"
-                    layout="vertical"
-                    routerLink="namespaces"
-                    routerLinkActive="active"
-                    text="left"
-                    width="full">
-          <mat-icon>layers</mat-icon>
-          <div>Namespaces</div>
-        </app-button>
+      <app-button color="accent"
+                  layout="vertical"
+                  routerLink="namespaces"
+                  routerLinkActive="active"
+                  text="left"
+                  width="full">
+        <mat-icon>layers</mat-icon>
+        <div>Namespaces</div>
+      </app-button>
 
-        <app-button color="accent"
-                    layout="vertical"
-                    routerLink="users"
-                    routerLinkActive="active"
-                    text="left"
-                    width="full">
-          <mat-icon>person</mat-icon>
-          <div>Users</div>
-        </app-button>
+      <app-button color="accent"
+                  layout="vertical"
+                  routerLink="users"
+                  routerLinkActive="active"
+                  text="left"
+                  width="full">
+        <mat-icon>person</mat-icon>
+        <div>Users</div>
+      </app-button>
 
-        <app-button color="accent"
-                    layout="vertical"
-                    routerLink="web-sockets"
-                    routerLinkActive="active"
-                    text="left"
-                    width="full">
-          <mat-icon>hub</mat-icon>
-          <div>Web Sockets</div>
-        </app-button>
-      </div>
+      <app-button color="accent"
+                  layout="vertical"
+                  routerLink="web-sockets"
+                  routerLinkActive="active"
+                  text="left"
+                  width="full">
+        <mat-icon>hub</mat-icon>
+        <div>Web Sockets</div>
+      </app-button>
+    </div>
 
-      <app-loading-message *ngIf="isLoading">Loading...</app-loading-message>
-      <router-outlet *ngIf="!isLoading"></router-outlet>
-    </app-sidenav>
-  </app-social>
+    <app-loading-message *ngIf="isLoading">Loading...</app-loading-message>
+    <router-outlet *ngIf="!isLoading"></router-outlet>
+  </app-sidenav>
 </div>

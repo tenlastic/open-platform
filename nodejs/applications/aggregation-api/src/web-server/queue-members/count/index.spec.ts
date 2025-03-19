@@ -11,6 +11,7 @@ import {
   UserModel,
   WebSocketModel,
   GameServerTemplateModel,
+  GroupMemberModel,
 } from '@tenlastic/mongoose';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
@@ -43,7 +44,12 @@ describe('web-server/queue-members/count', function () {
       buildId: build._id,
       namespaceId: namespace._id,
     }).save();
-    const group = await GroupModel.mock({ userIds: [users[1]._id, users[2]._id] }).save();
+    const group = await GroupModel.mock({
+      members: [
+        GroupMemberModel.mock({ userId: users[1]._id }),
+        GroupMemberModel.mock({ userId: users[2]._id }),
+      ],
+    }).save();
     const queue = await QueueModel.mock({
       gameServerTemplateId: gameServerTemplate._id,
       namespaceId: namespace._id,

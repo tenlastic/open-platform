@@ -14,13 +14,10 @@ paths:
             enum:
               - authorization-requests
               - authorizations
-              - friends
               - group-invitations
               - groups
-              - ignorations
               - match-invitations
               - matches
-              - messages
               - namespaces
               - queue-members
               - storefronts

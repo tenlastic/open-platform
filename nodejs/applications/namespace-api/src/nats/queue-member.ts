@@ -15,11 +15,9 @@ GroupEvent.async(async (payload) => {
     payload.operationType === 'delete' ||
     (payload.operationType === 'update' && payload.updateDescription.updatedFields.userIds)
   ) {
+    const userIds = payload.fullDocument.members.map((m) => m.userId);
     return QueueMemberModel.deleteMany({
-      $or: [
-        { groupId: payload.fullDocument._id },
-        { userIds: { $in: payload.fullDocument.userIds } },
-      ],
+      $or: [{ groupId: payload.fullDocument._id }, { userIds: { $in: userIds } }],
     });
   }
 });
@@ -76,7 +74,7 @@ QueueEvent.async(async (payload) => {
 // Log the message.
 QueueMemberEvent.sync(log);
 
-// Delete Queue Member when associated WebSocket is deleted.
+// Delete Queue Member when associated Web Socket is deleted.
 WebSocketEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':

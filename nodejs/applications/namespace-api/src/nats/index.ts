@@ -3,6 +3,8 @@ export * from './build';
 export * from './collection';
 export * from './game-server';
 export * from './game-server-template';
+export * from './group';
+export * from './group-invitation';
 export * from './match';
 export * from './match-invitation';
 export * from './queue';

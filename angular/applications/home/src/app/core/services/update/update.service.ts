@@ -189,7 +189,7 @@ export class UpdateService {
 
         // Make sure download is complete.
         status.state = UpdateServiceState.NotChecked;
-        await this.checkForUpdates(namespaceId, true);
+        await this.checkForUpdates(namespaceId, true, true);
       } else if (!download && updatedFiles.length > 0) {
         status.modifiedFiles = updatedFiles;
         status.progress = null;
@@ -245,7 +245,7 @@ export class UpdateService {
 
     // Make sure download is complete.
     status.state = UpdateServiceState.NotChecked;
-    await this.checkForUpdates(namespaceId, true);
+    await this.checkForUpdates(namespaceId, true, true);
   }
 
   public async requestAuthorization(namespaceId: string) {
@@ -304,7 +304,7 @@ export class UpdateService {
 
     // Make sure download is complete.
     status.state = UpdateServiceState.NotChecked;
-    await this.checkForUpdates(namespaceId, true);
+    await this.checkForUpdates(namespaceId, true, true);
   }
 
   private async deleteRemovedFiles(
@@ -454,15 +454,15 @@ export class UpdateService {
       return;
     }
 
-    this.checkForUpdates(record.namespaceId);
+    this.checkForUpdates(record.namespaceId, false, true);
   }
 
   private onBuildChange(record: BuildModel) {
-    this.checkForUpdates(record.namespaceId);
+    this.checkForUpdates(record.namespaceId, false, true);
   }
 
   private onStorefrontChange(record: StorefrontModel) {
-    this.checkForUpdates(record.namespaceId);
+    this.checkForUpdates(record.namespaceId, false, true);
   }
 
   private subscribeToServices() {

@@ -1,0 +1,68 @@
+@import 'src/assets/scss/theme.scss';
+
+@keyframes color {
+  0% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: rgba(255, 255, 85, 0.25);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+::ng-deep {
+  app-social {
+    app-button {
+      &.offline {
+        div.label,
+        div.status,
+        mat-icon.mat-icon {
+          color: #aaaaaa !important;
+        }
+      }
+
+      &.online {
+        div.status {
+          color: #ffff55;
+        }
+      }
+
+      &.queue {
+        div.status {
+          color: #ffff55;
+        }
+
+        div.badge {
+          background: transparent;
+          filter: $drop-shadow;
+        }
+      }
+
+      div.label {
+        display: inline-block;
+
+        div.status {
+          font-size: 12px;
+        }
+      }
+
+      div.badge {
+        background: #d74444;
+        filter: $drop-shadow;
+        float: right;
+        font-size: 12px;
+        height: 20px;
+        margin-left: 6px;
+        padding: 0px 8px;
+        text-align: center;
+      }
+    }
+
+    > div.nav {
+      box-shadow: $box-shadow-left !important;
+      min-width: 150px;
+    }
+  }
+}

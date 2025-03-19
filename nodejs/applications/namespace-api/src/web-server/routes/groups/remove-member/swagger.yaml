@@ -1,0 +1,34 @@
+paths:
+  /namespaces/{namespaceId}/groups/{groupId}/members/{_id}:
+    delete:
+      summary: Remove Group Member
+      tags: [Groups]
+      description: Removes a Group Member from the Group.
+      security:
+        - AccessToken: []
+      parameters:
+        - in: path
+          name: _id
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: groupId
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: namespaceId
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  record:
+                    $ref: '#/components/schemas/Group'

@@ -10,6 +10,7 @@ import {
   MongoosePermissions,
 } from '@tenlastic/mongoose-permissions';
 import * as nats from '@tenlastic/nats';
+import { ReturnModelType } from '@typegoose/typegoose';
 import { AckPolicy, ConsumerConfig, DeliverPolicy } from 'nats';
 import * as mongoose from 'mongoose';
 import { TextDecoder } from 'util';
@@ -28,7 +29,7 @@ export interface SubscribeOptions {
 
 export async function subscribe(
   ctx: Context<SubscribeOptions>,
-  Model: mongoose.Model<mongoose.Document>,
+  Model: mongoose.Model<mongoose.Document> | ReturnModelType<any>,
   Permissions: MongoosePermissions<any>,
 ) {
   const { _id } = ctx.request;

@@ -66,7 +66,7 @@ describe('web-server/steam-integrations/logins', function () {
         const namespace = await NamespaceModel.mock().save();
         steamIntegration = await SteamIntegrationModel.mock({
           namespaceId: namespace._id,
-          roles: [AuthorizationRole.ArticlesReadPublished],
+          roles: [AuthorizationRole.ArticlesPlay],
         }).save();
       });
 

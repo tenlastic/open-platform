@@ -22,6 +22,8 @@ export const KubernetesNamespaceIngress = {
                 getPath(namespace, '/collections'),
                 getPath(namespace, '/game-server-templates'),
                 getPath(namespace, '/game-servers'),
+                getPath(namespace, '/group-invitations'),
+                getPath(namespace, '/groups'),
                 getPath(namespace, '/match-invitations'),
                 getPath(namespace, '/matches'),
                 getPath(namespace, '/queue-members'),

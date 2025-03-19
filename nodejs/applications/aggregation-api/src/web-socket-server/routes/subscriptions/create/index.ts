@@ -3,20 +3,14 @@ import {
   AuthorizationPermissions,
   AuthorizationRequestModel,
   AuthorizationRequestPermissions,
-  FriendModel,
-  FriendPermissions,
   GroupModel,
   GroupPermissions,
   GroupInvitationModel,
   GroupInvitationPermissions,
-  IgnorationModel,
-  IgnorationPermissions,
   MatchInvitationModel,
   MatchInvitationPermissions,
   MatchModel,
   MatchPermissions,
-  MessageModel,
-  MessagePermissions,
   NamespaceModel,
   NamespacePermissions,
   QueueMemberModel,
@@ -38,26 +32,17 @@ export async function handler(ctx: Context<SubscribeOptions>) {
     case 'authorizations':
       return subscribe(ctx, AuthorizationModel, AuthorizationPermissions);
 
-    case 'friends':
-      return subscribe(ctx, FriendModel, FriendPermissions);
-
     case 'group-invitations':
       return subscribe(ctx, GroupInvitationModel, GroupInvitationPermissions);
 
     case 'groups':
       return subscribe(ctx, GroupModel, GroupPermissions);
 
-    case 'ignorations':
-      return subscribe(ctx, IgnorationModel, IgnorationPermissions);
-
     case 'match-invitations':
       return subscribe(ctx, MatchInvitationModel, MatchInvitationPermissions);
 
     case 'matches':
       return subscribe(ctx, MatchModel, MatchPermissions);
-
-    case 'messages':
-      return subscribe(ctx, MessageModel, MessagePermissions);
 
     case 'namespaces':
       return subscribe(ctx, NamespaceModel, NamespacePermissions);

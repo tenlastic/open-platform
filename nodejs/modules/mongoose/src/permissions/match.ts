@@ -39,14 +39,6 @@ export const MatchPermissions = new MongoosePermissions<MatchDocument>(MatchMode
       $or: [
         AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.MatchesRead]),
         {
-          ...AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.MatchesReadFinished]),
-          finishedAt: { $exists: true },
-        },
-        {
-          ...AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.MatchesReadStarted]),
-          startedAt: { $exists: true },
-        },
-        {
           acceptedUserIds: { $ref: 'user._id' },
           startedAt: { $exists: true },
           'teams.userIds': { $ref: 'user._id' },
@@ -97,7 +89,7 @@ export const MatchPermissions = new MongoosePermissions<MatchDocument>(MatchMode
   },
   update: {
     'namespace-write': administrator.update,
-    'system-write': [...administrator.update, 'teams.*'],
+    'system-write': administrator.update,
     'user-write': administrator.update,
   },
 });

@@ -8,7 +8,7 @@ import {
   GroupQuery,
 } from '@tenlastic/http';
 import { Observable } from 'rxjs';
-import { first, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 import { ExecutableService, IdentityService, UpdateService } from '../../../../../../core/services';
 
@@ -52,7 +52,9 @@ export class GameServersPageComponent implements OnInit {
           gs.status.phase === 'Running',
       });
       this.$group = this.groupQuery
-        .selectAll({ filterBy: (g) => g.userIds.includes(this.identityService.user._id) })
+        .selectAll({
+          filterBy: (g) => g.members?.some((m) => m.userId === this.identityService.user._id),
+        })
         .pipe(map((groups) => groups[0]));
 
       await this.gameServerService.find(params.namespaceId, {

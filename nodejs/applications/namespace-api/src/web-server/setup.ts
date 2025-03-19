@@ -7,6 +7,8 @@ import {
   collectionRoutes,
   gameServerRoutes,
   gameServerTemplateRoutes,
+  groupInvitationRoutes,
+  groupRoutes,
   matchRoutes,
   matchInvitationRoutes,
   probeRoutes,
@@ -27,6 +29,8 @@ export function setup() {
   router.use(collectionRoutes);
   router.use(gameServerRoutes);
   router.use(gameServerTemplateRoutes);
+  router.use(groupInvitationRoutes);
+  router.use(groupRoutes);
   router.use(matchRoutes);
   router.use(matchInvitationRoutes);
   router.use(probeRoutes);

@@ -58,7 +58,8 @@
 
       <app-toggle-section *ngIf="!form.get('bannedAt').value"
                           title="Roles">
-        <app-role-fields [form]="form"></app-role-fields>
+        <app-role-fields [form]="form"
+                         [play]="namespaceId"></app-role-fields>
       </app-toggle-section>
     </form>
   </div>

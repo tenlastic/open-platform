@@ -23,34 +23,6 @@ spec:
     - host: api.tenlastic.com
       http:
         paths:
-          - path: /friends
-            pathType: Prefix
-            backend:
-              service:
-                name: social-api
-                port:
-                  number: 3000
-          - path: /group-invitations
-            pathType: Prefix
-            backend:
-              service:
-                name: social-api
-                port:
-                  number: 3000
-          - path: /groups
-            pathType: Prefix
-            backend:
-              service:
-                name: social-api
-                port:
-                  number: 3000
-          - path: /ignorations
-            pathType: Prefix
-            backend:
-              service:
-                name: social-api
-                port:
-                  number: 3000
           - path: /match-invitations
             pathType: Prefix
             backend:
@@ -63,13 +35,6 @@ spec:
             backend:
               service:
                 name: aggregation-api
-                port:
-                  number: 3000
-          - path: /messages
-            pathType: Prefix
-            backend:
-              service:
-                name: social-api
                 port:
                   number: 3000
           - path: /queue-members

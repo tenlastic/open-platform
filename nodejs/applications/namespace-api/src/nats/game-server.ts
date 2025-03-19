@@ -53,7 +53,7 @@ GameServerEvent.async(async (payload) => {
   const node = payload.fullDocument.status.nodes.find((n) => n.component === component);
 
   if (node?.phase === 'Failed' || node?.phase === 'Succeeded') {
-    await payload.fullDocument.remove();
+    return GameServerModel.deleteOne({ _id: payload.fullDocument._id });
   }
 });
 

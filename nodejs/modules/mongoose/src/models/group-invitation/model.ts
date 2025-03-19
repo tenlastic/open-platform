@@ -11,10 +11,11 @@ import * as mongoose from 'mongoose';
 
 import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 import { GroupDocument } from '../group';
+import { AuthorizationDocument } from '../authorization';
 
 @index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 @index({ fromUserId: 1 })
-@index({ groupId: 1, toUserId: 1 }, { unique: true })
+@index({ groupId: 1, namespaceId: 1, toUserId: 1 }, { unique: true })
 @modelOptions({ schemaOptions: { collection: 'group-invitations', timestamps: true } })
 @plugin(duplicateKeyErrorPlugin)
 @plugin(unsetPlugin)
@@ -41,10 +42,16 @@ export class GroupInvitationSchema {
   @prop({ ref: 'GroupSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public groupId: mongoose.Types.ObjectId;
 
+  @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
+  public namespaceId: mongoose.Types.ObjectId;
+
   @prop({ ref: 'UserSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public toUserId: mongoose.Types.ObjectId;
 
   public updatedAt: Date;
+
+  @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
+  public authorizationDocuments: AuthorizationDocument[];
 
   @prop({ foreignField: '_id', justOne: true, localField: 'groupId', ref: 'GroupSchema' })
   public groupDocument: GroupDocument;

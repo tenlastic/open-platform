@@ -5,6 +5,12 @@
   height: 100%;
 
   &::ng-deep {
+    > ng-component {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
+
     div.content {
       flex: 1 1 auto;
       overflow: auto;
@@ -17,6 +23,7 @@
       display: flex;
       flex: 0 0 auto;
       flex-direction: column;
+      height: 100%;
       overflow: auto;
       padding: 8px;
       z-index: 2;
