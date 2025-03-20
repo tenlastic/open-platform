@@ -56,11 +56,11 @@ export class WebSocket {
   public emitter = new EventEmitter() as TypedEmitter<WebSocketEvents>;
   public interceptors: WebSocketInterceptors = { connect: [] };
   public readyState = 0;
+  public url: string;
 
   private durableRequests = new Map<string, WebSocketDurableRequest>();
   private durableResponses = new Map<string, WebSocketDurableResponse>();
   private interval: ReturnType<typeof setInterval>;
-  private url: string;
   private webSocket: IsomorphicWS;
 
   constructor(url: string) {

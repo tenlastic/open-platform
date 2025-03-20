@@ -12,6 +12,7 @@ import {
   UserService,
   UserQuery,
   IGroup,
+  WebSocketService,
 } from '@tenlastic/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -42,8 +43,9 @@ export class SocialComponent implements OnInit {
     return this.params.namespaceId;
   }
   private params: Params;
-  private get webSocketUrl() {
-    return `${environment.wssUrl}/namespaces/${this.namespaceId}`;
+  private get webSocket() {
+    const url = `${environment.wssUrl}/namespaces/${this.namespaceId}`;
+    return this.webSocketService.webSockets.find((ws) => url === ws.url);
   }
 
   constructor(
@@ -57,6 +59,7 @@ export class SocialComponent implements OnInit {
     private matDialog: MatDialog,
     private userQuery: UserQuery,
     private userService: UserService,
+    private webSocketService: WebSocketService,
   ) {}
 
   public ngOnInit() {
@@ -100,7 +103,7 @@ export class SocialComponent implements OnInit {
   }
 
   public async createGroup() {
-    await this.groupService.create(null, this.webSocketUrl);
+    await this.groupService.create(this.webSocket);
   }
 
   public createGroupInvitation(group: GroupModel) {
@@ -144,6 +147,10 @@ export class SocialComponent implements OnInit {
   }
 
   public async removeMember(group: GroupModel, member: IGroup.Member) {
+    if (!this.isLeader(group, this.user._id) && member.userId !== this.user._id) {
+      return;
+    }
+
     member ||= group.members.find((m) => m.userId === this.user._id);
     await this.groupService.removeMember(this.namespaceId, group._id, member._id);
   }

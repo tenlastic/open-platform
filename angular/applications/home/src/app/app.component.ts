@@ -125,6 +125,12 @@ export class AppComponent implements OnInit {
       store: this.webSocketStore,
     },
   ];
+  private get webSocket() {
+    return this.webSocketService.webSockets.find((ws) => this.webSocketUrl === ws.url);
+  }
+  private get webSocketUrl() {
+    return environment.wssUrl;
+  }
 
   constructor(
     private authorizationQuery: AuthorizationQuery,
@@ -174,7 +180,7 @@ export class AppComponent implements OnInit {
 
     // Handle websockets when logging in and out.
     this.loginService.emitter.on('login', () => this.connectSocket());
-    this.loginService.emitter.on('logout', () => this.webSocketService.close(environment.wssUrl));
+    this.loginService.emitter.on('logout', () => this.webSocketService.close(this.webSocket));
 
     // Handle websockets when access token is set.
     this.tokenService.emitter.on('accessToken', (accessToken) => {
@@ -231,7 +237,11 @@ export class AppComponent implements OnInit {
   }
 
   private async connectSocket() {
-    return Promise.all([this.webSocketService.connect(environment.wssUrl), this.subscribe()]);
+    if (this.webSocket) {
+      return;
+    }
+
+    return Promise.all([this.webSocketService.connect(this.webSocketUrl), this.subscribe()]);
   }
 
   private setTokens(response: LoginServiceResponse) {
@@ -246,7 +256,7 @@ export class AppComponent implements OnInit {
         { ...s.request },
         s.service,
         s.store,
-        environment.wssUrl,
+        this.webSocket,
         { acks: true },
       ),
     );

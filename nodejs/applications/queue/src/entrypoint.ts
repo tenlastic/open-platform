@@ -28,16 +28,15 @@ const wssUrl = process.env.WSS_URL;
     console.log(`Found ${queueMembers.length} existing Queue Members.`);
 
     // Web Sockets.
+    const webSocket = await dependencies.webSocketService.connect(wssUrl);
     await Promise.all([
-      dependencies.webSocketService.connect(wssUrl),
-
       // Watch for updates to the Queue.
       dependencies.subscriptionService.subscribe(
         QueueModel,
         { body: { resumeToken: podName, where: { _id: queueId } }, path: '/subscriptions/queues' },
         dependencies.queueService,
         dependencies.queueStore,
-        wssUrl,
+        webSocket,
         { acks: true },
       ),
 
@@ -50,7 +49,7 @@ const wssUrl = process.env.WSS_URL;
         },
         dependencies.queueMemberService,
         dependencies.queueMemberStore,
-        wssUrl,
+        webSocket,
         {
           acks: true,
           callback: (response) => {

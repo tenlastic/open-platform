@@ -15,7 +15,7 @@ export class WebSocketService {
     return this.baseService.emitter;
   }
   public interceptors: WebSocketInterceptors = { connect: [] };
-  public webSockets = new Map<string, WebSocket>();
+  public webSockets: WebSocket[] = [];
 
   private baseService: BaseService<WebSocketModel>;
 
@@ -34,24 +34,27 @@ export class WebSocketService {
   /**
    * Closes a web socket.
    */
-  public close(url: string) {
-    const webSocket = this.webSockets.get(url);
-    webSocket?.close();
+  public close(webSocket: WebSocket) {
+    if (!webSocket) {
+      return;
+    }
 
-    this.webSockets.delete(url);
+    webSocket.close();
+
+    const index = this.webSockets.indexOf(webSocket);
+    this.webSockets.splice(index, 1);
   }
 
   /**
    * Connects a web socket.
    */
   public async connect(url: string): Promise<WebSocket> {
-    if (this.webSockets.has(url)) {
-      return this.webSockets.get(url);
-    }
-
     const webSocket = new WebSocket(url);
-    webSocket.emitter.on('close', () => this.webSockets.delete(url));
-    this.webSockets.set(url, webSocket);
+    webSocket.emitter.on('close', () => {
+      const index = this.webSockets.indexOf(webSocket);
+      this.webSockets.splice(index, 1);
+    });
+    this.webSockets.push(webSocket);
 
     webSocket.interceptors.connect = [...this.interceptors.connect];
     await webSocket.connect();
@@ -86,12 +89,9 @@ export class WebSocketService {
   /**
    * Sends a request through the web socket.
    */
-  public request<T extends WebSocketResponse>(request: WebSocketRequest, url: string) {
-    const webSocket = this.webSockets.get(url);
-
-    // Throw an error if the web socket is not connected.
+  public request<T extends WebSocketResponse>(request: WebSocketRequest, webSocket: WebSocket) {
     if (!webSocket) {
-      throw new Error(`Web socket not connected to ${url}.`);
+      return;
     }
 
     return webSocket.request<T>(request);

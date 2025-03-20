@@ -27,7 +27,7 @@ export class AutocompleteUserFieldComponent implements OnInit {
   }
 
   public displayWith(user: UserModel) {
-    return user?.username;
+    return user?.displayName;
   }
 
   public async onFocusOut() {

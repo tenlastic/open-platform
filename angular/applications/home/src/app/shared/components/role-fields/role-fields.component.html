@@ -73,6 +73,8 @@
 
     <h4>Queues</h4>
     <div class="row">
+      <mat-checkbox *ngIf="play"
+                    formControlName="Queues:Play">Play</mat-checkbox>
       <mat-checkbox formControlName="Queues:Read">Read</mat-checkbox>
       <mat-checkbox formControlName="Queues:Write">Write</mat-checkbox>
     </div>

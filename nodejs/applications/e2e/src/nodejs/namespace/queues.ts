@@ -1,11 +1,10 @@
-import { GameServerModel, IGameServer } from '@tenlastic/http';
+import { GameServerModel, IAuthorization, IGameServer, WebSocket } from '@tenlastic/http';
 import wait from '@tenlastic/wait';
 import { expect } from 'chai';
 import * as Chance from 'chance';
 import * as fs from 'fs';
 
 import dependencies from '../../dependencies';
-import { administratorAccessToken } from '../..';
 import * as helpers from '../helpers';
 
 const wssUrl = process.env.E2E_WSS_URL;
@@ -15,7 +14,7 @@ const chance = new Chance();
 describe('/nodejs/namespace/queues', function () {
   let namespace: string;
   let username: string;
-  let webSocketUrl: string;
+  let webSocket: WebSocket;
 
   beforeEach(function () {
     namespace = `NodeJS - Queues (${chance.hash({ length: 16 })})`;
@@ -23,7 +22,7 @@ describe('/nodejs/namespace/queues', function () {
   });
 
   afterEach(async function () {
-    dependencies.webSocketService.close(webSocketUrl);
+    dependencies.webSocketService.close(webSocket);
 
     await wait(1 * 1000, 15 * 1000, () => helpers.deleteNamespace(namespace));
     await wait(1 * 1000, 15 * 1000, () => helpers.deleteUser(username));
@@ -66,15 +65,24 @@ describe('/nodejs/namespace/queues', function () {
     });
     await new Promise((resolve) => setTimeout(resolve, 5 * 1000));
 
-    // Create a new User with a Web Socket connection.
-    webSocketUrl = `${wssUrl}/namespaces/${_id}`;
-    const user = await createUser(username, webSocketUrl);
+    // Create a new User.
+    const password = chance.hash();
+    const user = await dependencies.userService.create({ password, username });
+
+    // Create an Authorization for the new User.
+    await dependencies.authorizationService.create(_id, {
+      roles: [IAuthorization.Role.QueuesPlay],
+      userId: user._id,
+    });
+
+    // Create a Web Socket connection.
+    webSocket = await helpers.createWebSocket(password, user, `${wssUrl}/namespaces/${_id}`);
 
     const queueMember = { queueId: queue._id, userId: user._id };
     const where = { queueId: queue._id };
 
     // Join the Queue and wait for Game Server to be created successfully.
-    await dependencies.queueMemberService.create(queueMember, webSocketUrl);
+    await dependencies.queueMemberService.create(queueMember, webSocket);
     const gameServer: GameServerModel = await wait(5 * 1000, 60 * 1000, async () => {
       const gameServers = await dependencies.gameServerService.find(_id, { where });
       return gameServers[0];
@@ -96,8 +104,8 @@ describe('/nodejs/namespace/queues', function () {
     queue = await dependencies.queueService.update(_id, queue._id, { usersPerTeam });
 
     // Join the Queue, close the Web Socket, and wait for asynchronous Queue Member deletion.
-    await dependencies.queueMemberService.create(queueMember, webSocketUrl);
-    dependencies.webSocketService.close(`${wssUrl}/namespaces/${_id}`);
+    await dependencies.queueMemberService.create(queueMember, webSocket);
+    dependencies.webSocketService.close(webSocket);
     await new Promise((resolve) => setTimeout(resolve, 5 * 1000));
 
     // Make sure the Queue Members are deleted.
@@ -118,26 +126,3 @@ describe('/nodejs/namespace/queues', function () {
     expect(logs.length).to.be.greaterThan(0);
   });
 });
-
-async function createUser(username: string, webSocketUrl: string) {
-  // Create a new User.
-  const password = chance.hash();
-  const user = await dependencies.userService.create({ password, username });
-
-  try {
-    // Log in with the new User.
-    const credentials = await dependencies.loginService.createWithCredentials(
-      user.username,
-      password,
-    );
-    dependencies.tokenService.setAccessToken(credentials.accessToken);
-
-    // Connect to the web socket server.
-    await dependencies.webSocketService.connect(webSocketUrl);
-  } finally {
-    // Restore original access token.
-    dependencies.tokenService.setAccessToken(administratorAccessToken);
-  }
-
-  return user;
-}

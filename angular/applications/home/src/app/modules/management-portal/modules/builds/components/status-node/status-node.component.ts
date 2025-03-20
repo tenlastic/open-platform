@@ -12,6 +12,7 @@ import {
   SubscriptionService,
   IAuthorization,
   AuthorizationQuery,
+  WebSocketService,
 } from '@tenlastic/http';
 import { map } from 'rxjs/operators';
 import { v4 as uuid } from 'uuid';
@@ -40,8 +41,9 @@ export class BuildStatusNodeComponent implements OnInit {
     Succeeded: 'check_circle',
   };
 
-  private get webSocketUrl() {
-    return `${environment.wssUrl}/namespaces/${this.build.namespaceId}`;
+  private get webSocket() {
+    const url = `${environment.wssUrl}/namespaces/${this.build.namespaceId}`;
+    return this.webSocketService.webSockets.find((ws) => url === ws.url);
   }
 
   constructor(
@@ -53,6 +55,7 @@ export class BuildStatusNodeComponent implements OnInit {
     private identityService: IdentityService,
     private matDialog: MatDialog,
     private subscriptionService: SubscriptionService,
+    private webSocketService: WebSocketService,
   ) {}
 
   public ngOnInit() {
@@ -101,8 +104,9 @@ export class BuildStatusNodeComponent implements OnInit {
           },
           this.buildLogService,
           this.buildLogStore,
-          this.webSocketUrl,
+          this.webSocket,
           {
+            acks: true,
             callback: (response) => {
               response.body.fullDocument.buildId = this.build._id;
               response.body.fullDocument.container = container;
@@ -111,7 +115,7 @@ export class BuildStatusNodeComponent implements OnInit {
           },
         );
       },
-      unsubscribe: () => this.subscriptionService.unsubscribe(_id, this.webSocketUrl),
+      unsubscribe: () => this.subscriptionService.unsubscribe(_id, this.webSocket),
     } as LogsDialogComponentData;
 
     const dialogRef = this.matDialog.open(LogsDialogComponent, { autoFocus: false, data });

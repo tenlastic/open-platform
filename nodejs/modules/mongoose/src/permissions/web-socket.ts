@@ -8,16 +8,17 @@ export const WebSocketPermissions = new MongoosePermissions<WebSocketDocument>(W
     default: {},
     'user-read': {},
   },
+  populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
   read: {
-    default: ['_id', 'createdAt', 'updatedAt', 'userId'],
+    default: ['_id', 'createdAt', 'disconnectedAt', 'namespaceId', 'updatedAt', 'userId'],
   },
   roles: {
     default: {},
-    'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([
+    'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
       AuthorizationRole.WebSocketsRead,
     ]),
-    'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([
-      AuthorizationRole.WebSocketsWrite,
+    'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([
+      AuthorizationRole.WebSocketsRead,
     ]),
   },
 });

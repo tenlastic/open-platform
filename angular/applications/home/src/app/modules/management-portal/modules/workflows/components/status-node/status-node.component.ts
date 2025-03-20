@@ -6,6 +6,7 @@ import {
   IAuthorization,
   IWorkflow,
   SubscriptionService,
+  WebSocketService,
   WorkflowLogModel,
   WorkflowLogQuery,
   WorkflowLogService,
@@ -40,8 +41,9 @@ export class WorkflowStatusNodeComponent implements OnInit {
     Succeeded: 'check_circle',
   };
 
-  private get webSocketUrl() {
-    return `${environment.wssUrl}/namespaces/${this.workflow.namespaceId}`;
+  private get webSocket() {
+    const url = `${environment.wssUrl}/namespaces/${this.workflow.namespaceId}`;
+    return this.webSocketService.webSockets.find((ws) => url === ws.url);
   }
 
   constructor(
@@ -49,6 +51,7 @@ export class WorkflowStatusNodeComponent implements OnInit {
     private identityService: IdentityService,
     private matDialog: MatDialog,
     private subscriptionService: SubscriptionService,
+    private webSocketService: WebSocketService,
     private workflowLogQuery: WorkflowLogQuery,
     private workflowLogService: WorkflowLogService,
     private workflowLogStore: WorkflowLogStore,
@@ -101,8 +104,9 @@ export class WorkflowStatusNodeComponent implements OnInit {
           },
           this.workflowLogService,
           this.workflowLogStore,
-          this.webSocketUrl,
+          this.webSocket,
           {
+            acks: true,
             callback: (response) => {
               response.body.fullDocument.container = container;
               response.body.fullDocument.pod = pod;
@@ -111,7 +115,7 @@ export class WorkflowStatusNodeComponent implements OnInit {
           },
         );
       },
-      unsubscribe: () => this.subscriptionService.unsubscribe(_id, this.webSocketUrl),
+      unsubscribe: () => this.subscriptionService.unsubscribe(_id, this.webSocket),
     } as LogsDialogComponentData;
 
     const dialogRef = this.matDialog.open(LogsDialogComponent, { autoFocus: false, data });

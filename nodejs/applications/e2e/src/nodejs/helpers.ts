@@ -1,9 +1,10 @@
-import { BuildModel, IBuild } from '@tenlastic/http';
+import { BuildModel, IBuild, UserModel } from '@tenlastic/http';
 import wait from '@tenlastic/wait';
 import { Chance } from 'chance';
 import * as FormData from 'form-data';
 import * as JSZip from 'jszip';
 
+import { administratorAccessToken } from '../';
 import dependencies from '../dependencies';
 
 const chance = new Chance();
@@ -60,6 +61,23 @@ export async function createNamespace(name: string) {
   });
 
   return namespace;
+}
+
+export async function createWebSocket(password: string, user: UserModel, webSocketUrl: string) {
+  try {
+    // Log in with the new User.
+    const credentials = await dependencies.loginService.createWithCredentials(
+      user.username,
+      password,
+    );
+    dependencies.tokenService.setAccessToken(credentials.accessToken);
+
+    // Connect to the web socket server.
+    return await dependencies.webSocketService.connect(webSocketUrl);
+  } finally {
+    // Restore original access token.
+    dependencies.tokenService.setAccessToken(administratorAccessToken);
+  }
 }
 
 export async function deleteNamespace(name: string) {

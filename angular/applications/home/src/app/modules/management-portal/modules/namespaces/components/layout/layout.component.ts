@@ -27,8 +27,10 @@ import {
   StorefrontQuery,
   StorefrontService,
   SubscriptionService,
+  WebSocketModel,
   WebSocketRequest,
   WebSocketService,
+  WebSocketStore,
   WorkflowModel,
   WorkflowService,
   WorkflowStore,
@@ -107,14 +109,23 @@ export class LayoutComponent implements OnDestroy, OnInit {
       store: this.queueStore,
     },
     {
+      Model: WebSocketModel,
+      request: { _id: uuid(), path: '/subscriptions/web-sockets' } as WebSocketRequest,
+      service: this.webSocketService,
+      store: this.webSocketStore,
+    },
+    {
       Model: WorkflowModel,
       request: { _id: uuid(), path: '/subscriptions/workflows' } as WebSocketRequest,
       service: this.workflowService,
       store: this.workflowStore,
     },
   ];
+  private get webSocket() {
+    return this.webSocketService.webSockets.find((ws) => this.webSocketUrl === ws.url);
+  }
   private get webSocketUrl() {
-    return `${environment.wssUrl}/namespaces/${this.params.namespaceId}`;
+    return `${environment.wssUrl}/namespaces/${this.params?.namespaceId}`;
   }
 
   constructor(
@@ -139,12 +150,17 @@ export class LayoutComponent implements OnDestroy, OnInit {
     private storefrontService: StorefrontService,
     private subscriptionService: SubscriptionService,
     private webSocketService: WebSocketService,
+    private webSocketStore: WebSocketStore,
     private workflowService: WorkflowService,
     private workflowStore: WorkflowStore,
   ) {}
 
   public async ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
+      if (this.webSocket) {
+        this.webSocketService.close(this.webSocket);
+      }
+
       this.params = params;
 
       if (params.namespaceId === 'new') {
@@ -173,9 +189,17 @@ export class LayoutComponent implements OnDestroy, OnInit {
   }
 
   public ngOnDestroy() {
+    this.buildStore.reset();
+    this.collectionStore.reset();
+    this.gameServerStore.reset();
+    this.gameServerTemplateStore.reset();
+    this.queueStore.reset();
+    this.webSocketStore.reset();
+    this.workflowStore.reset();
+
     this.fetchStorefront$.unsubscribe();
     this.subscribe$.unsubscribe();
-    this.webSocketService.close(this.webSocketUrl);
+    this.webSocketService.close(this.webSocket);
   }
 
   public $hasPermission(roles: IAuthorization.Role[]) {
@@ -188,6 +212,10 @@ export class LayoutComponent implements OnDestroy, OnInit {
   }
 
   private async connectSocket() {
+    if (this.webSocket) {
+      return;
+    }
+
     return Promise.all([this.webSocketService.connect(this.webSocketUrl), this.subscribe()]);
   }
 
@@ -198,7 +226,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
         { ...s.request },
         s.service,
         s.store,
-        this.webSocketUrl,
+        this.webSocket,
         { acks: true },
       ),
     );

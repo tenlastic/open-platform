@@ -103,6 +103,7 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(QueueMode
       AuthorizationRole.QueueLogsRead,
     ]),
     'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+      AuthorizationRole.QueuesPlay,
       AuthorizationRole.QueuesRead,
     ]),
     'namespace-write': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([

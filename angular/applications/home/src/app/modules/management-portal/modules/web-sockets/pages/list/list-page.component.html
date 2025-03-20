@@ -10,6 +10,11 @@
         Filter Web Sockets
       </app-data-source-filter>
     </div>
+
+    <div class="col-sm-9">
+      <mat-checkbox [(ngModel)]="includeConnected">Connected</mat-checkbox>
+      <mat-checkbox [(ngModel)]="includeDisconnected">Disconnected</mat-checkbox>
+    </div>
   </div>
 
   <table mat-table
@@ -22,7 +27,7 @@
           *matHeaderCellDef
           mat-sort-header>User</th>
       <td mat-cell
-          *matCellDef="let element">{{ getUser(element.userId)?.username }}</td>
+          *matCellDef="let element">{{ getUser(element.userId)?.displayName }}</td>
     </ng-container>
 
     <ng-container matColumnDef="createdAt">
@@ -31,6 +36,14 @@
           mat-sort-header>Created At</th>
       <td mat-cell
           *matCellDef="let element">{{ element.createdAt | date:"MMM d, y 'at' h:mm a" }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="disconnectedAt">
+      <th mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header>Disconnected At</th>
+      <td mat-cell
+          *matCellDef="let element">{{ element.disconnectedAt | date:"MMM d, y 'at' h:mm a" }}</td>
     </ng-container>
 
     <tr mat-header-row

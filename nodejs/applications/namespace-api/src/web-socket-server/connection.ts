@@ -2,7 +2,7 @@ import { WebSocketDocument, WebSocketModel, WebSocketPermissions } from '@tenlas
 import { ICredentials } from '@tenlastic/mongoose-permissions';
 import { State, StatusCode, WebSocket as WS } from '@tenlastic/web-socket-server';
 
-export async function connection(podName: string, state: State, ws: WS) {
+export async function connection(podName: string, state: State<WebSocketDocument>, ws: WS) {
   if (!state.jwt?.user) {
     ws.send({ status: StatusCode.OK });
     return;
@@ -23,7 +23,7 @@ export async function connection(podName: string, state: State, ws: WS) {
   );
   ws.send({ body: { fullDocument, operationType: 'insert' }, status: StatusCode.OK });
 
-  // Remove the Web Socket from MongoDB.
-  ws.on('close', async () => await state.webSocket.remove());
-  ws.on('error', async () => await state.webSocket.remove());
+  // Update Web Socket in MongoDB when disconnected.
+  ws.on('close', async () => await WebSocketModel.disconnect(state.webSocket._id));
+  ws.on('error', async () => await WebSocketModel.disconnect(state.webSocket._id));
 }

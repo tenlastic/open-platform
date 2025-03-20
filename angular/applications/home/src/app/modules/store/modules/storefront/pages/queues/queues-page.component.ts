@@ -12,6 +12,7 @@ import {
   QueueQuery,
   QueueService,
   SubscriptionService,
+  WebSocketService,
 } from '@tenlastic/http';
 import { Observable, Subscription, combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
@@ -34,8 +35,9 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
   private getCurrentUsersInterval: any;
   private params: Params;
   private subscription: string;
-  private get webSocketUrl() {
-    return `${environment.wssUrl}/namespaces/${this.params.namespaceId}`;
+  private get webSocket() {
+    const url = `${environment.wssUrl}/namespaces/${this.params.namespaceId}`;
+    return this.webSocketService.webSockets.find((ws) => url === ws.url);
   }
 
   constructor(
@@ -48,6 +50,7 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
     private queueQuery: QueueQuery,
     private queueService: QueueService,
     private subscriptionService: SubscriptionService,
+    private webSocketService: WebSocketService,
   ) {}
 
   public async ngOnInit() {
@@ -95,7 +98,7 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
   public async ngOnDestroy() {
     clearInterval(this.getCurrentUsersInterval);
     this.updateQueueMembers$.unsubscribe();
-    await this.subscriptionService.unsubscribe(this.subscription, this.webSocketUrl);
+    await this.subscriptionService.unsubscribe(this.subscription, this.webSocket);
   }
 
   public $getGroup(queue: QueueModel) {
@@ -148,7 +151,7 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
     try {
       await this.queueMemberService.create(
         { groupId: group?._id, queueId: queue._id },
-        this.webSocketUrl,
+        this.webSocket,
       );
     } catch (e) {
       if (e instanceof HttpErrorResponse) {

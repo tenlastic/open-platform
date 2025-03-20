@@ -23,13 +23,15 @@ NamespaceEvent.async(async (payload) => {
   }
 });
 
-// Remove Group Member when associated Web Socket is deleted.
+// Remove Group Member when associated Web Socket is disconnected.
 WebSocketEvent.async(async (payload) => {
-  switch (payload.operationType) {
-    case 'delete':
-      return GroupModel.updateOne(
-        { 'members.webSocketId': payload.fullDocument._id },
-        { $pull: { members: { webSocketId: payload.fullDocument._id } } },
-      );
+  if (
+    payload.operationType === 'update' &&
+    payload.updateDescription?.updatedFields?.disconnectedAt
+  ) {
+    return GroupModel.updateOne(
+      { 'members.webSocketId': payload.fullDocument._id },
+      { $pull: { members: { webSocketId: payload.fullDocument._id } } },
+    );
   }
 });

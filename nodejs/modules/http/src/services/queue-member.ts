@@ -1,6 +1,7 @@
 import { QueueMemberModel } from '../models/queue-member';
 import { QueueMemberStore } from '../states/queue-member';
 import {
+  WebSocket,
   WebSocketMethod,
   WebSocketRequest,
   WebSocketResponse,
@@ -49,13 +50,13 @@ export class QueueMemberService {
   /**
    * Creates a Record.
    */
-  public async create(json: Partial<QueueMemberModel>, url: string) {
+  public async create(json: Partial<QueueMemberModel>, webSocket: WebSocket) {
     const request: WebSocketRequest = {
       body: json,
       method: WebSocketMethod.Post,
       path: '/queue-members',
     };
-    const response = await this.webSocketService.request<QueueMemberResponse>(request, url);
+    const response = await this.webSocketService.request<QueueMemberResponse>(request, webSocket);
 
     const record = new QueueMemberModel(response.body.record);
     this.emitter.emit('create', record);

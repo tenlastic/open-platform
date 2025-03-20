@@ -74,10 +74,12 @@ QueueEvent.async(async (payload) => {
 // Log the message.
 QueueMemberEvent.sync(log);
 
-// Delete Queue Member when associated Web Socket is deleted.
+// Delete Queue Member when associated Web Socket is disconnected.
 WebSocketEvent.async(async (payload) => {
-  switch (payload.operationType) {
-    case 'delete':
-      return QueueMemberModel.deleteMany({ webSocketId: payload.fullDocument._id });
+  if (
+    payload.operationType === 'update' &&
+    payload.updateDescription?.updatedFields?.disconnectedAt
+  ) {
+    return QueueMemberModel.deleteMany({ webSocketId: payload.fullDocument._id });
   }
 });

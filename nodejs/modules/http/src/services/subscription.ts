@@ -3,6 +3,7 @@ import { v4 as uuid } from 'uuid';
 
 import { BaseModel } from '../models/base';
 import {
+  WebSocket,
   WebSocketMethod,
   WebSocketRequest,
   WebSocketResponse,
@@ -61,16 +62,9 @@ export class SubscriptionService {
     request: SubscribeRequest,
     service: Service,
     store: Store,
-    url: string,
+    webSocket: WebSocket,
     options: SubscribeOptions<T> = {},
   ) {
-    const webSocket = this.webSocketService.webSockets.get(url);
-
-    // Throw an error if the web socket is not connected.
-    if (!webSocket) {
-      throw new Error(`Web socket not connected to ${url}.`);
-    }
-
     // Do not subscribe if request is already registered.
     if (webSocket.hasDurableRequest(request._id)) {
       return null;
@@ -115,7 +109,7 @@ export class SubscriptionService {
           try {
             await options.callback(response);
           } catch {
-            return this.nak(request._id, url);
+            return this.nak(request._id, webSocket);
           }
         } else if (options.callback) {
           await options.callback(response);
@@ -137,20 +131,13 @@ export class SubscriptionService {
         }
 
         if (options.acks) {
-          await this.ack(request._id, url);
+          await this.ack(request._id, webSocket);
         }
       },
     );
   }
 
-  public async unsubscribe(_id: string, url: string) {
-    const webSocket = this.webSocketService.webSockets.get(url);
-
-    // Throw an error if the web socket is not connected.
-    if (!webSocket) {
-      throw new Error(`Web socket not connected to ${url}.`);
-    }
-
+  public async unsubscribe(_id: string, webSocket: WebSocket) {
     webSocket.deleteDurableRequest(_id);
 
     const request: WebSocketRequest = {
@@ -158,24 +145,24 @@ export class SubscriptionService {
       method: WebSocketMethod.Delete,
       path: `/subscriptions/${_id}`,
     };
-    return this.webSocketService.request(request, url);
+    return this.webSocketService.request(request, webSocket);
   }
 
-  private async ack(_id: string, url: string) {
+  private async ack(_id: string, webSocket: WebSocket) {
     const request: WebSocketRequest = {
       _id: uuid(),
       method: WebSocketMethod.Post,
       path: `/subscriptions/${_id}/acks`,
     };
-    return this.webSocketService.request(request, url);
+    return this.webSocketService.request(request, webSocket);
   }
 
-  private async nak(_id: string, url: string) {
+  private async nak(_id: string, webSocket: WebSocket) {
     const request: WebSocketRequest = {
       _id: uuid(),
       method: WebSocketMethod.Post,
       path: `/subscriptions/${_id}/naks`,
     };
-    return this.webSocketService.request(request, url);
+    return this.webSocketService.request(request, webSocket);
   }
 }

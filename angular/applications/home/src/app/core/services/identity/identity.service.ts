@@ -6,6 +6,7 @@ import {
   TokenService,
   UserModel,
   UserQuery,
+  UserStore,
 } from '@tenlastic/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -30,6 +31,7 @@ export class IdentityService {
     private authorizationQuery: AuthorizationQuery,
     private tokenService: TokenService,
     private userQuery: UserQuery,
+    private userStore: UserStore,
   ) {
     this.tokenService.emitter.on('accessToken', (accessToken) => this.setAccessToken(accessToken));
     this.tokenService.getAccessToken().then((accessToken) => this.setAccessToken(accessToken));
@@ -37,6 +39,10 @@ export class IdentityService {
 
   public setAccessToken(accessToken: Jwt) {
     this._user = accessToken?.payload?.user;
+
+    if (this._user) {
+      this.userStore.upsertMany([this._user]);
+    }
 
     this._$authorization = this.authorizationQuery
       .selectAll({ filterBy: (a) => !a.namespaceId && a.userId === this._user?._id })

@@ -1,6 +1,7 @@
 import { GroupModel } from '../models/group';
 import { GroupStore } from '../states/group';
 import {
+  WebSocket,
   WebSocketMethod,
   WebSocketRequest,
   WebSocketResponse,
@@ -37,12 +38,12 @@ export class GroupService {
   /**
    * Adds a Group Member to a Group.
    */
-  public async addMember(_id: string, url: string): Promise<GroupModel> {
+  public async addMember(_id: string, webSocket: WebSocket): Promise<GroupModel> {
     const request: WebSocketRequest = {
       method: WebSocketMethod.Post,
       path: `/groups/${_id}/members`,
     };
-    const response = await this.webSocketService.request<GroupResponse>(request, url);
+    const response = await this.webSocketService.request<GroupResponse>(request, webSocket);
 
     const record = new GroupModel(response.body.record);
     this.emitter.emit('update', record);
@@ -62,13 +63,12 @@ export class GroupService {
   /**
    * Creates a Record.
    */
-  public async create(json: Partial<GroupModel>, url: string) {
+  public async create(webSocket: WebSocket) {
     const request: WebSocketRequest = {
-      body: json,
       method: WebSocketMethod.Post,
       path: '/groups',
     };
-    const response = await this.webSocketService.request<GroupResponse>(request, url);
+    const response = await this.webSocketService.request<GroupResponse>(request, webSocket);
 
     const record = new GroupModel(response.body.record);
     this.emitter.emit('create', record);

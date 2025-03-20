@@ -22,10 +22,10 @@ export interface Jwt {
   user?: { _id?: string; username?: string };
 }
 
-export interface State {
+export interface State<T extends mongoose.Document = mongoose.Document> {
   apiKey?: string;
   authorization?: { _id?: string; roles?: string[] };
   jwt?: Jwt;
   user?: { _id?: string; username?: string };
-  webSocket?: mongoose.Document;
+  webSocket?: T;
 }

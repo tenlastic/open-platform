@@ -2,6 +2,8 @@ import * as injector from '@tenlastic/dependency-injection';
 import {
   AccessTokenInterceptor,
   ApiService,
+  AuthorizationService,
+  AuthorizationStore,
   BuildLogService,
   BuildLogStore,
   BuildService,
@@ -15,6 +17,10 @@ import {
   GameServerStore,
   GameServerTemplateService,
   GameServerTemplateStore,
+  GroupInvitationService,
+  GroupInvitationStore,
+  GroupService,
+  GroupStore,
   LoginService,
   MatchService,
   MatchStore,
@@ -66,6 +72,15 @@ const services: injector.Injection[] = [
     deps: [Axios],
     provide: ApiService,
     useFactory: (axios: Axios) => new ApiService(axios),
+  },
+  {
+    deps: [ApiService, AuthorizationStore, EnvironmentService],
+    provide: AuthorizationService,
+    useFactory: (
+      apiService: ApiService,
+      authorizationStore: AuthorizationStore,
+      environmentService: EnvironmentService,
+    ) => new AuthorizationService(apiService, authorizationStore, environmentService),
   },
   {
     deps: [ApiService, BuildLogStore, EnvironmentService],
@@ -121,6 +136,25 @@ const services: injector.Injection[] = [
       environmentService: EnvironmentService,
       gameServerTemplateStore: GameServerTemplateStore,
     ) => new GameServerTemplateService(apiService, environmentService, gameServerTemplateStore),
+  },
+  {
+    deps: [ApiService, EnvironmentService, GroupInvitationStore],
+    provide: GroupInvitationService,
+    useFactory: (
+      apiService: ApiService,
+      environmentService: EnvironmentService,
+      groupInvitationStore: GroupInvitationStore,
+    ) => new GroupInvitationService(apiService, environmentService, groupInvitationStore),
+  },
+  {
+    deps: [ApiService, EnvironmentService, GroupStore, WebSocketService],
+    provide: GroupService,
+    useFactory: (
+      apiService: ApiService,
+      environmentService: EnvironmentService,
+      groupStore: GroupStore,
+      webSocketService: WebSocketService,
+    ) => new GroupService(apiService, environmentService, groupStore, webSocketService),
   },
   {
     deps: [ApiService, EnvironmentService],
@@ -239,12 +273,15 @@ const services: injector.Injection[] = [
 ];
 
 const stores: injector.Injection[] = [
+  { provide: AuthorizationStore, useValue: new AuthorizationStore() },
   { provide: BuildLogStore, useValue: new BuildLogStore() },
   { provide: BuildStore, useValue: new BuildStore() },
   { provide: CollectionStore, useValue: new CollectionStore() },
   { provide: GameServerLogStore, useValue: new GameServerLogStore() },
   { provide: GameServerStore, useValue: new GameServerStore() },
   { provide: GameServerTemplateStore, useValue: new GameServerTemplateStore() },
+  { provide: GroupInvitationStore, useValue: new GroupInvitationStore() },
+  { provide: GroupStore, useValue: new GroupStore() },
   { provide: MatchStore, useValue: new MatchStore() },
   { provide: NamespaceStore, useValue: new NamespaceStore() },
   { provide: QueueLogStore, useValue: new QueueLogStore() },
@@ -261,6 +298,8 @@ injector.inject([...components, ...interceptors, ...services, ...stores]);
 export default {
   apiService: injector.get(ApiService),
   axios: injector.get(Axios),
+  authorizationService: injector.get(AuthorizationService),
+  authorizationStore: injector.get(AuthorizationStore),
   buildLogService: injector.get(BuildLogService),
   buildService: injector.get(BuildService),
   collectionService: injector.get(CollectionService),
@@ -271,6 +310,10 @@ export default {
   gameServerStore: injector.get(GameServerStore),
   gameServerTemplateService: injector.get(GameServerTemplateService),
   gameServerTemplateStore: injector.get(GameServerTemplateStore),
+  groupInvitationService: injector.get(GroupInvitationService),
+  groupInvitationStore: injector.get(GroupInvitationStore),
+  groupService: injector.get(GroupService),
+  groupStore: injector.get(GroupStore),
   loginService: injector.get(LoginService),
   matchService: injector.get(MatchService),
   matchStore: injector.get(MatchStore),

@@ -17,6 +17,7 @@ import {
   NamespaceQuery,
   NamespaceService,
   SubscriptionService,
+  WebSocketService,
 } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -50,6 +51,9 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
 
   private $namespaces: Observable<NamespaceModel[]>;
   private updateDataSource$ = new Subscription();
+  private get webSocket() {
+    return this.webSocketService.webSockets.find((ws) => environment.wssUrl === ws.url);
+  }
 
   constructor(
     private authorizationQuery: AuthorizationQuery,
@@ -62,6 +66,7 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
     private namespaceQuery: NamespaceQuery,
     private namespaceService: NamespaceService,
     private subscriptionService: SubscriptionService,
+    private webSocketService: WebSocketService,
   ) {}
 
   public async ngOnInit() {
@@ -150,8 +155,9 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
           },
           this.namespaceLogService,
           this.namespaceLogStore,
-          environment.wssUrl,
+          this.webSocket,
           {
+            acks: true,
             callback: (response) => {
               response.body.fullDocument.container = container;
               response.body.fullDocument.namespaceId = record._id;
@@ -160,7 +166,7 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
           },
         );
       },
-      unsubscribe: () => this.subscriptionService.unsubscribe(_id, environment.wssUrl),
+      unsubscribe: () => this.subscriptionService.unsubscribe(_id, this.webSocket),
     } as LogsDialogComponentData;
 
     const dialogRef = this.matDialog.open(LogsDialogComponent, { autoFocus: false, data });

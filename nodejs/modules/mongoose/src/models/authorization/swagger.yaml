@@ -60,6 +60,7 @@ components:
         - Namespaces:Read
         - Namespaces:Write
         - QueueLogs:Read
+        - Queues:Play
         - Queues:Read
         - Queues:Write
         - Records:Read

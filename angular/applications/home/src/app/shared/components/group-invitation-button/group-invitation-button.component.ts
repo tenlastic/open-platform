@@ -5,6 +5,7 @@ import {
   GroupService,
   UserQuery,
   UserService,
+  WebSocketService,
 } from '@tenlastic/http';
 
 import { environment } from '../../../../environments/environment';
@@ -17,8 +18,9 @@ import { environment } from '../../../../environments/environment';
 export class GroupInvitationButtonComponent implements OnInit {
   @Input() public groupInvitation: GroupInvitationModel;
 
-  private get webSocketUrl() {
-    return `${environment.wssUrl}/namespaces/${this.groupInvitation.namespaceId}`;
+  private get webSocket() {
+    const url = `${environment.wssUrl}/namespaces/${this.groupInvitation.namespaceId}`;
+    return this.webSocketService.webSockets.find((ws) => url === ws.url);
   }
 
   constructor(
@@ -26,6 +28,7 @@ export class GroupInvitationButtonComponent implements OnInit {
     private groupService: GroupService,
     private userQuery: UserQuery,
     private userService: UserService,
+    private webSocketService: WebSocketService,
   ) {}
 
   public async ngOnInit() {
@@ -35,7 +38,7 @@ export class GroupInvitationButtonComponent implements OnInit {
   }
 
   public async accept() {
-    await this.groupService.addMember(this.groupInvitation.groupId, this.webSocketUrl);
+    await this.groupService.addMember(this.groupInvitation.groupId, this.webSocket);
   }
 
   public getUser(_id: string) {

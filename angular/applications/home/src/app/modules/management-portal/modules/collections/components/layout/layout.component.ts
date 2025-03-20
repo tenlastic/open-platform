@@ -55,8 +55,9 @@ export class LayoutComponent implements OnDestroy, OnInit {
       store: this.recordStore,
     },
   ];
-  private get webSocketUrl() {
-    return `${environment.wssUrl}/namespaces/${this.params.namespaceId}`;
+  private get webSocket() {
+    const url = `${environment.wssUrl}/namespaces/${this.params.namespaceId}`;
+    return this.webSocketService.webSockets.find((ws) => url === ws.url);
   }
 
   constructor(
@@ -86,7 +87,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
       this.$collection = this.collectionQuery.selectEntity(params.collectionId);
       await this.collectionService.findOne(params.namespaceId, params.collectionId);
 
-      return Promise.all([this.webSocketService.connect(this.webSocketUrl), this.subscribe()]);
+      return this.subscribe();
     });
   }
 
@@ -112,7 +113,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
         { ...s.request, path },
         s.service,
         s.store,
-        this.webSocketUrl,
+        this.webSocket,
         { acks: true },
       );
     });
@@ -122,7 +123,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
 
   private unsubscribe() {
     const promises = this.subscriptions.map((s) =>
-      this.subscriptionService.unsubscribe(s.request._id, this.webSocketUrl),
+      this.subscriptionService.unsubscribe(s.request._id, this.webSocket),
     );
 
     return Promise.all(promises);

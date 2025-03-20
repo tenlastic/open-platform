@@ -56,7 +56,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
     return this.electronService.isElectron;
   }
   public get namespaceId() {
-    return this.params.namespaceId;
+    return this.params?.namespaceId;
   }
   public get status() {
     if (!this.electronService.isElectron || !this.namespaceId) {
@@ -100,6 +100,9 @@ export class LayoutComponent implements OnDestroy, OnInit {
       store: this.queueStore,
     },
   ];
+  private get webSocket() {
+    return this.webSocketService.webSockets.find((ws) => this.webSocketUrl === ws.url);
+  }
   private get webSocketUrl() {
     return `${environment.wssUrl}/namespaces/${this.namespaceId}`;
   }
@@ -131,9 +134,8 @@ export class LayoutComponent implements OnDestroy, OnInit {
 
   public async ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
-      // Close previous stream.
-      if (this.params) {
-        this.webSocketService.close(this.webSocketUrl);
+      if (this.webSocket) {
+        this.webSocketService.close(this.webSocket);
       }
 
       this.params = params;
@@ -190,7 +192,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
   public ngOnDestroy() {
     this.backgroundService.unset();
     this.subscribe$.unsubscribe();
-    this.webSocketService.close(this.webSocketUrl);
+    this.webSocketService.close(this.webSocket);
   }
 
   public $hasPermission(roles: IAuthorization.Role[]) {
@@ -231,7 +233,7 @@ export class LayoutComponent implements OnDestroy, OnInit {
         { ...s.request },
         s.service,
         s.store,
-        this.webSocketUrl,
+        this.webSocket,
         { acks: true },
       ),
     );

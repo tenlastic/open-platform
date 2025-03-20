@@ -33,6 +33,8 @@
     <app-button *ngFor="let member of $members | async"
                 color="accent"
                 layout="vertical"
+                [matTooltip]="isLeader(group, user._id) || member.userId === user._id ? 'Remove from Group' : null"
+                matTooltipPosition="left"
                 text="left"
                 width="full"
                 (OnClick)="removeMember(group, member)">

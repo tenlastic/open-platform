@@ -20,6 +20,7 @@ import {
   IGameServer,
   GameServerLogService,
   SubscriptionService,
+  WebSocketService,
 } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -57,8 +58,9 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
   private $gameServers: Observable<GameServerModel[]>;
   private updateDataSource$ = new Subscription();
   private params: Params;
-  private get webSocketUrl() {
-    return `${environment.wssUrl}/namespaces/${this.params.namespaceId}`;
+  private get webSocket() {
+    const url = `${environment.wssUrl}/namespaces/${this.params.namespaceId}`;
+    return this.webSocketService.webSockets.find((ws) => url === ws.url);
   }
 
   constructor(
@@ -75,6 +77,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private subscriptionService: SubscriptionService,
+    private webSocketService: WebSocketService,
   ) {}
 
   public async ngOnInit() {
@@ -170,8 +173,9 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
           },
           this.gameServerLogService,
           this.gameServerLogStore,
-          this.webSocketUrl,
+          this.webSocket,
           {
+            acks: true,
             callback: (response) => {
               response.body.fullDocument.container = container;
               response.body.fullDocument.gameServerId = record._id;
@@ -180,7 +184,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
           },
         );
       },
-      unsubscribe: () => this.subscriptionService.unsubscribe(_id, this.webSocketUrl),
+      unsubscribe: () => this.subscriptionService.unsubscribe(_id, this.webSocket),
     } as LogsDialogComponentData;
 
     const dialogRef = this.matDialog.open(LogsDialogComponent, { autoFocus: false, data });

@@ -20,6 +20,7 @@ import {
   QueueQuery,
   QueueService,
   SubscriptionService,
+  WebSocketService,
 } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -54,8 +55,9 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
   private $queues: Observable<QueueModel[]>;
   private updateDataSource$ = new Subscription();
   private params: Params;
-  private get webSocketUrl() {
-    return `${environment.wssUrl}/namespaces/${this.params.namespaceId}`;
+  private get webSocket() {
+    const url = `${environment.wssUrl}/namespaces/${this.params.namespaceId}`;
+    return this.webSocketService.webSockets.find((ws) => url === ws.url);
   }
 
   constructor(
@@ -72,6 +74,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
     private queueQuery: QueueQuery,
     private queueService: QueueService,
     private subscriptionService: SubscriptionService,
+    private webSocketService: WebSocketService,
   ) {}
 
   public ngOnInit() {
@@ -165,8 +168,9 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
           },
           this.queueLogService,
           this.queueLogStore,
-          this.webSocketUrl,
+          this.webSocket,
           {
+            acks: true,
             callback: (response) => {
               response.body.fullDocument.container = container;
               response.body.fullDocument.pod = pod;
@@ -175,7 +179,7 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
           },
         );
       },
-      unsubscribe: () => this.subscriptionService.unsubscribe(_id, this.webSocketUrl),
+      unsubscribe: () => this.subscriptionService.unsubscribe(_id, this.webSocket),
     } as LogsDialogComponentData;
 
     const dialogRef = this.matDialog.open(LogsDialogComponent, { autoFocus: false, data });
