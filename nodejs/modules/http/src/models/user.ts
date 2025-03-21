@@ -17,7 +17,7 @@ export class UserModel extends BaseModel {
     }
 
     if (this.steamPersonaName) {
-      return `Steam Persona Name: ${this.steamPersonaName}`;
+      return `Steam: ${this.steamPersonaName}`;
     }
 
     if (this.steamId) {
