@@ -11,7 +11,6 @@ merge-yaml \
   ../aggregation-api/src/web-server/**/swagger.yaml \
   ../api/src/web-server/**/swagger.yaml \
   ../namespace-api/src/web-server/**/swagger.yaml \
-  ../social-api/src/web-server/**/swagger.yaml \
   -o ./dist/swagger/api.yaml
 
 # Merge Web Socket swagger files.
@@ -21,7 +20,6 @@ merge-yaml \
   ../aggregation-api/src/web-socket-server/**/swagger.yaml \
   ../api/src/web-socket-server/**/swagger.yaml \
   ../namespace-api/src/web-socket-server/**/swagger.yaml \
-  ../social-api/src/web-socket-server/**/swagger.yaml \
   -o ./dist/swagger/web-sockets.yaml
 
 # Alphabetize Output.

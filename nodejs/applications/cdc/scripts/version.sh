@@ -17,4 +17,3 @@ version () {
 
 version aggregation-api-cdc
 version api-cdc
-version social-api-cdc
