@@ -47,7 +47,7 @@ export class GameServersListPageComponent implements OnDestroy, OnInit {
   }
 
   public dataSource = new MatTableDataSource<GameServerModel>();
-  public displayedColumns = ['name', 'description', 'build', 'status', 'currentUserIds', 'actions'];
+  public displayedColumns = ['name', 'build', 'currentUserIds', 'description', 'status', 'actions'];
   public hasLogAuthorization: boolean;
   public hasWriteAuthorization: boolean;
   public message: string;

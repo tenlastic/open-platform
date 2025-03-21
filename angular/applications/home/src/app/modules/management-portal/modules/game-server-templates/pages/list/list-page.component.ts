@@ -32,7 +32,7 @@ export class GameServerTemplatesListPageComponent implements OnDestroy, OnInit {
   }
 
   public dataSource = new MatTableDataSource<GameServerTemplateModel>();
-  public displayedColumns = ['name', 'description', 'build', 'actions'];
+  public displayedColumns = ['name', 'build', 'description', 'actions'];
   public hasWriteAuthorization: boolean;
   public message: string;
   public get queueId() {

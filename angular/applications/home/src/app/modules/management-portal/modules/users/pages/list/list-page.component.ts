@@ -1,47 +1,41 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import {
   AuthorizationQuery,
   IAuthorization,
   UserModel,
-  UserQuery,
   UserService,
   WebSocketModel,
   WebSocketQuery,
   WebSocketService,
 } from '@tenlastic/http';
-import { Observable, Subscription } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 
 import { IdentityService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
+import { debounceTime } from 'rxjs/operators';
 
 @Component({
   templateUrl: 'list-page.component.html',
   styleUrls: ['./list-page.component.scss'],
 })
-export class UsersListPageComponent implements OnDestroy, OnInit {
-  @ViewChild(MatPaginator) set paginator(paginator: MatPaginator) {
-    this.dataSource.paginator = paginator;
-  }
-  @ViewChild(MatSort) set sort(sort: MatSort) {
-    this.dataSource.sort = sort;
-  }
+export class UsersListPageComponent implements AfterViewInit, OnDestroy {
+  @ViewChild(MatPaginator) private paginator: MatPaginator;
 
-  public $users: Observable<UserModel[]>;
   public dataSource = new MatTableDataSource<UserModel>();
   public displayedColumns = [
     'webSocket',
-    'username',
     'email',
     'steam',
+    'username',
     'createdAt',
     'updatedAt',
     'actions',
   ];
+  public filter: string;
   public hasWriteAuthorization: boolean;
   public message: string;
   public get user() {
@@ -49,37 +43,134 @@ export class UsersListPageComponent implements OnDestroy, OnInit {
   }
   public webSockets: { [key: string]: WebSocketModel } = {};
 
-  private fetchWebSockets$ = new Subscription();
-  private updateDataSource$ = new Subscription();
+  private filter$ = new Subject();
   private updateWebSockets$ = new Subscription();
+  private date = new Date(0);
+  private timeout: NodeJS.Timeout;
 
   constructor(
     private authorizationQuery: AuthorizationQuery,
     private identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
-    private userQuery: UserQuery,
     private userService: UserService,
     private webSocketQuery: WebSocketQuery,
     private webSocketService: WebSocketService,
   ) {}
 
-  public async ngOnInit() {
+  public async ngAfterViewInit() {
+    this.filter$.pipe(debounceTime(300)).subscribe(() => this.fetchUsers());
+
+    this.updateWebSockets$ = this.webSocketQuery.selectAll().subscribe((webSockets) => {
+      this.webSockets = {};
+
+      for (const webSocket of webSockets) {
+        if (webSocket.disconnectedAt) {
+          continue;
+        }
+
+        this.webSockets[webSocket.userId] = webSocket;
+      }
+    });
+
     this.message = 'Loading...';
 
-    const roles = [IAuthorization.Role.NamespacesWrite];
+    const roles = [IAuthorization.Role.UsersWrite];
     const userId = this.identityService.user?._id;
     this.hasWriteAuthorization = this.authorizationQuery.hasRoles(null, roles, userId);
 
     await this.fetchUsers();
 
     this.message = null;
+
+    this.userService.emitter.on('create', (u) => {
+      if (!this.match(u)) {
+        return;
+      }
+
+      if (this.dataSource.data[0]?.username.localeCompare(u.username) > 0) {
+        return;
+      }
+
+      if (
+        this.dataSource.data[this.dataSource.data.length]?.username.localeCompare(u.username) < 0
+      ) {
+        return;
+      }
+
+      this.fetchUsers(true);
+    });
+
+    this.userService.emitter.on('delete', (u) => {
+      const index = this.dataSource.data.findIndex((d) => d._id === u._id);
+
+      if (index < 0 || index > this.dataSource.data.length) {
+        return;
+      }
+
+      this.fetchUsers(true);
+    });
+
+    this.userService.emitter.on('update', (u) => {
+      const index = this.dataSource.data.findIndex((d) => d._id === u._id);
+
+      if (index < 0 || index > this.dataSource.data.length) {
+        return;
+      }
+
+      if (this.match(u)) {
+        this.dataSource.data[index] = u;
+        this.dataSource.data = [...this.dataSource.data];
+      } else {
+        this.fetchUsers(true);
+      }
+    });
   }
 
   public ngOnDestroy() {
-    this.fetchWebSockets$.unsubscribe();
-    this.updateDataSource$.unsubscribe();
+    clearTimeout(this.timeout);
     this.updateWebSockets$.unsubscribe();
+  }
+
+  public async fetchUsers(throttle = false) {
+    const date = new Date();
+    const threshold = this.date.getTime() + 5 * 1000;
+
+    if (date.getTime() < threshold && throttle) {
+      this.timeout = setTimeout(() => this.fetchUsers(), threshold - date.getTime());
+      return;
+    }
+
+    if (!this.paginator) {
+      return;
+    }
+
+    this.date = date;
+
+    let where: any = {};
+    if (this.filter) {
+      where.$or ||= [];
+      where.$or.push({ email: { $regex: `^${this.filter}`, $options: 'i' } });
+      where.$or.push({ steamPersonaName: { $regex: `^${this.filter}`, $options: 'i' } });
+      where.$or.push({ username: { $regex: `^${this.filter}`, $options: 'i' } });
+    }
+
+    this.dataSource.data = await this.userService.find({
+      limit: this.paginator.pageSize,
+      skip: this.paginator.pageIndex * this.paginator.pageSize,
+      sort: `-username -steamPersonaName`,
+      where,
+    });
+
+    this.paginator.length = await this.userService.count({ where });
+
+    if (this.paginator.length < this.paginator.pageIndex * this.paginator.pageSize) {
+      this.paginator.firstPage();
+    }
+
+    await this.webSocketService.find(null, {
+      where: { userId: { $in: this.dataSource.data.map((u) => u._id) } },
+    });
   }
 
   public showDeletePrompt($event: Event, user: UserModel) {
@@ -103,29 +194,23 @@ export class UsersListPageComponent implements OnDestroy, OnInit {
     });
   }
 
-  private async fetchUsers() {
-    this.$users = this.userQuery.selectAll({ sortBy: 'username' });
+  public setFilter(value: string) {
+    this.filter = value;
+    this.filter$.next();
+  }
 
-    this.fetchWebSockets$ = this.$users.subscribe((users) =>
-      this.webSocketService.find(null, { where: { userId: { $in: users.map((u) => u._id) } } }),
-    );
-    this.updateDataSource$ = this.$users.subscribe((users) => (this.dataSource.data = users));
-    this.updateWebSockets$ = this.webSocketQuery.selectAll().subscribe((webSockets) => {
-      this.webSockets = {};
+  private match(user: UserModel) {
+    const regex = new RegExp(`^${this.filter}`, 'i');
 
-      for (const webSocket of webSockets) {
-        this.webSockets[webSocket.userId] = webSocket;
-      }
-    });
+    if (
+      this.filter &&
+      !user.email.match(regex) &&
+      !user.steamPersonaName.match(regex) &&
+      !user.username.match(regex)
+    ) {
+      return false;
+    }
 
-    const users = await this.userService.find({ sort: 'username' });
-    await this.webSocketService.find(null, { where: { userId: { $in: users.map((u) => u._id) } } });
-
-    this.dataSource.filterPredicate = (data: UserModel, filter: string) => {
-      const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
-      const status = this.webSockets[data._id] ? 'Online' : 'Offline';
-
-      return regex.test(data.email) || regex.test(data.username) || regex.test(status);
-    };
+    return true;
   }
 }

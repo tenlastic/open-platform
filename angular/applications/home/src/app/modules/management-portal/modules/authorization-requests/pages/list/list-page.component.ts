@@ -31,7 +31,7 @@ export class AuthorizationRequestsListPageComponent implements OnDestroy, OnInit
   }
 
   public dataSource = new MatTableDataSource<AuthorizationRequestModel>();
-  public displayedColumns = ['user', 'roles', 'grantedAt', 'deniedAt', 'createdAt', 'actions'];
+  public displayedColumns = ['roles', 'user', 'createdAt', 'deniedAt', 'grantedAt', 'actions'];
   public hasWriteAuthorization: boolean;
   public message: string;
 

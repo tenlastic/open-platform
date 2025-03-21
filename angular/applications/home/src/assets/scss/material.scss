@@ -584,6 +584,7 @@ table.mat-table {
   }
 
   th.mat-header-cell {
+    color: white;
     padding: 8px;
 
     &:first-of-type {
@@ -596,7 +597,7 @@ table.mat-table {
   }
 
   tr.mat-row {
-    height: auto;
+    height: 53px;
   }
 
   .mat-column-actions {

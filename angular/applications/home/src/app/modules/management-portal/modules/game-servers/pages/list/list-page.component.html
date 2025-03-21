@@ -33,14 +33,6 @@
           nowrap>{{ element.name }}</td>
     </ng-container>
 
-    <ng-container matColumnDef="description">
-      <th mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header>Description</th>
-      <td mat-cell
-          *matCellDef="let element">{{ element.description }}</td>
-    </ng-container>
-
     <ng-container matColumnDef="build">
       <th mat-header-cell
           *matHeaderCellDef
@@ -48,6 +40,14 @@
       <td mat-cell
           *matCellDef="let element"
           nowrap>{{ getBuild(element.buildId)?.name }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="description">
+      <th mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header>Description</th>
+      <td mat-cell
+          *matCellDef="let element">{{ element.description }}</td>
     </ng-container>
 
     <ng-container matColumnDef="status">

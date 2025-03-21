@@ -1,8 +1,7 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Params } from '@angular/router';
 import {
@@ -11,49 +10,52 @@ import {
   CollectionService,
   IAuthorization,
   RecordModel,
-  RecordQuery,
   RecordService,
+  UserQuery,
+  UserService,
 } from '@tenlastic/http';
-import { Observable, Subscription } from 'rxjs';
+import { Subject } from 'rxjs';
 
 import { PromptComponent } from '../../../../../../shared/components';
-import { IdentityService } from '../../../../../../core/services';
+import { ClipboardService, IdentityService } from '../../../../../../core/services';
+import { debounceTime } from 'rxjs/operators';
 
 @Component({
   templateUrl: 'list-page.component.html',
   styleUrls: ['./list-page.component.scss'],
 })
-export class RecordsListPageComponent implements OnDestroy, OnInit {
-  @ViewChild(MatPaginator) set paginator(paginator: MatPaginator) {
-    this.dataSource.paginator = paginator;
-  }
-  @ViewChild(MatSort) set sort(sort: MatSort) {
-    this.dataSource.sort = sort;
-  }
+export class RecordsListPageComponent implements AfterViewInit, OnDestroy {
+  @ViewChild(MatPaginator) private paginator: MatPaginator;
 
   public collection: CollectionModel;
   public dataSource = new MatTableDataSource<RecordModel>();
   public displayedColumns: string[];
+  public filter: string;
   public hasWriteAuthorization: boolean;
   public message: string;
   public propertyColumns: string[];
 
-  private $records: Observable<RecordModel[]>;
-  private updateDataSource$ = new Subscription();
+  private filter$ = new Subject();
+  private date = new Date(0);
   private params: Params;
+  private timeout: NodeJS.Timeout;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private authorizationQuery: AuthorizationQuery,
+    private clipboardService: ClipboardService,
     private collectionService: CollectionService,
     private identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
-    private recordQuery: RecordQuery,
     private recordService: RecordService,
+    private userQuery: UserQuery,
+    private userService: UserService,
   ) {}
 
-  public async ngOnInit() {
+  public async ngAfterViewInit() {
+    this.filter$.pipe(debounceTime(300)).subscribe(() => this.fetchRecords());
+
     this.activatedRoute.params.subscribe(async (params) => {
       this.message = 'Loading...';
       this.params = params;
@@ -66,7 +68,7 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
 
       const [collection] = await Promise.all([
         this.collectionService.findOne(params.namespaceId, params.collectionId),
-        this.fetchRecords(params),
+        this.fetchRecords(),
       ]);
 
       this.collection = collection;
@@ -74,14 +76,124 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
         .map(([key, value]) => (value.type === 'array' || value.type === 'object' ? null : key))
         .filter((p) => p)
         .slice(0, 4);
-      this.displayedColumns = this.propertyColumns.concat(['createdAt', 'updatedAt', 'actions']);
+      this.displayedColumns = this.propertyColumns.concat([
+        'createdAt',
+        'updatedAt',
+        'userId',
+        'actions',
+      ]);
 
       this.message = null;
+    });
+
+    this.recordService.emitter.on('create', (r) => {
+      if (!this.match(r)) {
+        return;
+      }
+
+      if (this.dataSource.data[0]?.createdAt >= r.createdAt) {
+        return;
+      }
+
+      if (this.dataSource.data[this.dataSource.data.length]?.createdAt <= r.createdAt) {
+        return;
+      }
+
+      this.fetchRecords(true);
+    });
+
+    this.recordService.emitter.on('delete', (r) => {
+      const index = this.dataSource.data.findIndex((d) => d._id === r._id);
+
+      if (index < 0 || index > this.dataSource.data.length) {
+        return;
+      }
+
+      this.fetchRecords(true);
+    });
+
+    this.recordService.emitter.on('update', (r) => {
+      const index = this.dataSource.data.findIndex((d) => d._id === r._id);
+
+      if (index < 0 || index > this.dataSource.data.length) {
+        return;
+      }
+
+      if (this.match(r)) {
+        this.dataSource.data[index] = r;
+        this.dataSource.data = [...this.dataSource.data];
+      } else {
+        this.fetchRecords(true);
+      }
     });
   }
 
   public ngOnDestroy() {
-    this.updateDataSource$.unsubscribe();
+    clearTimeout(this.timeout);
+  }
+
+  public copyToClipboard(value: string) {
+    this.clipboardService.copy(value);
+    this.matSnackBar.open('User ID copied to clipboard.');
+  }
+
+  public async fetchRecords(throttle = false) {
+    const date = new Date();
+    const threshold = this.date.getTime() + 5 * 1000;
+
+    if (date.getTime() < threshold && throttle) {
+      this.timeout = setTimeout(() => this.fetchRecords(), threshold - date.getTime());
+      return;
+    }
+
+    if (!this.paginator || !this.params) {
+      return;
+    }
+
+    this.date = date;
+
+    let where: any = {};
+    if (this.filter) {
+      where.userId = this.filter;
+    }
+
+    this.dataSource.data = await this.recordService.find(
+      this.params.namespaceId,
+      this.params.collectionId,
+      {
+        limit: this.paginator.pageSize,
+        skip: this.paginator.pageIndex * this.paginator.pageSize,
+        sort: `_id`,
+        where,
+      },
+    );
+
+    this.paginator.length = await this.recordService.count(
+      this.params.namespaceId,
+      this.params.collectionId,
+      { where },
+    );
+
+    if (this.paginator.length < this.paginator.pageIndex * this.paginator.pageSize) {
+      this.paginator.firstPage();
+    }
+
+    const userIds = this.dataSource.data
+      .map((r) => r.userId)
+      .filter((ui) => !this.userQuery.hasEntity(ui));
+
+    if (userIds.length > 0) {
+      await this.userService.find({ where: { _id: { $in: userIds } } });
+    }
+  }
+
+  public getUser(_id: string) {
+    return this.userQuery.getEntity(_id);
+  }
+
+  public setFilter(value: string) {
+    this.filter = value;
+    this.filter$.next();
   }
 
   public showDeletePrompt($event: Event, record: RecordModel) {
@@ -109,20 +221,15 @@ export class RecordsListPageComponent implements OnDestroy, OnInit {
     });
   }
 
-  private async fetchRecords(params: Params) {
-    this.$records = this.recordQuery.selectAll({
-      filterBy: (gs) => gs.collectionId === params.collectionId,
-    });
+  private match(record: RecordModel) {
+    if (record.collectionId !== this.params.collectionId) {
+      return false;
+    }
 
-    await this.recordService.find(params.namespaceId, params.collectionId, { sort: 'name' });
+    if (record.namespaceId !== this.params.namespaceId) {
+      return false;
+    }
 
-    this.updateDataSource$ = this.$records.subscribe((records) => (this.dataSource.data = records));
-
-    this.dataSource.filterPredicate = (data: RecordModel, filter: string) => {
-      const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
-      const json = JSON.stringify(data);
-
-      return regex.test(json);
-    };
+    return true;
   }
 }

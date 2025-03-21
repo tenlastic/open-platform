@@ -31,7 +31,7 @@ export class SteamIntegrationsListPageComponent implements OnDestroy, OnInit {
 
   public dataSource = new MatTableDataSource<SteamIntegrationModel>();
   public get displayedColumns() {
-    return ['name', 'apiKey', 'applicationId', 'roles', 'updatedAt', 'actions'];
+    return ['name', 'apiKey', 'applicationId', 'roles', 'createdAt', 'updatedAt', 'actions'];
   }
   public hasWriteAuthorization: boolean;
   public message: string;

@@ -1,47 +1,56 @@
-<app-loading-message *ngIf="message">{{ message }}</app-loading-message>
+<app-loading-message [hidden]="!message">{{ message }}</app-loading-message>
 
-<div *ngIf="!message"
+<div [hidden]="message"
      class="page">
   <app-title>Web Sockets</app-title>
 
   <div class="row">
-    <div class="col-sm-3">
-      <app-data-source-filter [dataSource]="dataSource">
-        Filter Web Sockets
-      </app-data-source-filter>
-    </div>
+    <div class="col-sm-12">
+      <mat-checkbox (change)="fetchWebSockets()"
+                    [(ngModel)]="includeConnected">Connected</mat-checkbox>
+      <mat-checkbox (change)="fetchWebSockets()"
+                    [(ngModel)]="includeDisconnected">Disconnected</mat-checkbox>
 
-    <div class="col-sm-9">
-      <mat-checkbox [(ngModel)]="includeConnected">Connected</mat-checkbox>
-      <mat-checkbox [(ngModel)]="includeDisconnected">Disconnected</mat-checkbox>
+      <mat-form-field floatLabel="always">
+        <mat-label>User ID</mat-label>
+
+        <input matInput
+               autocomplete="off"
+               type="text"
+               (keyup)="setFilter($event.target.value)"
+               [(ngModel)]="filter" />
+
+        <app-button *ngIf="filter"
+                    color="accent"
+                    matSuffix
+                    mat-icon-button
+                    (click)="setFilter('')">
+          <mat-icon>close</mat-icon>
+        </app-button>
+      </mat-form-field>
     </div>
   </div>
 
   <table mat-table
-         [dataSource]="dataSource"
-         matSort
-         matSortActive="createdAt"
-         matSortDirection="desc">
+         [dataSource]="dataSource">
     <ng-container matColumnDef="user">
       <th mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header>User</th>
+          *matHeaderCellDef>User</th>
       <td mat-cell
-          *matCellDef="let element">{{ getUser(element.userId)?.displayName }}</td>
+          *matCellDef="let element"
+          (mouseenter)="copyToClipboard(element.userId)">{{ getUser(element.userId)?.displayName }}</td>
     </ng-container>
 
     <ng-container matColumnDef="createdAt">
       <th mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header>Created At</th>
+          *matHeaderCellDef>Created At</th>
       <td mat-cell
           *matCellDef="let element">{{ element.createdAt | date:"MMM d, y 'at' h:mm a" }}</td>
     </ng-container>
 
     <ng-container matColumnDef="disconnectedAt">
       <th mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header>Disconnected At</th>
+          *matHeaderCellDef>Disconnected At</th>
       <td mat-cell
           *matCellDef="let element">{{ element.disconnectedAt | date:"MMM d, y 'at' h:mm a" }}</td>
     </ng-container>
@@ -52,6 +61,8 @@
         *matRowDef="let row; columns: displayedColumns"></tr>
   </table>
 
-  <mat-paginator [pageSizeOptions]="[10, 25, 100]"
+  <mat-paginator (page)="fetchWebSockets()"
+                 pageSize="10"
+                 [pageSizeOptions]="[10, 25, 100]"
                  showFirstLastButtons></mat-paginator>
 </div>

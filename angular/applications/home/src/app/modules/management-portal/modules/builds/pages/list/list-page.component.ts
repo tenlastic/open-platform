@@ -10,8 +10,6 @@ import {
   BuildModel,
   BuildQuery,
   BuildService,
-  GameServerService,
-  GameServerTemplateService,
   IAuthorization,
   IBuild,
 } from '@tenlastic/http';
@@ -33,7 +31,7 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
   }
 
   public dataSource = new MatTableDataSource<BuildModel>();
-  public displayedColumns = ['name', 'platform', 'status', 'publishedAt', 'createdAt', 'actions'];
+  public displayedColumns = ['name', 'platform', 'status', 'createdAt', 'publishedAt', 'actions'];
   public hasWriteAuthorization: boolean;
   public message: string;
 
@@ -45,8 +43,6 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
     private authorizationQuery: AuthorizationQuery,
     private buildQuery: BuildQuery,
     private buildService: BuildService,
-    private gameServerService: GameServerService,
-    private gameServerTemplateService: GameServerTemplateService,
     private identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,

@@ -102,6 +102,10 @@
     }
   }
 
+  &:has(button[disabled]) {
+    pointer-events: none;
+  }
+
   a.mat-button,
   button.mat-button {
     border-radius: 0px;

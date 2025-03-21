@@ -59,6 +59,21 @@ export class WebSocketSchema {
   }
 
   /**
+   * Updates the disconnectedAt timestamp in MongoDB by Node ID.
+   */
+  public static disconnectByNodeId(this: typeof WebSocketModel, nodeId: string) {
+    const disconnectedAt = new Date();
+
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7);
+
+    return this.updateMany(
+      { disconnectedAt: { $exists: false }, nodeId },
+      { disconnectedAt, expiresAt },
+    );
+  }
+
+  /**
    * Creates a record with randomized required parameters if not specified.
    */
   public static mock(this: typeof WebSocketModel, values: Partial<WebSocketSchema> = {}) {
