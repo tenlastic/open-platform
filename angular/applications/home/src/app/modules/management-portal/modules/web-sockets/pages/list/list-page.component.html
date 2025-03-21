@@ -38,7 +38,7 @@
           *matHeaderCellDef>User</th>
       <td mat-cell
           *matCellDef="let element"
-          (mouseenter)="copyToClipboard(element.userId)">{{ getUser(element.userId)?.displayName }}</td>
+          (contextmenu)="copyToClipboard(element.userId)">{{ getUser(element.userId)?.displayName }}</td>
     </ng-container>
 
     <ng-container matColumnDef="createdAt">
