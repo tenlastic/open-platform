@@ -64,7 +64,7 @@
           *matHeaderCellDef>User</th>
       <td mat-cell
           *matCellDef="let element"
-          (mouseenter)="copyToClipboard(element.userId)">{{ getUser(element.userId)?.displayName }}</td>
+          (contextmenu)="copyToClipboard(element.userId)">{{ getUser(element.userId)?.displayName }}</td>
     </ng-container>
 
     <ng-container matColumnDef="actions">
@@ -91,6 +91,8 @@
         [routerLink]="[row._id]"></tr>
   </table>
 
-  <mat-paginator [pageSizeOptions]="[10, 25, 100]"
+  <mat-paginator (page)="fetchRecords()"
+                 pageSize="10"
+                 [pageSizeOptions]="[10, 25, 100]"
                  showFirstLastButtons></mat-paginator>
 </div>

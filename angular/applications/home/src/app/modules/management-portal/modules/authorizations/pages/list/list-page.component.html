@@ -90,6 +90,8 @@
     </tr>
   </table>
 
-  <mat-paginator [pageSizeOptions]="[10, 25, 100]"
+  <mat-paginator (page)="fetchAuthorizations()"
+                 pageSize="10"
+                 [pageSizeOptions]="[10, 25, 100]"
                  showFirstLastButtons></mat-paginator>
 </div>

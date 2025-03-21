@@ -126,7 +126,7 @@ export class WebSocketsListPageComponent implements AfterViewInit, OnDestroy {
     }
     if (this.includeConnected) {
       where.$or ||= [];
-      where.$or.push({ disconnectedAt: { $exists: false } });
+      where.$or.push({ disconnectedAt: null });
     }
     if (this.includeDisconnected) {
       where.$or ||= [];

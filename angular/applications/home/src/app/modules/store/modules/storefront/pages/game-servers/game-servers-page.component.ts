@@ -58,7 +58,7 @@ export class GameServersPageComponent implements OnInit {
         .pipe(map((groups) => groups[0]));
 
       await this.gameServerService.find(params.namespaceId, {
-        where: { 'metadata.matchId': { $exists: false } },
+        where: { 'metadata.matchId': null },
       });
     });
   }

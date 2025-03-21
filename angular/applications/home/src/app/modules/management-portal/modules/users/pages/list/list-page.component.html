@@ -102,6 +102,8 @@
         [routerLink]="[row._id]"></tr>
   </table>
 
-  <mat-paginator [pageSizeOptions]="[10, 25, 100]"
+  <mat-paginator (page)="fetchUsers()"
+                 pageSize="10"
+                 [pageSizeOptions]="[10, 25, 100]"
                  showFirstLastButtons></mat-paginator>
 </div>
