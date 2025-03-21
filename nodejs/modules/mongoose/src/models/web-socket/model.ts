@@ -46,13 +46,13 @@ export class WebSocketSchema {
   /**
    * Updates the disconnectedAt timestamp in MongoDB.
    */
-  public static disconnect(this: typeof WebSocketModel, _id: mongoose.Types.ObjectId) {
+  public static async disconnect(this: typeof WebSocketModel, _id: mongoose.Types.ObjectId) {
     const disconnectedAt = new Date();
 
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
 
-    return this.updateOne(
+    await this.updateOne(
       { _id, disconnectedAt: { $exists: false } },
       { disconnectedAt, expiresAt },
     );
@@ -61,13 +61,13 @@ export class WebSocketSchema {
   /**
    * Updates the disconnectedAt timestamp in MongoDB by Node ID.
    */
-  public static disconnectByNodeId(this: typeof WebSocketModel, nodeId: string) {
+  public static async disconnectByNodeId(this: typeof WebSocketModel, nodeId: string) {
     const disconnectedAt = new Date();
 
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
 
-    return this.updateMany(
+    await this.updateMany(
       { disconnectedAt: { $exists: false }, nodeId },
       { disconnectedAt, expiresAt },
     );
