@@ -88,6 +88,8 @@ spec:
                   value: /workspace/open-platform/nodejs/
         - - name: continuous-integration
             template: continuous-integration
+        - - name: suspend
+            template: suspend
         - - name: migrations
             when: "'{{inputs.parameters.branch}}' == 'origin/master'"
             template: migrations
@@ -313,3 +315,6 @@ spec:
       inputs:
         parameters:
           - name: workingDir
+
+    - name: suspend
+      suspend: {}

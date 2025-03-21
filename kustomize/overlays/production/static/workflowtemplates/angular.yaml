@@ -100,6 +100,8 @@ spec:
               parameters:
                 - name: workingDir
                   value: /workspace/open-platform/angular/
+        - - name: suspend
+            template: suspend
         - - name: get-docker-images
             when: "'{{inputs.parameters.branch}}' == 'origin/master'"
             template: get-docker-images
@@ -291,3 +293,6 @@ spec:
       inputs:
         parameters:
           - name: workingDir
+
+    - name: suspend
+      suspend: {}
