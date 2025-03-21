@@ -190,7 +190,7 @@ export class StatusComponent implements OnDestroy, OnInit {
       this.params = params;
 
       this.status = this.updateService.getStatus(this.namespaceId);
-      this.updateService.checkForUpdates(this.namespaceId, false, true);
+      this.updateService.checkForUpdates(this.namespaceId, true, true);
 
       const $storefront = this.storefrontQuery.selectEntity(this.namespaceId);
       this.$showGameServers = $storefront.pipe(map((s) => s?.showGameServers));
@@ -234,6 +234,6 @@ export class StatusComponent implements OnDestroy, OnInit {
   }
 
   public sync() {
-    this.updateService.checkForUpdates(this.namespaceId);
+    this.updateService.checkForUpdates(this.namespaceId, true);
   }
 }
