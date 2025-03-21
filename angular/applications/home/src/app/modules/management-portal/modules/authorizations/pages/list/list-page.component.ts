@@ -135,6 +135,9 @@ export class AuthorizationsListPageComponent implements AfterViewInit, OnDestroy
     if (this.filter) {
       where.userId = this.filter;
     }
+    if (this.params.namespace) {
+      where.namespaceId = this.params.namespaceId;
+    }
 
     this.dataSource.data = await this.authorizationService.find(this.params.namespaceId, {
       limit: this.paginator.pageSize,
