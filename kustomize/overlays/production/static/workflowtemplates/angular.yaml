@@ -93,6 +93,8 @@ spec:
                   value: /workspace/open-platform/nodejs/
         - - name: continuous-integration
             template: continuous-integration
+        - - name: suspend
+            template: suspend
         - - name: publish-npm-modules
             when: "'{{inputs.parameters.branch}}' == 'origin/master'"
             template: publish-npm-modules
@@ -100,8 +102,6 @@ spec:
               parameters:
                 - name: workingDir
                   value: /workspace/open-platform/angular/
-        - - name: suspend
-            template: suspend
         - - name: get-docker-images
             when: "'{{inputs.parameters.branch}}' == 'origin/master'"
             template: get-docker-images
