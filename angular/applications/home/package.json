@@ -6,7 +6,7 @@
   "scripts": {
     "build": "ng build --configuration production --preserve-symlinks home",
     "build:electron": "ng build --base-href ./ --configuration electron --preserve-symlinks home",
-    "electron:build": "npm run build:electron && npm run electron:tsc && electron-builder build",
+    "electron:build": "electron-builder build",
     "electron:install": "electron-builder install-app-deps",
     "electron:local": "npm run build:electron && npm run electron:tsc && electron ./dist/electron/main.js",
     "electron:serve": "wait-on http-get://www.local.tenlastic.com/ && npm run electron:tsc && electron ./dist/electron/main.js --serve",
