@@ -3,3 +3,7 @@
 div.offset-sm-6 app-button {
   margin-top: 0px;
 }
+
+td[mat-cell] {
+  white-space: pre;
+}

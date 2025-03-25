@@ -13,6 +13,8 @@ import {
   MatchService,
   QueueQuery,
   QueueService,
+  UserQuery,
+  UserService,
 } from '@tenlastic/http';
 
 import { IdentityService } from '../../../../../../core/services';
@@ -28,8 +30,8 @@ export class MatchesListPageComponent implements AfterViewInit, OnDestroy, OnIni
   public dataSource = new MatTableDataSource<MatchModel>();
   public get displayedColumns() {
     return this.params.queueId
-      ? ['gameServerTemplate', 'teams', 'users', 'startedAt', 'finishedAt', 'actions']
-      : ['gameServerTemplate', 'queue', 'teams', 'users', 'startedAt', 'finishedAt', 'actions'];
+      ? ['gameServerTemplate', 'teams', 'startedAt', 'finishedAt', 'actions']
+      : ['gameServerTemplate', 'queue', 'teams', 'startedAt', 'finishedAt', 'actions'];
   }
   public hasWriteAuthorization: boolean;
   public message: string;
@@ -56,6 +58,8 @@ export class MatchesListPageComponent implements AfterViewInit, OnDestroy, OnIni
     private matSnackBar: MatSnackBar,
     private queueQuery: QueueQuery,
     private queueService: QueueService,
+    private userQuery: UserQuery,
+    private userService: UserService,
   ) {}
 
   public ngOnInit() {
@@ -177,6 +181,15 @@ export class MatchesListPageComponent implements AfterViewInit, OnDestroy, OnIni
     if (queueIds.length > 0) {
       await this.queueService.find(this.params.namespaceId, { where: { _id: { $in: queueIds } } });
     }
+
+    const userIds = this.dataSource.data
+      .map((d) => d.userIds)
+      .flat()
+      .filter((ui) => !this.userQuery.hasEntity(ui));
+
+    if (userIds.length > 0) {
+      await this.userService.find({ where: { _id: { $in: userIds } } });
+    }
   }
 
   public getGameServerTemplate(_id: string) {
@@ -187,8 +200,19 @@ export class MatchesListPageComponent implements AfterViewInit, OnDestroy, OnIni
     return this.queueQuery.getEntity(_id);
   }
 
-  public getUserIds(match: MatchModel) {
-    return match.teams.reduce((previous, current) => [...previous, ...current.userIds], []);
+  public getUsers(match: MatchModel) {
+    return match.teams
+      .map((t, i) => {
+        const users = t.userIds
+          .map((ui) => this.userQuery.getEntity(ui))
+          .map((u) => u?.displayName)
+          .sort()
+          .join(' + ');
+
+        return `Team ${i + 1} (${users})`;
+      })
+      .sort()
+      .join('   -   ');
   }
 
   public showDeletePrompt($event: Event, record: MatchModel) {
