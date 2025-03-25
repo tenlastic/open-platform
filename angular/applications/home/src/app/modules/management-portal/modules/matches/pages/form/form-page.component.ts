@@ -125,8 +125,8 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
     const invitationsExpireAt = this.form.get('confirmation').value
       ? new Date(Date.now() + this.form.get('invitationSeconds').value * 1000)
       : null;
-    const teams: IMatch.Team[] = this.form.get('teams').value.map((t) => {
-      return { userIds: t.users.map((u) => u._id) };
+    const teams: IMatch.Team[] = this.form.get('teams').value.map((t, i) => {
+      return { index: i, userIds: t.users.map((u) => u._id) };
     });
 
     const values: Partial<MatchModel> = {

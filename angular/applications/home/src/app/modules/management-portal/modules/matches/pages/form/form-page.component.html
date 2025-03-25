@@ -58,7 +58,8 @@
           </mat-select>
         </mat-form-field>
 
-        <mat-form-field floatLabel="always">
+        <mat-form-field *ngIf="form.get('confirmation').value"
+                        floatLabel="always">
           <mat-label>Invitation Seconds</mat-label>
           <input formControlName="invitationSeconds"
                  matInput

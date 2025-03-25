@@ -1,16 +1,35 @@
-<app-loading-message *ngIf="message">{{ message }}</app-loading-message>
+<app-loading-message [hidden]="!message">{{ message }}</app-loading-message>
 
-<div *ngIf="!message"
+<div [hidden]="message"
      class="page">
   <app-title>Game Servers</app-title>
 
   <div class="row">
-    <div class="col-sm-3">
-      <app-data-source-filter [dataSource]="dataSource">Filter Game Servers</app-data-source-filter>
+    <div class="col-sm-6">
+      <mat-form-field floatLabel="always">
+        <mat-label>Name</mat-label>
+
+        <input matInput
+               autocomplete="off"
+               type="text"
+               (keyup)="setFilter($event.target.value)"
+               [(ngModel)]="filter" />
+
+        <app-button *ngIf="filter"
+                    color="accent"
+                    matSuffix
+                    mat-icon-button
+                    (click)="setFilter('')">
+          <mat-icon>close</mat-icon>
+        </app-button>
+      </mat-form-field>
+
+      <mat-checkbox (change)="fetchGameServers()"
+                    [(ngModel)]="includeQueues">Queues</mat-checkbox>
     </div>
 
     <div *ngIf="hasWriteAuthorization && !queueId"
-         class="offset-sm-6 col-sm-3">
+         class="offset-sm-3 col-sm-3">
       <app-button color="accent"
                   [routerLink]="['new']">
         <mat-icon>add</mat-icon>
@@ -20,14 +39,10 @@
   </div>
 
   <table mat-table
-         [dataSource]="dataSource"
-         matSort
-         matSortActive="name"
-         matSortDirection="asc">
+         [dataSource]="dataSource">
     <ng-container matColumnDef="name">
       <th mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header>Name</th>
+          *matHeaderCellDef>Name</th>
       <td mat-cell
           *matCellDef="let element"
           nowrap>{{ element.name }}</td>
@@ -35,8 +50,7 @@
 
     <ng-container matColumnDef="build">
       <th mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header>Build</th>
+          *matHeaderCellDef>Build</th>
       <td mat-cell
           *matCellDef="let element"
           nowrap>{{ getBuild(element.buildId)?.name }}</td>
@@ -44,16 +58,22 @@
 
     <ng-container matColumnDef="description">
       <th mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header>Description</th>
+          *matHeaderCellDef>Description</th>
       <td mat-cell
           *matCellDef="let element">{{ element.description }}</td>
     </ng-container>
 
+    <ng-container matColumnDef="queue">
+      <th mat-header-cell
+          *matHeaderCellDef>Queue</th>
+      <td mat-cell
+          *matCellDef="let element"
+          nowrap>{{ getQueue(element.queueId)?.name }}</td>
+    </ng-container>
+
     <ng-container matColumnDef="status">
       <th mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header>Status</th>
+          *matHeaderCellDef>Status</th>
       <td mat-cell
           *matCellDef="let element"
           nowrap>
@@ -64,7 +84,6 @@
     <ng-container matColumnDef="currentUserIds">
       <th mat-header-cell
           *matHeaderCellDef
-          mat-sort-header
           nowrap>Current Users</th>
       <td mat-cell
           *matCellDef="let element">{{ element.currentUserIds?.length || 0 }}</td>
@@ -109,6 +128,9 @@
         [routerLink]="[row._id]"></tr>
   </table>
 
-  <mat-paginator [pageSizeOptions]="[10, 25, 100]"
+  <mat-paginator (page)="fetchGameServers()"
+                 [pageIndex]="pageIndex"
+                 [pageSize]="pageSize"
+                 [pageSizeOptions]="[10, 25, 100]"
                  showFirstLastButtons></mat-paginator>
 </div>

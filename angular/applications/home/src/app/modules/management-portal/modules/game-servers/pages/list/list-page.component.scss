@@ -1,1 +1,11 @@
 @import 'src/assets/scss/page.scss';
+
+mat-checkbox {
+  margin-right: 24px;
+}
+
+mat-form-field {
+  display: inline-block;
+  margin-right: 24px;
+  width: 250px;
+}

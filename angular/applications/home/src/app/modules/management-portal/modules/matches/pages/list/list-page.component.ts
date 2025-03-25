@@ -1,8 +1,7 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Params } from '@angular/router';
 import {
@@ -11,12 +10,10 @@ import {
   GameServerTemplateService,
   IAuthorization,
   MatchModel,
-  MatchQuery,
   MatchService,
   QueueQuery,
   QueueService,
 } from '@tenlastic/http';
-import { Observable, Subscription } from 'rxjs';
 
 import { IdentityService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
@@ -25,13 +22,8 @@ import { PromptComponent } from '../../../../../../shared/components';
   templateUrl: 'list-page.component.html',
   styleUrls: ['./list-page.component.scss'],
 })
-export class MatchesListPageComponent implements OnDestroy, OnInit {
-  @ViewChild(MatPaginator) set paginator(paginator: MatPaginator) {
-    this.dataSource.paginator = paginator;
-  }
-  @ViewChild(MatSort) set sort(sort: MatSort) {
-    this.dataSource.sort = sort;
-  }
+export class MatchesListPageComponent implements AfterViewInit, OnDestroy, OnInit {
+  @ViewChild(MatPaginator) private paginator: MatPaginator;
 
   public dataSource = new MatTableDataSource<MatchModel>();
   public get displayedColumns() {
@@ -41,11 +33,17 @@ export class MatchesListPageComponent implements OnDestroy, OnInit {
   }
   public hasWriteAuthorization: boolean;
   public message: string;
+  public get pageIndex() {
+    return this.paginator?.pageIndex || 0;
+  }
+  public get pageSize() {
+    return this.paginator?.pageSize || 10;
+  }
 
-  private $matches: Observable<MatchModel[]>;
-  private updateDataSource$ = new Subscription();
-
+  private count = 0;
+  private date = new Date(0);
   private params: Params;
+  private timeout: NodeJS.Timeout;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -53,7 +51,6 @@ export class MatchesListPageComponent implements OnDestroy, OnInit {
     private gameServerTemplateQuery: GameServerTemplateQuery,
     private gameServerTemplateService: GameServerTemplateService,
     private identityService: IdentityService,
-    private matchQuery: MatchQuery,
     private matchService: MatchService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
@@ -72,14 +69,114 @@ export class MatchesListPageComponent implements OnDestroy, OnInit {
         this.authorizationQuery.hasRoles(null, roles, userId) ||
         this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
 
-      await this.fetchMatches(params);
+      await this.fetchMatches();
 
       this.message = null;
     });
+
+    this.matchService.emitter.on('create', (a) => {
+      if (!this.match(a)) {
+        return;
+      }
+
+      if (this.dataSource.data[0]?.createdAt >= a.createdAt) {
+        return;
+      }
+
+      if (this.dataSource.data[this.dataSource.data.length]?.createdAt <= a.createdAt) {
+        return;
+      }
+
+      this.fetchMatches(true);
+    });
+
+    this.matchService.emitter.on('delete', (a) => {
+      const index = this.dataSource.data.findIndex((d) => d._id === a._id);
+
+      if (index < 0 || index > this.dataSource.data.length) {
+        return;
+      }
+
+      this.fetchMatches(true);
+    });
+
+    this.matchService.emitter.on('update', (a) => {
+      const index = this.dataSource.data.findIndex((d) => d._id === a._id);
+
+      if (index < 0 || index > this.dataSource.data.length) {
+        return;
+      }
+
+      if (this.match(a)) {
+        this.dataSource.data[index] = a;
+        this.dataSource.data = [...this.dataSource.data];
+      } else {
+        this.fetchMatches(true);
+      }
+    });
+  }
+
+  public ngAfterViewInit() {
+    this.paginator.length = this.count;
   }
 
   public ngOnDestroy() {
-    this.updateDataSource$.unsubscribe();
+    clearTimeout(this.timeout);
+  }
+
+  public async fetchMatches(throttle = false) {
+    const date = new Date();
+    const threshold = this.date.getTime() + 5 * 1000;
+
+    if (date.getTime() < threshold && throttle) {
+      this.timeout = setTimeout(() => this.fetchMatches(), threshold - date.getTime());
+      return;
+    }
+
+    this.date = date;
+
+    let where: any = {};
+    where.namespaceId = this.params.namespaceId;
+    if (this.params.queueId) {
+      where.queueId = this.params.queueId;
+    }
+
+    this.dataSource.data = await this.matchService.find(this.params.namespaceId, {
+      limit: this.pageSize,
+      skip: this.pageIndex * this.pageSize,
+      sort: `-createdAt`,
+      where,
+    });
+
+    this.count = await this.matchService.count(this.params.namespaceId, {
+      where,
+    });
+
+    if (this.paginator) {
+      this.paginator.length = this.count;
+
+      if (this.paginator.length < this.pageIndex * this.pageSize) {
+        this.paginator.firstPage();
+      }
+    }
+
+    const gameServerTemplateIds = this.dataSource.data
+      .map((d) => d.gameServerTemplateId)
+      .filter((ui) => !this.gameServerTemplateQuery.hasEntity(ui));
+
+    if (gameServerTemplateIds.length > 0) {
+      await this.gameServerTemplateService.find(this.params.namespaceId, {
+        where: { _id: { $in: gameServerTemplateIds } },
+      });
+    }
+
+    const queueIds = this.dataSource.data
+      .map((d) => d.queueId)
+      .filter((qi) => qi && !this.queueQuery.hasEntity(qi));
+
+    if (queueIds.length > 0) {
+      await this.queueService.find(this.params.namespaceId, { where: { _id: { $in: queueIds } } });
+    }
   }
 
   public getGameServerTemplate(_id: string) {
@@ -115,39 +212,11 @@ export class MatchesListPageComponent implements OnDestroy, OnInit {
     });
   }
 
-  private async fetchMatches(params: Params) {
-    this.$matches = this.matchQuery.selectAll({
-      filterBy: (m) =>
-        m.namespaceId === params.namespaceId && (!params.queueId || m.queueId === params.queueId),
-    });
-
-    this.updateDataSource$ = this.$matches.subscribe((matches) => (this.dataSource.data = matches));
-
-    this.dataSource.filterPredicate = (data: MatchModel, filter: string) => {
-      const queue = this.getQueue(data.queueId);
-      const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
-
-      return filter === `${this.getUserIds(data).length}` || regex.test(queue?.name);
-    };
-
-    const matches = await this.matchService.find(params.namespaceId, { sort: 'name' });
-
-    const gameServerTemplateIds = matches
-      .map((m) => m.gameServerTemplateId)
-      .flat()
-      .filter((gsti, i, arr) => arr.indexOf(gsti) === i);
-    await this.gameServerTemplateService.find(params.namespaceId, {
-      where: { _id: { $in: gameServerTemplateIds } },
-    });
-
-    if (params.queueId) {
-      return;
+  private match(match: MatchModel) {
+    if (this.params.namespaceId !== match.namespaceId) {
+      return false;
     }
 
-    const queueIds = matches
-      .map((m) => m.queueId)
-      .flat()
-      .filter((qi, i, arr) => arr.indexOf(qi) === i);
-    await this.queueService.find(params.namespaceId, { where: { _id: { $in: queueIds } } });
+    return true;
   }
 }
