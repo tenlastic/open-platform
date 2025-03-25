@@ -11,7 +11,7 @@ const wssUrl = process.env.E2E_WSS_URL;
 
 const chance = new Chance();
 
-describe.only('/nodejs/namespace/queues', function () {
+describe('/nodejs/namespace/queues', function () {
   let namespace: string;
   let username: string;
   let webSocket: WebSocket;
