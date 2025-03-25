@@ -6,11 +6,6 @@
 
   <div class="row">
     <div class="col-sm-12">
-      <mat-checkbox (change)="fetchWebSockets()"
-                    [(ngModel)]="includeConnected">Connected</mat-checkbox>
-      <mat-checkbox (change)="fetchWebSockets()"
-                    [(ngModel)]="includeDisconnected">Disconnected</mat-checkbox>
-
       <mat-form-field floatLabel="always">
         <mat-label>User ID</mat-label>
 
@@ -28,6 +23,11 @@
           <mat-icon>close</mat-icon>
         </app-button>
       </mat-form-field>
+
+      <mat-checkbox (change)="fetchWebSockets()"
+                    [(ngModel)]="includeConnected">Connected</mat-checkbox>
+      <mat-checkbox (change)="fetchWebSockets()"
+                    [(ngModel)]="includeDisconnected">Disconnected</mat-checkbox>
     </div>
   </div>
 

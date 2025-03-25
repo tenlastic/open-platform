@@ -203,7 +203,9 @@ export class GameServersListPageComponent implements AfterViewInit, OnDestroy, O
       where.name = { $regex: `^${this.filter}`, $options: 'i' };
     }
     where.namespaceId = this.params.namespaceId;
-    if (!this.includeQueues) {
+    if (this.params.queueId) {
+      where.queueId = this.params.queueId;
+    } else if (!this.includeQueues) {
       where.queueId = null;
     }
 
@@ -369,7 +371,11 @@ export class GameServersListPageComponent implements AfterViewInit, OnDestroy, O
       return false;
     }
 
-    if (!this.includeQueues && gameServer.queueId) {
+    if (this.params.queueId && this.params.queueId !== gameServer.queueId) {
+      return false;
+    }
+
+    if (!this.params.queueId && !this.includeQueues && gameServer.queueId) {
       return false;
     }
 

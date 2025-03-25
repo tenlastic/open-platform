@@ -24,7 +24,8 @@
         </app-button>
       </mat-form-field>
 
-      <mat-checkbox (change)="fetchGameServers()"
+      <mat-checkbox *ngIf="!queueId"
+                    (change)="fetchGameServers()"
                     [(ngModel)]="includeQueues">Queues</mat-checkbox>
     </div>
 
