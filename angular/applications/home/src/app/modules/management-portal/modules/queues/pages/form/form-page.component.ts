@@ -53,9 +53,6 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
   public get replicas() {
     return IQueue.Replicas;
   }
-  public get usersPerTeam() {
-    return this.form.get('usersPerTeam') as FormArray;
-  }
 
   private updateQueue$ = new Subscription();
   private namespace: NamespaceModel;
@@ -129,15 +126,18 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       cpu: this.form.get('cpu').value,
       description: this.form.get('description').value,
       gameServerTemplateId: this.form.get('gameServerTemplateId').value,
+      initialRating: this.form.get('initialRating').value,
       invitationSeconds: this.form.get('invitationSeconds').value,
+      maximumGroupSize: this.form.get('maximumGroupSize').value,
       memory: this.form.get('memory').value,
       metadata,
+      minimumGroupSize: this.form.get('minimumGroupSize').value,
       name: this.form.get('name').value,
       namespaceId: this.form.get('namespaceId').value,
       preemptible: this.form.get('preemptible').value,
       replicas: this.form.get('replicas').value,
+      teams: this.form.get('teams').value,
       thresholds: this.form.get('thresholds').value,
-      usersPerTeam: this.form.get('usersPerTeam').value,
     };
 
     const dirtyFields = this.getDirtyFields();
@@ -202,7 +202,8 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       );
 
       return this.formBuilder.group({
-        seconds: [t.seconds, [Validators.min(1), Validators.required]],
+        rating: [t.rating || 0],
+        seconds: [t.seconds || 0, [Validators.min(0), Validators.required]],
         usersPerTeam: this.formBuilder.array(formControls),
       });
     });
@@ -212,7 +213,9 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
     this.data ??= new QueueModel({
       confirmation: true,
       invitationSeconds: 30,
-      usersPerTeam: [1, 1],
+      maximumGroupSize: 1,
+      minimumGroupSize: 1,
+      thresholds: [{ seconds: 0, usersPerTeam: [1, 1] }],
     });
 
     const metadataFormGroups = [];
@@ -239,10 +242,6 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       thresholdFormGroups.push(...this.getThresholdFormGroups(this.data.thresholds));
     }
 
-    const usersPerTeamFormControls = this.data.usersPerTeam.map((upt) =>
-      this.formBuilder.control(upt, [Validators.min(1), Validators.required]),
-    );
-
     this.form = this.formBuilder.group({
       confirmation: [this.data.confirmation || false],
       cpu: [this.data.cpu || this.cpus[0].value, Validators.required],
@@ -251,15 +250,18 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
         this.data.gameServerTemplateId || this.gameServerTemplates[0]?._id,
         Validators.required,
       ],
+      initialRating: [this.data.initialRating || 0],
       invitationSeconds: [this.data.invitationSeconds || 0],
+      maximumGroupSize: [this.data.maximumGroupSize || 1, [Validators.min(1), Validators.required]],
       memory: [this.data.memory || this.memories[0].value, Validators.required],
       metadata: this.formBuilder.array(metadataFormGroups),
+      minimumGroupSize: [this.data.minimumGroupSize || 1, [Validators.min(1), Validators.required]],
       name: [this.data.name, Validators.required],
       namespaceId: [this.params.namespaceId],
       preemptible: [this.data.preemptible === false ? false : true],
       replicas: [this.data.replicas || this.replicas[0].value, Validators.required],
+      teams: [this.data.teams || false],
       thresholds: this.formBuilder.array(thresholdFormGroups),
-      usersPerTeam: this.formBuilder.array(usersPerTeamFormControls, Validators.required),
     });
 
     if (!this.hasWriteAuthorization) {

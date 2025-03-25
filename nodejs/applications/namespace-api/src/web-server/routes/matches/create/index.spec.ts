@@ -52,7 +52,7 @@ describe('web-server/matches/create', function () {
         request: {
           body: {
             gameServerTemplateId: gameServerTemplate._id,
-            teams: [{ userIds: [user._id] }],
+            teams: [{ index: 0, userIds: [user._id] }],
           },
         },
         state: { user },

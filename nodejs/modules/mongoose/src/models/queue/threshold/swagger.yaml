@@ -3,9 +3,10 @@ components:
     QueueThreshold:
       type: object
       properties:
+        rating:
+          type: number
         seconds:
           type: number
-          minimum: 1
         usersPerTeam:
           type: array
           items:

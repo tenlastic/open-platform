@@ -3,10 +3,19 @@ components:
     MatchTeam:
       type: object
       properties:
+        index:
+          type: number
+        rating:
+          type: number
+        teamId:
+          type: string
+          format: ^[0-9a-f]{24}$
         userIds:
           type: array
           items:
             type: string
             format: ^[0-9a-f]{24}$
       required:
+        - index
+        - teamId
         - userIds

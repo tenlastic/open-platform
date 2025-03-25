@@ -7,9 +7,19 @@
       <mat-label>Seconds</mat-label>
       <input formControlName="seconds"
              matInput
-             min="1"
+             min="0"
              type="number" />
       <mat-error>Enter a valid number of seconds.</mat-error>
+    </mat-form-field>
+
+    <mat-form-field *ngIf="teams"
+                    floatLabel="always">
+      <mat-label>Rating</mat-label>
+      <input formControlName="rating"
+             matInput
+             min="0"
+             type="number" />
+      <mat-error>Enter a valid rating.</mat-error>
     </mat-form-field>
 
     <ng-container formArrayName="usersPerTeam">
@@ -44,7 +54,7 @@
       <div>Add Team</div>
     </app-button>
 
-    <app-button *ngIf="!formArray?.disabled"
+    <app-button *ngIf="!formArray?.disabled && formArray?.length > 1"
                 color="accent"
                 layout="left"
                 (OnClick)="formArray.removeAt(i)">

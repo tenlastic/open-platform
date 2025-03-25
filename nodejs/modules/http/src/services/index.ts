@@ -25,6 +25,7 @@ export * from './refresh-token';
 export * from './steam-integration';
 export * from './storefront';
 export * from './subscription';
+export * from './team';
 export * from './token';
 export * from './user';
 export * from './web-socket';

@@ -12,15 +12,14 @@ components:
         groupId:
           type: string
           format: ^[0-9a-f]{24}$
-        matchedAt:
-          type: string
-          format: date-time
         namespaceId:
           type: string
           format: ^[0-9a-f]{24}$
         queueId:
           type: string
           format: ^[0-9a-f]{24}$
+        team:
+          $ref: '#/components/schemas/QueueMemberTeam'
         updatedAt:
           type: string
           format: date-time

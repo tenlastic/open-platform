@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnDestroy, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Params } from '@angular/router';
@@ -13,17 +13,24 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   templateUrl: 'list-page.component.html',
   styleUrls: ['./list-page.component.scss'],
 })
-export class WebSocketsListPageComponent implements AfterViewInit, OnDestroy {
+export class WebSocketsListPageComponent implements AfterViewInit, OnDestroy, OnInit {
   @ViewChild(MatPaginator) private paginator: MatPaginator;
 
   public dataSource = new MatTableDataSource<WebSocketModel>();
-  public displayedColumns = ['user', 'createdAt', 'disconnectedAt'];
+  public displayedColumns = ['user', 'createdAt', 'disconnectedAt', 'duration'];
   public filter: string;
   public includeConnected = true;
   public includeDisconnected = false;
   public message: string;
+  public get pageIndex() {
+    return this.paginator?.pageIndex || 0;
+  }
+  public get pageSize() {
+    return this.paginator?.pageSize || 10;
+  }
 
   private filter$ = new Subject();
+  private count = 0;
   private date = new Date(0);
   private params: Params;
   private timeout: NodeJS.Timeout;
@@ -36,7 +43,7 @@ export class WebSocketsListPageComponent implements AfterViewInit, OnDestroy {
     private webSocketService: WebSocketService,
   ) {}
 
-  public ngAfterViewInit() {
+  public ngOnInit() {
     this.filter$.pipe(debounceTime(300)).subscribe(() => this.fetchWebSockets());
 
     this.activatedRoute.params.subscribe(async (params) => {
@@ -89,6 +96,10 @@ export class WebSocketsListPageComponent implements AfterViewInit, OnDestroy {
     });
   }
 
+  public ngAfterViewInit() {
+    this.paginator.length = this.count;
+  }
+
   public ngOnDestroy() {
     clearTimeout(this.timeout);
   }
@@ -104,10 +115,6 @@ export class WebSocketsListPageComponent implements AfterViewInit, OnDestroy {
 
     if (date.getTime() < threshold && throttle) {
       this.timeout = setTimeout(() => this.fetchWebSockets(), threshold - date.getTime());
-      return;
-    }
-
-    if (!this.paginator || !this.params) {
       return;
     }
 
@@ -134,17 +141,50 @@ export class WebSocketsListPageComponent implements AfterViewInit, OnDestroy {
     }
 
     this.dataSource.data = await this.webSocketService.find(this.params.namespaceId, {
-      limit: this.paginator.pageSize,
-      skip: this.paginator.pageIndex * this.paginator.pageSize,
+      limit: this.pageSize,
+      skip: this.pageIndex * this.pageSize,
       sort: `-createdAt`,
       where,
     });
 
-    this.paginator.length = await this.webSocketService.count(this.params.namespaceId, { where });
+    this.count = await this.webSocketService.count(this.params.namespaceId, { where });
 
-    if (this.paginator.length < this.paginator.pageIndex * this.paginator.pageSize) {
-      this.paginator.firstPage();
+    if (this.paginator) {
+      this.paginator.length = this.count;
+
+      if (this.paginator.length < this.pageIndex * this.pageSize) {
+        this.paginator.firstPage();
+      }
     }
+  }
+
+  public getDuration(webSocket: WebSocketModel) {
+    if (!webSocket.disconnectedAt) {
+      return '';
+    }
+
+    let delta = Math.abs(webSocket.disconnectedAt.getTime() - webSocket.createdAt.getTime());
+
+    const days = Math.floor(delta / (1000 * 60 * 60 * 24));
+    delta -= days * (1000 * 60 * 60 * 24);
+
+    const hours = Math.floor(delta / (1000 * 60 * 60));
+    delta -= hours * (1000 * 60 * 60);
+
+    const minutes = Math.floor(delta / (1000 * 60));
+    delta -= minutes * (1000 * 60);
+
+    const seconds = Math.floor(delta / 1000);
+
+    if (days > 0) {
+      return `${days} Days, ${hours} Hours, ${minutes} Minutes, ${seconds} Seconds`;
+    } else if (hours > 0) {
+      return `${hours} Hours, ${minutes} Minutes, ${seconds} Seconds`;
+    } else if (minutes > 0) {
+      return `${minutes} Minutes, ${seconds} Seconds`;
+    }
+
+    return `${seconds} Seconds`;
   }
 
   public getUser(_id: string) {

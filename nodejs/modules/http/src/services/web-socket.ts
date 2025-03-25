@@ -1,3 +1,6 @@
+import { EventEmitter } from 'events';
+import TypedEmitter from 'typed-emitter';
+
 import { WebSocketModel } from '../models/web-socket';
 import { WebSocketStore } from '../states/web-socket';
 import {
@@ -10,11 +13,17 @@ import { ApiService } from './api';
 import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 
+export type WebSocketServiceEvents = {
+  create: (webSocket: WebSocket) => void;
+  delete: (webSocket: WebSocket) => void;
+};
+
 export class WebSocketService {
   public get emitter() {
     return this.baseService.emitter;
   }
   public interceptors: WebSocketInterceptors = { connect: [] };
+  public onWebSocketsSet = new EventEmitter() as TypedEmitter<WebSocketServiceEvents>;
   public webSockets: WebSocket[] = [];
 
   private baseService: BaseService<WebSocketModel>;
@@ -43,6 +52,8 @@ export class WebSocketService {
 
     const index = this.webSockets.indexOf(webSocket);
     this.webSockets.splice(index, 1);
+
+    this.onWebSocketsSet.emit('delete', webSocket);
   }
 
   /**
@@ -53,11 +64,15 @@ export class WebSocketService {
     webSocket.emitter.on('close', () => {
       const index = this.webSockets.indexOf(webSocket);
       this.webSockets.splice(index, 1);
+
+      this.onWebSocketsSet.emit('delete', webSocket);
     });
     this.webSockets.push(webSocket);
 
     webSocket.interceptors.connect = [...this.interceptors.connect];
     await webSocket.connect();
+
+    this.onWebSocketsSet.emit('create', webSocket);
 
     return webSocket;
   }

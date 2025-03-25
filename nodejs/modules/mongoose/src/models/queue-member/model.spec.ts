@@ -4,7 +4,7 @@ import { BuildModel } from '../build';
 import { GameServerTemplateModel } from '../game-server-template';
 import { GroupMemberModel, GroupModel } from '../group';
 import { NamespaceModel } from '../namespace';
-import { QueueModel } from '../queue';
+import { QueueModel, QueueThresholdModel } from '../queue';
 import { UserModel } from '../user';
 import { WebSocketModel } from '../web-socket';
 import { QueueMemberModel } from './model';
@@ -33,8 +33,10 @@ describe('models/queue-member', function () {
       }).save();
       const queue = await QueueModel.mock({
         gameServerTemplateId: gameServerTemplate._id,
+        maximumGroupSize: 2,
+        minimumGroupSize: 1,
         namespaceId: namespace._id,
-        usersPerTeam: [1, 1],
+        thresholds: [QueueThresholdModel.mock({ usersPerTeam: [1, 1] })],
       }).save();
       const webSockets = await Promise.all([
         WebSocketModel.mock({ userId: users[0]._id }).save(),

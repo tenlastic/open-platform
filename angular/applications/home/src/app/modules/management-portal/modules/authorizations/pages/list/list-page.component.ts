@@ -2,7 +2,6 @@ import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Params } from '@angular/router';
 import {
@@ -12,7 +11,7 @@ import {
   IAuthorization,
   UserQuery,
 } from '@tenlastic/http';
-import { Observable, Subject, Subscription } from 'rxjs';
+import { Subject } from 'rxjs';
 
 import { IdentityService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
@@ -22,7 +21,7 @@ import { debounceTime } from 'rxjs/operators';
   templateUrl: 'list-page.component.html',
   styleUrls: ['./list-page.component.scss'],
 })
-export class AuthorizationsListPageComponent implements AfterViewInit, OnDestroy {
+export class AuthorizationsListPageComponent implements AfterViewInit, OnDestroy, OnInit {
   @ViewChild(MatPaginator) private paginator: MatPaginator;
 
   public dataSource = new MatTableDataSource<AuthorizationModel>();
@@ -30,10 +29,15 @@ export class AuthorizationsListPageComponent implements AfterViewInit, OnDestroy
   public filter: string;
   public hasWriteAuthorization: boolean;
   public message: string;
+  public get pageIndex() {
+    return this.paginator?.pageIndex || 0;
+  }
+  public get pageSize() {
+    return this.paginator?.pageSize || 10;
+  }
 
-  private $authorizations: Observable<AuthorizationModel[]>;
   private filter$ = new Subject();
-  private updateDataSource$ = new Subscription();
+  private count = 0;
   private date = new Date(0);
   private params: Params;
   private timeout: NodeJS.Timeout;
@@ -48,7 +52,7 @@ export class AuthorizationsListPageComponent implements AfterViewInit, OnDestroy
     private userQuery: UserQuery,
   ) {}
 
-  public ngAfterViewInit() {
+  public ngOnInit() {
     this.filter$.pipe(debounceTime(300)).subscribe(() => this.fetchAuthorizations());
 
     this.activatedRoute.params.subscribe(async (params) => {
@@ -112,6 +116,10 @@ export class AuthorizationsListPageComponent implements AfterViewInit, OnDestroy
     });
   }
 
+  public ngAfterViewInit() {
+    this.paginator.length = this.count;
+  }
+
   public ngOnDestroy() {
     clearTimeout(this.timeout);
   }
@@ -122,10 +130,6 @@ export class AuthorizationsListPageComponent implements AfterViewInit, OnDestroy
 
     if (date.getTime() < threshold && throttle) {
       this.timeout = setTimeout(() => this.fetchAuthorizations(), threshold - date.getTime());
-      return;
-    }
-
-    if (!this.paginator || !this.params) {
       return;
     }
 
@@ -142,18 +146,22 @@ export class AuthorizationsListPageComponent implements AfterViewInit, OnDestroy
     }
 
     this.dataSource.data = await this.authorizationService.find(this.params.namespaceId, {
-      limit: this.paginator.pageSize,
-      skip: this.paginator.pageIndex * this.paginator.pageSize,
+      limit: this.pageSize,
+      skip: this.pageIndex * this.pageSize,
       sort: `-createdAt`,
       where,
     });
 
-    this.paginator.length = await this.authorizationService.count(this.params.namespaceId, {
+    this.count = await this.authorizationService.count(this.params.namespaceId, {
       where,
     });
 
-    if (this.paginator.length < this.paginator.pageIndex * this.paginator.pageSize) {
-      this.paginator.firstPage();
+    if (this.paginator) {
+      this.paginator.length = this.count;
+
+      if (this.paginator.length < this.pageIndex * this.pageSize) {
+        this.paginator.firstPage();
+      }
     }
   }
 

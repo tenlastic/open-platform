@@ -118,7 +118,7 @@ describe('/angular/namespace/queues', () => {
 
     await helpers.waitForXPath(
       page,
-      `//app-logs-dialog//div[contains(., 'Found 0 existing Queue Members.')]`,
+      `//app-logs-dialog//div[contains(., 'Found 0 initial Queue Members.')]`,
       { timeout: 10 * 1000 },
     );
   });

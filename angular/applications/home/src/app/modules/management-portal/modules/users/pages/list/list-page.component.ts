@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnDestroy, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -22,7 +22,7 @@ import { debounceTime } from 'rxjs/operators';
   templateUrl: 'list-page.component.html',
   styleUrls: ['./list-page.component.scss'],
 })
-export class UsersListPageComponent implements AfterViewInit, OnDestroy {
+export class UsersListPageComponent implements AfterViewInit, OnDestroy, OnInit {
   @ViewChild(MatPaginator) private paginator: MatPaginator;
 
   public dataSource = new MatTableDataSource<UserModel>();
@@ -38,6 +38,12 @@ export class UsersListPageComponent implements AfterViewInit, OnDestroy {
   public filter: string;
   public hasWriteAuthorization: boolean;
   public message: string;
+  public get pageIndex() {
+    return this.paginator?.pageIndex || 0;
+  }
+  public get pageSize() {
+    return this.paginator?.pageSize || 10;
+  }
   public get user() {
     return this.identityService.user;
   }
@@ -45,6 +51,7 @@ export class UsersListPageComponent implements AfterViewInit, OnDestroy {
 
   private filter$ = new Subject();
   private updateWebSockets$ = new Subscription();
+  private count = 0;
   private date = new Date(0);
   private timeout: NodeJS.Timeout;
 
@@ -58,7 +65,7 @@ export class UsersListPageComponent implements AfterViewInit, OnDestroy {
     private webSocketService: WebSocketService,
   ) {}
 
-  public async ngAfterViewInit() {
+  public async ngOnInit() {
     this.filter$.pipe(debounceTime(300)).subscribe(() => this.fetchUsers());
 
     this.updateWebSockets$ = this.webSocketQuery.selectAll().subscribe((webSockets) => {
@@ -127,6 +134,10 @@ export class UsersListPageComponent implements AfterViewInit, OnDestroy {
     });
   }
 
+  public ngAfterViewInit() {
+    this.paginator.length = this.count;
+  }
+
   public ngOnDestroy() {
     clearTimeout(this.timeout);
     this.updateWebSockets$.unsubscribe();
@@ -141,10 +152,6 @@ export class UsersListPageComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
-    if (!this.paginator) {
-      return;
-    }
-
     this.date = date;
 
     let where: any = {};
@@ -156,16 +163,20 @@ export class UsersListPageComponent implements AfterViewInit, OnDestroy {
     }
 
     this.dataSource.data = await this.userService.find({
-      limit: this.paginator.pageSize,
-      skip: this.paginator.pageIndex * this.paginator.pageSize,
+      limit: this.pageSize,
+      skip: this.pageIndex * this.pageSize,
       sort: `-username -steamPersonaName`,
       where,
     });
 
-    this.paginator.length = await this.userService.count({ where });
+    this.count = await this.userService.count({ where });
 
-    if (this.paginator.length < this.paginator.pageIndex * this.paginator.pageSize) {
-      this.paginator.firstPage();
+    if (this.paginator) {
+      this.paginator.length = this.count;
+
+      if (this.paginator.length < this.pageIndex * this.pageSize) {
+        this.paginator.firstPage();
+      }
     }
 
     await this.webSocketService.find(null, {

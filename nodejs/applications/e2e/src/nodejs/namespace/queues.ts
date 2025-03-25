@@ -11,7 +11,7 @@ const wssUrl = process.env.E2E_WSS_URL;
 
 const chance = new Chance();
 
-describe('/nodejs/namespace/queues', function () {
+describe.only('/nodejs/namespace/queues', function () {
   let namespace: string;
   let username: string;
   let webSocket: WebSocket;
@@ -50,12 +50,19 @@ describe('/nodejs/namespace/queues', function () {
     let queue = await dependencies.queueService.create(_id, {
       cpu: 0.1,
       gameServerTemplateId: gameServerTemplate._id,
+      initialRating: 1500,
+      maximumGroupSize: 1,
       memory: 100 * 1000 * 1000,
+      minimumGroupSize: 1,
       name: chance.hash({ length: 32 }),
       namespaceId: _id,
       preemptible: true,
       replicas: 1,
-      usersPerTeam: [1],
+      teams: true,
+      thresholds: [
+        { seconds: 0, usersPerTeam: [1, 1] },
+        { seconds: 5, usersPerTeam: [1] },
+      ],
     });
 
     // Wait for the Queue to run successfully.
@@ -78,11 +85,24 @@ describe('/nodejs/namespace/queues', function () {
     // Create a Web Socket connection.
     webSocket = await helpers.createWebSocket(password, user, `${wssUrl}/namespaces/${_id}`);
 
-    const queueMember = { queueId: queue._id, userId: user._id };
-    const where = { queueId: queue._id };
+    // Join the Queue.
+    let queueMember = await dependencies.queueMemberService.create(
+      { queueId: queue._id, userId: user._id },
+      webSocket,
+    );
 
-    // Join the Queue and wait for Game Server to be created successfully.
-    await dependencies.queueMemberService.create(queueMember, webSocket);
+    // Make sure we have a Team ID.
+    expect(queueMember.team?.rating).to.eql(1500);
+    expect(queueMember.team?.teamId).to.exist;
+
+    // Make sure we have a Team.
+    const team = await dependencies.teamService.findOne(_id, queueMember.team.teamId);
+    expect(team.queueId).to.eql(queue._id);
+    expect(team.rating).to.eql(1500);
+    expect(team.userIds).to.eql([user._id]);
+
+    // Wait for Game Server to be created successfully.
+    const where = { queueId: queue._id };
     const gameServer: GameServerModel = await wait(5 * 1000, 60 * 1000, async () => {
       const gameServers = await dependencies.gameServerService.find(_id, { where });
       return gameServers[0];
@@ -100,11 +120,21 @@ describe('/nodejs/namespace/queues', function () {
     });
 
     // Update the Queue to require two Users.
-    const usersPerTeam = [1, 1];
-    queue = await dependencies.queueService.update(_id, queue._id, { usersPerTeam });
+    queue = await dependencies.queueService.update(_id, queue._id, {
+      thresholds: [{ seconds: 0, usersPerTeam: [1, 1] }],
+    });
 
-    // Join the Queue, close the Web Socket, and wait for asynchronous Queue Member deletion.
-    await dependencies.queueMemberService.create(queueMember, webSocket);
+    // Join the Queue.
+    queueMember = await dependencies.queueMemberService.create(
+      { queueId: queue._id, userId: user._id },
+      webSocket,
+    );
+
+    // Make sure we have the same Team.
+    expect(queueMember.team?.rating).to.eql(1500);
+    expect(queueMember.team?.teamId).to.eql(team._id);
+
+    // Close the Web Socket, and wait for asynchronous Queue Member deletion.
     dependencies.webSocketService.close(webSocket);
     await new Promise((resolve) => setTimeout(resolve, 5 * 1000));
 

@@ -36,6 +36,10 @@ export const ROUTES: Routes = [
           import('../queue-members/queue-members.module').then((m) => m.QueueMemberModule),
         path: 'queue-members',
       },
+      {
+        loadChildren: () => import('../teams/teams.module').then((m) => m.TeamModule),
+        path: 'teams',
+      },
     ],
     component: LayoutComponent,
     path: ':queueId',

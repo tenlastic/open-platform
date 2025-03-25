@@ -49,6 +49,7 @@ export namespace IQueue {
   }
 
   export interface Threshold {
+    rating?: number;
     seconds?: number;
     usersPerTeam?: number[];
   }
@@ -59,17 +60,20 @@ export class QueueModel extends BaseModel {
   public cpu: number;
   public description: string;
   public gameServerTemplateId: string;
+  public initialRating: number;
   public invitationSeconds: number;
+  public maximumGroupSize: number;
   public memory: number;
   public metadata: any;
+  public minimumGroupSize: number;
   public name: string;
   public namespaceId: string;
   public preemptible: boolean;
   public replicas: number;
   public restartedAt: Date;
   public status: IQueue.Status;
+  public teams: boolean;
   public thresholds: IQueue.Threshold[];
-  public usersPerTeam: number[];
 
   constructor(parameters?: Partial<QueueModel>) {
     super(parameters);
@@ -82,37 +86,5 @@ export class QueueModel extends BaseModel {
     const immutableFields = ['cpu', 'memory', 'preemptible', 'replicas', 'restartedAt'];
 
     return immutableFields.some((i) => fields.includes(i));
-  }
-
-  /**
-   * Returns the number of teams accounting for Thresholds.
-   */
-  public getTeams(date: Date) {
-    if (!date) {
-      return this.usersPerTeam.length;
-    }
-
-    const milliseconds = new Date().getTime() - date.getTime();
-    const seconds = milliseconds / 1000;
-
-    const threshold = this.thresholds?.find((t) => seconds >= t.seconds);
-
-    return threshold ? threshold.usersPerTeam.length : this.usersPerTeam.length;
-  }
-
-  /**
-   * Returns the number of Users per team at the specified index accounting for Thresholds.
-   */
-  public getUsersPerTeam(date: Date, i: number) {
-    if (!date) {
-      return this.usersPerTeam[i];
-    }
-
-    const milliseconds = new Date().getTime() - date.getTime();
-    const seconds = milliseconds / 1000;
-
-    const threshold = this.thresholds?.find((t) => seconds >= t.seconds);
-
-    return threshold ? threshold.usersPerTeam[i] : this.usersPerTeam[i];
   }
 }

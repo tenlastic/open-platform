@@ -1,41 +1,50 @@
-<app-loading-message *ngIf="message">{{ message }}</app-loading-message>
+<app-loading-message [hidden]="!message">{{ message }}</app-loading-message>
 
-<div *ngIf="!message"
+<div [hidden]="message"
      class="page">
   <app-title>Queue Members</app-title>
 
   <div class="row">
-    <div class="col-sm-3">
-      <app-data-source-filter [dataSource]="dataSource">Filter Queue Members</app-data-source-filter>
+    <div class="col-sm-12">
+      <mat-form-field floatLabel="always">
+        <mat-label>User ID</mat-label>
+
+        <input matInput
+               autocomplete="off"
+               type="text"
+               (keyup)="setFilter($event.target.value)"
+               [(ngModel)]="filter" />
+
+        <app-button *ngIf="filter"
+                    color="accent"
+                    matSuffix
+                    mat-icon-button
+                    (click)="setFilter('')">
+          <mat-icon>close</mat-icon>
+        </app-button>
+      </mat-form-field>
     </div>
   </div>
 
   <table mat-table
-         [dataSource]="dataSource"
-         matSort
-         matSortActive="createdAt"
-         matSortDirection="asc">
-    <ng-container matColumnDef="username">
+         [dataSource]="dataSource">
+    <ng-container matColumnDef="queue">
       <th mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header>Username</th>
+          *matHeaderCellDef>Queue</th>
+      <td mat-cell
+          *matCellDef="let element">{{ getQueue(element.queueId).name }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="user">
+      <th mat-header-cell
+          *matHeaderCellDef>User</th>
       <td mat-cell
           *matCellDef="let element">{{ getUser(element.userId).displayName }}</td>
     </ng-container>
 
-    <ng-container matColumnDef="steam">
-      <th mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header>Steam ID / Persona Name</th>
-      <td mat-cell
-          *matCellDef="let element">{{ getUser(element.userId).steamPersonaName || getUser(element.userId).steamId }}
-      </td>
-    </ng-container>
-
     <ng-container matColumnDef="createdAt">
       <th mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header>Created At</th>
+          *matHeaderCellDef>Created At</th>
       <td mat-cell
           *matCellDef="let element">{{ element.createdAt | date:"MMM d, y 'at' h:mm a" }}</td>
     </ng-container>
@@ -61,6 +70,8 @@
         *matRowDef="let row; columns: displayedColumns"></tr>
   </table>
 
-  <mat-paginator [pageSizeOptions]="[10, 25, 100]"
+  <mat-paginator [pageIndex]="pageIndex"
+                 [pageSize]="pageSize"
+                 [pageSizeOptions]="[10, 25, 100]"
                  showFirstLastButtons></mat-paginator>
 </div>

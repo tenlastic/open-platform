@@ -9,6 +9,15 @@ import {
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class MatchTeamSchema {
+  @prop({ required: true, type: Number })
+  public index: number;
+
+  @prop({ type: Number })
+  public rating: number;
+
+  @prop({ ref: 'QueueSchema', type: mongoose.Schema.Types.ObjectId })
+  public teamId: mongoose.Types.ObjectId;
+
   @prop(
     {
       ref: 'UserSchema',
@@ -28,7 +37,11 @@ export class MatchTeamSchema {
    * Creates a record with randomized required parameters if not specified.
    */
   public static mock(this: typeof MatchTeamModel, values: Partial<MatchTeamSchema> = {}) {
-    const defaults = { userIds: [new mongoose.Types.ObjectId()] };
+    const defaults = {
+      index: 0,
+      teamId: new mongoose.Types.ObjectId(),
+      userIds: [new mongoose.Types.ObjectId()],
+    };
 
     return new this({ ...defaults, ...values });
   }

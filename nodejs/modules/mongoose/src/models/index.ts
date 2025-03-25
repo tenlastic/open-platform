@@ -20,6 +20,7 @@ export * from './refresh-token';
 export * from './schema';
 export * from './steam-integration';
 export * from './storefront';
+export * from './team';
 export * from './user';
 export * from './web-socket';
 export * from './workflow';

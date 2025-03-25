@@ -25,6 +25,8 @@ import {
   RecordSchema,
   StorefrontModel,
   StorefrontPermissions,
+  TeamModel,
+  TeamPermissions,
   WebSocketModel,
   WebSocketPermissions,
   WorkflowModel,
@@ -69,6 +71,9 @@ export async function handler(ctx: Context<SubscribeOptions>) {
 
     case 'storefronts':
       return subscribe(ctx, StorefrontModel, StorefrontPermissions);
+
+    case 'teams':
+      return subscribe(ctx, TeamModel, TeamPermissions);
 
     case 'web-sockets':
       return subscribe(ctx, WebSocketModel, WebSocketPermissions);

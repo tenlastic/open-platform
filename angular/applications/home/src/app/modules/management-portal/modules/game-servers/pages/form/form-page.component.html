@@ -164,6 +164,14 @@
                      [value]="endpoint.externalPort" />
             </mat-form-field>
 
+            <mat-form-field [hidden]="true"
+                            floatLabel="always">
+              <mat-label>Internal IP</mat-label>
+              <input disabled
+                     matInput
+                     [value]="endpoint.internalIp" />
+            </mat-form-field>
+
             <mat-form-field floatLabel="always">
               <mat-label>Internal Port</mat-label>
               <input disabled

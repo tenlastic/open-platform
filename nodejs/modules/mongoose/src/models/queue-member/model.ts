@@ -16,6 +16,8 @@ import { AuthorizationDocument } from '../authorization';
 import { GroupDocument } from '../group';
 import { MatchModel } from '../match';
 import { QueueDocument } from '../queue';
+import { TeamModel } from '../team';
+import { QueueMemberTeamDocument, QueueMemberTeamModel, QueueMemberTeamSchema } from './team';
 
 export class QueueMemberDuplicateKeyError extends Error {
   public userIds: string[] | mongoose.Types.ObjectId[];
@@ -46,9 +48,12 @@ export class QueueMemberMatchError extends Error {
 @plugin(unsetPlugin)
 @pre('save', async function (this: QueueMemberDocument) {
   await this.setUserIds();
+
+  await this.checkGroupSize();
   await this.checkMatches();
-  await this.checkPlayersPerTeam();
   this.checkUsers();
+
+  await this.setTeam();
 })
 @post('save', function (err: any, doc: QueueMemberDocument, next) {
   if (err.code === 11000 && err.name === 'MongoError') {
@@ -70,14 +75,14 @@ export class QueueMemberSchema {
   @prop({ ref: 'GroupSchema', type: mongoose.Schema.Types.ObjectId })
   public groupId: mongoose.Types.ObjectId;
 
-  @prop({ type: Date })
-  public matchedAt: Date;
-
   @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public namespaceId: mongoose.Types.ObjectId;
 
   @prop({ ref: 'QueueSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public queueId: mongoose.Types.ObjectId;
+
+  @prop({ type: QueueMemberTeamSchema })
+  public team: QueueMemberTeamDocument;
 
   @prop({ default: () => Date.now(), type: Number })
   public unix: number;
@@ -130,6 +135,23 @@ export class QueueMemberSchema {
   }
 
   /**
+   *
+   */
+  private async checkGroupSize(this: QueueMemberDocument) {
+    if (!this.populated('queueDocument')) {
+      await this.populate('queueDocument');
+    }
+
+    if (this.queueDocument.maximumGroupSize < this.userIds.length) {
+      throw new Error('Group size is too large for this Queue.');
+    }
+
+    if (this.queueDocument.minimumGroupSize > this.userIds.length) {
+      throw new Error('Group size is too small for this Queue.');
+    }
+  }
+
+  /**
    * Throws an error if a User is already in a Match.
    */
   private async checkMatches(this: QueueMemberDocument) {
@@ -148,25 +170,42 @@ export class QueueMemberSchema {
   }
 
   /**
-   * Throws an error if there are too many Users for the Queue.
-   */
-  private async checkPlayersPerTeam(this: QueueMemberDocument) {
-    if (!this.populated('queueDocument')) {
-      await this.populate('queueDocument');
-    }
-
-    if (this.userIds.length > this.queueDocument.usersPerTeam.reduce((a, b) => a + b, 0)) {
-      throw new Error('Group size is too large for this Queue.');
-    }
-  }
-
-  /**
    * Throws an error if the User is not in the User IDs.
    */
   private checkUsers(this: QueueMemberDocument) {
     if (!this.userIds.some((ui) => ui.equals(this.userId))) {
       throw new Error('User is not in the Group.');
     }
+  }
+
+  /**
+   * Upserts the Team.
+   */
+  private async setTeam(this: QueueMemberDocument) {
+    if (!this.populated('queueDocument')) {
+      await this.populate('queueDocument');
+    }
+
+    if (!this.queueDocument.teams) {
+      return;
+    }
+
+    const team = await TeamModel.findOneAndUpdate(
+      {
+        namespaceId: this.namespaceId,
+        queueId: this.queueId,
+        userIds: { $all: this.userIds, $size: this.userIds.length },
+      },
+      {
+        $setOnInsert: { rating: this.queueDocument.initialRating },
+        namespaceId: this.namespaceId,
+        queueId: this.queueId,
+        userIds: this.userIds,
+      },
+      { new: true, upsert: true },
+    );
+
+    this.team = new QueueMemberTeamModel({ rating: team.rating, teamId: team._id });
   }
 
   /**
@@ -178,7 +217,7 @@ export class QueueMemberSchema {
         await this.populate('groupDocument');
       }
 
-      this.userIds = this.groupDocument?.members.map((m) => m.userId) ?? [];
+      this.userIds = this.groupDocument?.members.map((m) => m.userId).sort() ?? [];
     } else {
       this.userIds = [this.userId];
     }

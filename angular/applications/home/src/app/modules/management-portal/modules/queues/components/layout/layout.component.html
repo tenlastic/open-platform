@@ -55,8 +55,22 @@
                   routerLinkActive="active"
                   text="left"
                   width="full">
-        <mat-icon>person</mat-icon>
+        <mat-icon>person_search</mat-icon>
         <div>Queue Members</div>
+      </app-button>
+
+      <app-button *ngIf="($hasPermission(IAuthorization.teamRoles) | async) && queue.teams"
+                  color="accent"
+                  [disabled]="namespace.status.phase !== 'Running'"
+                  layout="vertical"
+                  [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
+                  matTooltipPosition="right"
+                  [routerLink]="namespace.status.phase === 'Running' ? ['teams'] : null"
+                  routerLinkActive="active"
+                  text="left"
+                  width="full">
+        <mat-icon>groups</mat-icon>
+        <div>Teams</div>
       </app-button>
     </div>
 

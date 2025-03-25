@@ -5,7 +5,10 @@ import { arrayLengthValidator, arrayMaxMinValidator } from '../../../validators'
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class QueueThresholdSchema {
-  @prop({ min: 1, required: true, type: Number })
+  @prop({ type: Number })
+  public rating: number;
+
+  @prop({ default: 0, type: Number })
   public seconds: number;
 
   @prop(
@@ -24,7 +27,6 @@ export class QueueThresholdSchema {
   public static mock(this: typeof QueueThresholdModel, values: Partial<QueueThresholdSchema> = {}) {
     const chance = new Chance();
     const defaults = {
-      seconds: chance.integer({ max: 300, min: 1 }),
       usersPerTeam: [chance.integer({ max: 10, min: 1 }), chance.integer({ max: 10, min: 1 })],
     };
 

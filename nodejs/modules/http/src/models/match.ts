@@ -2,6 +2,9 @@ import { BaseModel } from './base';
 
 export namespace IMatch {
   export interface Team {
+    index?: number;
+    rating?: number;
+    teamId?: string;
     userIds?: string[];
   }
 }
@@ -18,7 +21,7 @@ export class MatchModel extends BaseModel {
   public startedAt: Date;
   public teams: IMatch.Team[];
   public get userIds(): string[] {
-    return this.teams.reduce((previous, current) => [...previous, ...current.userIds], []);
+    return this.teams.map((t) => t.userIds).flat();
   }
 
   constructor(parameters?: Partial<MatchModel>) {

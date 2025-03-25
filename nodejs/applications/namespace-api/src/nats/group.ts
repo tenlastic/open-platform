@@ -29,7 +29,7 @@ WebSocketEvent.async(async (payload) => {
     payload.operationType === 'update' &&
     payload.updateDescription?.updatedFields?.disconnectedAt
   ) {
-    return GroupModel.updateOne(
+    return GroupModel.findOneAndUpdate(
       { 'members.webSocketId': payload.fullDocument._id },
       { $pull: { members: { webSocketId: payload.fullDocument._id } } },
     );

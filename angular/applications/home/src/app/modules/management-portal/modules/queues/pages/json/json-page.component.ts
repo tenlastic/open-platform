@@ -84,13 +84,17 @@ export class QueuesJsonPageComponent implements OnInit {
       cpu: IQueue.Cpu[0].value,
       description: '',
       gameServerTemplateId: '',
+      initialRating: 0,
       invitationSeconds: 30,
+      maximumGroupSize: 1,
       memory: IQueue.Memory[0].value,
       metadata: {},
+      minimumGroupSize: 1,
       name: '',
       preemptible: true,
       replicas: IQueue.Replicas[0].value,
-      usersPerTeam: [1, 1],
+      teams: false,
+      thresholds: [{ seconds: 0, usersPerTeam: [1, 1] }],
     });
 
     const keys = [
@@ -99,13 +103,17 @@ export class QueuesJsonPageComponent implements OnInit {
       'cpu',
       'description',
       'gameServerTemplateId',
+      'initialRating',
       'invitationSeconds',
+      'maximumGroupSize',
       'memory',
       'metadata',
+      'minimumGroupSize',
       'name',
       'preemptible',
       'replicas',
-      'usersPerTeam',
+      'teams',
+      'thresholds',
     ];
     const data = Object.keys(this.data)
       .filter((key) => keys.includes(key))

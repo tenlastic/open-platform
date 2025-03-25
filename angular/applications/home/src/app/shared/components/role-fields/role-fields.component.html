@@ -102,6 +102,14 @@
       <mat-checkbox formControlName="Storefronts:Write">Write</mat-checkbox>
     </div>
 
+    <h4>Teams</h4>
+    <div class="row">
+      <mat-checkbox *ngIf="play"
+                    formControlName="Teams:Play">Play</mat-checkbox>
+      <mat-checkbox formControlName="Teams:Read">Read</mat-checkbox>
+      <mat-checkbox formControlName="Teams:Write">Write</mat-checkbox>
+    </div>
+
     <h4>Users</h4>
     <div class="row">
       <mat-checkbox formControlName="Users:Read">Read</mat-checkbox>

@@ -39,6 +39,9 @@ export namespace IAuthorization {
     SteamIntegrationsWrite = 'SteamIntegrations:Write',
     StorefrontsRead = 'Storefronts:Read',
     StorefrontsWrite = 'Storefronts:Write',
+    TeamsPlay = 'Teams:Play',
+    TeamsRead = 'Teams:Read',
+    TeamsWrite = 'Teams:Write',
     UsersRead = 'Users:Read',
     UsersWrite = 'Users:Write',
     WebSocketsRead = 'WebSockets:Read',
@@ -61,10 +64,11 @@ export namespace IAuthorization {
   export const matchRoles = [Role.MatchesRead, Role.MatchesWrite];
   export const messageRoles = [Role.MessagesPlay, Role.MessagesRead, Role.MatchesWrite];
   export const namespaceRoles = [Role.NamespacesRead, Role.NamespacesWrite];
-  export const queueRoles = [Role.QueuesRead, Role.QueuesWrite];
+  export const queueRoles = [Role.QueuesPlay, Role.QueuesRead, Role.QueuesWrite];
   export const recordRoles = [Role.RecordsRead, Role.RecordsWrite];
   export const steamIntegrationRoles = [Role.SteamIntegrationsRead, Role.SteamIntegrationsWrite];
   export const storefrontRoles = [Role.StorefrontsRead, Role.StorefrontsWrite];
+  export const teamRoles = [Role.TeamsPlay, Role.TeamsRead, Role.TeamsWrite];
   export const userRoles = [Role.UsersRead, Role.UsersWrite];
   export const webSocketRoles = [Role.WebSocketsRead, Role.WebSocketsWrite];
   export const workflowRoles = [Role.WorkflowsRead, Role.WorkflowsWrite];

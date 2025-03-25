@@ -1,4 +1,4 @@
-import { MatchModel, QueueModel } from '@tenlastic/http';
+import { IMatch, MatchModel, QueueModel } from '@tenlastic/http';
 
 import dependencies from '../dependencies';
 
@@ -13,7 +13,19 @@ export async function createMatch(queue: QueueModel): Promise<MatchModel> {
     filterBy: (qm) => !qm.matchedAt,
     sortBy: 'createdAt',
   });
-  const teams = getTeams(queue, queueMembers);
+  let teams: IMatch.Team[];
+
+  for (let i = 0; i < queueMembers.length; i++) {
+    const before = queueMembers.slice(0, i);
+    const queueMember = queueMembers[i];
+    const after = queueMembers.slice(i + 1);
+
+    teams = getTeams(queue, [queueMember, ...before, ...after]);
+
+    if (teams) {
+      break;
+    }
+  }
 
   // Throw an error if not enough teams were found.
   if (!teams) {
@@ -30,23 +42,20 @@ export async function createMatch(queue: QueueModel): Promise<MatchModel> {
   // Create the Match.
   let match: MatchModel;
   try {
+    const json: Partial<MatchModel> = {
+      gameServerTemplateId: queue.gameServerTemplateId,
+      queueId: queue._id,
+      teams,
+    };
+
     if (queue.confirmation) {
-      match = await dependencies.matchService.create(queue.namespaceId, {
-        gameServerTemplateId: queue.gameServerTemplateId,
-        invitationsExpireAt: new Date(Date.now() + queue.invitationSeconds * 1000),
-        queueId: queue._id,
-        teams,
-      });
-    } else {
-      match = await dependencies.matchService.create(queue.namespaceId, {
-        gameServerTemplateId: queue.gameServerTemplateId,
-        queueId: queue._id,
-        teams,
-      });
+      json.invitationsExpireAt = new Date(Date.now() + queue.invitationSeconds * 1000);
     }
+
+    match = await dependencies.matchService.create(queue.namespaceId, json);
   } catch (e) {
     // If any Queue Members are already in a match, delete them and try again if successful.
-    const deletedQueueMembers = await deleteConflictedQueueMembers(queue, matchedQueueMembers);
+    const deletedQueueMembers = await deleteConflictedQueueMembers(queue, queueMembers);
     if (deletedQueueMembers.length) {
       return createMatch(queue);
     }

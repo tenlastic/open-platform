@@ -1,0 +1,91 @@
+<app-loading-message [hidden]="!message">{{ message }}</app-loading-message>
+
+<div [hidden]="message"
+     class="page">
+  <app-title>Teams</app-title>
+
+  <div class="row">
+    <div class="col-sm-12">
+      <mat-form-field floatLabel="always">
+        <mat-label>User ID</mat-label>
+
+        <input matInput
+               autocomplete="off"
+               type="text"
+               (keyup)="setFilter($event.target.value)"
+               [(ngModel)]="filter" />
+
+        <app-button *ngIf="filter"
+                    color="accent"
+                    matSuffix
+                    mat-icon-button
+                    (click)="setFilter('')">
+          <mat-icon>close</mat-icon>
+        </app-button>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <table mat-table
+         [dataSource]="dataSource">
+    <ng-container matColumnDef="queue">
+      <th mat-header-cell
+          *matHeaderCellDef>Queue</th>
+      <td mat-cell
+          *matCellDef="let element">{{ getQueue(element.queueId).name }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="rating">
+      <th mat-header-cell
+          *matHeaderCellDef>Rating</th>
+      <td mat-cell
+          *matCellDef="let element">{{ element.rating }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="users">
+      <th mat-header-cell
+          *matHeaderCellDef>Users</th>
+      <td mat-cell
+          *matCellDef="let element">{{ getUsers(element.userIds) }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="createdAt">
+      <th mat-header-cell
+          *matHeaderCellDef>Created At</th>
+      <td mat-cell
+          *matCellDef="let element">{{ element.createdAt | date:"MMM d, y 'at' h:mm a" }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="updatedAt">
+      <th mat-header-cell
+          *matHeaderCellDef>Updated At</th>
+      <td mat-cell
+          *matCellDef="let element">{{ element.updatedAt | date:"MMM d, y 'at' h:mm a" }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell
+          *matHeaderCellDef></th>
+      <td mat-cell
+          *matCellDef="let element">
+        <app-button *ngIf="hasWriteAuthorization"
+                    color="accent"
+                    appHighlight
+                    matTooltip="Delete"
+                    (OnClick)="showDeletePrompt($event, element)">
+          <mat-icon>delete</mat-icon>
+        </app-button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row
+        *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row
+        *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+
+  <mat-paginator [pageIndex]="pageIndex"
+                 [pageSize]="pageSize"
+                 [pageSizeOptions]="[10, 25, 100]"
+                 showFirstLastButtons></mat-paginator>
+</div>

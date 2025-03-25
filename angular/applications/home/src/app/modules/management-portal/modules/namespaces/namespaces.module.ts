@@ -68,6 +68,11 @@ export const ROUTES: Routes = [
         path: 'matches',
       },
       {
+        loadChildren: () =>
+          import('../queue-members/queue-members.module').then((m) => m.QueueMemberModule),
+        path: 'queue-members',
+      },
+      {
         loadChildren: () => import('../queues/queues.module').then((m) => m.QueueModule),
         path: 'queues',
       },
@@ -82,6 +87,10 @@ export const ROUTES: Routes = [
         loadChildren: () =>
           import('../storefronts/storefronts.module').then((m) => m.StorefrontModule),
         path: 'storefront',
+      },
+      {
+        loadChildren: () => import('../teams/teams.module').then((m) => m.TeamModule),
+        path: 'teams',
       },
       {
         loadChildren: () =>

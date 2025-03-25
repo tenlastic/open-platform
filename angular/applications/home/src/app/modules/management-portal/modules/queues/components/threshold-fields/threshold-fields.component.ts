@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { FormArray, FormBuilder, Validators } from '@angular/forms';
+import { QueueModel } from '@tenlastic/http';
 
 @Component({
   selector: 'app-threshold-fields',
@@ -8,6 +9,7 @@ import { FormArray, FormBuilder, Validators } from '@angular/forms';
 })
 export class ThresholdFieldsComponent {
   @Input() public formArray: FormArray;
+  @Input() public teams = false;
 
   constructor(private formBuilder: FormBuilder) {}
 
@@ -31,7 +33,8 @@ export class ThresholdFieldsComponent {
     this.pushUsersPerTeam(usersPerTeamFormArray);
 
     return this.formBuilder.group({
-      seconds: [null, [Validators.min(1), Validators.required]],
+      rating: [0],
+      seconds: [0, [Validators.min(0), Validators.required]],
       usersPerTeam: usersPerTeamFormArray,
     });
   }

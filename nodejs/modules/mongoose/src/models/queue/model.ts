@@ -4,7 +4,6 @@ import {
   index,
   modelOptions,
   plugin,
-  pre,
   prop,
   PropType,
   Severity,
@@ -15,13 +14,13 @@ import { unsetPlugin } from '../../plugins';
 
 import {
   arrayLengthValidator,
-  arrayMaxMinValidator,
+  arrayNullUndefinedValidator,
   duplicateValidator,
   enumValidator,
 } from '../../validators';
 import { AuthorizationDocument } from '../authorization';
 import { QueueStatusModel, QueueStatusDocument, QueueStatusSchema } from './status';
-import { QueueThresholdDocument, QueueThresholdSchema } from './threshold';
+import { QueueThresholdDocument, QueueThresholdModel, QueueThresholdSchema } from './threshold';
 
 @index({ namespaceId: 1 })
 @modelOptions({
@@ -29,9 +28,6 @@ import { QueueThresholdDocument, QueueThresholdSchema } from './threshold';
   schemaOptions: { collection: 'queues', timestamps: true },
 })
 @plugin(unsetPlugin)
-@pre('save', function (this: QueueDocument) {
-  this.thresholds.sort((a, b) => (a.seconds < b.seconds ? 1 : -1));
-})
 export class QueueSchema {
   public _id: mongoose.Types.ObjectId;
 
@@ -49,14 +45,23 @@ export class QueueSchema {
   @prop({ ref: 'GameServerTemplateSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public gameServerTemplateId: mongoose.Types.ObjectId;
 
+  @prop({ type: Number })
+  public initialRating: number;
+
   @prop({ default: 30, min: 0, type: Number })
   public invitationSeconds: number;
+
+  @prop({ min: 1, required: true, type: Number })
+  public maximumGroupSize: number;
 
   @prop({ min: 100 * 1000 * 1000, required: true, type: Number })
   public memory: number;
 
   @prop({ type: mongoose.Schema.Types.Mixed, unset: false })
   public metadata: any;
+
+  @prop({ min: 1, required: true, type: Number })
+  public minimumGroupSize: number;
 
   @prop({ maxlength: 64, required: true, trim: true, type: String })
   public name: string;
@@ -76,20 +81,24 @@ export class QueueSchema {
   @prop({ default: () => new QueueStatusModel(), merge: true, type: QueueStatusSchema })
   public status: QueueStatusDocument;
 
-  @prop({ type: QueueThresholdSchema, validate: duplicateValidator }, PropType.ARRAY)
-  public thresholds: QueueThresholdDocument[];
-
-  public updatedAt: Date;
+  @prop({ type: Boolean })
+  public teams: boolean;
 
   @prop(
     {
       required: true,
-      type: Number,
-      validate: [arrayLengthValidator(Infinity, 1), arrayMaxMinValidator(Infinity, 1)],
+      type: QueueThresholdSchema,
+      validate: [
+        arrayLengthValidator(Infinity, 1),
+        arrayNullUndefinedValidator,
+        duplicateValidator,
+      ],
     },
     PropType.ARRAY,
   )
-  public usersPerTeam: number[];
+  public thresholds: QueueThresholdDocument[];
+
+  public updatedAt: Date;
 
   @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
   public authorizationDocuments: AuthorizationDocument[];
@@ -111,11 +120,13 @@ export class QueueSchema {
     const defaults = {
       cpu: chance.floating({ max: 1, min: 0.1 }),
       gameServerTemplateId: new mongoose.Types.ObjectId(),
+      maximumGroupSize: 1,
       memory: chance.integer({ max: 1 * 1000 * 1000 * 1000, min: 100 * 1000 * 1000 }),
+      minimumGroupSize: 1,
       name: chance.hash(),
       namespaceId: new mongoose.Types.ObjectId(),
       replicas: chance.pickone([1, 3, 5]),
-      usersPerTeam: chance.integer({ min: 1 }),
+      thresholds: [QueueThresholdModel.mock()],
     };
 
     return new this({ ...defaults, ...values });

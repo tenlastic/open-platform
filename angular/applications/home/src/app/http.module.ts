@@ -74,6 +74,9 @@ import {
   StorefrontService,
   StorefrontStore,
   SubscriptionService,
+  TeamQuery,
+  TeamService,
+  TeamStore,
   TokenService,
   UserQuery,
   UserService,
@@ -221,6 +224,11 @@ const queries: Provider[] = [
     deps: [StorefrontStore],
     provide: StorefrontQuery,
     useFactory: (store: StorefrontStore) => new StorefrontQuery(store),
+  },
+  {
+    deps: [TeamStore],
+    provide: TeamQuery,
+    useFactory: (store: TeamStore) => new TeamQuery(store),
   },
   {
     deps: [UserStore],
@@ -472,6 +480,15 @@ const services: Provider[] = [
     useFactory: (webSocketService: WebSocketService) => new SubscriptionService(webSocketService),
   },
   {
+    deps: [ApiService, EnvironmentService, TeamStore],
+    provide: TeamService,
+    useFactory: (
+      apiService: ApiService,
+      environmentService: EnvironmentService,
+      store: TeamStore,
+    ) => new TeamService(apiService, environmentService, store),
+  },
+  {
     deps: [LoginService],
     provide: TokenService,
     useFactory: (loginService: LoginService) => new TokenService(localStorage, loginService),
@@ -536,6 +553,7 @@ const stores: Provider[] = [
   { provide: RefreshTokenStore, useValue: new RefreshTokenStore() },
   { provide: SteamIntegrationStore, useValue: new SteamIntegrationStore() },
   { provide: StorefrontStore, useValue: new StorefrontStore() },
+  { provide: TeamStore, useValue: new TeamStore() },
   { provide: UserStore, useValue: new UserStore() },
   { provide: WebSocketStore, useValue: new WebSocketStore() },
   { provide: WorkflowLogStore, useValue: new WorkflowLogStore() },

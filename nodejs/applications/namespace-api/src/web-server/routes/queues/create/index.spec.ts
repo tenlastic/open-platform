@@ -53,10 +53,12 @@ describe('web-server/queues/create', function () {
           body: {
             cpu: 1,
             gameServerTemplateId: gameServerTemplate._id,
+            maximumGroupSize: 2,
             memory: 1 * 1000 * 1000 * 1000,
+            minimumGroupSize: 1,
             name: chance.hash(),
             replicas: 1,
-            usersPerTeam: [1, 1],
+            thresholds: [{ seconds: 0, usersPerTeam: [1, 1] }],
           },
         },
         state: { user },

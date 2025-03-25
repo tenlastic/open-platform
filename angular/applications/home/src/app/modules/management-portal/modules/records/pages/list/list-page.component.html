@@ -92,7 +92,8 @@
   </table>
 
   <mat-paginator (page)="fetchRecords()"
-                 pageSize="10"
+                 [pageIndex]="pageIndex"
+                 [pageSize]="pageSize"
                  [pageSizeOptions]="[10, 25, 100]"
                  showFirstLastButtons></mat-paginator>
 </div>

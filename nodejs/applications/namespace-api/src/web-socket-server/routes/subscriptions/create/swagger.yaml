@@ -24,6 +24,7 @@ paths:
               - queue-members
               - queues
               - storefronts
+              - teams
               - web-sockets
               - workflows
           required: true

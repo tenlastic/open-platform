@@ -6,7 +6,7 @@ import { ApiError, QueueMemberModel, QueueModel } from '@tenlastic/http';
 import dependencies from './dependencies';
 
 import { createMatch } from './create-match';
-import { getQueueMembers } from './get-queue-members';
+import { findInitialQueueMembers } from './find-initial-queue-members';
 
 const namespaceId = process.env.NAMESPACE_ID;
 const podName = process.env.POD_NAME;
@@ -23,9 +23,9 @@ const wssUrl = process.env.WSS_URL;
     const match = podName.match(/-(\d+)$/);
     const index = match ? parseInt(match[1], 10) : null;
     const startDate = new Date();
-    const queueMembers = await getQueueMembers(index, namespaceId, queueId, replicas);
+    const queueMembers = await findInitialQueueMembers(index, namespaceId, queueId, replicas);
 
-    console.log(`Found ${queueMembers.length} existing Queue Members.`);
+    console.log(`Found ${queueMembers.length} initial Queue Members.`);
 
     // Web Sockets.
     const webSocket = await dependencies.webSocketService.connect(wssUrl);

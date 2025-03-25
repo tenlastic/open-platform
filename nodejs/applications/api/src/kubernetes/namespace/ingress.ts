@@ -29,6 +29,7 @@ export const KubernetesNamespaceIngress = {
                 getPath(namespace, '/queue-members'),
                 getPath(namespace, '/queues'),
                 getPath(namespace, '/storefronts'),
+                getPath(namespace, '/teams'),
                 getPath(namespace, '/web-sockets'),
                 getPath(namespace, '/workflows'),
               ],

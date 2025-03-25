@@ -1,12 +1,9 @@
 import {
   AuthorizationModel,
   AuthorizationRole,
-  BuildModel,
-  GameServerPortModel,
   GroupMemberModel,
   GroupModel,
   NamespaceDocument,
-  NamespaceLimitsModel,
   NamespaceModel,
   UserDocument,
   UserModel,
@@ -15,11 +12,9 @@ import { PermissionError } from '@tenlastic/mongoose-permissions';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
-import { Chance } from 'chance';
 
 import { handler } from './';
 
-const chance = new Chance();
 use(chaiAsPromised);
 
 describe('web-server/group-invitations/create', function () {

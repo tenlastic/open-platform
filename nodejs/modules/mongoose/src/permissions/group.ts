@@ -31,10 +31,6 @@ export const GroupPermissions = new MongoosePermissions<GroupDocument>(GroupMode
       ...AuthorizationPermissionsHelpers.getNamespaceRoleQuery([AuthorizationRole.GroupsPlay]),
       'record.members.0.userId': { $ref: 'user._id' },
     },
-    member: {
-      ...AuthorizationPermissionsHelpers.getNamespaceRoleQuery([AuthorizationRole.GroupsPlay]),
-      'record.members.userId': { $ref: 'user._id' },
-    },
     'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
       AuthorizationRole.GroupsRead,
     ]),

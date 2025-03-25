@@ -83,12 +83,12 @@ export class MatchSchema {
 
   public updatedAt: Date;
 
+  public get userIds(): mongoose.Types.ObjectId[] {
+    return this.teams.map((t) => t.userIds).flat();
+  }
+
   @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
   public authorizationDocuments: AuthorizationDocument[];
-
-  public get userIds(): mongoose.Types.ObjectId[] {
-    return this.teams.reduce((previous, current) => [...previous, ...current.userIds], []);
-  }
 
   /**
    * Creates a record with randomized required parameters if not specified.

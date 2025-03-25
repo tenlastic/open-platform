@@ -1,0 +1,12 @@
+components:
+  schemas:
+    QueueMemberTeam:
+      type: object
+      properties:
+        rating:
+          type: number
+        teamId:
+          type: string
+          format: ^[0-9a-f]{24}$
+      required:
+        - userIds

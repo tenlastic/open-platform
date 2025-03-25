@@ -12,5 +12,6 @@ export { default as queueRoutes } from './queues';
 export { default as queueMemberRoutes } from './queue-members';
 export { default as recordRoutes } from './records';
 export { default as storefrontRoutes } from './storefronts';
+export { default as teamRoutes } from './teams';
 export { default as webSocketRoutes } from './web-sockets';
 export { default as workflowRoutes } from './workflows';

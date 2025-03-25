@@ -31,17 +31,7 @@ export class LayoutComponent implements OnInit {
   }
   public $namespaces: Observable<NamespaceModel[]>;
   public $storefronts: Observable<StorefrontModel[]>;
-  public get isConnected() {
-    const webSockets = this.webSocketService.webSockets.values();
-
-    for (const webSocket of webSockets) {
-      if (webSocket.readyState === 0) {
-        return false;
-      }
-    }
-
-    return true;
-  }
+  public isConnected = false;
   public get isElectron() {
     return this.electronService.isElectron;
   }
@@ -60,6 +50,7 @@ export class LayoutComponent implements OnInit {
   }
   public view: string;
 
+  private interval: NodeJS.Timeout;
   private previousUrl: string;
   private urls = new Map<string, string>();
 
@@ -124,6 +115,15 @@ export class LayoutComponent implements OnInit {
         this.urls.clear();
       }
     });
+
+    this.setIsConnected();
+    this.webSocketService.onWebSocketsSet.on('create', (webSocket) => {
+      this.setIsConnected();
+      webSocket.emitter.on('close', () => this.setIsConnected());
+      webSocket.emitter.on('open', () => this.setIsConnected());
+    });
+    this.webSocketService.onWebSocketsSet.on('delete', () => this.setIsConnected());
+
     await this.find();
   }
 
@@ -179,6 +179,14 @@ export class LayoutComponent implements OnInit {
     window.minimize();
   }
 
+  public setView(url: string) {
+    if (!this.electronService.isElectron) {
+      return;
+    }
+
+    this.electronService.ipcRenderer.send('view', url);
+  }
+
   private find() {
     const promises: Promise<any>[] = [
       this.namespaceService.find({}),
@@ -212,11 +220,16 @@ export class LayoutComponent implements OnInit {
     return 'home';
   }
 
-  public setView(url: string) {
-    if (!this.electronService.isElectron) {
-      return;
+  private setIsConnected() {
+    const webSockets = this.webSocketService.webSockets;
+
+    for (const webSocket of webSockets) {
+      if (webSocket.readyState === 0) {
+        this.isConnected = false;
+        return;
+      }
     }
 
-    this.electronService.ipcRenderer.send('view', url);
+    this.isConnected = true;
   }
 }

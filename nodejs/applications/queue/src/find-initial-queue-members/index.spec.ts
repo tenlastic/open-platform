@@ -3,11 +3,11 @@ import { Chance } from 'chance';
 import * as sinon from 'sinon';
 
 import dependencies from '../dependencies';
-import { getQueueMembers } from './';
+import { findInitialQueueMembers } from '.';
 
 const chance = new Chance();
 
-describe('get-queue-members', function () {
+describe('find-initial-queue-members', function () {
   let sandbox: sinon.SinonSandbox;
 
   beforeEach(function () {
@@ -30,7 +30,7 @@ describe('get-queue-members', function () {
     stub.onFirstCall().resolves(Array.from({ length: 100 }));
     stub.onSecondCall().resolves(Array.from({ length }));
 
-    const result = await getQueueMembers(index, namespaceId, queueId, replicas);
+    const result = await findInitialQueueMembers(index, namespaceId, queueId, replicas);
 
     expect(result.length).to.eql(100 + length);
     expect(stub.getCall(0).args).to.eql([

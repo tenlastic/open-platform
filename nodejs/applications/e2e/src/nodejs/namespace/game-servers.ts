@@ -46,8 +46,8 @@ describe('/nodejs/namespace/game-servers', function () {
     });
 
     // Connect to the Game Server.
-    const { externalIp, externalPort } = gameServer.status.endpoints[0];
-    const hostname = externalIp === '127.0.0.1' ? 'kubernetes.local.tenlastic.com' : externalIp;
+    const { externalIp, externalPort, internalIp } = gameServer.status.endpoints[0];
+    const hostname = externalIp === '127.0.0.1' ? internalIp : externalIp;
     const url = new URL(`http://${hostname}:${externalPort}`);
 
     const { data } = await axios({ method: 'get', url: url.href });

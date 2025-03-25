@@ -69,8 +69,10 @@ describe('/angular/namespace/game-servers', () => {
     const externalIp = await page.evaluate((ti) => ti.value, externalIpInput);
     const externalPortInput = await helpers.getInputByLabel('External Port', page);
     const externalPort = await page.evaluate((ti) => ti.value, externalPortInput);
+    const internalIpInput = await helpers.getInputByLabel('Internal IP', page);
+    const internalIp = await page.evaluate((ti) => ti.value, internalIpInput);
 
-    const hostname = externalIp === '127.0.0.1' ? 'kubernetes.local.tenlastic.com' : externalIp;
+    const hostname = externalIp === '127.0.0.1' ? internalIp : externalIp;
 
     const response = await axios({ method: 'get', url: `http://${hostname}:${externalPort}` });
     expect(response.data).to.include('Welcome to echo-server!');

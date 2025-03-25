@@ -16,6 +16,7 @@ import {
   queueMemberRoutes,
   recordRoutes,
   storefrontRoutes,
+  teamRoutes,
   webSocketRoutes,
   workflowRoutes,
 } from './routes';
@@ -38,6 +39,7 @@ export function setup() {
   router.use(queueMemberRoutes);
   router.use(recordRoutes);
   router.use(storefrontRoutes);
+  router.use(teamRoutes);
   router.use(webSocketRoutes);
   router.use(workflowRoutes);
   webServer.use(router.routes());

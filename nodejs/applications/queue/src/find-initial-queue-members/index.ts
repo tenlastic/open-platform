@@ -1,6 +1,6 @@
 import dependencies from '../dependencies';
 
-export async function getQueueMembers(
+export async function findInitialQueueMembers(
   index: number,
   namespaceId: string,
   queueId: string,
@@ -15,7 +15,7 @@ export async function getQueueMembers(
   });
 
   if (limit === queueMembers.length) {
-    const additionalQueueMembers = await getQueueMembers(
+    const additionalQueueMembers = await findInitialQueueMembers(
       index,
       namespaceId,
       queueId,
