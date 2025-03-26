@@ -139,7 +139,7 @@ export class AuthorizationsListPageComponent implements AfterViewInit, OnDestroy
     if (this.filter) {
       where.userId = this.filter;
     }
-    if (this.params.namespace) {
+    if (this.params.namespaceId) {
       where.namespaceId = this.params.namespaceId;
     } else {
       where.namespaceId = null;
