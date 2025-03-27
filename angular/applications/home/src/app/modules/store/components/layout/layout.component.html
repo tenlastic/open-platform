@@ -1,10 +1,9 @@
-<app-header-toolbar>
+<app-header-toolbar *ngIf="!isElectron">
   <img src="/assets/images/logo.png" />
 
   <div class="space"></div>
 
-  <app-button *ngIf="!isElectron"
-              color="primary"
+  <app-button color="primary"
               [href]="launcherUrl">
     <div>Download Launcher</div>
   </app-button>
@@ -12,7 +11,7 @@
 
 <div class="content">
   <app-sidenav *ngIf="$storefronts | async as storefronts">
-    <div *ngIf="storefronts.length > 1"
+    <div *ngIf="!isElectron && storefronts.length > 1"
          appNav
          class="nav">
       <div class="scroll">

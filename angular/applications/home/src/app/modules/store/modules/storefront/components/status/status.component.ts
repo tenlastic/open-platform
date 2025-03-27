@@ -27,15 +27,20 @@ export class StatusComponent implements OnDestroy, OnInit {
         return () => this.updateService.requestAuthorization(this.namespaceId);
 
       case UpdateServiceState.NotInstalled:
-        return () => this.updateService.install(this.namespaceId);
+        return () => this.updateService.checkForUpdates(this.namespaceId, true, true);
 
       case UpdateServiceState.NotUpdated:
-        return () => this.updateService.update(this.namespaceId);
+        return () => this.updateService.checkForUpdates(this.namespaceId, true, true);
 
       case UpdateServiceState.Ready:
-        return this.isRunning
-          ? () => this.executableService.stop(this.namespaceId)
-          : () => this.executableService.start(this.status.build.entrypoint, this.namespaceId);
+        return async () => {
+          if (this.isRunning) {
+            this.executableService.stop(this.namespaceId);
+          } else {
+            await this.updateService.checkForUpdates(this.namespaceId, true, true);
+            await this.executableService.start(this.status.build.entrypoint, this.namespaceId);
+          }
+        };
 
       default:
         return null;
@@ -214,17 +219,6 @@ export class StatusComponent implements OnDestroy, OnInit {
     ]).pipe(map(([a, b]) => a || b));
   }
 
-  public async click() {
-    if (this.status.state === UpdateServiceState.Ready && this.isRunning) {
-      this.executableService.stop(this.namespaceId);
-    } else if (this.status.state === UpdateServiceState.Ready && !this.isRunning) {
-      await this.updateService.checkForUpdates(this.namespaceId, true, true);
-      this.executableService.start(this.status.build.entrypoint, this.namespaceId);
-    } else if (this.status.state === UpdateServiceState.NotInstalled) {
-      this.updateService.install(this.namespaceId);
-    }
-  }
-
   public delete() {
     return this.updateService.delete(this.namespaceId);
   }
@@ -234,6 +228,6 @@ export class StatusComponent implements OnDestroy, OnInit {
   }
 
   public sync() {
-    this.updateService.checkForUpdates(this.namespaceId, true);
+    this.updateService.checkForUpdates(this.namespaceId, true, false);
   }
 }

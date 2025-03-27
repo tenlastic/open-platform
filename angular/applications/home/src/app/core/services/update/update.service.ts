@@ -164,7 +164,7 @@ export class UpdateService {
       status.text = 'Checking local files...';
       const cachedFiles = useCache ? await this.getCachedFiles(namespaceId) : null;
       const localFiles = cachedFiles ? cachedFiles : await this.getLocalFiles(namespaceId);
-      if (localFiles.length === 0) {
+      if (!download && localFiles.length === 0) {
         status.modifiedFiles = status.build.files;
         status.state = UpdateServiceState.NotInstalled;
         return;
@@ -177,12 +177,19 @@ export class UpdateService {
 
       if (download && updatedFiles.length > 0) {
         status.modifiedFiles = updatedFiles;
+
+        // Delete files no longer listed in the Build.
+        status.progress = null;
+        status.text = 'Deleting deprecated files...';
+        await this.deleteRemovedFiles(localFiles, namespaceId, status.build.files);
+
+        // Download new files.
         status.progress = null;
         status.state = UpdateServiceState.Updating;
         status.text = 'Downloading and installing update...';
 
         try {
-          await this.download(status.build, namespaceId);
+          await this.download(status.build, localFiles, namespaceId);
         } catch (e) {
           console.error(e);
         }
@@ -229,25 +236,6 @@ export class UpdateService {
     return this.status.get(namespaceId);
   }
 
-  public async install(namespaceId: string) {
-    const status = this.getStatus(namespaceId);
-
-    status.modifiedFiles = status.build.files;
-    status.progress = null;
-    status.state = UpdateServiceState.Installing;
-    status.text = 'Downloading and installing...';
-
-    try {
-      await this.download(status.build, namespaceId);
-    } catch (e) {
-      console.error(e);
-    }
-
-    // Make sure download is complete.
-    status.state = UpdateServiceState.NotChecked;
-    await this.checkForUpdates(namespaceId, true, true);
-  }
-
   public async requestAuthorization(namespaceId: string) {
     const status = this.getStatus(namespaceId);
 
@@ -277,54 +265,39 @@ export class UpdateService {
     this.electronService.shell.openExternal(path);
   }
 
-  public async update(namespaceId: string) {
-    const { glob } = this.electronService;
-    const status = this.getStatus(namespaceId);
-
-    // Calculate local file checksums.
-    status.progress = null;
-    status.text = 'Checking local files...';
-    const localFiles = glob.sync(`${this.installPath}/${namespaceId}/**/*`, { nodir: true });
-
-    // Delete files no longer listed in the Build.
-    status.progress = null;
-    status.text = 'Deleting deprecated files...';
-    await this.deleteRemovedFiles(localFiles, namespaceId, status.build.files);
-
-    // Download new files.
-    status.progress = null;
-    status.state = UpdateServiceState.Updating;
-    status.text = 'Downloading and installing update...';
-
-    try {
-      await this.download(status.build, namespaceId);
-    } catch (e) {
-      console.error(e);
-    }
-
-    // Make sure download is complete.
-    status.state = UpdateServiceState.NotChecked;
-    await this.checkForUpdates(namespaceId, true, true);
-  }
-
   private async deleteRemovedFiles(
-    localFiles: string[],
+    localFiles: UpdateServiceLocalFile[],
     namespaceId: string,
     remoteFiles: IBuild.File[],
   ) {
     const { fs } = this.electronService;
 
-    for (const localFile of localFiles) {
-      const localPath = localFile.replace(`${this.installPath}/${namespaceId}/`, '');
+    for (let i = localFiles.length - 1; i >= 0; i--) {
+      const localFile = localFiles[i];
+
+      const localPath = localFile.path.replace(`${this.installPath}/${namespaceId}/`, '');
       const remotePaths = remoteFiles.map((rf) => rf.path);
 
-      if (!remotePaths.includes(localPath)) {
+      if (remotePaths.includes(localPath)) {
+        continue;
+      }
+
+      try {
         fs.unlinkSync(`${this.installPath}/${namespaceId}/${localPath}`);
+      } finally {
+        localFiles.pop();
       }
     }
+
+    fs.mkdirSync(this.installPath, { recursive: true });
+    fs.writeFileSync(`${this.installPath}/${namespaceId}.json`, JSON.stringify(localFiles));
   }
 
-  private async download(build: BuildModel, namespaceId: string) {
+  private async download(
+    build: BuildModel,
+    localFiles: UpdateServiceLocalFile[],
+    namespaceId: string,
+  ) {
     const status = this.getStatus(namespaceId);
 
     let downloadedBytes = 0;
@@ -338,7 +311,7 @@ export class UpdateService {
     const files = build.files.map((f) => (modifiedFilePaths.includes(f.path) ? 1 : 0));
     const { fs, request, unzipper } = this.electronService;
 
-    return new Promise(async (resolve, reject) => {
+    return new Promise<void>(async (resolve, reject) => {
       const accessToken = await this.tokenService.getAccessToken();
 
       const stream = request
@@ -363,7 +336,11 @@ export class UpdateService {
 
       stream
         .pipe(unzipper.Parse())
-        .on('close', resolve)
+        .on('close', () => {
+          fs.mkdirSync(this.installPath, { recursive: true });
+          fs.writeFileSync(`${this.installPath}/${namespaceId}.json`, JSON.stringify(localFiles));
+          return resolve();
+        })
         .on('entry', (entry) => {
           if (entry.type !== 'File') {
             entry.autodrain();
@@ -374,9 +351,23 @@ export class UpdateService {
           const targetDirectory = target.substr(0, target.lastIndexOf('/'));
           fs.mkdirSync(targetDirectory, { recursive: true });
 
+          entry.on('end', () => {
+            const file = build.files.find((f) => entry.path === f.path);
+            const index = localFiles.findIndex((lf) => lf.path === target);
+            const localFile = { md5: file.md5, path: target };
+
+            if (index >= 0) {
+              localFiles[index] = localFile;
+            } else {
+              localFiles.push(localFile);
+            }
+          });
+
           entry.pipe(fs.createWriteStream(target));
         })
         .on('error', (err) => {
+          fs.mkdirSync(this.installPath, { recursive: true });
+          fs.writeFileSync(`${this.installPath}/${namespaceId}.json`, JSON.stringify(localFiles));
           stream.abort(err);
           return reject(err);
         });
@@ -392,7 +383,7 @@ export class UpdateService {
     }
 
     const file = fs.readFileSync(`${this.installPath}/${namespaceId}.json`, 'utf8');
-    return JSON.parse(file);
+    return JSON.parse(file) as UpdateServiceLocalFile[];
   }
 
   private async getLocalFiles(namespaceId: string) {
@@ -401,7 +392,7 @@ export class UpdateService {
 
     const files = glob.sync(`${this.installPath}/${namespaceId}/**/*`, { nodir: true });
 
-    const localFiles: { md5: string; path: string }[] = [];
+    const localFiles: UpdateServiceLocalFile[] = [];
     for (let i = 0; i < files.length; i++) {
       status.progress = { current: i, total: files.length };
 
@@ -413,7 +404,7 @@ export class UpdateService {
 
         stream.on('end', () => {
           hash.end();
-          return resolve(hash.read() as string);
+          return resolve(hash.read());
         });
 
         stream.pipe(hash);
@@ -458,6 +449,10 @@ export class UpdateService {
   }
 
   private onBuildChange(record: BuildModel) {
+    if (record.platform !== this.platform) {
+      return;
+    }
+
     this.checkForUpdates(record.namespaceId, false, true);
   }
 

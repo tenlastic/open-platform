@@ -18,20 +18,21 @@
     </app-button>
 
     <ng-container *ngIf="user">
+      <app-button *ngIf="($storefronts | async)?.length > 0"
+                  color="accent"
+                  [routerLink]="['/store']"
+                  routerLinkActive="active"
+                  [routerLinkActiveOptions]="{ exact: isElectron }">
+        <mat-icon>sports_esports</mat-icon>
+        <div>Games</div>
+      </app-button>
+
       <app-button *ngIf="!isElectron && (($authorization | async) || ($namespaces | async)?.length > 0)"
                   color="accent"
                   routerLink="/management-portal"
                   routerLinkActive="active">
         <mat-icon>admin_panel_settings</mat-icon>
         <div>Management Portal</div>
-      </app-button>
-
-      <app-button *ngIf="($storefronts | async)?.length > 0"
-                  color="accent"
-                  [routerLink]="['/store']"
-                  routerLinkActive="active">
-        <mat-icon>sports_esports</mat-icon>
-        <div>Store</div>
       </app-button>
 
       <app-button color="accent"
