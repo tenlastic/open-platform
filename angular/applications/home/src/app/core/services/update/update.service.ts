@@ -292,7 +292,7 @@ export class UpdateService {
       } catch (e) {
         console.error(e);
       } finally {
-        localFiles.pop();
+        localFiles.splice(i, 1);
       }
     }
 
