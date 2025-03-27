@@ -90,7 +90,12 @@ export class UpdateService {
     this.subscribeToServices();
   }
 
-  public async checkForUpdates(namespaceId: string, download = false, useCache = false) {
+  public async checkForUpdates(
+    namespaceId: string,
+    download: boolean,
+    install: boolean,
+    useCache: boolean,
+  ) {
     const status = this.getStatus(namespaceId);
 
     if (
@@ -164,7 +169,7 @@ export class UpdateService {
       status.text = 'Checking local files...';
       const cachedFiles = useCache ? await this.getCachedFiles(namespaceId) : null;
       const localFiles = cachedFiles ? cachedFiles : await this.getLocalFiles(namespaceId);
-      if (!download && localFiles.length === 0) {
+      if (!install && localFiles.length === 0) {
         status.modifiedFiles = status.build.files;
         status.state = UpdateServiceState.NotInstalled;
         return;
@@ -196,7 +201,7 @@ export class UpdateService {
 
         // Make sure download is complete.
         status.state = UpdateServiceState.NotChecked;
-        await this.checkForUpdates(namespaceId, true, true);
+        await this.checkForUpdates(namespaceId, true, true, true);
       } else if (!download && updatedFiles.length > 0) {
         status.modifiedFiles = updatedFiles;
         status.progress = null;
@@ -445,7 +450,7 @@ export class UpdateService {
       return;
     }
 
-    this.checkForUpdates(record.namespaceId, false, true);
+    this.checkForUpdates(record.namespaceId, false, false, true);
   }
 
   private onBuildChange(record: BuildModel) {
@@ -453,11 +458,11 @@ export class UpdateService {
       return;
     }
 
-    this.checkForUpdates(record.namespaceId, false, true);
+    this.checkForUpdates(record.namespaceId, false, false, true);
   }
 
   private onStorefrontChange(record: StorefrontModel) {
-    this.checkForUpdates(record.namespaceId, false, true);
+    this.checkForUpdates(record.namespaceId, false, false, true);
   }
 
   private subscribeToServices() {

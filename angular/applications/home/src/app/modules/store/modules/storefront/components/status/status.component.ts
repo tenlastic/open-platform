@@ -27,17 +27,17 @@ export class StatusComponent implements OnDestroy, OnInit {
         return () => this.updateService.requestAuthorization(this.namespaceId);
 
       case UpdateServiceState.NotInstalled:
-        return () => this.updateService.checkForUpdates(this.namespaceId, true, true);
+        return () => this.updateService.checkForUpdates(this.namespaceId, true, true, true);
 
       case UpdateServiceState.NotUpdated:
-        return () => this.updateService.checkForUpdates(this.namespaceId, true, true);
+        return () => this.updateService.checkForUpdates(this.namespaceId, true, true, true);
 
       case UpdateServiceState.Ready:
         return async () => {
           if (this.isRunning) {
             this.executableService.stop(this.namespaceId);
           } else {
-            await this.updateService.checkForUpdates(this.namespaceId, true, true);
+            await this.updateService.checkForUpdates(this.namespaceId, true, true, true);
             await this.executableService.start(this.status.build.entrypoint, this.namespaceId);
           }
         };
@@ -195,7 +195,7 @@ export class StatusComponent implements OnDestroy, OnInit {
       this.params = params;
 
       this.status = this.updateService.getStatus(this.namespaceId);
-      this.updateService.checkForUpdates(this.namespaceId, true, true);
+      this.updateService.checkForUpdates(this.namespaceId, true, false, true);
 
       const $storefront = this.storefrontQuery.selectEntity(this.namespaceId);
       this.$showGameServers = $storefront.pipe(map((s) => s?.showGameServers));
@@ -228,6 +228,6 @@ export class StatusComponent implements OnDestroy, OnInit {
   }
 
   public sync() {
-    this.updateService.checkForUpdates(this.namespaceId, true, false);
+    this.updateService.checkForUpdates(this.namespaceId, true, true, false);
   }
 }

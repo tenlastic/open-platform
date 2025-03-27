@@ -129,7 +129,7 @@ export class DownloadComponent implements OnInit {
       this.namespaceId = params.namespaceId;
 
       this.status = this.updateService.getStatus(this.namespaceId);
-      this.updateService.checkForUpdates(this.namespaceId, false, true);
+      this.updateService.checkForUpdates(this.namespaceId, false, false, true);
     });
   }
 
