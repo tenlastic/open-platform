@@ -289,6 +289,8 @@ export class UpdateService {
 
       try {
         fs.unlinkSync(`${this.installPath}/${namespaceId}/${localPath}`);
+      } catch (e) {
+        console.error(e);
       } finally {
         localFiles.pop();
       }
