@@ -6,8 +6,6 @@ import dependencies from '../../dependencies';
 import * as helpers from '../helpers';
 import { expect } from 'chai';
 
-const wssUrl = process.env.E2E_WSS_URL;
-
 const chance = new Chance();
 
 describe('/nodejs/namespace/groups', function () {
@@ -54,30 +52,25 @@ describe('/nodejs/namespace/groups', function () {
       userId: secondUser._id,
     });
 
-    // Create the Web Socket connections.
-    firstWebSocket = await helpers.createWebSocket(
-      password,
-      firstUser,
-      `${wssUrl}/namespaces/${_id}`,
-    );
-    secondWebSocket = await helpers.createWebSocket(
-      password,
-      secondUser,
-      `${wssUrl}/namespaces/${_id}`,
-    );
-
     // Create the Group.
-    let group = await dependencies.groupService.create(firstWebSocket);
-    expect(group.members.length).to.eql(1);
+    let group = await helpers.impersonate(password, firstUser, () => {
+      return dependencies.groupService.create(_id);
+    });
+    expect(group.userId).to.eql(firstUser._id);
+    expect(group.userIds.length).to.eql(1);
 
     // Create the Group Invitation.
-    await dependencies.groupInvitationService.create(_id, {
-      groupId: group._id,
-      toUserId: secondUser._id,
+    await helpers.impersonate(password, firstUser, () => {
+      return dependencies.groupInvitationService.create(_id, {
+        groupId: group._id,
+        toUserId: secondUser._id,
+      });
     });
 
     // Join the Group.
-    group = await dependencies.groupService.addMember(group._id, secondWebSocket);
-    expect(group.members.length).to.eql(2);
+    group = await helpers.impersonate(password, secondUser, () => {
+      return dependencies.groupService.join(_id, group._id);
+    });
+    expect(group.userIds.length).to.eql(2);
   });
 });

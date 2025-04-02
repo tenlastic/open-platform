@@ -353,14 +353,13 @@ const services: Provider[] = [
     ) => new GroupInvitationService(apiService, environmentService, store),
   },
   {
-    deps: [ApiService, EnvironmentService, GroupStore, WebSocketService],
+    deps: [ApiService, EnvironmentService, GroupStore],
     provide: GroupService,
     useFactory: (
       apiService: ApiService,
       environmentService: EnvironmentService,
       store: GroupStore,
-      webSocketService: WebSocketService,
-    ) => new GroupService(apiService, environmentService, store, webSocketService),
+    ) => new GroupService(apiService, environmentService, store),
   },
   {
     deps: [ApiService, EnvironmentService],
@@ -414,14 +413,13 @@ const services: Provider[] = [
     ) => new QueueLogService(apiService, environmentService, store),
   },
   {
-    deps: [ApiService, EnvironmentService, QueueMemberStore, WebSocketService],
+    deps: [ApiService, EnvironmentService, QueueMemberStore],
     provide: QueueMemberService,
     useFactory: (
       apiService: ApiService,
       environmentService: EnvironmentService,
       store: QueueMemberStore,
-      webSocketService: WebSocketService,
-    ) => new QueueMemberService(apiService, environmentService, store, webSocketService),
+    ) => new QueueMemberService(apiService, environmentService, store),
   },
   {
     deps: [ApiService, EnvironmentService, QueueStore],

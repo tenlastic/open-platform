@@ -1,23 +1,8 @@
 import { GroupModel } from '../models/group';
 import { GroupStore } from '../states/group';
-import {
-  WebSocket,
-  WebSocketMethod,
-  WebSocketRequest,
-  WebSocketResponse,
-  WebSocketResponseError,
-} from '../web-socket';
 import { ApiService } from './api';
 import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
-import { WebSocketService } from './web-socket';
-
-interface GroupResponse extends WebSocketResponse {
-  body: {
-    errors?: WebSocketResponseError[];
-    record: Partial<GroupModel>;
-  };
-}
 
 export class GroupService {
   public get emitter() {
@@ -30,26 +15,8 @@ export class GroupService {
     private apiService: ApiService,
     private environmentService: EnvironmentService,
     private groupStore: GroupStore,
-    private webSocketService: WebSocketService,
   ) {
     this.baseService = new BaseService<GroupModel>(this.apiService, GroupModel, this.groupStore);
-  }
-
-  /**
-   * Adds a Group Member to a Group.
-   */
-  public async addMember(_id: string, webSocket: WebSocket): Promise<GroupModel> {
-    const request: WebSocketRequest = {
-      method: WebSocketMethod.Post,
-      path: `/groups/${_id}/members`,
-    };
-    const response = await this.webSocketService.request<GroupResponse>(request, webSocket);
-
-    const record = new GroupModel(response.body.record);
-    this.emitter.emit('update', record);
-    this.groupStore.upsertMany([record]);
-
-    return record;
   }
 
   /**
@@ -63,18 +30,9 @@ export class GroupService {
   /**
    * Creates a Record.
    */
-  public async create(webSocket: WebSocket) {
-    const request: WebSocketRequest = {
-      method: WebSocketMethod.Post,
-      path: '/groups',
-    };
-    const response = await this.webSocketService.request<GroupResponse>(request, webSocket);
-
-    const record = new GroupModel(response.body.record);
-    this.emitter.emit('create', record);
-    this.groupStore.upsertMany([record]);
-
-    return record;
+  public async create(namespaceId: string) {
+    const url = this.getUrl(namespaceId);
+    return this.baseService.create(null, url);
   }
 
   /**
@@ -102,22 +60,35 @@ export class GroupService {
   }
 
   /**
-   * Removes a Group Member from a Group.
+   * Joins a Group.
    */
-  public async removeMember(
-    namespaceId: string,
-    groupId: string,
-    _id: string,
-  ): Promise<GroupModel> {
+  public async join(namespaceId: string, _id: string) {
     const url = this.getUrl(namespaceId);
     const response = await this.apiService.request({
-      method: 'delete',
-      url: `${url}/${groupId}/members/${_id}`,
+      method: 'post',
+      url: `${url}/${_id}/user-ids`,
     });
 
     const record = new GroupModel(response.data.record);
     this.emitter.emit('update', record);
-    this.groupStore.upsert(groupId, record);
+    this.groupStore.upsertMany([record]);
+
+    return record;
+  }
+
+  /**
+   * Leaves a Group.
+   */
+  public async leave(namespaceId: string, groupId: string, _id: string) {
+    const url = this.getUrl(namespaceId);
+    const response = await this.apiService.request({
+      method: 'delete',
+      url: `${url}/${groupId}/user-ids/${_id}`,
+    });
+
+    const record = new GroupModel(response.data.record);
+    this.emitter.emit('update', record);
+    this.groupStore.upsertMany([record]);
 
     return record;
   }

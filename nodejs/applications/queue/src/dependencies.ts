@@ -72,14 +72,13 @@ injector.inject([
     useFactory: (queueMemberStore: QueueMemberStore) => new QueueMemberQuery(queueMemberStore),
   },
   {
-    deps: [ApiService, EnvironmentService, QueueMemberStore, WebSocketService],
+    deps: [ApiService, EnvironmentService, QueueMemberStore],
     provide: QueueMemberService,
     useFactory: (
       apiService: ApiService,
       environmentService: EnvironmentService,
       queueMemberStore: QueueMemberStore,
-      webSocketService: WebSocketService,
-    ) => new QueueMemberService(apiService, environmentService, queueMemberStore, webSocketService),
+    ) => new QueueMemberService(apiService, environmentService, queueMemberStore),
   },
   { provide: QueueMemberStore, useValue: new QueueMemberStore() },
   {

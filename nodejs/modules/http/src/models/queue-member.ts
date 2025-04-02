@@ -15,7 +15,6 @@ export class QueueMemberModel extends BaseModel {
   public team: IQueueMember.Team;
   public userId: string;
   public userIds: string[];
-  public webSocketId: string;
 
   constructor(parameters?: Partial<QueueMemberModel>) {
     super(parameters);

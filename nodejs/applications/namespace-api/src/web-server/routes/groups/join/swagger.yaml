@@ -1,11 +1,22 @@
 paths:
-  /groups/{_id}/members:
+  /namespaces/{namespaceId}/groups/{_id}/user-ids:
     post:
-      summary: Add Group Member
+      summary: Join
       tags: [Groups]
-      description: Adds a Group Member to a Group.
+      description: Adds the current User to the Group.
       security:
         - AccessToken: []
+      parameters:
+        - in: path
+          name: _id
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: namespaceId
+          schema:
+            type: string
+          required: true
       requestBody:
         content:
           application/json:

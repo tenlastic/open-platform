@@ -105,3 +105,24 @@ export async function deleteUser(username: string) {
 
   return dependencies.userService.delete(users[0]._id);
 }
+
+export async function impersonate<T>(
+  password: string,
+  user: UserModel,
+  callback: () => Promise<T>,
+): Promise<T> {
+  try {
+    // Log in with the new User.
+    const credentials = await dependencies.loginService.createWithCredentials(
+      user.username,
+      password,
+    );
+    dependencies.tokenService.setAccessToken(credentials.accessToken);
+
+    // Connect to the web socket server.
+    return await callback();
+  } finally {
+    // Restore original access token.
+    dependencies.tokenService.setAccessToken(administratorAccessToken);
+  }
+}

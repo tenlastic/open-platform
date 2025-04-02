@@ -9,15 +9,12 @@ import {
   GroupInvitationService,
   GroupQuery,
   GroupService,
-  UserService,
   UserQuery,
-  IGroup,
-  WebSocketService,
+  UserService,
 } from '@tenlastic/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { environment } from '../../../../../../../environments/environment';
 import { ElectronService, IdentityService } from '../../../../../../core/services';
 import { InputDialogComponent } from '../../../../../../shared/components/input-dialog/input-dialog.component';
 
@@ -29,8 +26,8 @@ import { InputDialogComponent } from '../../../../../../shared/components/input-
 export class SocialComponent implements OnInit {
   public $group: Observable<GroupModel>;
   public $groupInvitations: Observable<GroupInvitationModel[]>;
-  public get $members() {
-    return this.$group.pipe(map((group) => group?.members));
+  public get $userIds() {
+    return this.$group.pipe(map((group) => group?.userIds));
   }
   public get isElectron() {
     return this.electronService.isElectron;
@@ -43,10 +40,6 @@ export class SocialComponent implements OnInit {
     return this.params.namespaceId;
   }
   private params: Params;
-  private get webSocket() {
-    const url = `${environment.wssUrl}/namespaces/${this.namespaceId}`;
-    return this.webSocketService.webSockets.find((ws) => url === ws.url);
-  }
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -59,7 +52,6 @@ export class SocialComponent implements OnInit {
     private matDialog: MatDialog,
     private userQuery: UserQuery,
     private userService: UserService,
-    private webSocketService: WebSocketService,
   ) {}
 
   public ngOnInit() {
@@ -75,7 +67,7 @@ export class SocialComponent implements OnInit {
       this.$group = this.groupQuery
         .selectAll({
           filterBy: (g) =>
-            g.members?.some((m) => m.userId === userId) && g.namespaceId === this.namespaceId,
+            g.namespaceId === this.namespaceId && g.userIds?.some((ui) => ui === userId),
         })
         .pipe(map((groups) => groups[0]));
       this.$groupInvitations = this.groupInvitationQuery.selectAll({
@@ -99,11 +91,11 @@ export class SocialComponent implements OnInit {
   }
 
   public isLeader(group: GroupModel, userId: string) {
-    return group.members[0].userId === userId;
+    return group.userIds[0] === userId;
   }
 
   public async createGroup() {
-    await this.groupService.create(this.webSocket);
+    await this.groupService.create(this.namespaceId);
   }
 
   public createGroupInvitation(group: GroupModel) {
@@ -146,13 +138,13 @@ export class SocialComponent implements OnInit {
     await this.groupService.delete(this.namespaceId, group._id);
   }
 
-  public async removeMember(group: GroupModel, member: IGroup.Member) {
-    if (!this.isLeader(group, this.user._id) && member.userId !== this.user._id) {
+  public async leave(group: GroupModel, userId: string) {
+    if (!this.isLeader(group, this.user._id) && this.user._id !== userId) {
       return;
     }
 
-    member ||= group.members.find((m) => m.userId === this.user._id);
-    await this.groupService.removeMember(this.namespaceId, group._id, member._id);
+    userId ||= group.userIds.find((ui) => this.user._id === ui);
+    await this.groupService.leave(this.namespaceId, group._id, userId);
   }
 
   private async autocomplete(value: string) {

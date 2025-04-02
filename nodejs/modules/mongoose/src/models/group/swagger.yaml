@@ -9,17 +9,19 @@ components:
         createdAt:
           type: string
           format: date-time
-        members:
-          type: array
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/GroupMember'
         namespaceId:
           type: string
           format: ^[0-9a-f]{24}$
         updatedAt:
           type: string
           format: date-time
+        userId:
+          type: string
+          format: ^[0-9a-f]{24}$
+        userIds:
+          type: array
+          items:
+            type: string
+            format: ^[0-9a-f]{24}$
       required:
         - namespaceId

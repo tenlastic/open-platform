@@ -48,7 +48,6 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
         'updatedAt',
         'userId',
         'userIds',
-        'webSocketId',
       ],
       'system-read': [
         '_id',
@@ -60,18 +59,17 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
         'updatedAt',
         'userId',
         'userIds',
-        'webSocketId',
       ],
     },
     roles: {
       default: {},
       'group-leader': {
         ...AuthorizationPermissionsHelpers.getNamespaceRoleQuery([AuthorizationRole.QueuesPlay]),
-        'record.groupDocument.members.0.userId': { $ref: 'user._id' },
+        'record.groupDocument.userId': { $ref: 'user._id' },
       },
       'group-member': {
         ...AuthorizationPermissionsHelpers.getNamespaceRoleQuery([AuthorizationRole.QueuesPlay]),
-        'record.groupDocument.members.userId': { $ref: 'user._id' },
+        'record.groupDocument.userIds': { $ref: 'user._id' },
       },
       'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
         AuthorizationRole.QueuesRead,

@@ -42,7 +42,6 @@ export class QueueMemberMatchError extends Error {
 }
 
 @index({ namespaceId: 1, queueId: 1, userIds: 1 }, { unique: true })
-@index({ webSocketId: 1 })
 @modelOptions({ schemaOptions: { collection: 'queue-members', timestamps: true } })
 @plugin(duplicateKeyErrorPlugin)
 @plugin(unsetPlugin)
@@ -95,9 +94,6 @@ export class QueueMemberSchema {
   @prop({ ref: 'UserSchema', type: mongoose.Schema.Types.ObjectId }, PropType.ARRAY)
   public userIds: mongoose.Types.ObjectId[];
 
-  @prop({ ref: 'WebSocketSchema', required: true, type: mongoose.Schema.Types.ObjectId })
-  public webSocketId: mongoose.Types.ObjectId;
-
   @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
   public authorizationDocuments: AuthorizationDocument[];
 
@@ -128,7 +124,6 @@ export class QueueMemberSchema {
       namespaceId: new mongoose.Types.ObjectId(),
       queueId: new mongoose.Types.ObjectId(),
       userId: new mongoose.Types.ObjectId(),
-      webSocketId: new mongoose.Types.ObjectId(),
     };
 
     return new this({ ...defaults, ...values });
@@ -217,7 +212,7 @@ export class QueueMemberSchema {
         await this.populate('groupDocument');
       }
 
-      this.userIds = this.groupDocument?.members.map((m) => m.userId).sort() ?? [];
+      this.userIds = this.groupDocument?.userIds ?? [];
     } else {
       this.userIds = [this.userId];
     }

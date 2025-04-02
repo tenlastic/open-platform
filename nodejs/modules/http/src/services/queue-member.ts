@@ -1,23 +1,8 @@
 import { QueueMemberModel } from '../models/queue-member';
 import { QueueMemberStore } from '../states/queue-member';
-import {
-  WebSocket,
-  WebSocketMethod,
-  WebSocketRequest,
-  WebSocketResponse,
-  WebSocketResponseError,
-} from '../web-socket';
 import { ApiService } from './api';
 import { BaseService, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
-import { WebSocketService } from './web-socket';
-
-interface QueueMemberResponse extends WebSocketResponse {
-  body: {
-    errors?: WebSocketResponseError[];
-    record: Partial<QueueMemberModel>;
-  };
-}
 
 export class QueueMemberService {
   public get emitter() {
@@ -30,7 +15,6 @@ export class QueueMemberService {
     private apiService: ApiService,
     private environmentService: EnvironmentService,
     private queueMemberStore: QueueMemberStore,
-    private webSocketService: WebSocketService,
   ) {
     this.baseService = new BaseService<QueueMemberModel>(
       this.apiService,
@@ -50,19 +34,9 @@ export class QueueMemberService {
   /**
    * Creates a Record.
    */
-  public async create(json: Partial<QueueMemberModel>, webSocket: WebSocket) {
-    const request: WebSocketRequest = {
-      body: json,
-      method: WebSocketMethod.Post,
-      path: '/queue-members',
-    };
-    const response = await this.webSocketService.request<QueueMemberResponse>(request, webSocket);
-
-    const record = new QueueMemberModel(response.body.record);
-    this.emitter.emit('create', record);
-    this.queueMemberStore.upsertMany([record]);
-
-    return record;
+  public async create(namespaceId: string, json: Partial<QueueMemberModel>) {
+    const url = this.getUrl(namespaceId);
+    return this.baseService.create(json, url);
   }
 
   /**

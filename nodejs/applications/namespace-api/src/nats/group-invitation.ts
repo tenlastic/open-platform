@@ -6,7 +6,7 @@ GroupEvent.async(async (payload) => {
   if (payload.operationType === 'delete') {
     return GroupInvitationModel.deleteMany({ groupId: payload.fullDocument._id });
   } else {
-    const userIds = payload.fullDocument.members.map((m) => m.userId);
+    const userIds = payload.fullDocument.userIds;
     return GroupInvitationModel.deleteMany({ toUserId: { $in: userIds } });
   }
 });

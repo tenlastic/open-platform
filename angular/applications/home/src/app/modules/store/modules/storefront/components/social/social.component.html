@@ -26,26 +26,26 @@
 
       <div>
         <div>Group</div>
-        <div>{{ group.members.length }} {{ group.members.length > 1 ? 'Members' : 'Member' }}</div>
+        <div>{{ group.userIds.length }} {{ group.userIds.length > 1 ? 'Members' : 'Member' }}</div>
       </div>
     </app-button>
 
-    <app-button *ngFor="let member of $members | async"
+    <app-button *ngFor="let userId of $userIds | async"
                 color="accent"
                 layout="vertical"
-                [matTooltip]="isLeader(group, user._id) || member.userId === user._id ? 'Remove from Group' : null"
+                [matTooltip]="isLeader(group, user._id) || user._id === userId ? 'Remove from Group' : null"
                 matTooltipPosition="left"
                 text="left"
                 width="full"
-                (OnClick)="removeMember(group, member)">
-      <mat-icon>{{ isLeader(group, user._id) || member.userId === user._id ? 'remove' : 'person' }}</mat-icon>
+                (OnClick)="leave(group, userId)">
+      <mat-icon>{{ isLeader(group, user._id) || user._id === userId ? 'remove' : 'person' }}</mat-icon>
 
       <div class="label">
-        <div>{{ getUser(member.userId).displayName }}</div>
+        <div>{{ getUser(userId).displayName }}</div>
       </div>
     </app-button>
 
-    <app-button *ngIf="group.members.length < 5 && isLeader(group, user._id)"
+    <app-button *ngIf="group.userIds.length < 5 && isLeader(group, user._id)"
                 color="accent"
                 layout="vertical"
                 text="left"

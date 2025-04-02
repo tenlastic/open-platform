@@ -1,9 +1,9 @@
 paths:
-  /namespaces/{namespaceId}/groups/{groupId}/members/{_id}:
+  /namespaces/{namespaceId}/groups/{groupId}/user-ids/{_id}:
     delete:
-      summary: Remove Group Member
+      summary: Leave
       tags: [Groups]
-      description: Removes a Group Member from the Group.
+      description: Removes the User from the Group.
       security:
         - AccessToken: []
       parameters:

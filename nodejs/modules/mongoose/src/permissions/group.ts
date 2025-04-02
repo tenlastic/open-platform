@@ -5,13 +5,13 @@ import { AuthorizationPermissionsHelpers } from './authorization';
 
 export const GroupPermissions = new MongoosePermissions<GroupDocument>(GroupModel, {
   create: {
+    'group-leader': ['namespaceId'],
     'namespace-write': ['namespaceId'],
-    leader: ['namespaceId'],
     'user-write': ['namespaceId'],
   },
   delete: {
+    'group-leader': true,
     'namespace-write': true,
-    leader: true,
     'user-write': true,
   },
   find: {
@@ -23,13 +23,13 @@ export const GroupPermissions = new MongoosePermissions<GroupDocument>(GroupMode
   },
   populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
   read: {
-    default: ['_id', 'createdAt', 'members.*', 'namespaceId', 'updatedAt'],
+    default: ['_id', 'createdAt', 'namespaceId', 'updatedAt', 'userId', 'userIds'],
   },
   roles: {
     default: {},
-    leader: {
+    'group-leader': {
       ...AuthorizationPermissionsHelpers.getNamespaceRoleQuery([AuthorizationRole.GroupsPlay]),
-      'record.members.0.userId': { $ref: 'user._id' },
+      'record.userId': { $ref: 'user._id' },
     },
     'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
       AuthorizationRole.GroupsRead,
@@ -39,5 +39,8 @@ export const GroupPermissions = new MongoosePermissions<GroupDocument>(GroupMode
     ]),
     'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([AuthorizationRole.GroupsRead]),
     'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([AuthorizationRole.GroupsWrite]),
+  },
+  update: {
+    'group-leader': ['userId'],
   },
 });

@@ -11,13 +11,10 @@ import {
   QueueMemberService,
   QueueQuery,
   QueueService,
-  SubscriptionService,
-  WebSocketService,
 } from '@tenlastic/http';
 import { Observable, Subscription, combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 
-import { environment } from '../../../../../../../environments/environment';
 import { IdentityService } from '../../../../../../core/services';
 
 @Component({
@@ -34,11 +31,6 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
 
   private getCurrentUsersInterval: any;
   private params: Params;
-  private subscription: string;
-  private get webSocket() {
-    const url = `${environment.wssUrl}/namespaces/${this.params.namespaceId}`;
-    return this.webSocketService.webSockets.find((ws) => url === ws.url);
-  }
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -49,8 +41,6 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
     private queueMemberService: QueueMemberService,
     private queueQuery: QueueQuery,
     private queueService: QueueService,
-    private subscriptionService: SubscriptionService,
-    private webSocketService: WebSocketService,
   ) {}
 
   public async ngOnInit() {
@@ -59,7 +49,7 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
 
       this.$group = this.groupQuery
         .selectAll({
-          filterBy: (g) => g.members?.some((m) => m.userId === this.identityService.user._id),
+          filterBy: (g) => g.userIds?.some((ui) => this.identityService.user._id === ui),
         })
         .pipe(map((groups) => groups[0]));
       this.$queueMembers = this.queueMemberQuery.selectAll({
@@ -98,7 +88,6 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
   public async ngOnDestroy() {
     clearInterval(this.getCurrentUsersInterval);
     this.updateQueueMembers$.unsubscribe();
-    await this.subscriptionService.unsubscribe(this.subscription, this.webSocket);
   }
 
   public $getGroup(queue: QueueModel) {
@@ -137,24 +126,22 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
   }
 
   public $isGroupLeader() {
-    return this.$group.pipe(
-      map((group) => group?.members[0]?.userId === this.identityService.user._id),
-    );
+    return this.$group.pipe(map((group) => group?.userIds[0] === this.identityService.user._id));
   }
 
   public $isGroupSmallEnough(queue: QueueModel) {
     const usersPerTeam = queue.thresholds.map((t) => t.usersPerTeam).flat();
     const max = usersPerTeam.length > 0 ? Math.max(...usersPerTeam) : 0;
 
-    return this.$group.pipe(map((g) => g?.members.length <= max));
+    return this.$group.pipe(map((g) => g?.userIds.length <= max));
   }
 
   public async join(group: GroupModel, queue: QueueModel) {
     try {
-      await this.queueMemberService.create(
-        { groupId: group?._id, queueId: queue._id },
-        this.webSocket,
-      );
+      await this.queueMemberService.create(this.params.namespaceId, {
+        groupId: group?._id,
+        queueId: queue._id,
+      });
     } catch (e) {
       if (e instanceof HttpErrorResponse) {
         if (e.error.errors[0].name === 'QueueMemberAuthorizationError') {

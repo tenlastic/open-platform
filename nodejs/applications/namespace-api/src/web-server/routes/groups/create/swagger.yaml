@@ -1,11 +1,17 @@
 paths:
-  /groups:
+  /namespaces/{namespaceId}/groups:
     post:
       summary: Create
       tags: [Groups]
       description: Creates a new record.
       security:
         - AccessToken: []
+      parameters:
+        - in: path
+          name: namespaceId
+          schema:
+            type: string
+          required: true
       requestBody:
         content:
           application/json:

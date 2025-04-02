@@ -149,14 +149,13 @@ const services: injector.Injection[] = [
     ) => new GroupInvitationService(apiService, environmentService, groupInvitationStore),
   },
   {
-    deps: [ApiService, EnvironmentService, GroupStore, WebSocketService],
+    deps: [ApiService, EnvironmentService, GroupStore],
     provide: GroupService,
     useFactory: (
       apiService: ApiService,
       environmentService: EnvironmentService,
       groupStore: GroupStore,
-      webSocketService: WebSocketService,
-    ) => new GroupService(apiService, environmentService, groupStore, webSocketService),
+    ) => new GroupService(apiService, environmentService, groupStore),
   },
   {
     deps: [ApiService, EnvironmentService],
@@ -198,14 +197,13 @@ const services: injector.Injection[] = [
     ) => new QueueLogService(apiService, environmentService, queueLogStore),
   },
   {
-    deps: [ApiService, EnvironmentService, QueueMemberStore, WebSocketService],
+    deps: [ApiService, EnvironmentService, QueueMemberStore],
     provide: QueueMemberService,
     useFactory: (
       apiService: ApiService,
       environmentService: EnvironmentService,
       queueMemberStore: QueueMemberStore,
-      webSocketService: WebSocketService,
-    ) => new QueueMemberService(apiService, environmentService, queueMemberStore, webSocketService),
+    ) => new QueueMemberService(apiService, environmentService, queueMemberStore),
   },
   {
     deps: [ApiService, EnvironmentService, QueueStore],

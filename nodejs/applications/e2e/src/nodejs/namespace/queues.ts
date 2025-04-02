@@ -7,14 +7,11 @@ import * as fs from 'fs';
 import dependencies from '../../dependencies';
 import * as helpers from '../helpers';
 
-const wssUrl = process.env.E2E_WSS_URL;
-
 const chance = new Chance();
 
 describe('/nodejs/namespace/queues', function () {
   let namespace: string;
   let username: string;
-  let webSocket: WebSocket;
 
   beforeEach(function () {
     namespace = `NodeJS - Queues (${chance.hash({ length: 16 })})`;
@@ -22,8 +19,6 @@ describe('/nodejs/namespace/queues', function () {
   });
 
   afterEach(async function () {
-    dependencies.webSocketService.close(webSocket);
-
     await wait(1 * 1000, 15 * 1000, () => helpers.deleteNamespace(namespace));
     await wait(1 * 1000, 15 * 1000, () => helpers.deleteUser(username));
   });
@@ -82,14 +77,10 @@ describe('/nodejs/namespace/queues', function () {
       userId: user._id,
     });
 
-    // Create a Web Socket connection.
-    webSocket = await helpers.createWebSocket(password, user, `${wssUrl}/namespaces/${_id}`);
-
     // Join the Queue.
-    let queueMember = await dependencies.queueMemberService.create(
-      { queueId: queue._id, userId: user._id },
-      webSocket,
-    );
+    let queueMember = await helpers.impersonate(password, user, () => {
+      return dependencies.queueMemberService.create(_id, { queueId: queue._id, userId: user._id });
+    });
 
     // Make sure we have a Team ID.
     expect(queueMember.team?.rating).to.eql(1500);
@@ -125,18 +116,18 @@ describe('/nodejs/namespace/queues', function () {
     });
 
     // Join the Queue.
-    queueMember = await dependencies.queueMemberService.create(
-      { queueId: queue._id, userId: user._id },
-      webSocket,
-    );
+    queueMember = await helpers.impersonate(password, user, () => {
+      return dependencies.queueMemberService.create(_id, { queueId: queue._id, userId: user._id });
+    });
 
     // Make sure we have the same Team.
     expect(queueMember.team?.rating).to.eql(1500);
     expect(queueMember.team?.teamId).to.eql(team._id);
 
-    // Close the Web Socket, and wait for asynchronous Queue Member deletion.
-    dependencies.webSocketService.close(webSocket);
-    await new Promise((resolve) => setTimeout(resolve, 5 * 1000));
+    // Delete the Queue Member.
+    await helpers.impersonate(password, user, () => {
+      return dependencies.queueMemberService.delete(_id, queueMember._id);
+    });
 
     // Make sure the Queue Members are deleted.
     queueMembers = await dependencies.queueMemberService.find(_id, { where });

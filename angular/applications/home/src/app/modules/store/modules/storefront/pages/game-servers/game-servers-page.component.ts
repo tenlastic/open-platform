@@ -53,7 +53,7 @@ export class GameServersPageComponent implements OnInit {
       });
       this.$group = this.groupQuery
         .selectAll({
-          filterBy: (g) => g.members?.some((m) => m.userId === this.identityService.user._id),
+          filterBy: (g) => g.userIds?.some((ui) => this.identityService.user._id === ui),
         })
         .pipe(map((groups) => groups[0]));
 

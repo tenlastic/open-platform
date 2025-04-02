@@ -2,17 +2,15 @@ import {
   AuthorizationModel,
   AuthorizationRole,
   BuildModel,
+  GameServerTemplateModel,
   GroupModel,
   NamespaceDocument,
   NamespaceModel,
-  QueueModel,
   QueueMemberModel,
+  QueueModel,
+  QueueThresholdModel,
   UserDocument,
   UserModel,
-  WebSocketModel,
-  GameServerTemplateModel,
-  GroupMemberModel,
-  QueueThresholdModel,
 } from '@tenlastic/mongoose';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
@@ -46,10 +44,8 @@ describe('web-server/queue-members/count', function () {
       namespaceId: namespace._id,
     }).save();
     const group = await GroupModel.mock({
-      members: [
-        GroupMemberModel.mock({ userId: users[1]._id }),
-        GroupMemberModel.mock({ userId: users[2]._id }),
-      ],
+      userId: users[1]._id,
+      userIds: [users[1]._id, users[2]._id],
     }).save();
     const queue = await QueueModel.mock({
       gameServerTemplateId: gameServerTemplate._id,
@@ -58,23 +54,17 @@ describe('web-server/queue-members/count', function () {
       namespaceId: namespace._id,
       thresholds: [QueueThresholdModel.mock({ usersPerTeam: [1, 1] })],
     }).save();
-    const webSockets = await Promise.all([
-      WebSocketModel.mock({ userId: users[0]._id }).save(),
-      WebSocketModel.mock({ userId: users[1]._id }).save(),
-    ]);
     await Promise.all([
       QueueMemberModel.mock({
         namespaceId: namespace._id,
         queueId: queue._id,
         userId: users[0]._id,
-        webSocketId: webSockets[0]._id,
       }).save(),
       QueueMemberModel.mock({
         groupId: group._id,
         namespaceId: namespace._id,
         queueId: queue._id,
         userId: users[1]._id,
-        webSocketId: webSockets[1]._id,
       }).save(),
     ]);
     const ctx = new ContextMock({ state: { user: users[0].toObject() } });

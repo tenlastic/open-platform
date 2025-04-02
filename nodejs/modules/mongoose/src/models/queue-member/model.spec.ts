@@ -2,11 +2,10 @@ import { expect } from 'chai';
 
 import { BuildModel } from '../build';
 import { GameServerTemplateModel } from '../game-server-template';
-import { GroupMemberModel, GroupModel } from '../group';
+import { GroupModel } from '../group';
 import { NamespaceModel } from '../namespace';
 import { QueueModel, QueueThresholdModel } from '../queue';
 import { UserModel } from '../user';
-import { WebSocketModel } from '../web-socket';
 import { QueueMemberModel } from './model';
 
 describe('models/queue-member', function () {
@@ -19,10 +18,8 @@ describe('models/queue-member', function () {
         UserModel.mock().save(),
       ]);
       const group = await GroupModel.mock({
-        members: [
-          GroupMemberModel.mock({ userId: users[1]._id }),
-          GroupMemberModel.mock({ userId: users[2]._id }),
-        ],
+        userId: users[1]._id,
+        userIds: [users[1]._id, users[2]._id],
       }).save();
 
       const namespace = await NamespaceModel.mock().save();
@@ -38,23 +35,17 @@ describe('models/queue-member', function () {
         namespaceId: namespace._id,
         thresholds: [QueueThresholdModel.mock({ usersPerTeam: [1, 1] })],
       }).save();
-      const webSockets = await Promise.all([
-        WebSocketModel.mock({ userId: users[0]._id }).save(),
-        WebSocketModel.mock({ userId: users[1]._id }).save(),
-      ]);
       await Promise.all([
         QueueMemberModel.mock({
           namespaceId: namespace._id,
           queueId: queue._id,
           userId: users[0]._id,
-          webSocketId: webSockets[0]._id,
         }).save(),
         QueueMemberModel.mock({
           groupId: group._id,
           namespaceId: namespace._id,
           queueId: queue._id,
           userId: users[1]._id,
-          webSocketId: webSockets[1]._id,
         }).save(),
       ]);
 

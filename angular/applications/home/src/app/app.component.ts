@@ -217,9 +217,7 @@ export class AppComponent implements OnInit {
       return ids.length > 0 ? this.userService.find({ where: { _id: { $in: ids } } }) : null;
     });
     this.groupQuery.selectAll().subscribe((records) => {
-      const ids = records
-        .flatMap((r) => r.members.map((m) => m.userId))
-        .filter((ui) => !this.userQuery.hasEntity(ui));
+      const ids = records.flatMap((r) => r.userIds).filter((ui) => !this.userQuery.hasEntity(ui));
       return ids.length > 0 ? this.userService.find({ where: { _id: { $in: ids } } }) : null;
     });
     this.queueMemberQuery.selectAll().subscribe((records) => {
