@@ -5,12 +5,12 @@ import { AuthorizationPermissionsHelpers } from './authorization';
 
 export const GroupPermissions = new MongoosePermissions<GroupDocument>(GroupModel, {
   create: {
-    'group-leader': ['namespaceId'],
+    'group-leader-write': ['namespaceId'],
     'namespace-write': ['namespaceId'],
     'user-write': ['namespaceId'],
   },
   delete: {
-    'group-leader': true,
+    'group-leader-write': true,
     'namespace-write': true,
     'user-write': true,
   },
@@ -27,8 +27,11 @@ export const GroupPermissions = new MongoosePermissions<GroupDocument>(GroupMode
   },
   roles: {
     default: {},
-    'group-leader': {
-      ...AuthorizationPermissionsHelpers.getNamespaceRoleQuery([AuthorizationRole.GroupsPlay]),
+    'group-leader-write': {
+      ...AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+        AuthorizationRole.GroupsPlay,
+        AuthorizationRole.GroupsWrite,
+      ]),
       'record.userId': { $ref: 'user._id' },
     },
     'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
@@ -41,6 +44,6 @@ export const GroupPermissions = new MongoosePermissions<GroupDocument>(GroupMode
     'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([AuthorizationRole.GroupsWrite]),
   },
   update: {
-    'group-leader': ['userId'],
+    'group-leader-write': ['userId'],
   },
 });

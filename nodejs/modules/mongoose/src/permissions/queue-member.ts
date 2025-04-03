@@ -11,14 +11,14 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
   QueueMemberModel,
   {
     create: {
-      'group-leader': admin.create,
+      'group-leader-write': admin.create,
       'namespace-write': admin.create,
       owner: ['namespaceId', 'queueId', 'userId'],
       'user-write': admin.create,
     },
     delete: {
-      'group-leader': true,
-      'group-member': true,
+      'group-leader-write': true,
+      'group-member-write': true,
       'namespace-write': true,
       owner: true,
       'system-write': true,
@@ -63,12 +63,18 @@ export const QueueMemberPermissions = new MongoosePermissions<QueueMemberDocumen
     },
     roles: {
       default: {},
-      'group-leader': {
-        ...AuthorizationPermissionsHelpers.getNamespaceRoleQuery([AuthorizationRole.QueuesPlay]),
+      'group-leader-write': {
+        ...AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+          AuthorizationRole.QueuesPlay,
+          AuthorizationRole.GroupsWrite,
+        ]),
         'record.groupDocument.userId': { $ref: 'user._id' },
       },
-      'group-member': {
-        ...AuthorizationPermissionsHelpers.getNamespaceRoleQuery([AuthorizationRole.QueuesPlay]),
+      'group-member-write': {
+        ...AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+          AuthorizationRole.QueuesPlay,
+          AuthorizationRole.GroupsWrite,
+        ]),
         'record.groupDocument.userIds': { $ref: 'user._id' },
       },
       'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([

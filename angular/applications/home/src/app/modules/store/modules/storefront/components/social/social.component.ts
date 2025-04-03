@@ -143,7 +143,6 @@ export class SocialComponent implements OnInit {
       return;
     }
 
-    userId ||= group.userIds.find((ui) => this.user._id === ui);
     await this.groupService.leave(this.namespaceId, group._id, userId);
   }
 

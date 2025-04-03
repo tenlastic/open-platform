@@ -7,12 +7,12 @@ export const GroupInvitationPermissions = new MongoosePermissions<GroupInvitatio
   GroupInvitationModel,
   {
     create: {
-      'group-leader': ['fromUserId', 'groupId', 'toUserId'],
+      'group-leader-write': ['fromUserId', 'groupId', 'toUserId'],
       'namespace-write': ['fromUserId', 'groupId', 'toUserId'],
       'user-write': ['fromUserId', 'groupId', 'toUserId'],
     },
     delete: {
-      'group-leader': true,
+      'group-leader-write': true,
       'namespace-write': true,
       recipient: true,
       sender: true,
@@ -40,8 +40,11 @@ export const GroupInvitationPermissions = new MongoosePermissions<GroupInvitatio
     },
     roles: {
       default: {},
-      'group-leader': {
-        ...AuthorizationPermissionsHelpers.getNamespaceRoleQuery([AuthorizationRole.GroupsPlay]),
+      'group-leader-write': {
+        ...AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+          AuthorizationRole.GroupsPlay,
+          AuthorizationRole.GroupsWrite,
+        ]),
         'record.groupDocument.userId': { $ref: 'user._id' },
       },
       'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([

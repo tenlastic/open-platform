@@ -32,14 +32,14 @@ export class GroupInvitationButtonComponent implements OnInit {
     await this.groupService.join(this.groupInvitation.namespaceId, this.groupInvitation.groupId);
   }
 
-  public getUser(_id: string) {
-    return this.userQuery.getEntity(_id);
-  }
-
-  public async reject() {
+  public async decline() {
     await this.groupInvitationService.delete(
       this.groupInvitation.namespaceId,
       this.groupInvitation._id,
     );
+  }
+
+  public getUser(_id: string) {
+    return this.userQuery.getEntity(_id);
   }
 }
