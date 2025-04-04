@@ -8,6 +8,7 @@ export async function handler(ctx: Context) {
   const where = { where: { _id: groupId, namespaceId } };
 
   const group = await GroupPermissions.findOne(credentials, { where }, {});
+  console.log(`Group: ${group}`);
   if (!group) {
     throw new RecordNotFoundError();
   }
@@ -16,6 +17,9 @@ export async function handler(ctx: Context) {
   const isLeader = group.userId.equals(ctx.state.user._id);
   const isMember = group.userIds.some((ui) => ui.equals(ctx.state.user._id));
   if (!isLeader && (!isMember || _id !== ctx.state.user._id)) {
+    console.log(
+      `IsLeader: ${isLeader} - IsMember: ${isMember} - IsSelf: ${_id === ctx.state.user._id}`,
+    );
     throw new PermissionError();
   }
 
@@ -23,7 +27,9 @@ export async function handler(ctx: Context) {
   const userId = group.userId.equals(_id) ? userIds[0] || null : group.userId;
 
   const result = await GroupModel.findOneAndUpdate(where, { userId, userIds }, { new: true });
+  console.log(`Result: ${result}`);
   const record = await GroupPermissions.read(credentials, result);
+  console.log(`Record: ${record}`);
 
   ctx.response.body = { record };
 }
