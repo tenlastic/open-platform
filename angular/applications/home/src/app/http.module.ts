@@ -413,13 +413,14 @@ const services: Provider[] = [
     ) => new QueueLogService(apiService, environmentService, store),
   },
   {
-    deps: [ApiService, EnvironmentService, QueueMemberStore],
+    deps: [ApiService, EnvironmentService, QueueMemberStore, WebSocketService],
     provide: QueueMemberService,
     useFactory: (
       apiService: ApiService,
       environmentService: EnvironmentService,
       store: QueueMemberStore,
-    ) => new QueueMemberService(apiService, environmentService, store),
+      webSocketService: WebSocketService,
+    ) => new QueueMemberService(apiService, environmentService, store, webSocketService),
   },
   {
     deps: [ApiService, EnvironmentService, QueueStore],

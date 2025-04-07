@@ -42,6 +42,7 @@ export class QueueMemberMatchError extends Error {
 }
 
 @index({ namespaceId: 1, queueId: 1, userIds: 1 }, { unique: true })
+@index({ webSocketId: 1 })
 @modelOptions({ schemaOptions: { collection: 'queue-members', timestamps: true } })
 @plugin(duplicateKeyErrorPlugin)
 @plugin(unsetPlugin)
@@ -74,6 +75,9 @@ export class QueueMemberSchema {
   @prop({ ref: 'GroupSchema', type: mongoose.Schema.Types.ObjectId })
   public groupId: mongoose.Types.ObjectId;
 
+  @prop({ type: Date })
+  public matchedAt: Date;
+
   @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public namespaceId: mongoose.Types.ObjectId;
 
@@ -93,6 +97,9 @@ export class QueueMemberSchema {
 
   @prop({ ref: 'UserSchema', type: mongoose.Schema.Types.ObjectId }, PropType.ARRAY)
   public userIds: mongoose.Types.ObjectId[];
+
+  @prop({ ref: 'WebSocketSchema', required: true, type: mongoose.Schema.Types.ObjectId })
+  public webSocketId: mongoose.Types.ObjectId;
 
   @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
   public authorizationDocuments: AuthorizationDocument[];
@@ -124,6 +131,7 @@ export class QueueMemberSchema {
       namespaceId: new mongoose.Types.ObjectId(),
       queueId: new mongoose.Types.ObjectId(),
       userId: new mongoose.Types.ObjectId(),
+      webSocketId: new mongoose.Types.ObjectId(),
     };
 
     return new this({ ...defaults, ...values });

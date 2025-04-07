@@ -1,22 +1,16 @@
 paths:
-  /namespaces/{namespaceId}/queues:
+  /queue-members:
     post:
       summary: Create
-      tags: [Queues]
+      tags: [Queue Members]
       description: Creates a new record.
       security:
         - AccessToken: []
-      parameters:
-        - in: path
-          name: namespaceId
-          schema:
-            type: string
-          required: true
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Queue'
+              $ref: '#/components/schemas/QueueMember'
       responses:
         200:
           description: OK
@@ -26,4 +20,4 @@ paths:
                 type: object
                 properties:
                   record:
-                    $ref: '#/components/schemas/Queue'
+                    $ref: '#/components/schemas/QueueMember'

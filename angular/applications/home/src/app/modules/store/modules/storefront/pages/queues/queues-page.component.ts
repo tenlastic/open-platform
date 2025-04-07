@@ -11,10 +11,12 @@ import {
   QueueMemberService,
   QueueQuery,
   QueueService,
+  WebSocketService,
 } from '@tenlastic/http';
 import { Observable, Subscription, combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 
+import { environment } from '../../../../../../../environments/environment';
 import { IdentityService } from '../../../../../../core/services';
 
 @Component({
@@ -31,6 +33,10 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
 
   private getCurrentUsersInterval: any;
   private params: Params;
+  private get webSocket() {
+    const url = `${environment.wssUrl}/namespaces/${this.params.namespaceId}`;
+    return this.webSocketService.webSockets.find((ws) => url === ws.url);
+  }
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -41,6 +47,7 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
     private queueMemberService: QueueMemberService,
     private queueQuery: QueueQuery,
     private queueService: QueueService,
+    private webSocketService: WebSocketService,
   ) {}
 
   public async ngOnInit() {
@@ -138,10 +145,10 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
 
   public async join(group: GroupModel, queue: QueueModel) {
     try {
-      await this.queueMemberService.create(this.params.namespaceId, {
-        groupId: group?._id,
-        queueId: queue._id,
-      });
+      await this.queueMemberService.create(
+        { groupId: group?._id, queueId: queue._id },
+        this.webSocket,
+      );
     } catch (e) {
       if (e instanceof HttpErrorResponse) {
         if (e.error.errors[0].name === 'QueueMemberAuthorizationError') {
