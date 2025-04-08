@@ -30,20 +30,36 @@ export function getTeams(queue: QueueModel, queueMembers: QueueMemberModel[]): I
         }
       }
 
+      const currentUserCount = teams.reduce((a, b) => a + getUserCount(b), 0);
+      const maximumGroupSize = Math.max(...threshold.usersPerTeam);
+      const totalUserCount = threshold.usersPerTeam.reduce((a, b) => a + b, 0);
+      const userIds = [...queueMember.userIds];
+
       for (let i = 0; i < teams.length; i++) {
+        const userCount = getUserCount(teams[i]);
         const usersPerTeam = threshold.usersPerTeam[i];
 
-        if (getUsers(teams[i]) + queueMember.userIds.length > usersPerTeam) {
-          continue;
+        // Add Users to the Team if there is enough room.
+        if (userCount + userIds.length <= usersPerTeam) {
+          teams[i].push({ ...queueMember.team, userIds });
+          break;
         }
 
-        teams[i].push({ ...queueMember.team, userIds: queueMember.userIds });
-
-        break;
+        // Add Users to the Team if the Queue Member is too large for any Team,
+        // there are enough positions available to accomodate the entire Group,
+        // and there is any room on the Team.
+        if (
+          maximumGroupSize < userIds.length &&
+          totalUserCount - currentUserCount >= userIds.length &&
+          usersPerTeam - userCount > 0
+        ) {
+          const splice = userIds.splice(0, usersPerTeam - userCount);
+          teams[i].push({ ...queueMember.team, userIds: splice });
+        }
       }
     }
 
-    if (teams.every((t, i) => getUsers(t) === threshold.usersPerTeam[i])) {
+    if (teams.every((t, i) => getUserCount(t) === threshold.usersPerTeam[i])) {
       return teams.map((team, i) => team.map((t) => ({ ...t, index: i }))).flat();
     }
   }
@@ -51,6 +67,6 @@ export function getTeams(queue: QueueModel, queueMembers: QueueMemberModel[]): I
   return null;
 }
 
-function getUsers(teams: Team[]) {
+function getUserCount(teams: Team[]) {
   return teams.reduce((a, b) => a + b.userIds.length, 0);
 }

@@ -7,7 +7,7 @@ import { getTeams } from './';
 const chance = new Chance();
 
 describe('get-teams', function () {
-  it('handles solo queue', async function () {
+  it('handles solo queue', function () {
     const queue = new QueueModel({ thresholds: [{ seconds: 0, usersPerTeam: [1, 1] }] });
     const queueMembers = [
       new QueueMemberModel({ createdAt: new Date(0), userIds: [chance.hash()] }),
@@ -19,7 +19,7 @@ describe('get-teams', function () {
     expect(result[1]).to.eql({ index: 1, userIds: queueMembers[1].userIds });
   });
 
-  it('handles group queue', async function () {
+  it('handles group queue', function () {
     const queue = new QueueModel({ thresholds: [{ seconds: 0, usersPerTeam: [2, 2] }] });
     const queueMembers = [
       new QueueMemberModel({ createdAt: new Date(0), userIds: [chance.hash(), chance.hash()] }),
@@ -32,7 +32,7 @@ describe('get-teams', function () {
     expect(result[1]).to.eql({ index: 1, userIds: queueMembers[1].userIds });
   });
 
-  it('handles groups of different sizes', async function () {
+  it('handles groups of different sizes', function () {
     const queue = new QueueModel({ thresholds: [{ seconds: 0, usersPerTeam: [2, 2] }] });
     const queueMembers = [
       new QueueMemberModel({ createdAt: new Date(0), userIds: [chance.hash()] }),
@@ -47,21 +47,103 @@ describe('get-teams', function () {
     expect(result[2]).to.eql({ index: 1, userIds: queueMembers[1].userIds });
   });
 
-  it('skips larger groups', async function () {
-    const queue = new QueueModel({ thresholds: [{ seconds: 0, usersPerTeam: [1, 1] }] });
+  it('splits large groups into teams of 1 if enough spots are remaining', function () {
+    const queue = new QueueModel({ thresholds: [{ seconds: 0, usersPerTeam: [1, 1, 1, 1, 1] }] });
     const queueMembers = [
       new QueueMemberModel({ createdAt: new Date(0), userIds: [chance.hash(), chance.hash()] }),
       new QueueMemberModel({ createdAt: new Date(), userIds: [chance.hash()] }),
+      new QueueMemberModel({ createdAt: new Date(), userIds: [chance.hash(), chance.hash()] }),
+    ];
+
+    const result = getTeams(queue, queueMembers);
+
+    expect(result[0]).to.eql({ index: 0, userIds: queueMembers[0].userIds.slice(0, 1) });
+    expect(result[1]).to.eql({ index: 1, userIds: queueMembers[0].userIds.slice(1, 2) });
+    expect(result[2]).to.eql({ index: 2, userIds: queueMembers[1].userIds });
+    expect(result[3]).to.eql({ index: 3, userIds: queueMembers[2].userIds.slice(0, 1) });
+    expect(result[4]).to.eql({ index: 4, userIds: queueMembers[2].userIds.slice(1, 2) });
+  });
+
+  it('splits large groups into teams of 2 if enough spots are remaining', function () {
+    const queue = new QueueModel({ thresholds: [{ seconds: 0, usersPerTeam: [2, 2] }] });
+    const queueMembers = [
+      new QueueMemberModel({ createdAt: new Date(0), userIds: [chance.hash()] }),
+      new QueueMemberModel({
+        createdAt: new Date(),
+        userIds: [chance.hash(), chance.hash(), chance.hash()],
+      }),
+    ];
+
+    const result = getTeams(queue, queueMembers);
+
+    expect(result[0]).to.eql({ index: 0, userIds: queueMembers[0].userIds });
+    expect(result[1]).to.eql({ index: 0, userIds: queueMembers[1].userIds.slice(0, 1) });
+    expect(result[2]).to.eql({ index: 1, userIds: queueMembers[1].userIds.slice(1, 3) });
+  });
+
+  it('splits very large groups into teams of 2 if enough spots are remaining', function () {
+    const queue = new QueueModel({ thresholds: [{ seconds: 0, usersPerTeam: [2, 2, 2, 2, 2] }] });
+    const queueMembers = [
+      new QueueMemberModel({
+        createdAt: new Date(0),
+        userIds: [chance.hash(), chance.hash(), chance.hash(), chance.hash(), chance.hash()],
+      }),
+      new QueueMemberModel({ createdAt: new Date(), userIds: [chance.hash()] }),
+      new QueueMemberModel({
+        createdAt: new Date(),
+        userIds: [chance.hash(), chance.hash(), chance.hash(), chance.hash()],
+      }),
+    ];
+
+    const result = getTeams(queue, queueMembers);
+
+    expect(result[0]).to.eql({ index: 0, userIds: queueMembers[0].userIds.slice(0, 2) });
+    expect(result[1]).to.eql({ index: 1, userIds: queueMembers[0].userIds.slice(2, 4) });
+    expect(result[2]).to.eql({ index: 2, userIds: queueMembers[0].userIds.slice(4, 5) });
+    expect(result[3]).to.eql({ index: 2, userIds: queueMembers[1].userIds });
+    expect(result[4]).to.eql({ index: 3, userIds: queueMembers[2].userIds.slice(0, 2) });
+    expect(result[5]).to.eql({ index: 4, userIds: queueMembers[2].userIds.slice(2, 4) });
+  });
+
+  it('skips large groups if not enough spots are remaining', function () {
+    const queue = new QueueModel({ thresholds: [{ seconds: 0, usersPerTeam: [1, 1, 1, 1, 1] }] });
+    const queueMembers = [
+      new QueueMemberModel({ createdAt: new Date(0), userIds: [chance.hash(), chance.hash()] }),
+      new QueueMemberModel({ createdAt: new Date(), userIds: [chance.hash()] }),
+      new QueueMemberModel({ createdAt: new Date(), userIds: [chance.hash()] }),
+      new QueueMemberModel({ createdAt: new Date(0), userIds: [chance.hash(), chance.hash()] }),
       new QueueMemberModel({ createdAt: new Date(), userIds: [chance.hash()] }),
     ];
 
     const result = getTeams(queue, queueMembers);
 
-    expect(result[0]).to.eql({ index: 0, userIds: queueMembers[1].userIds });
-    expect(result[1]).to.eql({ index: 1, userIds: queueMembers[2].userIds });
+    expect(result[0]).to.eql({ index: 0, userIds: queueMembers[0].userIds.slice(0, 1) });
+    expect(result[1]).to.eql({ index: 1, userIds: queueMembers[0].userIds.slice(1, 2) });
+    expect(result[2]).to.eql({ index: 2, userIds: queueMembers[1].userIds });
+    expect(result[3]).to.eql({ index: 3, userIds: queueMembers[2].userIds });
+    expect(result[4]).to.eql({ index: 4, userIds: queueMembers[4].userIds });
   });
 
-  it('handles multiple thresholds with equal seconds', async function () {
+  it('skips very large groups if not enough spots are remaining', function () {
+    const queue = new QueueModel({ thresholds: [{ seconds: 0, usersPerTeam: [2, 2, 2, 2, 2] }] });
+    const queueMembers = [
+      new QueueMemberModel({
+        createdAt: new Date(0),
+        userIds: [chance.hash(), chance.hash(), chance.hash(), chance.hash(), chance.hash()],
+      }),
+      new QueueMemberModel({ createdAt: new Date(), userIds: [chance.hash()] }),
+      new QueueMemberModel({
+        createdAt: new Date(),
+        userIds: [chance.hash(), chance.hash(), chance.hash(), chance.hash(), chance.hash()],
+      }),
+    ];
+
+    const result = getTeams(queue, queueMembers);
+
+    expect(result).to.eql(null);
+  });
+
+  it('handles multiple thresholds with equal seconds', function () {
     const queue = new QueueModel({
       thresholds: [
         { seconds: 0, usersPerTeam: [1] },
@@ -83,7 +165,7 @@ describe('get-teams', function () {
     expect(result[0]).to.eql({ index: 0, userIds: queueMembers[0].userIds });
   });
 
-  it('handles multiple thresholds with different seconds', async function () {
+  it('handles multiple thresholds with different seconds', function () {
     const queue = new QueueModel({
       thresholds: [
         { seconds: 0, usersPerTeam: [1, 1, 1, 1, 1] },
@@ -106,7 +188,7 @@ describe('get-teams', function () {
     expect(result[2]).to.eql({ index: 2, userIds: queueMembers[2].userIds });
   });
 
-  it('handles rating thresholds', async function () {
+  it('handles rating thresholds', function () {
     const queue = new QueueModel({
       teams: true,
       thresholds: [
