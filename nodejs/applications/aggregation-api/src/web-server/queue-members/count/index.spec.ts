@@ -50,8 +50,7 @@ describe('web-server/queue-members/count', function () {
     }).save();
     const queue = await QueueModel.mock({
       gameServerTemplateId: gameServerTemplate._id,
-      maximumGroupSize: 2,
-      minimumGroupSize: 1,
+      groupSizes: [1, 2],
       namespaceId: namespace._id,
       thresholds: [QueueThresholdModel.mock({ usersPerTeam: [1, 1] })],
     }).save();

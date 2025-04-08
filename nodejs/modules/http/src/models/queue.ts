@@ -60,12 +60,11 @@ export class QueueModel extends BaseModel {
   public cpu: number;
   public description: string;
   public gameServerTemplateId: string;
+  public groupSizes: number[];
   public initialRating: number;
   public invitationSeconds: number;
-  public maximumGroupSize: number;
   public memory: number;
   public metadata: any;
-  public minimumGroupSize: number;
   public name: string;
   public namespaceId: string;
   public preemptible: boolean;

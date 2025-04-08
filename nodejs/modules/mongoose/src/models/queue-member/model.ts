@@ -145,12 +145,8 @@ export class QueueMemberSchema {
       await this.populate('queueDocument');
     }
 
-    if (this.queueDocument.maximumGroupSize < this.userIds.length) {
-      throw new Error('Group size is too large for this Queue.');
-    }
-
-    if (this.queueDocument.minimumGroupSize > this.userIds.length) {
-      throw new Error('Group size is too small for this Queue.');
+    if (!this.queueDocument.groupSizes.includes(this.userIds.length)) {
+      throw new Error('Group size is not valid for this Queue.');
     }
   }
 

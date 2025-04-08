@@ -45,23 +45,27 @@ export class QueueSchema {
   @prop({ ref: 'GameServerTemplateSchema', required: true, type: mongoose.Schema.Types.ObjectId })
   public gameServerTemplateId: mongoose.Types.ObjectId;
 
+  @prop(
+    {
+      required: true,
+      type: Number,
+      validate: [arrayLengthValidator(Infinity, 1), arrayNullUndefinedValidator],
+    },
+    PropType.ARRAY,
+  )
+  public groupSizes: number[];
+
   @prop({ type: Number })
   public initialRating: number;
 
   @prop({ default: 30, min: 0, type: Number })
   public invitationSeconds: number;
 
-  @prop({ min: 1, required: true, type: Number })
-  public maximumGroupSize: number;
-
   @prop({ min: 100 * 1000 * 1000, required: true, type: Number })
   public memory: number;
 
   @prop({ type: mongoose.Schema.Types.Mixed, unset: false })
   public metadata: any;
-
-  @prop({ min: 1, required: true, type: Number })
-  public minimumGroupSize: number;
 
   @prop({ maxlength: 64, required: true, trim: true, type: String })
   public name: string;
@@ -120,9 +124,8 @@ export class QueueSchema {
     const defaults = {
       cpu: chance.floating({ max: 1, min: 0.1 }),
       gameServerTemplateId: new mongoose.Types.ObjectId(),
-      maximumGroupSize: 1,
+      groupSizes: [1],
       memory: chance.integer({ max: 1 * 1000 * 1000 * 1000, min: 100 * 1000 * 1000 }),
-      minimumGroupSize: 1,
       name: chance.hash(),
       namespaceId: new mongoose.Types.ObjectId(),
       replicas: chance.pickone([1, 3, 5]),

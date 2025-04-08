@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -40,6 +40,9 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
   public errors: string[] = [];
   public form: FormGroup;
   public gameServerTemplates: GameServerTemplateModel[];
+  public get groupSizes() {
+    return this.form.get('groupSizes') as FormArray;
+  }
   public hasWriteAuthorization: boolean;
   public get isNew() {
     return this.params.queueId === 'new';
@@ -98,6 +101,11 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
     this.updateQueue$.unsubscribe();
   }
 
+  public addGroupSize() {
+    const control = new FormControl(1, [Validators.required, Validators.min(1)]);
+    this.groupSizes.push(control);
+  }
+
   public navigateToJson() {
     this.formService.navigateToJson(this.form);
   }
@@ -105,6 +113,10 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
   public pushUsersPerTeam(formArray: FormArray) {
     const control = this.formBuilder.control(1, [Validators.min(1), Validators.required]);
     formArray.push(control);
+  }
+
+  public removeGroupSize(index: number) {
+    this.groupSizes.removeAt(index);
   }
 
   public async save() {
@@ -126,12 +138,11 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       cpu: this.form.get('cpu').value,
       description: this.form.get('description').value,
       gameServerTemplateId: this.form.get('gameServerTemplateId').value,
+      groupSizes: this.form.get('groupSizes').value,
       initialRating: this.form.get('initialRating').value,
       invitationSeconds: this.form.get('invitationSeconds').value,
-      maximumGroupSize: this.form.get('maximumGroupSize').value,
       memory: this.form.get('memory').value,
       metadata,
-      minimumGroupSize: this.form.get('minimumGroupSize').value,
       name: this.form.get('name').value,
       namespaceId: this.form.get('namespaceId').value,
       preemptible: this.form.get('preemptible').value,
@@ -212,11 +223,14 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
   private setupForm() {
     this.data ??= new QueueModel({
       confirmation: true,
+      groupSizes: [1],
       invitationSeconds: 30,
-      maximumGroupSize: 1,
-      minimumGroupSize: 1,
       thresholds: [{ seconds: 0, usersPerTeam: [1, 1] }],
     });
+
+    const groupSizeFormControls = this.data.groupSizes?.map(
+      (gs) => new FormControl(gs, [Validators.required, Validators.min(1)]),
+    );
 
     const metadataFormGroups = [];
     if (this.data.metadata) {
@@ -250,12 +264,11 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
         this.data.gameServerTemplateId || this.gameServerTemplates[0]?._id,
         Validators.required,
       ],
+      groupSizes: this.formBuilder.array(groupSizeFormControls || []),
       initialRating: [this.data.initialRating || 0],
       invitationSeconds: [this.data.invitationSeconds || 0],
-      maximumGroupSize: [this.data.maximumGroupSize || 1, [Validators.min(1), Validators.required]],
       memory: [this.data.memory || this.memories[0].value, Validators.required],
       metadata: this.formBuilder.array(metadataFormGroups),
-      minimumGroupSize: [this.data.minimumGroupSize || 1, [Validators.min(1), Validators.required]],
       name: [this.data.name, Validators.required],
       namespaceId: [this.params.namespaceId],
       preemptible: [this.data.preemptible === false ? false : true],

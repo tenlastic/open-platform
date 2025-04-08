@@ -91,26 +91,6 @@
 
       <div class="row">
         <mat-form-field floatLabel="always">
-          <mat-label>Maximum Group Size</mat-label>
-          <input formControlName="maximumGroupSize"
-                 matInput
-                 min="1"
-                 type="number" />
-          <mat-error>Enter a valid maximum group size.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field floatLabel="always">
-          <mat-label>Minimum Group Size</mat-label>
-          <input formControlName="minimumGroupSize"
-                 matInput
-                 min="1"
-                 type="number" />
-          <mat-error>Enter a valid minimum group size.</mat-error>
-        </mat-form-field>
-      </div>
-
-      <div class="row">
-        <mat-form-field floatLabel="always">
           <mat-label>Confirmation</mat-label>
           <mat-select formControlName="confirmation">
             <mat-option [value]="true">Yes</mat-option>
@@ -148,6 +128,40 @@
           <mat-error>Enter a valid initial rating.</mat-error>
         </mat-form-field>
       </div>
+
+      <app-toggle-section *ngIf="!groupSizes.disabled || groupSizes.value.length"
+                          formArrayName="groupSizes"
+                          title="Group Sizes">
+        <mat-form-field *ngFor="let control of groupSizes.controls; let i = index"
+                        floatLabel="always">
+          <mat-label>Group Size {{ i + 1 }}</mat-label>
+
+          <input autocomplete="off"
+                 [formControlName]="i"
+                 matInput
+                 min="1"
+                 step="1"
+                 type="number" />
+          <app-button *ngIf="groupSizes.length > 1"
+                      color="accent"
+                      mat-icon-button
+                      matSuffix
+                      matTooltip="Remove Group Size"
+                      (OnClick)="groupSizes.removeAt(i)">
+            <mat-icon>remove</mat-icon>
+          </app-button>
+
+          <mat-error>Enter a valid group size.</mat-error>
+        </mat-form-field>
+
+        <app-button *ngIf="!groupSizes.disabled"
+                    color="accent"
+                    layout="left"
+                    (OnClick)="addGroupSize()">
+          <mat-icon>add</mat-icon>
+          <div>Add Group Size</div>
+        </app-button>
+      </app-toggle-section>
 
       <app-toggle-section *ngIf="!form.get('metadata').disabled || form.get('metadata').value.length"
                           [isVisible]="false"

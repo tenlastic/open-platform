@@ -19,23 +19,22 @@ components:
         gameServerTemplateId:
           type: string
           format: ^[0-9a-f]{24}$
+        groupSizes:
+          type: array
+          items:
+            type: number
+            minimum: 1
         initialRating:
           type: number
           minimum: 0
         invitationSeconds:
           type: number
           minimum: 0
-        maximumGroupSize:
-          type: number
-          minimum: 1
         memory:
           type: number
           minimum: 100000000
         metadata:
           type: object
-        minimumGroupSize:
-          type: number
-          minimum: 1
         name:
           type: string
         namespaceId:
@@ -58,7 +57,6 @@ components:
           type: string
           format: date-time
       required:
-        - maximumGroupSize
-        - minimumGroupSize
+        - groupSizes
         - name
         - threshold

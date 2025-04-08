@@ -50,10 +50,9 @@ describe('/nodejs/namespace/queues', function () {
     let queue = await dependencies.queueService.create(_id, {
       cpu: 0.1,
       gameServerTemplateId: gameServerTemplate._id,
+      groupSizes: [1],
       initialRating: 1500,
-      maximumGroupSize: 1,
       memory: 100 * 1000 * 1000,
-      minimumGroupSize: 1,
       name: chance.hash({ length: 32 }),
       namespaceId: _id,
       preemptible: true,
