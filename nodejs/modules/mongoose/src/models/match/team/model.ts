@@ -9,7 +9,7 @@ import {
 
 @modelOptions({ schemaOptions: { _id: false } })
 export class MatchTeamSchema {
-  @prop({ required: true, type: Number })
+  @prop({ type: Number })
   public index: number;
 
   @prop({ type: Number })
@@ -38,7 +38,6 @@ export class MatchTeamSchema {
    */
   public static mock(this: typeof MatchTeamModel, values: Partial<MatchTeamSchema> = {}) {
     const defaults = {
-      index: 0,
       teamId: new mongoose.Types.ObjectId(),
       userIds: [new mongoose.Types.ObjectId()],
     };
