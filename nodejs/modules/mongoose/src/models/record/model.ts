@@ -45,7 +45,7 @@ export class RecordSchema {
     const schema = buildSchema(RecordSchema).clone();
 
     // Build schema from Collection's properties.
-    schema.add({ properties: { _id: false, merge: true, type: jsonToMongoose(jsonSchema) } });
+    schema.add({ properties: { merge: true, type: jsonToMongoose(jsonSchema, { _id: false }) } });
     schema.set('collection', collection.mongoName);
 
     // Register indexes with Mongoose.

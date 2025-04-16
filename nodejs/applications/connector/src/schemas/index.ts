@@ -70,10 +70,9 @@ function setModel(
   json: mongoose.LeanDocument<SchemaDocument>,
   toConnection: mongoose.Connection,
 ) {
-  const definitions = jsonToMongoose(json);
-  const schema = new mongoose.Schema(definitions, { collection: json.name });
-
   const name = `${json.name}.${json.__v}`;
+  const schema = jsonToMongoose(json, { collection: json.name });
+
   from[json.name] = fromConnection.models[name] ?? fromConnection.model(name, schema);
   to[json.name] = toConnection.models[name] ?? toConnection.model(name, schema);
 }

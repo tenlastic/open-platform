@@ -14,7 +14,7 @@ interface JsonSchema {
 
 type JsonSchemaType = 'array' | 'boolean' | 'integer' | 'number' | 'object' | 'string';
 
-export function jsonToMongoose(jsonSchema: JsonSchema): mongoose.Schema {
+export function jsonToMongoose(jsonSchema: JsonSchema, options: mongoose.SchemaOptions) {
   const schema: Record<string, mongoose.SchemaType<any> | mongoose.Schema> = {};
 
   const properties = jsonSchema.properties || {};
@@ -25,7 +25,7 @@ export function jsonToMongoose(jsonSchema: JsonSchema): mongoose.Schema {
 
     switch (value.type) {
       case 'array':
-        field.type = [convertType(value.items!)];
+        field.type = [convertType(value.items)];
         break;
 
       case 'boolean':
@@ -48,7 +48,7 @@ export function jsonToMongoose(jsonSchema: JsonSchema): mongoose.Schema {
 
       case 'object':
         if (value.properties) {
-          field = jsonToMongoose(value);
+          field = jsonToMongoose(value, { _id: false });
         } else {
           field.type = mongoose.Schema.Types.Mixed;
         }
@@ -95,20 +95,20 @@ export function jsonToMongoose(jsonSchema: JsonSchema): mongoose.Schema {
     return convertType(jsonSchema);
   }
 
-  return new mongoose.Schema(schema, { _id: false });
+  return new mongoose.Schema(schema, options);
 }
 
 function convertType(schema: JsonSchema): any {
   switch (schema.type) {
     case 'array':
-      return [convertType(schema.items!)];
+      return [convertType(schema.items)];
     case 'boolean':
       return Boolean;
     case 'integer':
     case 'number':
       return Number;
     case 'object':
-      return jsonToMongoose(schema);
+      return jsonToMongoose(schema, { _id: false });
     case 'string':
       return String;
     default:
