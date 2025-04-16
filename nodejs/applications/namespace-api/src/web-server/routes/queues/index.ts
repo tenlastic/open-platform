@@ -1,7 +1,9 @@
+import { authenticationMiddleware } from '@tenlastic/web-server';
 import * as Router from 'koa-router';
 
 import { storageLimitMiddleware } from '../../middleware';
 import { handler as countHandler } from './count';
+import { handler as createHandler } from './create';
 import { handler as deleteHandler } from './delete';
 import { handler as findHandler } from './find';
 import { handler as findOneHandler } from './find-one';
@@ -18,5 +20,6 @@ router.get('/:_id', findOneHandler);
 router.get('/:_id/logs/:pod/:container', logsHandler);
 router.patch('/:_id', storageLimitMiddleware, updateHandler);
 router.patch('/:_id/restarted-at', restartedAtHandler);
+router.post('/', authenticationMiddleware, storageLimitMiddleware, createHandler);
 
 export default router.routes();
