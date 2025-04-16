@@ -1,99 +1,117 @@
 import * as mongoose from 'mongoose';
 
-const schemaParamsToMongoose = {
-  default: (value: string) => ({ default: value }),
-  enum: (value: any[]) => ({ enum: value }),
-  maxLength: (value: number) => ({ maxlength: value }),
-  maximum: (value: number) => ({ max: value }),
-  minLength: (value: number) => ({ minlength: value }),
-  minimum: (value: number) => ({ min: value }),
-  pattern: (value: string) => ({ match: RegExp(value) }),
-  type: (value: string) => ({ type: typeToMongoose[value] }),
-};
-
-const typeToMongoose = {
-  boolean: Boolean,
-  date: Date,
-  number: Number,
-  objectId: mongoose.Types.ObjectId,
-  string: String,
-};
-
-export function jsonToMongoose(jsonSchema: any) {
-  if (jsonSchema.constructor !== Object) {
-    throw new Error(`Unsupported JSON schema type: ${jsonSchema.type}.`);
-  }
-
-  const typeIsDate = jsonSchema.format === 'date-time' && jsonSchema.type === 'string';
-  const typeIsDefined = 'type' in jsonSchema;
-  const typeIsObjectId = jsonSchema.pattern === '^[0-9A-Fa-f]{24}$' && jsonSchema.type === 'string';
-
-  if (typeIsDate) {
-    return Date;
-  } else if (typeIsObjectId) {
-    return mongoose.Schema.Types.ObjectId;
-  } else if (jsonSchema.type in typeToMongoose) {
-    return Object.entries(jsonSchema).reduce(toMongooseParams, {});
-  } else if (jsonSchema.type === 'object') {
-    return getObjectType(jsonSchema);
-  } else if (jsonSchema.type === 'array') {
-    return getArrayType(jsonSchema);
-  } else if (!typeIsDefined) {
-    return mongoose.Schema.Types.Mixed;
-  }
-
-  throw new Error(`Unsupported JSON schema type: ${jsonSchema.type}.`);
+interface JsonSchema {
+  [key: string]: any;
+  default?: any;
+  format?: string;
+  enum?: any[];
+  items?: JsonSchema;
+  pattern?: string;
+  properties?: Record<string, JsonSchema>;
+  required?: string[];
+  type: JsonSchemaType | string;
 }
 
-function getArrayType(jsonSchema: any) {
-  if (jsonSchema.items && Object.keys(jsonSchema.items).length > 0) {
-    const result = jsonToMongoose(jsonSchema.items);
-    return result?.type ? [{ ...result, _id: false }] : [{ _id: false, type: result }];
-  }
+type JsonSchemaType = 'array' | 'boolean' | 'integer' | 'number' | 'object' | 'string';
 
-  return [{ _id: false, type: mongoose.Schema.Types.Mixed }];
-}
+export function jsonToMongoose(jsonSchema: JsonSchema): mongoose.Schema {
+  const schema: Record<string, mongoose.SchemaType<any> | mongoose.Schema> = {};
 
-function getObjectType(jsonSchema: any) {
-  if (!jsonSchema.properties || Object.keys(jsonSchema.properties).length === 0) {
-    return mongoose.Schema.Types.Mixed;
-  }
+  const properties = jsonSchema.properties || {};
+  const required = jsonSchema.required || [];
 
-  const converted = Object.entries(jsonSchema.properties).reduce((previousValue, [key, value]) => {
-    previousValue[key] = jsonToMongoose(value);
-    return previousValue;
-  }, {});
+  for (const [key, value] of Object.entries(properties)) {
+    let field: mongoose.SchemaType<any> | any = {};
 
-  if (jsonSchema.required) {
-    return Object.entries(converted).reduce((previousValue, [key, value]) => {
-      previousValue[key] = subSchemaType(jsonSchema, value, key);
-      return previousValue;
-    }, {});
-  }
+    switch (value.type) {
+      case 'array':
+        field.type = [convertType(value.items!)];
+        break;
 
-  return converted;
-}
+      case 'boolean':
+        field.type = Boolean;
+        break;
 
-function subSchemaType(parentSchema: any, subschema: any, key: any) {
-  if (0 <= parentSchema.required.indexOf(key)) {
-    if (subschema.constructor !== Object) {
-      return { required: true, type: subschema };
+      case 'integer':
+      case 'number':
+        if (value.enum !== undefined) {
+          field.enum = value.enum;
+        }
+        if (value.maximum !== undefined) {
+          field.max = value.maximum;
+        }
+        if (value.minimum !== undefined) {
+          field.min = value.minimum;
+        }
+        field.type = Number;
+        break;
+
+      case 'object':
+        if (value.properties) {
+          field = jsonToMongoose(value);
+        } else {
+          field.type = mongoose.Schema.Types.Mixed;
+        }
+        break;
+
+      case 'string':
+        if (value.enum !== undefined) {
+          field.enum = value.enum;
+        }
+        if (value.maxLength !== undefined) {
+          field.maxlength = value.maxLength;
+        }
+        if (value.minLength !== undefined) {
+          field.minlength = value.minLength;
+        }
+        if (value.pattern !== undefined && value.pattern !== '^[0-9A-Fa-f]{24}$') {
+          field.match = new RegExp(value.pattern);
+        }
+        if (value.format === 'date-time') {
+          field.type = Date;
+        } else if (value.pattern === '^[0-9A-Fa-f]{24}$') {
+          field.type = mongoose.Schema.Types.ObjectId;
+        } else {
+          field.type = String;
+        }
+        break;
+
+      default:
+        throw new Error(`Unsupported JSON schema type: ${value.type}.`);
     }
 
-    if (subschema.hasOwnProperty('type')) {
-      return Object.assign(subschema, { required: true });
+    if (required.includes(key)) {
+      field.required = true;
     }
+
+    if (value.default !== undefined) {
+      field.default = value.default;
+    }
+
+    schema[key] = field;
   }
 
-  return subschema;
+  if (Object.keys(properties).length === 0) {
+    return convertType(jsonSchema);
+  }
+
+  return new mongoose.Schema(schema, { _id: false });
 }
 
-function toMongooseParams(acc: any, [key, value]) {
-  const constructor = schemaParamsToMongoose[key];
-
-  if (constructor) {
-    return Object.assign(acc, constructor(value));
+function convertType(schema: JsonSchema): any {
+  switch (schema.type) {
+    case 'array':
+      return [convertType(schema.items!)];
+    case 'boolean':
+      return Boolean;
+    case 'integer':
+    case 'number':
+      return Number;
+    case 'object':
+      return jsonToMongoose(schema);
+    case 'string':
+      return String;
+    default:
+      throw new Error(`Unsupported JSON schema type: ${schema.type}.`);
   }
-
-  return acc;
 }

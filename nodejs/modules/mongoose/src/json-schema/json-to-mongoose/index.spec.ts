@@ -14,7 +14,7 @@ describe('json-schema/json-to-mongoose', function () {
 
     it('throws an error', function () {
       const input = { properties: 'not an object', type: 'object' };
-      const func = () => jsonToMongoose(input);
+      const func = () => jsonToMongoose(input as any);
 
       expect(func).to.throw(/Unsupported JSON schema/);
     });
@@ -34,7 +34,6 @@ describe('json-schema/json-to-mongoose', function () {
     it('converts the schema to a valid mongoose schema', function () {
       const json = {
         properties: {
-          _id: { pattern: '^[0-9A-Fa-f]{24}$', type: 'string' },
           address: {
             properties: {
               builtAt: { format: 'date-time', type: 'string' },
@@ -42,37 +41,41 @@ describe('json-schema/json-to-mongoose', function () {
             },
             type: 'object',
           },
-          array: {
-            items: {
-              type: 'string',
-            },
-            type: 'array',
+          array: { items: { type: 'string' }, type: 'array' },
+          mixed: { type: 'object' },
+          object: {
+            properties: { key: { type: 'string' } },
+            required: ['key'],
+            type: 'object',
           },
-          id: { pattern: '^\\d{3}$', type: 'string' },
-          mixed: { a: 'b' },
-          name: { type: 'object' },
+          objectId: { pattern: '^[0-9A-Fa-f]{24}$', type: 'string' },
+          string: { pattern: '^\\d{3}$', type: 'string' },
         },
+        required: ['object'],
         type: 'object',
       };
 
-      const result = jsonToMongoose(json);
+      const result = jsonToMongoose(json as any);
 
-      expect(result).to.eql({
-        _id: mongoose.Schema.Types.ObjectId,
-        address: {
-          builtAt: Date,
-          street: { default: 44, max: 50, min: 0, type: Number },
-        },
-        array: [
-          {
-            _id: false,
-            type: String,
-          },
-        ],
-        id: { match: /^\d{3}$/, type: String },
-        mixed: mongoose.Schema.Types.Mixed,
-        name: mongoose.Schema.Types.Mixed,
-      });
+      expect(result.path('address').schema.path('builtAt').instance).to.eql('Date');
+      expect(result.path('address').schema.path('street').instance).to.eql('Number');
+      expect(result.path('address').schema.path('street').options.default).to.eql(44);
+      expect(result.path('address').schema.path('street').options.max).to.eql(50);
+      expect(result.path('address').schema.path('street').options.min).to.eql(0);
+
+      const array = result.path('array') as mongoose.Schema.Types.Array;
+      expect(array.instance).to.eql('Array');
+      expect(array.caster.instance).to.eql('String');
+
+      expect(result.path('mixed').instance).to.eql('Mixed');
+
+      expect(result.path('object').schema.path('key').instance).to.eql('String');
+      expect(result.path('object').schema.path('key').options.required).to.eql(true);
+
+      expect(result.path('objectId').instance).to.eql('ObjectID');
+
+      expect(result.path('string').instance).to.eql('String');
+      expect(result.path('string').options.match).to.eql(new RegExp('^\\d{3}$'));
     });
   });
 });
