@@ -1,4 +1,4 @@
-import { QueueMemberPermissions } from '@tenlastic/mongoose';
+import { QueuePermissions } from '@tenlastic/mongoose';
 import { create } from '@tenlastic/web-server';
 
-export const handler = create(QueueMemberPermissions);
+export const handler = create(QueuePermissions);
