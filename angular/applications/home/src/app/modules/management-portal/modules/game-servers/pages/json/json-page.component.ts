@@ -94,7 +94,6 @@ export class GameServersJsonPageComponent implements OnInit {
     const keys = [
       'buildId',
       'cpu',
-      'currentUserIds',
       'description',
       'memory',
       'metadata',
