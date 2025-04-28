@@ -103,6 +103,7 @@ export class GameServerTemplatesJsonPageComponent implements OnInit {
       'ports',
       'preemptible',
       'probes',
+      'secrets',
     ];
     const data = Object.keys(this.data)
       .filter((key) => keys.includes(key))
