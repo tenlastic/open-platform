@@ -17,10 +17,12 @@ resources:
   - ./static/clusterissuers/letsencrypt-production.yaml
   - ./static/configmaps/verdaccio.yaml
   - ./static/cronworkflows/e2e.yaml
+  - ./static/deployments/buffer.yaml
   - ./static/deployments/verdaccio.yaml
   - ./static/helmreleases/cert-manager.yaml
   - ./static/kustomizations/open-platform.yaml
   - ./static/persistentvolumeclaims/verdaccio.yaml
+  - ./static/priorityclasses/low-priority.yaml
   - ./static/sealedsecrets/basic-authentication.yaml
   - ./static/sealedsecrets/cert-manager-credentials.yaml
   - ./static/sealedsecrets/continuous-deployment.yaml
