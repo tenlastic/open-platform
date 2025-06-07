@@ -36,7 +36,7 @@ variable "name" {
   type    = string
 }
 
-variable "preemptible" {
+variable "spot" {
   default = false
   type    = string
 }

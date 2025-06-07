@@ -19,7 +19,7 @@ resource "google_container_node_pool" "node_pool" {
     labels = var.labels
     machine_type = var.machine_type
     oauth_scopes = ["https://www.googleapis.com/auth/cloud-platform"]
-    preemptible  = var.preemptible
+    spot  = var.spot
 
     metadata = {
       "disable-legacy-endpoints" = "true"
