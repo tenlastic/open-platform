@@ -1,4 +1,5 @@
 resource "google_container_cluster" "primary" {
+  enable_shielded_nodes    = false
   initial_node_count       = 1
   location                 = var.zone
   name                     = "primary"
@@ -6,7 +7,7 @@ resource "google_container_cluster" "primary" {
 
   addons_config {
     dns_cache_config {
-      enabled = true
+      enabled = false
     }
     
     network_policy_config {
