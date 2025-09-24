@@ -35,7 +35,7 @@ spec:
       - name: disable-readonly
         script:
           command: [sh]
-          image: bitnami/kubectl:latest
+          image: alpine/kubectl:latest
           imagePullPolicy: IfNotPresent
           resources:
             limits:
@@ -45,7 +45,7 @@ spec:
               cpu: 25m
               memory: 50M
           source: |
-            kubectl annotate deployments docker-registry fluxcd.io/ignore="false" --overwrite
+            kubectl annotate -n static --overwrite deployments docker-registry fluxcd.io/ignore="false"
             kubectl patch deployments.apps docker-registry --type=json \
               -p='[
                 {
@@ -61,7 +61,7 @@ spec:
       - name: enable-readonly
         script:
           command: [sh]
-          image: bitnami/kubectl:latest
+          image: alpine/kubectl:latest
           imagePullPolicy: IfNotPresent
           resources:
             limits:
@@ -71,7 +71,7 @@ spec:
               cpu: 25m
               memory: 50M
           source: |
-            kubectl annotate deployments docker-registry fluxcd.io/ignore="true" --overwrite
+            kubectl annotate -n static --overwrite deployments docker-registry fluxcd.io/ignore="true"
             kubectl patch deployments.apps docker-registry --type=json \
               -p='[
                 {

@@ -1,0 +1,77 @@
+apiVersion: mongodbcommunity.mongodb.com/v1
+kind: MongoDBCommunity
+metadata:
+  name: mongodb
+  namespace: static
+spec:
+  arbiters: 0
+  members: 1
+  security:
+    authentication:
+      modes: ["SCRAM"]
+  statefulSet:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mongodb
+    spec:
+      selector:
+        matchLabels:
+          app.kubernetes.io/name: mongodb
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: mongodb
+        spec:
+          containers:
+            - name: mongod
+              resources:
+                limits:
+                  cpu: 1000m
+                  memory: 1G
+                requests:
+                  cpu: 250m
+                  memory: 1G
+            - name: mongodb-agent
+              resources:
+                limits:
+                  cpu: 100m
+                  memory: 250M
+                requests:
+                  cpu: 100m
+                  memory: 250M
+          serviceAccountName: mongodb
+      volumeClaimTemplates:
+        - metadata:
+            name: data-volume
+          spec:
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: 10Gi
+            storageClassName: balanced-expandable
+        - metadata:
+            name: logs-volume
+          spec:
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: 2Gi
+            storageClassName: balanced-expandable
+  type: ReplicaSet
+  users:
+    - db: admin
+      name: root
+      passwordSecretRef:
+        key: mongodb-root-password
+        name: mongodb
+      roles:
+        - db: admin
+          name: clusterAdmin
+        - db: admin
+          name: dbAdminAnyDatabase
+        - db: admin
+          name: readWriteAnyDatabase
+        - db: admin
+          name: userAdminAnyDatabase
+      scramCredentialsSecretName: root
+  version: 6.0.2

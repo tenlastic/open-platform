@@ -2,7 +2,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
-    k8s-app: kubernetes-dashboard
+    app.kubernetes.io/name: kubernetes-dashboard
   name: kubernetes-dashboard
 rules:
   # Allow Dashboard to get namespaces, nodes, persistent volumes, and pods.

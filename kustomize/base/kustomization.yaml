@@ -7,6 +7,7 @@ resources:
   - ./cluster/clusterroles/api.yaml
   - ./cluster/clusterroles/game-server-sidecar.yaml
   - ./cluster/clusterroles/kubernetes-dashboard.yaml
+  - ./cluster/customresourcedefinitions/mongodbcommunities.mongodbcommunity.mongodb.com.yaml
   - ./cluster/namespaces/dynamic.yaml
   - ./cluster/namespaces/kube-system.yaml
   - ./cluster/namespaces/static.yaml
@@ -16,7 +17,6 @@ resources:
   - ./default/rolebindings/api.yaml
   - ./default/roles/api.yaml
   - ./dynamic/gitrepositories/open-platform.yaml
-  - ./dynamic/helmrepositories/bitnami.yaml
   - ./dynamic/networkpolicies/default.yaml
   - ./dynamic/rolebindings/aggregation-api.yaml
   - ./dynamic/rolebindings/api.yaml
@@ -64,25 +64,24 @@ resources:
   - ./static/deployments/documentation.yaml
   - ./static/deployments/home-ui.yaml
   - ./static/deployments/mongodb-gui.yaml
+  - ./static/deployments/mongodb-operator.yaml
   - ./static/gitrepositories/open-platform.yaml
   - ./static/helmreleases/argo-workflows.yaml
   - ./static/helmreleases/ingress-nginx.yaml
   - ./static/helmreleases/kubernetes-dashboard.yaml
   - ./static/helmreleases/minio.yaml
-  - ./static/helmreleases/mongodb.yaml
   - ./static/helmreleases/nats.yaml
-  - ./static/helmreleases/sealed-secrets.yaml
   - ./static/helmrepositories/argo.yaml
-  - ./static/helmrepositories/bitnami.yaml
   - ./static/helmrepositories/ingress-nginx.yaml
   - ./static/helmrepositories/jetstack.yaml
   - ./static/helmrepositories/kubernetes-dashboard.yaml
+  - ./static/helmrepositories/minio.yaml
   - ./static/helmrepositories/nats.yaml
   - ./static/ingresses/basic-authentication.yaml
   - ./static/ingresses/default.yaml
+  - ./static/mongodbcommunities/mongodb.yaml
   - ./static/networkpolicies/argo-workflows-server.yaml
   - ./static/networkpolicies/docker-registry-ui.yaml
-  - ./static/networkpolicies/kubernetes-dashboard.yaml
   - ./static/networkpolicies/mongodb-gui.yaml
   - ./static/rolebindings/aggregation-api.yaml
   - ./static/rolebindings/api.yaml
@@ -91,6 +90,8 @@ resources:
   - ./static/rolebindings/delete-static-failed-pods.yaml
   - ./static/rolebindings/garbage-collect-docker-registry.yaml
   - ./static/rolebindings/kubernetes-dashboard.yaml
+  - ./static/rolebindings/mongodb.yaml
+  - ./static/rolebindings/mongodb-operator.yaml
   - ./static/roles/aggregation-api.yaml
   - ./static/roles/api.yaml
   - ./static/roles/argo-workflows.yaml
@@ -98,6 +99,8 @@ resources:
   - ./static/roles/delete-static-failed-pods.yaml
   - ./static/roles/garbage-collect-docker-registry.yaml
   - ./static/roles/kubernetes-dashboard.yaml
+  - ./static/roles/mongodb.yaml
+  - ./static/roles/mongodb-operator.yaml
   - ./static/serviceaccounts/aggregation-api.yaml
   - ./static/serviceaccounts/api.yaml
   - ./static/serviceaccounts/argo-workflows.yaml
@@ -105,6 +108,8 @@ resources:
   - ./static/serviceaccounts/delete-static-failed-pods.yaml
   - ./static/serviceaccounts/garbage-collect-docker-registry.yaml
   - ./static/serviceaccounts/kubernetes-dashboard.yaml
+  - ./static/serviceaccounts/mongodb.yaml
+  - ./static/serviceaccounts/mongodb-operator.yaml
   - ./static/services/aggregation-api.yaml
   - ./static/services/api.yaml
   - ./static/services/docker-registry-ui.yaml

@@ -1,4 +1,7 @@
 {
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "always"
+  },
+  "editor.tabSize": 2,
   "html.format.wrapAttributes": "force-aligned",
-  "editor.tabSize": 2
 }

@@ -9,11 +9,13 @@ spec:
       chart: minio
       sourceRef:
         kind: HelmRepository
-        name: bitnami
-      version: 11.10.25
+        name: minio
+      version: 5.4.0
   interval: 5m
   releaseName: minio
   values:
+    additionalLabels:
+      app.kubernetes.io/name: minio
     affinity:
       nodeAffinity:
         requiredDuringSchedulingIgnoredDuringExecution:
@@ -32,23 +34,31 @@ spec:
                     values:
                       - minio
               topologyKey: kubernetes.io/hostname
-    auth:
-      existingSecret: minio
-    persistence:
-      size: 25G
-      storageClass: balanced-expandable
-    provisioning:
-      buckets:
-        - name: argo
-          policy: none
-          purge: "false"
-        - name: docker-registry
-          policy: none
-          purge: "false"
-        - name: launcher
-          policy: download
-          purge: "false"
+    buckets:
+      - name: argo
+        policy: none
+        purge: false
+      - name: docker-registry
+        policy: none
+        purge: false
+      - name: launcher
+        policy: download
+        purge: false
+    consoleService:
+      port: 9001
+    drivesPerNode: 1
+    existingSecret: minio
+    makeBuckets:
       enabled: true
+    mode: standalone
+    persistence:
+      enabled: true
+      size: 25Gi
+      storageClass: balanced-expandable
+    podLabels:
+      app.kubernetes.io/name: minio
+    pools: 1
+    replicas: 1
     resources:
       limits:
         cpu: 1000m
@@ -56,3 +66,5 @@ spec:
       requests:
         cpu: 250m
         memory: 2.5G
+    service:
+      port: 9000

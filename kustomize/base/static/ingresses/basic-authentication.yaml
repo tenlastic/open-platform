@@ -4,7 +4,6 @@ metadata:
   annotations:
     certmanager.k8s.io/cluster-issuer: letsencrypt-production
     kubernetes.io/ingress.allow-http: "false"
-    kubernetes.io/ingress.class: nginx
     kubernetes.io/tls-acme: "true"
     nginx.ingress.kubernetes.io/auth-realm: Authentication Required
     nginx.ingress.kubernetes.io/auth-secret: basic-authentication
@@ -20,6 +19,7 @@ metadata:
   name: basic-authentication
   namespace: static
 spec:
+  ingressClassName: nginx
   rules:
     - host: argo.tenlastic.com
       http:
@@ -41,16 +41,6 @@ spec:
                 name: docker-registry-ui
                 port:
                   number: 80
-    - host: kubernetes-dashboard.tenlastic.com
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: kubernetes-dashboard
-                port:
-                  number: 443
     - host: mongo.tenlastic.com
       http:
         paths:

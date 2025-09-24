@@ -10,45 +10,56 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: kubernetes-dashboard
-      version: 5.7.0
+      version: 7.13.0
   interval: 5m
   releaseName: kubernetes-dashboard
   values:
-    affinity:
-      nodeAffinity:
-        requiredDuringSchedulingIgnoredDuringExecution:
-          nodeSelectorTerms:
-            - matchExpressions:
-                - key: tenlastic.com/low-priority
-                  operator: Exists
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                  - key: app.kubernetes.io/name
-                    operator: In
-                    values:
-                      - kubernetes-dashboard
-              topologyKey: kubernetes.io/hostname
-    extraArgs:
-      - --disable-settings-authorizer
-      - --enable-insecure-login
-      - --enable-skip-login
+    api:
+      containers:
+        resources:
+          limits:
+            cpu: 250m
+            memory: 400M
+          requests:
+            cpu: 50m
+            memory: 200M
+    app:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: tenlastic.com/low-priority
+                    operator: Exists
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        - kubernetes-dashboard
+                topologyKey: kubernetes.io/hostname
+    kong:
+      enabled: false
     metricsScraper:
+      containers:
+        resources:
+          limits:
+            cpu: 100m
+            memory: 100Mi
+          requests:
+            cpu: 100m
+            memory: 100Mi
       enabled: true
-    protocolHttp: true
-    rbac:
-      create: false
-    replicaCount: 1
-    resources:
-      limits:
-        cpu: 250m
-        memory: 100M
-      requests:
-        cpu: 50m
-        memory: 100M
-    serviceAccount:
-      create: false
-      name: kubernetes-dashboard
+    web:
+      containers:
+        resources:
+          limits:
+            cpu: 250m
+            memory: 400M
+          requests:
+            cpu: 50m
+            memory: 200M

@@ -12,6 +12,7 @@ export const KubernetesNamespaceIngress = {
     await ingressApiV1.createOrReplace('dynamic', {
       metadata: { annotations: ingress.body.metadata.annotations, labels: { ...labels }, name },
       spec: {
+        ingressClassName: ingress.body.spec.ingressClassName,
         rules: [
           {
             host: ingress.body.spec.rules.find((r) => r.host.startsWith('api')).host,

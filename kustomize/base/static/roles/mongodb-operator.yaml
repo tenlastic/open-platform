@@ -1,0 +1,46 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: mongodb-operator
+  namespace: static
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+      - pods
+      - secrets
+      - services
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - apps
+    resources:
+      - statefulsets
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - mongodbcommunity.mongodb.com
+    resources:
+      - mongodbcommunities
+      - mongodbcommunities/finalizers
+      - mongodbcommunities/spec
+      - mongodbcommunities/status
+    verbs:
+      - get
+      - patch
+      - list
+      - update
+      - watch

@@ -1,6 +1,4 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
-bases:
-  - ../../base/
 kind: Kustomization
 patches:
   - path: ./static/deployments/docker-registry.json
@@ -9,9 +7,9 @@ patches:
       kind: Deployment
       name: docker-registry
       version: v1
-patchesStrategicMerge:
-  - ./static/helmreleases/ingress-nginx.yaml
+  - path: ./static/helmreleases/ingress-nginx.yaml
 resources:
+  - ../../base/
   - ./dynamic/sealedsecrets/docker-registry.yaml
   - ./dynamic/sealedsecrets/nodejs.yaml
   - ./static/clusterissuers/letsencrypt-production.yaml
@@ -23,19 +21,6 @@ resources:
   - ./static/kustomizations/open-platform.yaml
   - ./static/persistentvolumeclaims/verdaccio.yaml
   - ./static/priorityclasses/low-priority.yaml
-  - ./static/sealedsecrets/basic-authentication.yaml
-  - ./static/sealedsecrets/cert-manager-credentials.yaml
-  - ./static/sealedsecrets/continuous-deployment.yaml
-  - ./static/sealedsecrets/continuous-integration.yaml
-  - ./static/sealedsecrets/docker-registry-image-pull-secret.yaml
-  - ./static/sealedsecrets/docker-registry.yaml
-  - ./static/sealedsecrets/e2e.yaml
-  - ./static/sealedsecrets/minio.yaml
-  - ./static/sealedsecrets/mongodb-gui.yaml
-  - ./static/sealedsecrets/mongodb.yaml
-  - ./static/sealedsecrets/nats.yaml
-  - ./static/sealedsecrets/nodejs.yaml
-  - ./static/sealedsecrets/verdaccio.yaml
   - ./static/services/verdaccio.yaml
   - ./static/workflowtemplates/angular.yaml
   - ./static/workflowtemplates/checkout.yaml

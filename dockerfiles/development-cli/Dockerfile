@@ -40,8 +40,15 @@ RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/s
 RUN curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash && \
   mv kustomize /bin/kustomize
 
+# Install MongoDB Database Tools.
+RUN apt-get update && apt-get install -y wget gnupg && \
+  wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | apt-key add - && \
+  echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu $(lsb_release -cs)/mongodb-org/6.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-6.0.list && \
+  apt-get update && apt-get install -y mongodb-database-tools && \
+  rm -rf /var/lib/apt/lists/*
+
 # Install node and npm.
-RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
+RUN curl -sL https://deb.nodesource.com/setup_20.x | bash - && \
   apt-get install -qy nodejs
 
 # Install terraform
@@ -78,11 +85,6 @@ RUN wget -O helm-${HELM_3_VERSION}-linux-amd64.tgz https://get.helm.sh/helm-${HE
 # Install jq.
 RUN curl -o /usr/local/bin/jq http://stedolan.github.io/jq/download/linux64/jq && \
   chmod +x /usr/local/bin/jq
-
-# Install kubeseal.
-RUN wget https://github.com/bitnami-labs/sealed-secrets/releases/download/${KUBESEAL_VERSION}/kubeseal-linux-amd64 -O kubeseal && \
-  chmod +x kubeseal && \
-  mv kubeseal /usr/local/bin/kubeseal
 
 # Install mc (minio client).
 RUN wget https://dl.min.io/client/mc/release/linux-amd64/mc -O mc && \

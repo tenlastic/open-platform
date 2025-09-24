@@ -208,28 +208,39 @@ spec:
             mountPath: /workspace/
         workingDir: /workspace/open-platform/nodejs/
       sidecars:
-        - name: mongodb
-          image: bitnami/mongodb:6.0.2
-          imagePullPolicy: IfNotPresent
-          env:
-            - name: MONGODB_ADVERTISED_HOSTNAME
-              value: localhost
-            - name: MONGODB_REPLICA_SET_KEY
-              value: "1234567890"
-            - name: MONGODB_REPLICA_SET_MODE
-              value: primary
-            - name: MONGODB_ROOT_PASSWORD
-              value: password
         - name: minio
-          image: bitnami/minio:2022
+          image: minio/minio:latest
           imagePullPolicy: IfNotPresent
           env:
             - name: MINIO_ROOT_PASSWORD
               value: minioadmin
             - name: MINIO_ROOT_USER
               value: minioadmin
+        - name: mongodb
+          image: mongo:6.0.2
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              value: password
+            - name: MONGO_INITDB_ROOT_USERNAME
+              value: root
+          volumeMounts:
+            - name: workspace
+              mountPath: /workspace/
+          workingDir: /workspace/open-platform/
+        - name: mongodb-sidecar
+          image: mongo:6.0.2
+          command: [sh, -c]
+          args:
+            - |
+              echo "Waiting for MongoDB to be ready..."
+              until mongo --eval "db.adminCommand('ping')" --host localhost --password password --username root >/dev/null 2>&1; do
+                sleep 1
+              done
+              echo "Initializing replica set..."
+              mongo --eval 'rs.initiate({_id: "rs0", members: [{_id: 0, host: "localhost:27017"}]})' --host localhost --password password --username root
         - name: nats
-          image: nats:2.9.17-alpine
+          image: nats:latest
           imagePullPolicy: IfNotPresent
           command:
             - /bin/sh

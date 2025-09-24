@@ -26,7 +26,7 @@ spec:
       - name: delete-dynamic-failed-pods
         script:
           command: [sh]
-          image: bitnami/kubectl:latest
+          image: alpine/kubectl:latest
           imagePullPolicy: IfNotPresent
           resources:
             limits:
@@ -35,8 +35,4 @@ spec:
             requests:
               cpu: 25m
               memory: 50M
-          source: |
-            COMMAND="kubectl get pods -n dynamic -o name --field-selector status.phase=Failed"
-            if [ "$($COMMAND | wc -l)" -gt 0 ]; then
-              $COMMAND | xargs kubectl delete -n dynamic
-            fi
+          source: kubectl delete -n dynamic --field-selector status.phase=Failed pods

@@ -3,6 +3,14 @@
     "op": "add",
     "path": "/spec/template/spec/containers/0/env/-",
     "value": {
+      "name": "REGISTRY_LOG_LEVEL",
+      "value": "debug"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/spec/template/spec/containers/0/env/-",
+    "value": {
       "name": "REGISTRY_STORAGE_S3_REGIONENDPOINT",
       "value": "http://minio.local.tenlastic.com"
     }
