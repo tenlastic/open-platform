@@ -10,8 +10,6 @@ patches:
   - path: ./static/helmreleases/ingress-nginx.yaml
 resources:
   - ../../base/
-  - ./dynamic/sealedsecrets/docker-registry.yaml
-  - ./dynamic/sealedsecrets/nodejs.yaml
   - ./static/clusterissuers/letsencrypt-production.yaml
   - ./static/configmaps/verdaccio.yaml
   - ./static/cronworkflows/e2e.yaml
