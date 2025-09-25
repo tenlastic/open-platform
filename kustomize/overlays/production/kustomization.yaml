@@ -8,6 +8,7 @@ patches:
       name: docker-registry
       version: v1
   - path: ./static/helmreleases/ingress-nginx.yaml
+  - path: ./static/helmreleases/minio.yaml
 resources:
   - ../../base/
   - ./static/clusterissuers/letsencrypt-production.yaml
