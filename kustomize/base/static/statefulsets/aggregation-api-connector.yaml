@@ -36,7 +36,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
       containers:
         - name: api-connector
-          image: tenlastic/connector:0.0.437
+          image: tenlastic/connector:0.0.438
           env:
             - name: MONGO_COLLECTION_NAMES
               value: authorizations,authorization-requests,namespaces,users
