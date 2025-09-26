@@ -104,7 +104,7 @@ resources:
   - ./static/secrets/docker-registry.yaml
   - ./static/secrets/e2e.yaml
   - ./static/secrets/minio.yaml
-  - ./static/secrets/mongodb-gui.yaml
+  - ./static/secrets/mongo-express.yaml
   - ./static/secrets/mongodb.yaml
   - ./static/secrets/nats.yaml
   - ./static/secrets/nodejs.yaml

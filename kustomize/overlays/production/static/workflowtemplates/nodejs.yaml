@@ -209,38 +209,35 @@ spec:
         workingDir: /workspace/open-platform/nodejs/
       sidecars:
         - name: minio
-          image: minio/minio:latest
+          image: minio/minio:RELEASE.2022-12-12T19-27-27Z
           imagePullPolicy: IfNotPresent
-          env:
-            - name: MINIO_ROOT_PASSWORD
-              value: minioadmin
-            - name: MINIO_ROOT_USER
-              value: minioadmin
-        - name: mongodb
+          args:
+            - server
+            - /data
+        - name: mongo
           image: mongo:6.0.2
           imagePullPolicy: IfNotPresent
-          env:
-            - name: MONGO_INITDB_ROOT_PASSWORD
-              value: password
-            - name: MONGO_INITDB_ROOT_USERNAME
-              value: root
-          volumeMounts:
-            - name: workspace
-              mountPath: /workspace/
-          workingDir: /workspace/open-platform/
-        - name: mongodb-sidecar
+          args:
+            - --bind_ip_all
+            - --replSet
+            - rs0
+        - name: mongo-sidecar
           image: mongo:6.0.2
           command: [sh, -c]
           args:
             - |
               echo "Waiting for MongoDB to be ready..."
-              until mongo --eval "db.adminCommand('ping')" --host localhost --password password --username root >/dev/null 2>&1; do
+              until mongosh --eval "db.adminCommand('ping')" --host localhost; do
+                echo "Still waiting for MongoDB to be ready..."
                 sleep 1
               done
-              echo "Initializing replica set..."
-              mongo --eval 'rs.initiate({_id: "rs0", members: [{_id: 0, host: "localhost:27017"}]})' --host localhost --password password --username root
+
+              echo "Initializing replica set..." 
+              mongosh --eval 'rs.initiate({_id: "rs0", members: [{_id: 0, host: "localhost:27017"}]})' --host localhost
+
+              echo "Replica set initialized!"
         - name: nats
-          image: nats:latest
+          image: nats:2.9.17-alpine
           imagePullPolicy: IfNotPresent
           command:
             - /bin/sh

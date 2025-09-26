@@ -63,7 +63,7 @@ resources:
   - ./static/deployments/docker-registry.yaml
   - ./static/deployments/documentation.yaml
   - ./static/deployments/home-ui.yaml
-  - ./static/deployments/mongodb-gui.yaml
+  - ./static/deployments/mongo-express.yaml
   - ./static/deployments/mongodb-operator.yaml
   - ./static/gitrepositories/open-platform.yaml
   - ./static/helmreleases/argo-workflows.yaml
@@ -82,7 +82,7 @@ resources:
   - ./static/mongodbcommunities/mongodb.yaml
   - ./static/networkpolicies/argo-workflows-server.yaml
   - ./static/networkpolicies/docker-registry-ui.yaml
-  - ./static/networkpolicies/mongodb-gui.yaml
+  - ./static/networkpolicies/mongo-express.yaml
   - ./static/rolebindings/aggregation-api.yaml
   - ./static/rolebindings/api.yaml
   - ./static/rolebindings/argo-workflows.yaml
@@ -116,7 +116,7 @@ resources:
   - ./static/services/docker-registry.yaml
   - ./static/services/documentation.yaml
   - ./static/services/home-ui.yaml
-  - ./static/services/mongodb-gui.yaml
+  - ./static/services/mongo-express.yaml
   - ./static/statefulsets/aggregation-api-cdc.yaml
   - ./static/statefulsets/aggregation-api-connector.yaml
   - ./static/statefulsets/aggregation-api.yaml

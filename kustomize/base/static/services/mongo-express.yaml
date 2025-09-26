@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/name: mongo-express
+  name: mongo-express
+  namespace: static
+spec:
+  ports:
+    - port: 8081
+      name: http
+  selector:
+    app.kubernetes.io/name: mongo-express

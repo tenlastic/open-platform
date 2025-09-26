@@ -2,18 +2,18 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app.kubernetes.io/name: mongodb-gui
-  name: mongodb-gui
+    app.kubernetes.io/name: mongo-express
+  name: mongo-express
   namespace: static
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: mongodb-gui
+      app.kubernetes.io/name: mongo-express
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: mongodb-gui
+        app.kubernetes.io/name: mongo-express
     spec:
       affinity:
         nodeAffinity:
@@ -31,16 +31,16 @@ spec:
                     - key: app.kubernetes.io/name
                       operator: In
                       values:
-                        - mongodb-gui
+                        - mongo-express
                 topologyKey: kubernetes.io/hostname
       containers:
-        - name: mongodb-gui
-          image: ugleiton/mongo-gui:latest
+        - name: mongo-express
+          image: mongo-express:latest
           envFrom:
             - secretRef:
-                name: mongodb-gui
+                name: mongo-express
           ports:
-            - containerPort: 4321
+            - containerPort: 8081
           resources:
             limits:
               cpu: 100m

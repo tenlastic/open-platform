@@ -48,9 +48,9 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: mongodb-gui
+                name: mongo-express
                 port:
-                  number: 4321
+                  number: 8081
   tls:
     - hosts: ["*.tenlastic.com"]
       secretName: basic-authentication-tls

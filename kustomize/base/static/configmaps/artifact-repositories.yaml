@@ -10,10 +10,10 @@ data:
     s3:
       accessKeySecret:
         name: minio
-        key: root-user
+        key: rootUser
       bucket: argo
       endpoint: minio.static:9000
       insecure: true
       secretKeySecret:
         name: minio
-        key: root-password
+        key: rootPassword
