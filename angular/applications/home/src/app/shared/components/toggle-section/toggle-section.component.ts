@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-toggle-section',
+  standalone: false,
   styleUrls: ['./toggle-section.component.scss'],
   templateUrl: 'toggle-section.component.html',
 })

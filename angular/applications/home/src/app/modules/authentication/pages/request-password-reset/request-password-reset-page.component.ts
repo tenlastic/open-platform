@@ -4,8 +4,9 @@ import { PasswordResetService } from '@tenlastic/http';
 import { IPasswordResetRequested, PasswordResetRequestFormComponent } from '../../components';
 
 @Component({
-  templateUrl: 'request-password-reset-page.component.html',
+  standalone: false,
   styleUrls: ['./request-password-reset-page.component.scss'],
+  templateUrl: 'request-password-reset-page.component.html',
 })
 export class RequestPasswordResetPageComponent {
   @ViewChild(PasswordResetRequestFormComponent)

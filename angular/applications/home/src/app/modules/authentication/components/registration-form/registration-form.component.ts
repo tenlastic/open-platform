@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 export interface IOnRegister {
@@ -9,6 +9,7 @@ export interface IOnRegister {
 
 @Component({
   selector: 'app-registration-form',
+  standalone: false,
   templateUrl: 'registration-form.component.html',
 })
 export class RegistrationFormComponent implements OnInit {
@@ -44,11 +45,16 @@ export class RegistrationFormComponent implements OnInit {
   }
 
   private confirmPassword(form: FormGroup) {
-    if (form.get('password').value !== form.get('confirmPassword').value) {
-      form.get('confirmPassword').setErrors({ required: true });
+    const confirmPassword = form.get('confirmPassword');
+    const password = form.get('password');
+
+    if (confirmPassword.value !== password.value) {
+      confirmPassword.setErrors({ match: true });
+    } else {
+      confirmPassword.setErrors(null);
     }
 
-    return form.get('confirmPassword').errors;
+    return null;
   }
 
   private setupForm() {
@@ -56,7 +62,7 @@ export class RegistrationFormComponent implements OnInit {
       email: new FormControl('', [Validators.email]),
       passwords: new FormGroup(
         {
-          confirmPassword: new FormControl('', Validators.required),
+          confirmPassword: new FormControl(''),
           password: new FormControl('', [Validators.required]),
         },
         this.confirmPassword,

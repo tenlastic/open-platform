@@ -1,94 +1,88 @@
-import {
-  DocumentType,
-  getModelForClass,
-  index,
-  modelOptions,
-  plugin,
-  prop,
-  PropType,
-  Severity,
-} from '@typegoose/typegoose';
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
 import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 import { AuthorizationDocument, AuthorizationRole } from '../authorization';
 
-@index({ namespaceId: 1 }, { unique: true })
-@modelOptions({
-  options: { allowMixed: Severity.ALLOW },
-  schemaOptions: { collection: 'storefronts', timestamps: true },
-})
-@plugin(duplicateKeyErrorPlugin)
-@plugin(unsetPlugin)
-export class StorefrontSchema {
-  public _id: mongoose.Types.ObjectId;
+export interface Storefront {
+  _id: mongoose.Types.ObjectId;
+  authorizationDocuments?: AuthorizationDocument[];
+  background?: string;
+  createdAt?: Date;
+  description?: string;
+  icon?: string;
+  images?: string[];
+  logo?: string;
+  metadata?: unknown;
+  namespaceId: mongoose.Types.ObjectId;
+  roles?: AuthorizationRole[];
+  showGameServers?: boolean;
+  showQueues?: boolean;
+  subtitle?: string;
+  title: string;
+  updatedAt?: Date;
+  videos?: string[];
+}
 
-  @prop({ filter: { create: true, update: true }, maxlength: 256, trim: true, type: String })
-  public background: string;
+export type StorefrontDocument = mongoose.Document<mongoose.Types.ObjectId> & Storefront;
 
-  public createdAt: Date;
-
-  @prop({ maxlength: 5120, trim: true, type: String })
-  public description: string;
-
-  @prop({ filter: { create: true, update: true }, maxlength: 256, trim: true, type: String })
-  public icon: string;
-
-  @prop(
-    { filter: { create: true, update: true }, maxlength: 256, trim: true, type: String },
-    PropType.ARRAY,
-  )
-  public images: string[];
-
-  @prop({ filter: { create: true, update: true }, maxlength: 256, trim: true, type: String })
-  public logo: string;
-
-  @prop({ type: mongoose.Schema.Types.Mixed, unset: false })
-  public metadata: any;
-
-  @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
-  public namespaceId: mongoose.Types.ObjectId;
-
-  @prop({ enum: AuthorizationRole, type: String }, PropType.ARRAY)
-  public roles: AuthorizationRole[];
-
-  @prop({ type: Boolean })
-  public showGameServers: boolean;
-
-  @prop({ type: Boolean })
-  public showQueues: boolean;
-
-  @prop({ maxlength: 32, type: String })
-  public subtitle: string;
-
-  @prop({ maxlength: 32, required: true, type: String })
-  public title: string;
-
-  public updatedAt: Date;
-
-  @prop(
-    { filter: { create: true, update: true }, maxlength: 256, trim: true, type: String },
-    PropType.ARRAY,
-  )
-  public videos: string[];
-
-  @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
-  public authorizationDocuments: AuthorizationDocument[];
-
+export interface StorefrontModelType extends mongoose.Model<StorefrontDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: typeof StorefrontModel, values: Partial<StorefrontSchema> = {}) {
-    const chance = new Chance();
-    const defaults = {
-      namespaceId: new mongoose.Types.ObjectId(),
-      title: chance.hash({ length: 32 }),
-    };
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(this: StorefrontModelType, values?: Partial<Storefront>): StorefrontDocument;
 }
 
-export type StorefrontDocument = DocumentType<StorefrontSchema>;
-export const StorefrontModel = getModelForClass(StorefrontSchema);
+const StorefrontSchema = new mongoose.Schema<StorefrontDocument, StorefrontModelType>(
+  {
+    background: {
+      filter: { create: true, update: true },
+      maxlength: 256,
+      trim: true,
+      type: String,
+    },
+    description: { maxlength: 5120, trim: true, type: String },
+    icon: { filter: { create: true, update: true }, maxlength: 256, trim: true, type: String },
+    images: { filter: { create: true, update: true }, maxlength: 256, trim: true, type: [String] },
+    logo: { maxlength: 256, trim: true, type: String },
+    metadata: { type: mongoose.Schema.Types.Mixed, unset: false },
+    namespaceId: { ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId },
+    roles: { enum: AuthorizationRole, type: [String] },
+    showGameServers: { type: Boolean },
+    showQueues: { type: Boolean },
+    subtitle: { maxlength: 32, type: String },
+    title: { maxlength: 32, required: true, type: String },
+    videos: { filter: { create: true, update: true }, maxlength: 256, trim: true, type: [String] },
+  },
+  { collection: 'storefronts', timestamps: true },
+);
+
+StorefrontSchema.index({ namespaceId: 1 }, { unique: true });
+
+StorefrontSchema.plugin(duplicateKeyErrorPlugin);
+StorefrontSchema.plugin(unsetPlugin);
+
+StorefrontSchema.virtual('authorizationDocuments', {
+  ref: 'AuthorizationSchema',
+  localField: 'namespaceId',
+  foreignField: 'namespaceId',
+});
+
+StorefrontSchema.statics.mock = function (values: Partial<Storefront> = {}) {
+  const chance = new Chance();
+  const defaults: Partial<Storefront> = {
+    namespaceId: new mongoose.Types.ObjectId(),
+    title: chance.hash({ length: 32 }),
+  };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const StorefrontModel = mongoose.model<StorefrontDocument, StorefrontModelType>(
+  'StorefrontSchema',
+  StorefrontSchema,
+);
+
+export { StorefrontSchema };
+
+export default StorefrontModel;

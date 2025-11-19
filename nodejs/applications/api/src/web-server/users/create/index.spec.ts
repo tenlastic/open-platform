@@ -1,14 +1,15 @@
-import { ContextMock } from '@tenlastic/web-server';
+import { ContextMock, CreateContext } from '@tenlastic/web-server';
 import { expect } from 'chai';
-import * as Chance from 'chance';
+import { Chance } from 'chance';
 
+import { UserDocument } from '@tenlastic/mongoose';
 import { handler } from '.';
 
 const chance = new Chance();
 
 describe('web-server/users/create', function () {
   it('creates a new record', async function () {
-    const ctx = new ContextMock({
+    const ctx = ContextMock<CreateContext<UserDocument>>({
       request: {
         body: {
           email: chance.email(),
@@ -18,7 +19,7 @@ describe('web-server/users/create', function () {
       },
     });
 
-    await handler(ctx as any);
+    await handler(ctx);
 
     expect(ctx.response.body.record).to.exist;
   });

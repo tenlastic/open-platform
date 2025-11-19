@@ -1,4 +1,4 @@
-import { QueuePermissions } from '@tenlastic/mongoose';
+import { QueueModel, QueuePermissionOptions } from '@tenlastic/mongoose';
 import { count } from '@tenlastic/web-server';
 
-export const handler = count(QueuePermissions);
+export const handler = count(QueueModel, QueuePermissionOptions);

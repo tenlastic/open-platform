@@ -3,6 +3,7 @@ import { FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-role-fields',
+  standalone: false,
   styleUrls: ['role-fields.component.scss'],
   templateUrl: 'role-fields.component.html',
 })

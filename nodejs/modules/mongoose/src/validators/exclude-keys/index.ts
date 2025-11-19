@@ -1,9 +1,9 @@
 export const excludeKeysValidator = (keys: string[]) => {
-  const msg = `Value cannot include the following keys: ${keys.join(', ')}.`;
+  const message = `Value cannot include the following keys: ${keys.join(', ')}.`;
 
   return {
-    msg,
-    validator: (value: any) => {
+    message,
+    validator: (value: unknown) => {
       if (value instanceof Map) {
         return !Array.from(value.keys()).some((k) => keys.includes(k));
       } else if (value && typeof value === 'object' && !Array.isArray(value)) {

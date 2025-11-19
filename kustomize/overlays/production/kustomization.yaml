@@ -25,4 +25,5 @@ resources:
   - ./static/workflowtemplates/checkout.yaml
   - ./static/workflowtemplates/dockerfiles.yaml
   - ./static/workflowtemplates/gcp.yaml
+  - ./static/workflowtemplates/migrations.yaml
   - ./static/workflowtemplates/nodejs.yaml

@@ -1,15 +1,9 @@
-import { EntityState, QueryEntity, StoreConfig } from '@datorama/akita';
+import { GameServerLogModel } from '../models';
+import { GameServerLogService } from '../services';
+import { BaseState } from './base';
 
-import { GameServerLogModel } from '../models/game-server-log';
-import { BaseStore } from './base';
-
-export interface GameServerLogState extends EntityState<GameServerLogModel> {}
-
-@StoreConfig({ idKey: 'unix', deepFreezeFn: (o) => o, name: 'game-server-logs', resettable: true })
-export class GameServerLogStore extends BaseStore<GameServerLogState, GameServerLogModel> {}
-
-export class GameServerLogQuery extends QueryEntity<GameServerLogState, GameServerLogModel> {
-  constructor(protected store: GameServerLogStore) {
-    super(store);
+export class GameServerLogState extends BaseState<GameServerLogModel, GameServerLogService> {
+  constructor(service: GameServerLogService) {
+    super('unix', service);
   }
 }

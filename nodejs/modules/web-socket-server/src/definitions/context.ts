@@ -1,18 +1,20 @@
-import * as mongoose from 'mongoose';
-
 import { Request } from './request';
 import { Response } from './response';
 import { WebSocket } from './web-socket';
 
-export class Context<T = { [key: string]: any }> {
+export class Context<TRequest = unknown, TResponse = unknown> {
   public params: { [key: string]: string };
-  public request: Request<T>;
-  public response: Response;
+  public request: Request<TRequest>;
+  public response: Response<TResponse>;
   public state: State;
-  public ws: WebSocket;
+  public ws: WebSocket<TResponse>;
 
-  constructor(parameters?: Partial<Context>) {
-    Object.assign(this, parameters);
+  constructor(parameters?: Partial<Context<TRequest, TResponse>>) {
+    this.params = parameters.params;
+    this.request = parameters.request;
+    this.response = parameters.response;
+    this.state = parameters.state;
+    this.ws = parameters.ws;
   }
 }
 
@@ -22,10 +24,10 @@ export interface Jwt {
   user?: { _id?: string; username?: string };
 }
 
-export interface State<T extends mongoose.Document = mongoose.Document> {
+export interface State {
   apiKey?: string;
   authorization?: { _id?: string; roles?: string[] };
   jwt?: Jwt;
   user?: { _id?: string; username?: string };
-  webSocket?: T;
+  webSocket?: { _id?: string; namespaceId?: string };
 }

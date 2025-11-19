@@ -5,19 +5,21 @@ import {
   BuildDocument,
   BuildModel,
   NamespaceDocument,
-  NamespaceModel,
   NamespaceLimitError,
   NamespaceLimitsModel,
+  NamespaceModel,
   UserDocument,
   UserModel,
 } from '@tenlastic/mongoose';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
-import { ContextMock } from '@tenlastic/web-server';
+import { ContextMock, CreateContext } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
+import chaiAsPromised from 'chai-as-promised';
 import * as FormData from 'form-data';
 import * as fs from 'fs';
+import { IncomingMessage } from 'http';
 import * as JSZip from 'jszip';
+import { Readable } from 'stream';
 
 import { MinioBuild } from '../../../../minio';
 import { handler } from './';
@@ -41,7 +43,7 @@ describe('web-server/builds/create', function () {
 
   context('when permission is granted', function () {
     let build: BuildDocument;
-    let ctx: ContextMock;
+    let ctx: CreateContext<BuildDocument>;
     let form: FormData;
     let stream: NodeJS.ReadableStream;
 
@@ -65,18 +67,18 @@ describe('web-server/builds/create', function () {
       form = new FormData();
       form.append('record', JSON.stringify(build));
 
-      ctx = new ContextMock({
+      ctx = ContextMock({
         params: { _id: build._id, namespaceId: namespace._id, platform: build.platform },
-        req: form,
+        req: form as Readable as IncomingMessage,
         request: { headers: form.getHeaders() },
-        state: { user },
-      } as any);
+        state: { user: { _id: user._id.toHexString() } },
+      });
     });
 
     it('returns the Build', async function () {
       form.append('zip', stream, { contentType: 'application/zip', filename: 'example.zip' });
 
-      await handler(ctx as any);
+      await handler(ctx);
 
       expect(ctx.response.body.record).to.exist;
     });
@@ -84,7 +86,7 @@ describe('web-server/builds/create', function () {
     it('uploads zip to Minio', async function () {
       form.append('zip', stream, { contentType: 'application/zip', filename: 'example.zip' });
 
-      await handler(ctx as any);
+      await handler(ctx);
 
       await minio.statObject(process.env.MINIO_BUCKET, MinioBuild.getZipObjectName(build));
     });
@@ -92,7 +94,7 @@ describe('web-server/builds/create', function () {
     it('does not allow invalid mimetypes', async function () {
       form.append('zip', 'example', { contentType: 'image/x-icon', filename: 'example.ico' });
 
-      const promise = handler(ctx as any);
+      const promise = handler(ctx);
 
       return expect(promise).to.be.rejectedWith('Mimetype must be: application/zip.');
     });
@@ -101,7 +103,7 @@ describe('web-server/builds/create', function () {
       form.append('one', stream, { contentType: 'application/zip', filename: 'example.zip' });
       form.append('two', stream, { contentType: 'application/zip', filename: 'example.zip' });
 
-      const promise = handler(ctx as any);
+      const promise = handler(ctx);
 
       return expect(promise).to.be.rejectedWith('Cannot upload more than one file at once.');
     });
@@ -112,7 +114,7 @@ describe('web-server/builds/create', function () {
       namespace.limits.cpu = 0.05;
       await namespace.save();
 
-      const promise = handler(ctx as any);
+      const promise = handler(ctx);
 
       return expect(promise).to.be.rejectedWith(NamespaceLimitError);
     });
@@ -123,7 +125,7 @@ describe('web-server/builds/create', function () {
       namespace.limits.storage = 1;
       await namespace.save();
 
-      const promise = handler(ctx as any);
+      const promise = handler(ctx);
 
       return expect(promise).to.be.rejectedWith(NamespaceLimitError);
     });
@@ -136,14 +138,18 @@ describe('web-server/builds/create', function () {
       const form = new FormData();
       form.append('record', JSON.stringify(build));
 
-      const ctx = new ContextMock({
-        params: { namespaceId: namespace._id },
-        req: form,
-        request: { headers: form.getHeaders() },
-        state: { user },
-      } as any);
+      const req = Readable.from(form.getBuffer()) as IncomingMessage;
+      req.headers = form.getHeaders();
+      req.method = 'POST';
 
-      const promise = handler(ctx as any);
+      const ctx = ContextMock<CreateContext<BuildDocument>>({
+        params: { namespaceId: namespace._id },
+        req,
+        request: { headers: form.getHeaders() },
+        state: { user: { _id: user._id.toHexString() } },
+      });
+
+      const promise = handler(ctx);
 
       return expect(promise).to.be.rejectedWith(PermissionError);
     });

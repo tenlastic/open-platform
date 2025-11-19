@@ -1,10 +1,10 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { StorefrontModel, StorefrontQuery, StorefrontService } from '@tenlastic/http';
+import { StorefrontModel, StorefrontService, StorefrontState } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 @Component({
+  standalone: false,
   styleUrls: ['./storefront-page.component.scss'],
   templateUrl: 'storefront-page.component.html',
 })
@@ -34,7 +34,7 @@ export class StorefrontPageComponent implements OnDestroy, OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
-    private storefrontQuery: StorefrontQuery,
+    private storefrontState: StorefrontState,
     private storefrontService: StorefrontService,
   ) {}
 
@@ -42,7 +42,7 @@ export class StorefrontPageComponent implements OnDestroy, OnInit {
     this.activatedRoute.params.subscribe(async (params) => {
       this.loadingMessage = 'Loading Storefront information...';
 
-      this.$storefront = this.storefrontQuery.selectEntity(params.namespaceId);
+      this.$storefront = this.storefrontState.selectOne(params.namespaceId);
 
       this.setImagesAndVideos$ = this.$storefront.subscribe((s) => {
         this.storefront = s;

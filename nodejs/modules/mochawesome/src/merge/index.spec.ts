@@ -149,14 +149,15 @@ describe('merge', function () {
 
     expect(report.stats.end).to.be.a('string');
     expect(report.stats.start).to.be.a('string');
+
     expect(report.results.length).to.eql(2);
 
-    expect(report.results[0].tests.length).to.eql(1);
-    expect(report.results[0].passes.length).to.eql(0);
-    expect(report.results[0].failures.length).to.eql(1);
+    expect(report.results[0].failures.length).to.eql(0);
+    expect(report.results[0].passes.length).to.eql(2);
+    expect(report.results[0].tests.length).to.eql(2);
 
-    expect(report.results[1].tests.length).to.eql(2);
-    expect(report.results[1].passes.length).to.eql(2);
-    expect(report.results[1].failures.length).to.eql(0);
+    expect(report.results[1].failures.length).to.eql(1);
+    expect(report.results[1].passes.length).to.eql(0);
+    expect(report.results[1].tests.length).to.eql(1);
   });
 });

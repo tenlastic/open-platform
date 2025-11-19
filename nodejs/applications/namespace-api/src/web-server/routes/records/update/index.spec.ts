@@ -1,20 +1,25 @@
 import {
   CollectionDocument,
-  CollectionJsonSchemaType,
   CollectionModel,
   CollectionPermissionsModel,
+  getRecordModel,
+  JsonSchemaType,
   NamespaceModel,
   RecordDocument,
-  RecordSchema,
   UserDocument,
   UserModel,
 } from '@tenlastic/mongoose';
-import { ContextMock } from '@tenlastic/web-server';
+import { ContextMock, UpdateOneContext } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-import * as Chance from 'chance';
+import chaiAsPromised from 'chai-as-promised';
+import { Chance } from 'chance';
 
 import { handler } from './';
+
+interface Properties {
+  email?: string;
+  name?: string;
+}
 
 const chance = new Chance();
 use(chaiAsPromised);
@@ -31,10 +36,10 @@ describe('web-server/records/update', function () {
     collection = await CollectionModel.mock({
       jsonSchema: {
         properties: {
-          email: { type: CollectionJsonSchemaType.String },
-          name: { type: CollectionJsonSchemaType.String },
+          email: { type: JsonSchemaType.String },
+          name: { type: JsonSchemaType.String },
         },
-        type: CollectionJsonSchemaType.Object,
+        type: JsonSchemaType.Object,
       },
       namespaceId: namespace._id,
       permissions: CollectionPermissionsModel.mock({
@@ -49,7 +54,7 @@ describe('web-server/records/update', function () {
       }),
     }).save();
 
-    const Model = RecordSchema.getModel(collection);
+    const Model = getRecordModel(collection);
     record = await Model.create({
       collectionId: collection._id,
       namespaceId: namespace._id,
@@ -59,13 +64,13 @@ describe('web-server/records/update', function () {
 
   it('returns the matching record', async function () {
     const properties = { email: chance.email(), name: chance.name() };
-    const ctx = new ContextMock({
+    const ctx = ContextMock<UpdateOneContext<RecordDocument<Properties>>>({
       params: { _id: record._id.toString(), collectionId: collection._id },
       request: { body: { properties } },
-      state: { user },
+      state: { user: { _id: user._id.toHexString() } },
     });
 
-    await handler(ctx as any);
+    await handler(ctx);
 
     expect(ctx.response.body.record).to.exist;
     expect(ctx.response.body.record.properties.email).to.eql(properties.email);

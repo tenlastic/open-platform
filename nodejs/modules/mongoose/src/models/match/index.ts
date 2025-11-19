@@ -1,3 +1,3 @@
-export * from './model';
-
 export * from './team';
+
+export * from './model';

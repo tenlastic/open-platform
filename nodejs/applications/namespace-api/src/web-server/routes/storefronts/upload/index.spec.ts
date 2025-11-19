@@ -3,9 +3,9 @@ import {
   AuthorizationModel,
   AuthorizationRole,
   NamespaceDocument,
-  NamespaceModel,
   NamespaceLimitError,
   NamespaceLimitsModel,
+  NamespaceModel,
   StorefrontDocument,
   StorefrontModel,
   UserDocument,
@@ -13,11 +13,13 @@ import {
 } from '@tenlastic/mongoose';
 import { ContextMock, RecordNotFoundError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
+import chaiAsPromised from 'chai-as-promised';
 import * as FormData from 'form-data';
+import { IncomingMessage } from 'http';
+import { Readable } from 'stream';
 
 import { MinioStorefront } from '../../../../minio';
-import { handler } from './';
+import { handler, UploadStorefrontContext } from './';
 
 use(chaiAsPromised);
 
@@ -33,7 +35,7 @@ describe('web-server/storefronts/upload', function () {
   });
 
   context('when permission is granted', function () {
-    let ctx: ContextMock;
+    let ctx: UploadStorefrontContext;
     let form: FormData;
     let storefront: StorefrontDocument;
 
@@ -47,18 +49,22 @@ describe('web-server/storefronts/upload', function () {
 
       form = new FormData();
 
-      ctx = new ContextMock({
-        params: { _id: storefront._id, field: 'background', namespaceId: namespace._id },
-        req: form,
+      ctx = ContextMock({
+        params: {
+          _id: storefront._id.toHexString(),
+          field: 'background',
+          namespaceId: namespace._id.toHexString(),
+        },
+        req: form as Readable as IncomingMessage,
         request: { headers: form.getHeaders(), host: 'localhost:3000', protocol: 'http' },
-        state: { user },
-      } as any);
+        state: { user: { _id: user._id.toHexString() } },
+      });
     });
 
     it('creates a new record', async function () {
       form.append('example', 'example', { contentType: 'image/jpeg', filename: 'example.jpg' });
 
-      await handler(ctx as any);
+      await handler(ctx);
 
       const host = 'http://localhost:3000';
       expect(ctx.response.body.record.background).to.eql(
@@ -69,7 +75,7 @@ describe('web-server/storefronts/upload', function () {
     it('uploads file to Minio', async function () {
       form.append('example', 'example', { contentType: 'image/jpeg', filename: 'example.jpg' });
 
-      await handler(ctx as any);
+      await handler(ctx);
 
       const result = await minio.statObject(
         process.env.MINIO_BUCKET,
@@ -82,7 +88,7 @@ describe('web-server/storefronts/upload', function () {
     it('does not allow invalid mimetypes', async function () {
       form.append('example', 'example', { contentType: 'image/x-icon', filename: 'example.ico' });
 
-      const promise = handler(ctx as any);
+      const promise = handler(ctx);
 
       return expect(promise).to.be.rejectedWith(
         'Mimetype must be: image/gif, image/jpeg, image/png.',
@@ -95,7 +101,7 @@ describe('web-server/storefronts/upload', function () {
       namespace.limits.storage = 1;
       await namespace.save();
 
-      const promise = handler(ctx as any);
+      const promise = handler(ctx);
 
       return expect(promise).to.be.rejectedWith(NamespaceLimitError);
     });
@@ -104,7 +110,7 @@ describe('web-server/storefronts/upload', function () {
       form.append('one', 'example', { contentType: 'image/jpeg', filename: 'example.jpg' });
       form.append('two', 'example', { contentType: 'image/jpeg', filename: 'example.jpg' });
 
-      const promise = handler(ctx as any);
+      const promise = handler(ctx);
 
       return expect(promise).to.be.rejectedWith('Cannot upload more than one file at once.');
     });
@@ -114,12 +120,16 @@ describe('web-server/storefronts/upload', function () {
     it('throws an error', async function () {
       const storefront = await StorefrontModel.mock({ namespaceId: namespace._id }).save();
 
-      const ctx = new ContextMock({
-        params: { _id: storefront._id, field: 'background', namespaceId: namespace._id },
-        state: { user },
+      const ctx = ContextMock<UploadStorefrontContext>({
+        params: {
+          _id: storefront._id.toHexString(),
+          field: 'background',
+          namespaceId: namespace._id.toHexString(),
+        },
+        state: { user: { _id: user._id.toHexString() } },
       });
 
-      const promise = handler(ctx as any);
+      const promise = handler(ctx);
 
       return expect(promise).to.be.rejectedWith(RecordNotFoundError);
     });

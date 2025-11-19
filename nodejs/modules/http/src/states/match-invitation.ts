@@ -1,15 +1,9 @@
-import { EntityState, QueryEntity, StoreConfig } from '@datorama/akita';
+import { MatchInvitationModel } from '../models';
+import { MatchInvitationService } from '../services';
+import { BaseState } from './base';
 
-import { MatchInvitationModel } from '../models/match-invitation';
-import { BaseStore } from './base';
-
-export interface MatchInvitationState extends EntityState<MatchInvitationModel> {}
-
-@StoreConfig({ idKey: '_id', deepFreezeFn: (o) => o, name: 'match-invitations', resettable: true })
-export class MatchInvitationStore extends BaseStore<MatchInvitationState, MatchInvitationModel> {}
-
-export class MatchInvitationQuery extends QueryEntity<MatchInvitationState, MatchInvitationModel> {
-  constructor(protected store: MatchInvitationStore) {
-    super(store);
+export class MatchInvitationState extends BaseState<MatchInvitationModel, MatchInvitationService> {
+  constructor(service: MatchInvitationService) {
+    super('_id', service);
   }
 }

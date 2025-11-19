@@ -1,7 +1,6 @@
 import { SteamIntegrationModel } from '../models/steam-integration';
-import { SteamIntegrationStore } from '../states/steam-integration';
 import { ApiService } from './api';
-import { BaseService, BaseServiceFindQuery } from './base';
+import { BaseService, BaseServiceCountQuery, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 
 export class SteamIntegrationService {
@@ -11,22 +10,17 @@ export class SteamIntegrationService {
 
   private baseService: BaseService<SteamIntegrationModel>;
 
-  constructor(
-    private apiService: ApiService,
-    private environmentService: EnvironmentService,
-    private steamIntegrationStore: SteamIntegrationStore,
-  ) {
+  constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
     this.baseService = new BaseService<SteamIntegrationModel>(
       this.apiService,
       SteamIntegrationModel,
-      this.steamIntegrationStore,
     );
   }
 
   /**
    * Returns the number of Records satisfying the query.
    */
-  public async count(namespaceId: string, query: any) {
+  public async count(namespaceId: string, query: BaseServiceCountQuery) {
     const url = this.getUrl(namespaceId);
     return this.baseService.count(query, url);
   }

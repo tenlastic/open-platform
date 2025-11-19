@@ -2,9 +2,8 @@ import { EventEmitter } from 'events';
 import TypedEmitter from 'typed-emitter';
 
 import { WorkflowLogModel } from '../models/workflow-log';
-import { WorkflowLogStore } from '../states/workflow-log';
 import { ApiService } from './api';
-import { ServiceEvents } from './base';
+import { BaseServiceRecordsResponse, ServiceEvents } from './base';
 import { EnvironmentService } from './environment';
 
 export interface WorkflowLogsQuery {
@@ -15,11 +14,7 @@ export interface WorkflowLogsQuery {
 export class WorkflowLogService {
   public emitter = new EventEmitter() as TypedEmitter<ServiceEvents<WorkflowLogModel>>;
 
-  constructor(
-    private apiService: ApiService,
-    private environmentService: EnvironmentService,
-    private workflowLogStore: WorkflowLogStore,
-  ) {}
+  constructor(private apiService: ApiService, private environmentService: EnvironmentService) {}
 
   /**
    * Returns an array of Records satisfying the query.
@@ -32,7 +27,7 @@ export class WorkflowLogService {
     query: WorkflowLogsQuery,
   ) {
     const url = this.getUrl(namespaceId, workflowId);
-    const response = await this.apiService.request({
+    const response = await this.apiService.request<BaseServiceRecordsResponse<WorkflowLogModel>>({
       method: 'get',
       params: query,
       url: `${url}/${pod}/${container}`,
@@ -41,7 +36,7 @@ export class WorkflowLogService {
     const records = response.data.records.map(
       (record) => new WorkflowLogModel({ ...record, container, pod, workflowId }),
     );
-    this.workflowLogStore.upsertMany(records);
+    this.emitter.emit('find', records);
 
     return records;
   }

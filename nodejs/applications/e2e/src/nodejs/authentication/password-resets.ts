@@ -1,7 +1,7 @@
 import wait from '@tenlastic/wait';
 import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-import * as Chance from 'chance';
+import chaiAsPromised from 'chai-as-promised';
+import { Chance } from 'chance';
 import { google } from 'googleapis';
 
 import dependencies from '../../dependencies';

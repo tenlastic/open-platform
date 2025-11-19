@@ -1,20 +1,21 @@
-import { Context, Request, Response, State, WebSocket } from '../definitions';
+import { Context, Request, Response, State } from '../definitions';
 import { RequestMock } from './request';
 import { ResponseMock } from './response';
 
-export class ContextMock implements Context {
-  public params: { [key: string]: string };
-  public request: Request;
-  public response: Response;
-  public state: State;
-  public ws: WebSocket;
+export type ContextMockInput<TContext> = TContext extends Context<infer TRequest, infer TResponse>
+  ? {
+      params?: { [key: string]: string };
+      request?: Partial<Request<TRequest>>;
+      response?: Partial<Response<TResponse>>;
+      state?: Partial<State>;
+    }
+  : never;
 
-  constructor(parameters?: Partial<Context>) {
-    this.params = {};
-    this.request = new RequestMock();
-    this.response = new ResponseMock();
-    this.state = {};
-
-    Object.assign(this, parameters);
-  }
+export function ContextMock<TContext extends Context>(input?: ContextMockInput<TContext>) {
+  return {
+    params: input?.params || {},
+    request: RequestMock(input?.request),
+    response: ResponseMock(input?.response),
+    state: input?.state || {},
+  } as TContext;
 }

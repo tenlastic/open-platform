@@ -36,15 +36,13 @@
       <td mat-cell
           *matCellDef="let element">
         <ng-container>
-          <app-button mat-button
-                      [color]="($group | async) ? 'accent' : 'primary'"
+          <app-button [color]="($group | async) ? 'accent' : 'primary'"
                       [disabled]="isRunning"
                       (OnClick)="join(element, null)">
             <span>Join as Individual</span>
           </app-button>
 
           <app-button *ngIf="$group | async as group"
-                      mat-button
                       color="primary"
                       [disabled]="isRunning"
                       (OnClick)="join(element, group)">

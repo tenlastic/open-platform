@@ -2,36 +2,32 @@ import {
   AuthorizationModel,
   AuthorizationRole,
   NamespaceDocument,
-  NamespaceModel,
   NamespaceLimitsModel,
+  NamespaceModel,
   UserDocument,
   UserModel,
 } from '@tenlastic/mongoose';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
-import steam from '@tenlastic/steam';
 import { ContextMock, HttpError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
+import chaiAsPromised from 'chai-as-promised';
 import { Chance } from 'chance';
 import * as sinon from 'sinon';
 
-import { handler } from '.';
+import { CreateSteamIntegrationContext, dependencies, handler } from '.';
 
 const chance = new Chance();
 use(chaiAsPromised);
 
 describe('web-server/steam-integrations/create', function () {
-  let sandbox: sinon.SinonSandbox;
   let user: UserDocument;
 
   beforeEach(async function () {
-    sandbox = sinon.createSandbox();
-
     user = await UserModel.mock().save();
   });
 
   afterEach(function () {
-    sandbox.restore();
+    sinon.restore();
   });
 
   context('when permission is granted', function () {
@@ -48,18 +44,18 @@ describe('web-server/steam-integrations/create', function () {
 
     it('creates a Steam API Key', async function () {
       const applicationId = chance.integer();
-      const ctx = new ContextMock({
+      const ctx = ContextMock<CreateSteamIntegrationContext>({
         params: { namespaceId: namespace._id },
         request: { body: { apiKey: chance.hash(), applicationId, name: chance.hash() } },
-        state: { user },
-      } as any);
+        state: { user: { _id: user._id.toHexString() } },
+      });
 
       const app = { app_name: chance.hash(), app_type: chance.hash(), appid: applicationId };
-      sandbox
-        .stub(steam, 'getPartnerAppListForWebApiKey')
+      sinon
+        .stub(dependencies, 'getPartnerAppListForWebApiKey')
         .resolves({ data: { applist: { apps: { app: [app] } } }, status: 200 });
 
-      await handler(ctx as any);
+      await handler(ctx);
 
       expect(ctx.response.body.record).to.exist;
     });
@@ -69,15 +65,15 @@ describe('web-server/steam-integrations/create', function () {
     it('throws an error', async function () {
       const namespace = await NamespaceModel.mock({ limits: NamespaceLimitsModel.mock() }).save();
 
-      const ctx = new ContextMock({
+      const ctx = ContextMock<CreateSteamIntegrationContext>({
         params: { namespaceId: namespace._id },
         request: { body: { apiKey: chance.hash(), applicationId: chance.integer() } },
-        state: { user },
-      } as any);
+        state: { user: { _id: user._id.toHexString() } },
+      });
 
-      sandbox.stub(steam, 'getPartnerAppListForWebApiKey').resolves({ status: 403 });
+      sinon.stub(dependencies, 'getPartnerAppListForWebApiKey').resolves({ status: 403 });
 
-      const promise = handler(ctx as any);
+      const promise = handler(ctx);
 
       return expect(promise).to.be.rejectedWith(
         HttpError,
@@ -90,18 +86,18 @@ describe('web-server/steam-integrations/create', function () {
     it('throws an error', async function () {
       const namespace = await NamespaceModel.mock({ limits: NamespaceLimitsModel.mock() }).save();
 
-      const ctx = new ContextMock({
+      const ctx = ContextMock<CreateSteamIntegrationContext>({
         params: { namespaceId: namespace._id },
         request: { body: { apiKey: chance.hash(), applicationId: chance.integer() } },
-        state: { user },
-      } as any);
+        state: { user: { _id: user._id.toHexString() } },
+      });
 
       const app = { app_name: chance.hash(), app_type: chance.hash(), appid: chance.integer() };
-      sandbox
-        .stub(steam, 'getPartnerAppListForWebApiKey')
+      sinon
+        .stub(dependencies, 'getPartnerAppListForWebApiKey')
         .resolves({ data: { applist: { apps: { app: [app] } } }, status: 200 });
 
-      const promise = handler(ctx as any);
+      const promise = handler(ctx);
 
       return expect(promise).to.be.rejectedWith(
         HttpError,
@@ -116,18 +112,18 @@ describe('web-server/steam-integrations/create', function () {
       const namespace = await NamespaceModel.mock({ limits: NamespaceLimitsModel.mock() }).save();
 
       const applicationId = chance.integer();
-      const ctx = new ContextMock({
+      const ctx = ContextMock<CreateSteamIntegrationContext>({
         params: { namespaceId: namespace._id },
         request: { body: { apiKey: chance.hash(), applicationId } },
-        state: { user },
-      } as any);
+        state: { user: { _id: user._id.toHexString() } },
+      });
 
       const app = { app_name: chance.hash(), app_type: chance.hash(), appid: applicationId };
-      sandbox
-        .stub(steam, 'getPartnerAppListForWebApiKey')
+      sinon
+        .stub(dependencies, 'getPartnerAppListForWebApiKey')
         .resolves({ data: { applist: { apps: { app: [app] } } }, status: 200 });
 
-      const promise = handler(ctx as any);
+      const promise = handler(ctx);
 
       return expect(promise).to.be.rejectedWith(PermissionError);
     });

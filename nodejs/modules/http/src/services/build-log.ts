@@ -2,9 +2,8 @@ import { EventEmitter } from 'events';
 import TypedEmitter from 'typed-emitter';
 
 import { BuildLogModel } from '../models/build-log';
-import { BuildLogStore } from '../states/build-log';
 import { ApiService } from './api';
-import { ServiceEvents } from './base';
+import { BaseServiceRecordsResponse, ServiceEvents } from './base';
 import { EnvironmentService } from './environment';
 
 export interface BuildLogsQuery {
@@ -15,11 +14,7 @@ export interface BuildLogsQuery {
 export class BuildLogService {
   public emitter = new EventEmitter() as TypedEmitter<ServiceEvents<BuildLogModel>>;
 
-  constructor(
-    private apiService: ApiService,
-    private buildLogStore: BuildLogStore,
-    private environmentService: EnvironmentService,
-  ) {}
+  constructor(private apiService: ApiService, private environmentService: EnvironmentService) {}
 
   /**
    * Returns an array of Records satisfying the query.
@@ -32,7 +27,7 @@ export class BuildLogService {
     query: BuildLogsQuery,
   ) {
     const url = this.getUrl(namespaceId, buildId);
-    const response = await this.apiService.request({
+    const response = await this.apiService.request<BaseServiceRecordsResponse<BuildLogModel>>({
       method: 'get',
       params: query,
       url: `${url}/${pod}/${container}`,
@@ -41,7 +36,7 @@ export class BuildLogService {
     const records = response.data.records.map(
       (record) => new BuildLogModel({ ...record, container, buildId, pod }),
     );
-    this.buildLogStore.upsertMany(records);
+    this.emitter.emit('find', records);
 
     return records;
   }

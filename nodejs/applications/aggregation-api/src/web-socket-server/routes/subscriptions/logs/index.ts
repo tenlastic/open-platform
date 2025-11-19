@@ -1,9 +1,9 @@
-import { NamespacePermissions } from '@tenlastic/mongoose';
-import { Context, logs, LogsOptions } from '@tenlastic/web-socket-server';
+import { NamespaceModel, NamespacePermissionOptions } from '@tenlastic/mongoose';
+import { logs, LogsContext } from '@tenlastic/web-socket-server';
 
-export async function handler(ctx: Context<LogsOptions>) {
+export async function handler(ctx: LogsContext) {
   switch (ctx.params.collection) {
     case 'namespaces':
-      return logs(ctx, NamespacePermissions);
+      return logs(ctx, NamespaceModel, NamespacePermissionOptions);
   }
 }

@@ -1,15 +1,9 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import {
-  FormGroup,
-  FormArray,
-  FormBuilder,
-  Validators,
-  AbstractControl,
-  ValidationErrors,
-} from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-role-field',
+  standalone: false,
   styleUrls: ['./role-field.component.scss'],
   templateUrl: 'role-field.component.html',
 })

@@ -1,9 +1,10 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 
+import { IAuthorization } from '@tenlastic/http';
 import { FormResolver } from '../../../../core/resolvers';
 import { SharedModule } from '../../../../shared/shared.module';
-import { LayoutComponent } from './components';
+import { LayoutComponent, LogsOverlayComponent } from './components';
 import {
   NamespacesFormPageComponent,
   NamespacesJsonPageComponent,
@@ -25,9 +26,10 @@ export const ROUTES: Routes = [
         path: 'articles',
       },
       {
+        data: { type: IAuthorization.Type.ApiKey },
         loadChildren: () =>
           import('../authorizations/authorizations.module').then((m) => m.AuthorizationModule),
-        path: 'authorizations',
+        path: 'api-key-authorizations',
       },
       {
         loadChildren: () =>
@@ -44,6 +46,12 @@ export const ROUTES: Routes = [
         loadChildren: () =>
           import('../collections/collections.module').then((m) => m.CollectionModule),
         path: 'collections',
+      },
+      {
+        data: { type: IAuthorization.Type.Default },
+        loadChildren: () =>
+          import('../authorizations/authorizations.module').then((m) => m.AuthorizationModule),
+        path: 'default-authorizations',
       },
       {
         loadChildren: () =>
@@ -93,6 +101,12 @@ export const ROUTES: Routes = [
         path: 'teams',
       },
       {
+        data: { type: IAuthorization.Type.User },
+        loadChildren: () =>
+          import('../authorizations/authorizations.module').then((m) => m.AuthorizationModule),
+        path: 'user-authorizations',
+      },
+      {
         loadChildren: () =>
           import('../authorizations/authorizations.module').then((m) => m.AuthorizationModule),
         path: 'users',
@@ -115,6 +129,7 @@ export const ROUTES: Routes = [
 @NgModule({
   declarations: [
     LayoutComponent,
+    LogsOverlayComponent,
 
     NamespacesFormPageComponent,
     NamespacesJsonPageComponent,

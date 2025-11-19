@@ -1,5 +1,4 @@
 import axios from 'axios';
-import * as FormData from 'form-data';
 
 import { getCredentials } from '../credentials/credentials';
 
@@ -22,5 +21,5 @@ export async function send(options: SendOptions) {
   }
   const url = `https://api:${credentials.key}@api.mailgun.net/v3/${credentials.domain}/messages`;
 
-  return axios({ data: formData, method: 'post', url });
+  return axios.request({ data: formData, method: 'post', url });
 }

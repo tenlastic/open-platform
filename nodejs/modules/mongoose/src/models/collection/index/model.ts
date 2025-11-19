@@ -1,8 +1,6 @@
-import { DocumentType, getModelForClass, plugin, prop, PropType } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
 import { setPlugin } from '../../../plugins';
-import { arrayLengthValidator } from '../../../validators';
 import {
   CollectionIndexKeyDocument,
   CollectionIndexKeyModel,
@@ -10,34 +8,42 @@ import {
 } from './key';
 import { CollectionIndexOptionsDocument, CollectionIndexOptionsSchema } from './options';
 
-@plugin(setPlugin)
-export class CollectionIndexSchema {
-  public _id: mongoose.Types.ObjectId;
+export interface CollectionIndex {
+  _id: mongoose.Types.ObjectId;
+  keys: CollectionIndexKeyDocument[];
+  options?: CollectionIndexOptionsDocument;
+}
 
-  @prop(
-    { required: true, type: CollectionIndexKeySchema, validate: arrayLengthValidator(5, 1) },
-    PropType.ARRAY,
-  )
-  public keys: CollectionIndexKeyDocument[];
+export type CollectionIndexDocument = mongoose.Document<mongoose.Types.ObjectId> & CollectionIndex;
 
-  @prop({ type: CollectionIndexOptionsSchema })
-  public options: CollectionIndexOptionsDocument;
-
+export interface CollectionIndexModelType extends mongoose.Model<CollectionIndexDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(
-    this: typeof CollectionIndexModel,
-    values: Partial<CollectionIndexSchema> = {},
-  ) {
-    const defaults = {
-      collectionId: new mongoose.Types.ObjectId(),
-      keys: [CollectionIndexKeyModel.mock()],
-    };
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(this: CollectionIndexModelType, values?: Partial<CollectionIndex>): CollectionIndexDocument;
 }
 
-export type CollectionIndexDocument = DocumentType<CollectionIndexSchema>;
-export const CollectionIndexModel = getModelForClass(CollectionIndexSchema);
+const CollectionIndexSchema = new mongoose.Schema<
+  CollectionIndexDocument,
+  CollectionIndexModelType
+>({
+  keys: { required: true, type: [CollectionIndexKeySchema], validate: [] },
+  options: { type: CollectionIndexOptionsSchema },
+});
+
+CollectionIndexSchema.plugin(setPlugin);
+
+CollectionIndexSchema.statics.mock = function (values: Partial<CollectionIndex> = {}) {
+  const defaults: Partial<CollectionIndex> = { keys: [CollectionIndexKeyModel.mock()] };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const CollectionIndexModel = mongoose.model<
+  CollectionIndexDocument,
+  CollectionIndexModelType
+>('CollectionIndexSchema', CollectionIndexSchema);
+
+export { CollectionIndexSchema };
+
+export default CollectionIndexModel;

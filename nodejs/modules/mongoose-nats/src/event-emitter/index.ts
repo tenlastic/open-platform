@@ -1,4 +1,4 @@
-export type AsyncListener<T> = (event: T) => Promise<any>;
+export type AsyncListener<T> = (event: T) => Promise<void>;
 export type SyncListener<T> = (event: T) => void;
 
 interface Listener<T> {

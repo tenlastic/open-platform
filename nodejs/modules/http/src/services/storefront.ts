@@ -1,8 +1,12 @@
 import { AxiosRequestConfig, AxiosRequestTransformer } from 'axios';
 import { StorefrontModel } from '../models/storefront';
-import { StorefrontStore } from '../states/storefront';
 import { ApiService } from './api';
-import { BaseService, BaseServiceFindQuery } from './base';
+import {
+  BaseService,
+  BaseServiceCountQuery,
+  BaseServiceFindQuery,
+  BaseServiceRecordResponse,
+} from './base';
 import { EnvironmentService } from './environment';
 
 type FormDataFunction = (formData?: FormData) => FormData;
@@ -14,22 +18,14 @@ export class StorefrontService {
 
   private baseService: BaseService<StorefrontModel>;
 
-  constructor(
-    private apiService: ApiService,
-    private environmentService: EnvironmentService,
-    private storefrontStore: StorefrontStore,
-  ) {
-    this.baseService = new BaseService<StorefrontModel>(
-      this.apiService,
-      StorefrontModel,
-      this.storefrontStore,
-    );
+  constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
+    this.baseService = new BaseService<StorefrontModel>(this.apiService, StorefrontModel);
   }
 
   /**
    * Returns the number of Records satisfying the query.
    */
-  public async count(namespaceId: string, query: any) {
+  public async count(namespaceId: string, query: BaseServiceCountQuery) {
     const url = this.getUrl(namespaceId);
     return this.baseService.count(query, url);
   }
@@ -92,7 +88,7 @@ export class StorefrontService {
     storefrontId: string,
     _id: string,
     formData: FormData | FormDataFunction,
-    options: { onUploadProgress?: (progressEvent: any) => void } = {},
+    options: { onUploadProgress?: (progressEvent: unknown) => void } = {},
   ) {
     const url = this.getUrl(namespaceId);
     const config: AxiosRequestConfig = {
@@ -107,11 +103,12 @@ export class StorefrontService {
       config.transformRequest = formData as AxiosRequestTransformer;
     }
 
-    const response = await this.apiService.request(config);
+    const response = await this.apiService.request<BaseServiceRecordResponse<StorefrontModel>>(
+      config,
+    );
 
     const record = new StorefrontModel(response.data.record);
     this.emitter.emit('update', record);
-    this.storefrontStore.upsert(storefrontId, record);
 
     return record;
   }

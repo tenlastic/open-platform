@@ -1,8 +1,8 @@
-<app-sidenav>
+<router-outlet></router-outlet>
+
+<ng-template #sideMenu>
   <ng-container *ngIf="$namespace | async as namespace">
-    <div *ngIf="$queue | async as queue"
-         appNav
-         class="nav">
+    <ng-container *ngIf="$queue | async as queue">
       <app-button color="accent"
                   [disabled]="namespace.status.phase !== 'Running'"
                   layout="vertical"
@@ -72,8 +72,6 @@
         <mat-icon>groups</mat-icon>
         <div>Teams</div>
       </app-button>
-    </div>
-
-    <router-outlet></router-outlet>
+    </ng-container>
   </ng-container>
-</app-sidenav>
+</ng-template>

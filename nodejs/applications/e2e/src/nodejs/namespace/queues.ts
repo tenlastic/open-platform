@@ -1,7 +1,7 @@
 import { GameServerModel, IAuthorization, IGameServer, WebSocket } from '@tenlastic/http';
 import wait from '@tenlastic/wait';
 import { expect } from 'chai';
-import * as Chance from 'chance';
+import { Chance } from 'chance';
 import * as fs from 'fs';
 
 import dependencies from '../../dependencies';

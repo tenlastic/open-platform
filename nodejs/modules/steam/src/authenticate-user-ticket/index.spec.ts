@@ -8,14 +8,8 @@ import { authenticateUserTicket } from './';
 const chance = new Chance();
 
 describe('authenticate-user-ticket', function () {
-  let sandbox: sinon.SinonSandbox;
-
-  beforeEach(function () {
-    sandbox = sinon.createSandbox();
-  });
-
   afterEach(function () {
-    sandbox.restore();
+    sinon.restore();
   });
 
   it('returns User from Steam', async function () {
@@ -30,7 +24,7 @@ describe('authenticate-user-ticket', function () {
         },
       },
     };
-    sandbox.stub(request, 'request').resolves({ data, status: 200 });
+    sinon.stub(request, 'request').resolves({ data, status: 200 });
 
     const response = await authenticateUserTicket({
       appId: chance.integer(),

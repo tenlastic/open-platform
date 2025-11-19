@@ -3,7 +3,7 @@ import { QueueMemberModel, QueueModel } from '@tenlastic/http';
 import dependencies from '../dependencies';
 
 import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
+import chaiAsPromised from 'chai-as-promised';
 import * as sinon from 'sinon';
 
 import { createMatch } from './';
@@ -11,14 +11,8 @@ import { createMatch } from './';
 use(chaiAsPromised);
 
 describe('create-match', function () {
-  let sandbox: sinon.SinonSandbox;
-
-  beforeEach(function () {
-    sandbox = sinon.createSandbox();
-  });
-
   afterEach(function () {
-    sandbox.restore();
+    sinon.restore();
   });
 
   it('throws an error when not enough Queue Members exist', async function () {
@@ -33,7 +27,7 @@ describe('create-match', function () {
     const queueMembers = [
       new QueueMemberModel({ _id: '1', createdAt: new Date(0), userIds: ['1'] }),
     ];
-    dependencies.queueMemberStore.upsertMany(queueMembers);
+    dependencies.queueMemberState.upsertMany(queueMembers);
 
     const promise = createMatch(queue);
 
@@ -53,11 +47,11 @@ describe('create-match', function () {
       new QueueMemberModel({ _id: '1', createdAt: new Date(0), userIds: ['1'] }),
       new QueueMemberModel({ _id: '2', createdAt: new Date(), userIds: ['2'] }),
     ];
-    dependencies.queueMemberStore.upsertMany(queueMembers);
+    dependencies.queueMemberState.upsertMany(queueMembers);
 
     const error = new Error('Error creating Match.');
-    const createMatchSpy = sandbox.stub(dependencies.matchService, 'create').rejects(error);
-    const findMatchesSpy = sandbox.stub(dependencies.matchService, 'find').resolves([]);
+    const createMatchSpy = sinon.stub(dependencies.matchService, 'create').rejects(error);
+    const findMatchesSpy = sinon.stub(dependencies.matchService, 'find').resolves([]);
 
     const promise = createMatch(queue);
 
@@ -81,11 +75,11 @@ describe('create-match', function () {
       new QueueMemberModel({ _id: '2', createdAt: new Date(), userIds: ['2'] }),
       new QueueMemberModel({ _id: '3', createdAt: new Date(), userIds: ['3'] }),
     ];
-    dependencies.queueMemberStore.upsertMany(queueMembers);
+    dependencies.queueMemberState.upsertMany(queueMembers);
 
-    const createMatchSpy = sandbox.stub(dependencies.matchService, 'create').resolves({ _id: '1' });
-    const upsertManyQueueMemberSpy = sandbox
-      .stub(dependencies.queueMemberStore, 'upsertMany')
+    const createMatchSpy = sinon.stub(dependencies.matchService, 'create').resolves({ _id: '1' });
+    const upsertManyQueueMemberSpy = sinon
+      .stub(dependencies.queueMemberState, 'upsertMany')
       .resolves();
 
     const result = await createMatch(queue);
@@ -121,11 +115,11 @@ describe('create-match', function () {
       new QueueMemberModel({ _id: '3', createdAt: new Date(0), userIds: ['3'] }),
       new QueueMemberModel({ _id: '4', createdAt: new Date(0), userIds: ['4', '5'] }),
     ];
-    dependencies.queueMemberStore.upsertMany(queueMembers);
+    dependencies.queueMemberState.upsertMany(queueMembers);
 
-    const createMatchSpy = sandbox.stub(dependencies.matchService, 'create').resolves({ _id: '1' });
-    const upsertManyQueueMemberSpy = sandbox
-      .stub(dependencies.queueMemberStore, 'upsertMany')
+    const createMatchSpy = sinon.stub(dependencies.matchService, 'create').resolves({ _id: '1' });
+    const upsertManyQueueMemberSpy = sinon
+      .stub(dependencies.queueMemberState, 'upsertMany')
       .resolves();
 
     const result = await createMatch(queue);

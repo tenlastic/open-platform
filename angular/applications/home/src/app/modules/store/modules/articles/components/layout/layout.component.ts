@@ -1,49 +1,50 @@
 import { Component, OnInit } from '@angular/core';
 import {
   ArticleModel,
-  ArticleQuery,
   ArticleService,
+  ArticleState,
   IArticle,
   IAuthorization,
   StorefrontModel,
 } from '@tenlastic/http';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 
-import { ActivatedRoute, Params } from '@angular/router';
-import { Order } from '@datorama/akita';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
-  templateUrl: './layout.component.html',
+  standalone: false,
   styleUrls: ['./layout.component.scss'],
+  templateUrl: './layout.component.html',
 })
 export class LayoutComponent implements OnInit {
   public IAuthorization = IAuthorization;
   public $articles: Observable<ArticleModel[]>;
   public $storefront: Observable<StorefrontModel>;
-  public get namespaceId() {
-    return this.params.namespaceId;
-  }
+  public namespaceId: string;
 
-  private params: Params;
   private type: IArticle.Type;
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private articleQuery: ArticleQuery,
+    private articleState: ArticleState,
     private articleService: ArticleService,
   ) {}
 
   public async ngOnInit() {
     this.activatedRoute.data.subscribe((data) => (this.type = data.type));
     this.activatedRoute.params.subscribe(async (params) => {
-      this.params = params;
+      this.namespaceId = params.namespaceId;
 
-      this.$articles = this.articleQuery.selectAll({
-        filterBy: (a) =>
-          a.namespaceId === this.namespaceId && a.publishedAt && a.type === this.type,
-        sortBy: 'publishedAt',
-        sortByOrder: Order.DESC,
-      });
+      this.$articles = this.articleState
+        .selectMany()
+        .pipe(
+          map((as) =>
+            as.filter(
+              (a) => a.namespaceId === this.namespaceId && a.publishedAt && a.type === this.type,
+            ),
+          ),
+        )
+        .pipe(map((as) => as.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime())));
 
       await this.fetchArticles(this.namespaceId);
     });

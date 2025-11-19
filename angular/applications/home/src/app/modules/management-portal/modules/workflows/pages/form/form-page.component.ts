@@ -6,14 +6,14 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
-  AuthorizationQuery,
+  AuthorizationState,
   IAuthorization,
   IWorkflow,
   NamespaceModel,
   NamespaceService,
   WorkflowModel,
-  WorkflowQuery,
   WorkflowService,
+  WorkflowState,
 } from '@tenlastic/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -32,8 +32,9 @@ interface StatusNode {
 }
 
 @Component({
-  templateUrl: 'form-page.component.html',
+  standalone: false,
   styleUrls: ['./form-page.component.scss'],
+  templateUrl: 'form-page.component.html',
 })
 export class WorkflowsFormPageComponent implements OnInit {
   public $data: Observable<WorkflowModel>;
@@ -69,14 +70,14 @@ export class WorkflowsFormPageComponent implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private authorizationQuery: AuthorizationQuery,
+    private authorizationState: AuthorizationState,
     private formBuilder: FormBuilder,
     private formService: FormService,
     private identityService: IdentityService,
     private matSnackBar: MatSnackBar,
     private namespaceService: NamespaceService,
     private router: Router,
-    private workflowQuery: WorkflowQuery,
+    private workflowState: WorkflowState,
     private workflowService: WorkflowService,
   ) {}
 
@@ -87,8 +88,8 @@ export class WorkflowsFormPageComponent implements OnInit {
       const roles = [IAuthorization.Role.QueuesWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
-        this.authorizationQuery.hasRoles(null, roles, userId) ||
-        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
+        this.authorizationState.hasRoles(null, roles, userId) ||
+        this.authorizationState.hasRoles(params.namespaceId, roles, userId);
 
       this.namespace = await this.namespaceService.findOne(params.namespaceId);
 
@@ -331,12 +332,15 @@ export class WorkflowsFormPageComponent implements OnInit {
     if (this.data._id) {
       this.form.disable({ emitEvent: false });
 
-      this.$data = this.workflowQuery.selectAll({ filterBy: (w) => w._id === this.data._id }).pipe(
-        map(([workflow]) => {
-          this.dataSource.data = workflow.getNestedStatusNodes();
-          return workflow;
-        }),
-      );
+      this.$data = this.workflowState
+        .selectMany()
+        .pipe(map((ws) => ws.filter((w) => w._id === this.data._id)))
+        .pipe(
+          map(([w]) => {
+            this.dataSource.data = w.getNestedStatusNodes();
+            return w;
+          }),
+        );
     }
 
     this.form.valueChanges.subscribe(() => (this.errors = []));

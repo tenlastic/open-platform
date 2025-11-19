@@ -1,7 +1,6 @@
 import { TeamModel } from '../models/team';
-import { TeamStore } from '../states/team';
 import { ApiService } from './api';
-import { BaseService, BaseServiceFindQuery } from './base';
+import { BaseService, BaseServiceCountQuery, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 
 export class TeamService {
@@ -11,18 +10,14 @@ export class TeamService {
 
   private baseService: BaseService<TeamModel>;
 
-  constructor(
-    private apiService: ApiService,
-    private environmentService: EnvironmentService,
-    private teamStore: TeamStore,
-  ) {
-    this.baseService = new BaseService<TeamModel>(this.apiService, TeamModel, this.teamStore);
+  constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
+    this.baseService = new BaseService<TeamModel>(this.apiService, TeamModel);
   }
 
   /**
    * Returns the number of Records satisfying the query.
    */
-  public async count(namespaceId: string, query: any) {
+  public async count(namespaceId: string, query: BaseServiceCountQuery) {
     const url = this.getUrl(namespaceId);
     return this.baseService.count(query, url);
   }

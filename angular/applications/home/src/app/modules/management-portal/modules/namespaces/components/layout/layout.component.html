@@ -1,7 +1,7 @@
-<app-sidenav>
-  <div *ngIf="$namespace | async as namespace"
-       appNav
-       class="nav">
+<router-outlet></router-outlet>
+
+<ng-template #sideMenu>
+  <ng-container *ngIf="$namespace | async as namespace">
     <app-button color="accent"
                 layout="vertical"
                 [ngClass]="{ active: isActive }"
@@ -20,13 +20,46 @@
                 layout="vertical"
                 [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
                 matTooltipPosition="right"
-                [routerLink]="namespace.status.phase === 'Running' ? ['authorizations'] : null"
+                [routerLink]="namespace.status.phase === 'Running' ? ['api-key-authorizations'] : null"
                 routerLinkActive="active"
                 text="left"
                 width="full">
-      <mat-icon>vpn_key</mat-icon>
-      <div>Authorizations</div>
+      <mat-icon class="fill"
+                fontSet="material-symbols-outlined">key_vertical</mat-icon>
+      <div>API Key Authorizations</div>
     </app-button>
+
+    <app-button *ngIf="$hasPermission(IAuthorization.authorizationRoles) | async"
+                color="accent"
+                [disabled]="namespace.status.phase !== 'Running'"
+                layout="vertical"
+                [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
+                matTooltipPosition="right"
+                [routerLink]="namespace.status.phase === 'Running' ? ['default-authorizations'] : null"
+                routerLinkActive="active"
+                text="left"
+                width="full">
+      <mat-icon class="fill"
+                fontSet="material-symbols-outlined">lock_open_right</mat-icon>
+      <div>Default Authorizations</div>
+    </app-button>
+
+    <app-button *ngIf="$hasPermission(IAuthorization.authorizationRoles) | async"
+                color="accent"
+                [disabled]="namespace.status.phase !== 'Running'"
+                layout="vertical"
+                [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
+                matTooltipPosition="right"
+                [routerLink]="namespace.status.phase === 'Running' ? ['user-authorizations'] : null"
+                routerLinkActive="active"
+                text="left"
+                width="full">
+      <mat-icon class="fill"
+                fontSet="material-symbols-outlined">passkey</mat-icon>
+      <div>User Authorizations</div>
+    </app-button>
+
+    <hr>
 
     <app-button *ngIf="$hasPermission(IAuthorization.authorizationRoles) | async"
                 color="accent"
@@ -38,9 +71,39 @@
                 routerLinkActive="active"
                 text="left"
                 width="full">
-      <mat-icon fontSet="material-icons-outlined">vpn_key</mat-icon>
+      <mat-icon fontSet="material-symbols-outlined">shield_question</mat-icon>
       <div>Authorization Requests</div>
     </app-button>
+
+    <app-button *ngIf="$hasPermission(IAuthorization.steamIntegrationRoles) | async"
+                color="accent"
+                [disabled]="namespace.status.phase !== 'Running'"
+                layout="vertical"
+                [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
+                matTooltipPosition="right"
+                [routerLink]="namespace.status.phase === 'Running' ? ['steam-integrations'] : null"
+                routerLinkActive="active"
+                text="left"
+                width="full">
+      <img src="/assets/images/steam-icon.png">
+      <div>Steam Integrations</div>
+    </app-button>
+
+    <app-button *ngIf="$hasPermission(IAuthorization.storefrontRoles) | async"
+                color="accent"
+                [disabled]="namespace.status.phase !== 'Running'"
+                layout="vertical"
+                [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
+                matTooltipPosition="right"
+                [routerLink]="namespace.status.phase === 'Running' ? ['storefront'] : null"
+                routerLinkActive="active"
+                text="left"
+                width="full">
+      <mat-icon>storefront</mat-icon>
+      <div>Storefront</div>
+    </app-button>
+
+    <hr>
 
     <app-button *ngIf="$hasPermission(IAuthorization.buildRoles) | async"
                 color="accent"
@@ -55,6 +118,22 @@
       <mat-icon>unarchive</mat-icon>
       <div>Builds</div>
     </app-button>
+
+    <app-button *ngIf="$hasPermission(IAuthorization.workflowRoles) | async"
+                color="accent"
+                [disabled]="namespace.status.phase !== 'Running'"
+                layout="vertical"
+                [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
+                matTooltipPosition="right"
+                [routerLink]="namespace.status.phase === 'Running' ? ['workflows'] : null"
+                routerLinkActive="active"
+                text="left"
+                width="full">
+      <mat-icon>rule</mat-icon>
+      <div>Workflows</div>
+    </app-button>
+
+    <hr>
 
     <app-button *ngIf="$hasPermission(IAuthorization.collectionRoles) | async"
                 color="accent"
@@ -76,12 +155,12 @@
                 layout="vertical"
                 [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
                 matTooltipPosition="right"
-                [routerLink]="namespace.status.phase === 'Running' ? ['game-servers'] : null"
+                [routerLink]="namespace.status.phase === 'Running' ? ['game-server-templates'] : null"
                 routerLinkActive="active"
                 text="left"
                 width="full">
-      <mat-icon>public</mat-icon>
-      <div>Game Servers</div>
+      <mat-icon>language</mat-icon>
+      <div>Game Server Templates</div>
     </app-button>
 
     <app-button *ngIf="$hasPermission(IAuthorization.gameServerRoles) | async"
@@ -90,12 +169,12 @@
                 layout="vertical"
                 [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
                 matTooltipPosition="right"
-                [routerLink]="namespace.status.phase === 'Running' ? ['game-server-templates'] : null"
+                [routerLink]="namespace.status.phase === 'Running' ? ['game-servers'] : null"
                 routerLinkActive="active"
                 text="left"
                 width="full">
-      <mat-icon>language</mat-icon>
-      <div>Game Server Templates</div>
+      <mat-icon>public</mat-icon>
+      <div>Game Servers</div>
     </app-button>
 
     <app-button *ngIf="$hasPermission(IAuthorization.matchRoles) | async"
@@ -140,34 +219,6 @@
       <div>Queues</div>
     </app-button>
 
-    <app-button *ngIf="$hasPermission(IAuthorization.steamIntegrationRoles) | async"
-                color="accent"
-                [disabled]="namespace.status.phase !== 'Running'"
-                layout="vertical"
-                [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
-                matTooltipPosition="right"
-                [routerLink]="namespace.status.phase === 'Running' ? ['steam-integrations'] : null"
-                routerLinkActive="active"
-                text="left"
-                width="full">
-      <img src="/assets/images/steam-icon.png">
-      <div>Steam Integrations</div>
-    </app-button>
-
-    <app-button *ngIf="$hasPermission(IAuthorization.storefrontRoles) | async"
-                color="accent"
-                [disabled]="namespace.status.phase !== 'Running'"
-                layout="vertical"
-                [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
-                matTooltipPosition="right"
-                [routerLink]="namespace.status.phase === 'Running' ? ['storefront'] : null"
-                routerLinkActive="active"
-                text="left"
-                width="full">
-      <mat-icon>storefront</mat-icon>
-      <div>Storefront</div>
-    </app-button>
-
     <app-button *ngIf="$hasPermission(IAuthorization.teamRoles) | async"
                 color="accent"
                 [disabled]="namespace.status.phase !== 'Running'"
@@ -182,6 +233,8 @@
       <div>Teams</div>
     </app-button>
 
+    <hr>
+
     <app-button color="accent"
                 [disabled]="namespace.status.phase !== 'Running'"
                 layout="vertical"
@@ -193,21 +246,5 @@
       <mat-icon>hub</mat-icon>
       <div>Web Sockets</div>
     </app-button>
-
-    <app-button *ngIf="$hasPermission(IAuthorization.workflowRoles) | async"
-                color="accent"
-                [disabled]="namespace.status.phase !== 'Running'"
-                layout="vertical"
-                [matTooltip]="namespace.status.phase === 'Running' ? null : 'Namespace must be running.'"
-                matTooltipPosition="right"
-                [routerLink]="namespace.status.phase === 'Running' ? ['workflows'] : null"
-                routerLinkActive="active"
-                text="left"
-                width="full">
-      <mat-icon>rule</mat-icon>
-      <div>Workflows</div>
-    </app-button>
-  </div>
-
-  <router-outlet></router-outlet>
-</app-sidenav>
+  </ng-container>
+</ng-template>

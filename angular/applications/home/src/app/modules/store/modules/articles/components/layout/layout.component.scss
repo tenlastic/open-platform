@@ -1,41 +1,10 @@
-@import 'src/assets/scss/theme.scss';
+@use 'src/assets/scss/shadows.scss' as shadows;
 
 :host {
   display: flex;
   flex-direction: column;
   overflow: hidden;
   width: 100vw;
-}
-
-app-header-toolbar::ng-deep {
-  app-button a.mat-button span.mat-button-wrapper {
-    align-items: center;
-    display: flex;
-    height: 21px;
-
-    & > div {
-      vertical-align: inherit;
-
-      div {
-        margin-top: -4px;
-      }
-    }
-
-    img {
-      height: 32px;
-      max-height: initial;
-      margin: -10px 12px -10px 0px;
-      vertical-align: inherit;
-    }
-
-    mat-icon.mat-icon {
-      line-height: 18px;
-    }
-  }
-
-  mat-toolbar {
-    padding: 0px 8px;
-  }
 }
 
 app-button {
@@ -67,16 +36,16 @@ div.content {
   padding: 0px;
   position: relative;
 
-  app-sidenav div.content {
+  app-side-menu div.content {
     overflow: auto;
   }
 }
 
 div.nav {
-  box-shadow: $box-shadow-right;
+  box-shadow: shadows.$box-shadow-right;
 
   img {
-    filter: $drop-shadow;
+    filter: shadows.$drop-shadow;
     max-width: 192px;
   }
 }

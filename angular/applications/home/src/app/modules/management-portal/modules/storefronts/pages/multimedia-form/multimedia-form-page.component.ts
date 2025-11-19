@@ -8,8 +8,9 @@ import { PromptComponent } from '../../../../../../shared/components';
 import { MediaDialogComponent } from '../../components';
 
 @Component({
-  templateUrl: 'multimedia-form-page.component.html',
+  standalone: false,
   styleUrls: ['./multimedia-form-page.component.scss'],
+  templateUrl: 'multimedia-form-page.component.html',
 })
 export class StorefrontsMultimediaFormPageComponent implements OnInit {
   public get data() {

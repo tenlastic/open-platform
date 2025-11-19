@@ -4,6 +4,7 @@ import * as nats from '@tenlastic/nats';
 before(async function () {
   // MongoDB.
   await mongoose.connect({
+    autoCreate: true,
     connectionString: process.env.MONGO_CONNECTION_STRING,
     databaseName: `aggregation-api-test`,
   });

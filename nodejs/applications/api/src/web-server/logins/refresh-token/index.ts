@@ -1,5 +1,5 @@
 import { LoginModel, UserModel } from '@tenlastic/mongoose';
-import { Context, RequiredFieldError } from '@tenlastic/web-server';
+import { Context, Jwt, RequiredFieldError } from '@tenlastic/web-server';
 import * as jsonwebtoken from 'jsonwebtoken';
 
 export class RefreshTokenError extends Error {
@@ -12,18 +12,24 @@ export class RefreshTokenError extends Error {
   }
 }
 
-export async function handler(ctx: Context) {
+export type CreateLoginWithRefreshTokenContext = Context<
+  unknown,
+  { token?: string },
+  { accessToken?: string; refreshToken?: string }
+>;
+
+export async function handler(ctx: CreateLoginWithRefreshTokenContext) {
   const { token } = ctx.request.body;
   if (!token) {
     throw new RequiredFieldError(['token']);
   }
 
-  let jwt: any;
+  let jwt: Jwt;
   try {
     jwt = jsonwebtoken.verify(token, process.env.JWT_PUBLIC_KEY.replace(/\\n/g, '\n'), {
       algorithms: ['RS256'],
-    });
-  } catch (e) {
+    }) as Jwt;
+  } catch {
     throw new RefreshTokenError();
   }
 
@@ -41,7 +47,7 @@ export async function handler(ctx: Context) {
       refreshTokenId: jwt.jti,
     });
     ctx.response.body = { accessToken, refreshToken };
-  } catch (e) {
+  } catch {
     throw new RefreshTokenError();
   }
 }

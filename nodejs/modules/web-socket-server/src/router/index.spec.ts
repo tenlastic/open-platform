@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
 
-import { Request, Context, Method } from '../definitions';
+import { Context, Method, Request } from '../definitions';
 import { Middleware } from '../middleware';
-import { RequestMock, ContextMock } from '../mocks';
+import { ContextMock, RequestMock } from '../mocks';
 import { Router } from './index';
 
 describe('router', function () {
@@ -12,8 +12,8 @@ describe('router', function () {
   let router: Router;
 
   beforeEach(function () {
-    ctx = new ContextMock();
-    request = new RequestMock();
+    ctx = ContextMock();
+    request = RequestMock();
     router = new Router();
   });
 
@@ -85,7 +85,8 @@ describe('router', function () {
     it('converts params to alphanumeric wildcards', function () {
       const regex = router['pathToRegExp']('/users/:id');
 
-      expect(regex).to.eql(/^\/users\/([^\/]+)$/);
+      const expected = new RegExp('^/users/([^/]+)$');
+      expect(regex).to.eql(expected);
     });
   });
 

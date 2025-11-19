@@ -1,5 +1,5 @@
 services:
-  development-cli:
+  development_cli:
     build:
       context: ./dockerfiles/development-cli/
     user: ${USER_ID}:${GROUP_ID}
@@ -9,3 +9,104 @@ services:
       - ~/.config/gcloud/:/root/.config/gcloud/
       - ~/.kube/:/.kube/
       - ./:/usr/src/
+
+  development_node:
+    build:
+      context: ./dockerfiles/node-development/
+    depends_on:
+      - minio
+      - mongo
+      - mongo_sidecar
+      - nats
+    entrypoint: bash
+    environment:
+      DOCKER_REGISTRY_URL: http://docker_registry:5000
+      JWT_PRIVATE_KEY: |-
+        -----BEGIN RSA PRIVATE KEY-----
+        MIIEpAIBAAKCAQEAkUT/+1h+5zP255s9eQkjjiA1drGhA0T35FPxAdc/6EwwoU66
+        nDh9Z14nb61V7+Wj8bPc859cujIAyU7fVNMLIUVb2qJvYo3nQvBYMKlAnpPsUP7X
+        cxAJWT/DNlmgnfqYa7HKKY0pjON1n+3WGADtqrMbof4UOQrJVjxYAmJaAsASPjig
+        60IzygIJmLtYp7VcvzjyUqeujBgU6C6wWqcv15j/gL1rCHQ9V81Aaru+37r6QM/1
+        LWHTBdspFkOFgKtDWwI9Ceq/YivrdI0h2tuOAfhuV4hBB32k6w7I/pKgsP0rU20e
+        a3kA9JPnbEnEAYnX6ZLNIJh/fvgnPlpB/F9ojwIDAQABAoIBAH1adSmGq7sGdEBX
+        DSysXin+USQjEzWnBeHZLVbRTyw80pnfPdggRtYzwQP1JvrjxhyDgF4ZXgKts1AC
+        52Ri2G/VUfXPxR3eJXj1vKQA6Ont6zXZMkDvzaFeDC2SGa841t3XhQNl9DzG6nEe
+        4mfEJVHvTCD1Bq5SSHpJiAhGpjVH/rdJDJDYq4SPmqvuGC41KTFXeYW1JIwf3Gn1
+        sla77TCAdaZ/pDOC1vI1Bj+Avm1Zp8NF19Ex1UJnl4RoosLbCpAXuSfkCgf5qrvF
+        X0rtQmW4JIRVtwW1mh4a6nyvH7HbIkrayCp3lE2HAaudpx7dHdomT4kYekLIwRG2
+        spnsGgECgYEA/psvMDdiu5LCvfB1NNvLiCK9PmtuRgdu5rQD/mn7JUi6765Kr8SB
+        T7a1c0lWypj+h5M+JIexvqtULCvk4Ru5YH4/omk5MrDCcGB9DvZmJr5rxJyCklAN
+        6TTUuFSfTPyiSi/gqQm9PRt48JIWLs68j7iX5fdeokbSYT/vXg+F2uECgYEAkhCW
+        MDt47Ty82sLHjTvKuZogUhnJIhyPgILQpX+eTFb2g9JaDqcuTw89R/xQuD3KcJdq
+        zE5Le5T0mbS8QqK8lxZnOrKGFWJpXCBpVB0BRpW+qkDlnhQf4ZNLFU0W3qeqyTXQ
+        YheH++KK1Zh5rn3tfdQI8lFaAePKWcYa6MZuoW8CgYEAv2v7UXwCvlX8FoQICwLJ
+        hoPf1mM9GGeUSN3FNu2FhiWlbniS7I2IT19mEtRr7YyTqWjZyus+hsUXVtJ1lY2b
+        lWG2BCyqdWMR/R1+SNaWPMDkE4E8ZjbMDq7K0//DeUVj2vUeKtkIrz3NcsnS5cRH
+        XqMBiUOvocAvgjBojkaLc+ECgYA207MMd8Z0ho/9LY/qG7+E2622I6ez/jR/cJsR
+        BE5PKXVvFc5oIajoVDgUhUlnXwpWKQAVoG4E/WyzJXxlJuDTdb1Z8xkRfdc+lYvz
+        3s9Tx3HCRonqRHOTIM7WOBGVkioxTNnjeCG7EtY6Rvml3e7/hE+3ZYH7o52ZBRuk
+        tJdiUQKBgQD4wou8NPkUimtc0xlBA7uSEDpZKNZvWWfYr5iRYYG2rlw2Ptzh/NG6
+        nWdj6OZEWEe7fykWzzSWnGio/LrVrl7U4PSRgbhQ5mSNqW2dFAgnsRXsWplBz2q+
+        T5lKxxqmZ+zTdq7DuH8+FrqMzlCxvGpx6Mt4Qbzu0RJQe5ijPbuskw==
+        -----END RSA PRIVATE KEY-----
+      JWT_PUBLIC_KEY: |-
+        -----BEGIN PUBLIC KEY-----
+        MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkUT/+1h+5zP255s9eQkj
+        jiA1drGhA0T35FPxAdc/6EwwoU66nDh9Z14nb61V7+Wj8bPc859cujIAyU7fVNML
+        IUVb2qJvYo3nQvBYMKlAnpPsUP7XcxAJWT/DNlmgnfqYa7HKKY0pjON1n+3WGADt
+        qrMbof4UOQrJVjxYAmJaAsASPjig60IzygIJmLtYp7VcvzjyUqeujBgU6C6wWqcv
+        15j/gL1rCHQ9V81Aaru+37r6QM/1LWHTBdspFkOFgKtDWwI9Ceq/YivrdI0h2tuO
+        AfhuV4hBB32k6w7I/pKgsP0rU20ea3kA9JPnbEnEAYnX6ZLNIJh/fvgnPlpB/F9o
+        jwIDAQAB
+        -----END PUBLIC KEY-----
+      MAILGUN_DOMAIN: support.example.com
+      MAILGUN_SECRET: a1234a123abc12ab12a1abc123456a12-1ab1a1a1-abc1234a
+      MINIO_BUCKET: api
+      MINIO_CONNECTION_STRING: http://minioadmin:minioadmin@minio:9000
+      MONGO_CONNECTION_STRING: mongodb://mongo:27017/admin?replicaSet=rs0
+      NATS_CONNECTION_STRING: nats:4222
+      PASSWORD_RESET_URL: http://www.local.tenlastic.com/authentication/reset-password
+    ports:
+      - 3000:3000
+    user: ${USER_ID}:${GROUP_ID}
+    volumes:
+      - /etc/group:/etc/group:ro
+      - /etc/passwd:/etc/passwd:ro
+      - ./:/usr/src/
+    working_dir: /usr/src/
+
+  minio:
+    command: server /data --console-address :9001
+    image: minio/minio:RELEASE.2022-12-12T19-27-27Z
+    ports:
+      - 9000:9000
+      - 9001:9001
+
+  mongo:
+    command: --bind_ip_all --replSet rs0
+    image: mongo:6.0.2
+    ports:
+      - 27017:27017
+
+  mongo_sidecar:
+    command:
+      - |
+        echo "Waiting for MongoDB to be ready..."
+        until mongosh --eval "db.adminCommand('ping')" --host mongo; do
+          echo "Still waiting for MongoDB to be ready..."
+          sleep 1
+        done
+
+        echo "Initializing replica set..." 
+        mongosh --eval 'rs.initiate({_id: "rs0", members: [{_id: 0, host: "mongo:27017"}]})' --host mongo
+
+        echo "Replica set initialized!"
+    entrypoint: sh -c
+    image: mongo:6.0.2
+
+  nats:
+    image: nats:2.9.17-alpine
+    ports:
+      - 4222:4222
+      - 8222:8222
+    command: -js

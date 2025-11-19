@@ -1,7 +1,9 @@
 import * as mongoose from 'mongoose';
 
-export function mongooseToJson(schema: mongoose.Schema) {
-  const properties: any = {};
+import { JsonSchema, JsonSchemaType } from '../types';
+
+export function mongooseToJson(schema: mongoose.Schema): JsonSchema {
+  const properties: { [key: string]: JsonSchema } = {};
 
   for (const [key, value] of Object.entries(schema.paths)) {
     if (key.includes('.$*')) {
@@ -14,14 +16,16 @@ export function mongooseToJson(schema: mongoose.Schema) {
     }
   }
 
-  return { properties, type: 'object' };
+  return { properties, type: JsonSchemaType.Object };
 }
 
-function getType(value: mongoose.SchemaType<any>) {
+function getType(value: mongoose.SchemaType) {
   switch (value.instance) {
     case 'Array':
       return {
-        items: value.schema ? mongooseToJson(value.schema) : getType((value as any).caster),
+        items: value.schema
+          ? mongooseToJson(value.schema)
+          : getType((value as mongoose.Schema.Types.Array).caster),
         type: 'array',
       };
 
@@ -49,7 +53,7 @@ function getType(value: mongoose.SchemaType<any>) {
     case 'Number':
       return { type: 'number' };
 
-    case 'ObjectID':
+    case 'ObjectId':
       return { pattern: '^[0-9A-Fa-f]{24}$', type: 'string' };
 
     case 'String':

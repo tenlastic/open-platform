@@ -2,6 +2,7 @@ import {
   AuthorizationModel,
   AuthorizationRole,
   BuildModel,
+  GameServerDocument,
   GameServerPortModel,
   NamespaceDocument,
   NamespaceLimitError,
@@ -11,9 +12,9 @@ import {
   UserModel,
 } from '@tenlastic/mongoose';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
-import { ContextMock } from '@tenlastic/web-server';
+import { ContextMock, CreateContext } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
+import chaiAsPromised from 'chai-as-promised';
 import { Chance } from 'chance';
 
 import { handler } from './';
@@ -29,7 +30,7 @@ describe('web-server/game-servers/create', function () {
   });
 
   context('when permission is granted', function () {
-    let ctx: ContextMock;
+    let ctx: CreateContext<GameServerDocument>;
     let namespace: NamespaceDocument;
 
     beforeEach(async function () {
@@ -43,7 +44,7 @@ describe('web-server/game-servers/create', function () {
       }).save();
       const build = await BuildModel.mock({ namespaceId: namespace._id }).save();
 
-      ctx = new ContextMock({
+      ctx = ContextMock({
         params: { namespaceId: namespace._id },
         request: {
           body: {
@@ -54,8 +55,8 @@ describe('web-server/game-servers/create', function () {
             ports: [GameServerPortModel.mock()],
           },
         },
-        state: { user },
-      } as any);
+        state: { user: { _id: user._id.toHexString() } },
+      });
     });
 
     context('when a Namespace Limit is exceeded', function () {
@@ -63,7 +64,7 @@ describe('web-server/game-servers/create', function () {
         namespace.limits = NamespaceLimitsModel.mock({ cpu: 0.5 });
         await namespace.save();
 
-        const promise = handler(ctx as any);
+        const promise = handler(ctx);
 
         return expect(promise).to.be.rejectedWith(NamespaceLimitError);
       });
@@ -71,7 +72,7 @@ describe('web-server/game-servers/create', function () {
 
     context('when a Namespace Limit is not exceeded', function () {
       it('creates a Game Server', async function () {
-        await handler(ctx as any);
+        await handler(ctx);
 
         expect(ctx.response.body.record).to.exist;
       });
@@ -84,13 +85,13 @@ describe('web-server/game-servers/create', function () {
         limits: NamespaceLimitsModel.mock({ cpu: 1, memory: 1 * 1000 * 1000 * 1000 }),
       }).save();
 
-      const ctx = new ContextMock({
+      const ctx = ContextMock<CreateContext<GameServerDocument>>({
         params: { namespaceId: namespace._id },
         request: { body: { cpu: 1, memory: 1 * 1000 * 1000 * 1000, name: chance.hash() } },
-        state: { user },
-      } as any);
+        state: { user: { _id: user._id.toHexString() } },
+      });
 
-      const promise = handler(ctx as any);
+      const promise = handler(ctx);
 
       return expect(promise).to.be.rejectedWith(PermissionError);
     });

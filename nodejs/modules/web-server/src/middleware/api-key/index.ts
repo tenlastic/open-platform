@@ -1,6 +1,6 @@
 import { Next } from 'koa';
 
-import { Context } from '../../context';
+import { Context } from '../../types';
 
 /**
  * Extracts the user's information from a JWT.

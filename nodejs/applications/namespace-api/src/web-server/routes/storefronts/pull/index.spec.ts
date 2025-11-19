@@ -11,12 +11,12 @@ import {
 } from '@tenlastic/mongoose';
 import { ContextMock, RecordNotFoundError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
+import chaiAsPromised from 'chai-as-promised';
 import * as fs from 'fs';
 import * as mongoose from 'mongoose';
 
 import { MinioStorefront } from '../../../../minio';
-import { handler } from './';
+import { handler, PullStorefrontContext } from './';
 
 use(chaiAsPromised);
 
@@ -26,13 +26,13 @@ describe('web-server/storefronts/pull', function () {
   let user: UserDocument;
 
   beforeEach(async function () {
-    _id = new mongoose.Types.ObjectId().toString();
+    _id = new mongoose.Types.ObjectId().toHexString();
     namespace = await NamespaceModel.mock().save();
     user = await UserModel.mock().save();
   });
 
   context('when permission is granted', function () {
-    let ctx: ContextMock;
+    let ctx: PullStorefrontContext;
     let storefront: StorefrontDocument;
 
     beforeEach(async function () {
@@ -59,26 +59,25 @@ describe('web-server/storefronts/pull', function () {
       storefront.images = [url];
       await storefront.save();
 
-      ctx = new ContextMock({
+      ctx = ContextMock({
         params: {
           _id,
           field: 'images',
-          namespaceId: namespace._id,
-          storefrontId: storefront._id,
+          storefrontId: storefront._id.toHexString(),
         },
         request: { host: 'localhost:3000', protocol: 'http' },
-        state: { user },
-      } as any);
+        state: { user: { _id: user._id.toHexString() } },
+      });
     });
 
     it('updates the record', async function () {
-      await handler(ctx as any);
+      await handler(ctx);
 
       expect(ctx.response.body.record.images).to.eql([]);
     });
 
     it('removes the file from Minio', async function () {
-      await handler(ctx as any);
+      await handler(ctx);
 
       const promise = minio.statObject(
         process.env.MINIO_BUCKET,
@@ -93,17 +92,16 @@ describe('web-server/storefronts/pull', function () {
     it('throws an error', async function () {
       const storefront = await StorefrontModel.mock({ namespaceId: namespace._id }).save();
 
-      const ctx = new ContextMock({
+      const ctx = ContextMock<PullStorefrontContext>({
         params: {
           _id,
           field: 'images',
-          namespaceId: namespace._id,
-          storefrontId: storefront._id,
+          storefrontId: storefront._id.toHexString(),
         },
-        state: { user },
+        state: { user: { _id: user._id.toHexString() } },
       });
 
-      const promise = handler(ctx as any);
+      const promise = handler(ctx);
 
       return expect(promise).to.be.rejectedWith(RecordNotFoundError);
     });

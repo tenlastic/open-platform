@@ -2,9 +2,7 @@ import * as injector from '@tenlastic/dependency-injection';
 import {
   ApiKeyInterceptor,
   ApiService,
-  BuildQuery,
   BuildService,
-  BuildStore,
   EnvironmentService,
   RetryInterceptor,
 } from '@tenlastic/http';
@@ -27,20 +25,11 @@ injector.inject([
   },
   { provide: Axios, useValue: new Axios() },
   {
-    deps: [BuildStore],
-    provide: BuildQuery,
-    useFactory: (buildStore: BuildStore) => new BuildQuery(buildStore),
-  },
-  {
-    deps: [ApiService, BuildStore, EnvironmentService],
+    deps: [ApiService, EnvironmentService],
     provide: BuildService,
-    useFactory: (
-      apiService: ApiService,
-      buildStore: BuildStore,
-      environmentService: EnvironmentService,
-    ) => new BuildService(apiService, buildStore, environmentService),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new BuildService(apiService, environmentService),
   },
-  { provide: BuildStore, useValue: new BuildStore() },
   { provide: EnvironmentService, useValue: new EnvironmentService({ apiKey, apiUrl }) },
   {
     deps: [Axios],
@@ -51,9 +40,7 @@ injector.inject([
 
 export default {
   apiService: injector.get(ApiService),
-  buildQuery: injector.get(BuildQuery),
   buildService: injector.get(BuildService),
-  buildStore: injector.get(BuildStore),
   axios: injector.get(Axios),
   environmentService: injector.get(EnvironmentService),
 };

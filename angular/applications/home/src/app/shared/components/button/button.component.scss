@@ -1,43 +1,15 @@
-@import 'src/assets/scss/fonts.scss';
-@import 'src/assets/scss/theme.scss';
-
-@-o-keyframes alert-info-pulse {
-  0% {
-    border: 2px solid rgba(255, 255, 255, 0);
-  }
-  50% {
-    border: 2px solid rgba(255, 255, 85, 0.5);
-  }
-  100% {
-    border: 2px solid rgba(255, 255, 255, 0);
-  }
-}
-@keyframes alert-info-pulse {
-  0% {
-    border: 2px solid rgba(255, 255, 255, 0);
-  }
-  50% {
-    border: 2px solid rgba(255, 255, 85, 0.5);
-  }
-  100% {
-    border: 2px solid rgba(255, 255, 255, 0);
-  }
-}
+@use 'src/assets/scss/colors.scss' as colors;
+@use 'src/assets/scss/shadows.scss' as shadows;
 
 :host {
   display: inline-block;
   flex: 0 0 auto;
-  margin-left: auto;
-  margin-right: auto;
   text-align: center;
   width: max-content;
 
-  &[alert='info'] a.mat-button,
-  &[alert='info'] button.mat-button {
+  &[alert='info'] a,
+  &[alert='info'] button {
     padding: 6px 12px;
-
-    -o-animation: alert-info-pulse 3s infinite;
-    animation: alert-info-pulse 3s infinite;
   }
 
   &[layout='left'] {
@@ -54,48 +26,43 @@
     display: block;
   }
 
-  &[mat-icon-button] a.mat-button,
-  &[mat-icon-button] button.mat-button {
+  &[mat-icon-button] a,
+  &[mat-icon-button] button {
     min-width: 0px;
     padding: 2px 8px;
   }
 
-  &[text='left'] a.mat-button,
-  &[text='left'] button.mat-button {
+  &[text='left'] a,
+  &[text='left'] button {
+    justify-content: left;
     text-align: left;
 
     mat-icon.mat-icon {
       margin-right: 8px;
-    }
-
-    ::ng-deep {
-      span.mat-button-wrapper {
-        justify-content: left;
-      }
     }
   }
 
   &[width='full'] {
     width: 100%;
 
-    a.mat-button,
-    button.mat-button {
+    a,
+    button {
       width: 100%;
     }
   }
 
   &.active {
-    a.mat-button[color='accent'],
-    a.mat-button[color='accent']:hover,
-    button.mat-button[color='accent'],
-    button.mat-button[color='accent']:hover {
-      background: rgba(255, 255, 255, 0.2);
-      box-shadow: $box-shadow, inset 0px 0px 25px rgba(0, 0, 0, 0.25);
+    a[color='accent'],
+    a[color='accent']:hover,
+    button[color='accent'],
+    button[color='accent']:hover {
+      background: colors.$accent-active;
+      box-shadow: shadows.$box-shadow;
     }
   }
 
   &.highlight {
-    background: rgba(255, 255, 255, 0.125);
+    background: colors.$accent-hover;
 
     :hover {
       background: transparent !important;
@@ -106,11 +73,17 @@
     pointer-events: none;
   }
 
-  a.mat-button,
-  button.mat-button {
+  a,
+  button {
+    align-items: center;
+    border: none;
     border-radius: 0px;
-    display: block;
+    column-gap: 8px;
+    cursor: pointer;
+    display: flex;
     font-family: 'Oswald', sans-serif;
+    font-size: 14px;
+    justify-content: center;
     line-height: normal;
     min-width: initial;
     outline: none;
@@ -121,8 +94,12 @@
       color: white;
 
       &:hover {
-        background: rgba(255, 255, 255, 0.1);
-        box-shadow: $box-shadow, inset 0px 0px 25px rgba(0, 0, 0, 0.25);
+        background: colors.$accent-hover;
+        box-shadow: shadows.$box-shadow;
+
+        &:active {
+          background: colors.$accent-active;
+        }
       }
 
       &[disabled] {
@@ -137,16 +114,20 @@
     }
 
     &[color='primary'] {
-      box-shadow: $box-shadow, inset 0px 0px 25px rgba(0, 0, 0, 0.25);
+      box-shadow: shadows.$box-shadow;
       color: white;
 
       &:not([disabled]) {
-        background: $primary;
+        background: colors.$primary;
         opacity: 1;
 
         &:hover {
-          background: $primary-highlight;
+          background: colors.$primary-hover;
           color: white;
+
+          &:active {
+            background: colors.$primary-active;
+          }
         }
       }
 
@@ -162,83 +143,67 @@
     }
 
     &[size='large']::ng-deep {
-      span.mat-button-wrapper {
-        > div {
-          font-size: 18px;
-          text-transform: uppercase;
+      > div {
+        font-size: 18px;
+        text-transform: uppercase;
 
-          &:only-child {
-            margin-top: -2px;
-          }
+        &:only-child {
+          margin-top: -2px;
         }
+      }
 
+      mat-icon.mat-icon {
+        font-size: 24px;
+        height: 24px;
+        line-height: 24px;
+        width: 24px;
+      }
+    }
+
+    &[disabled] {
+      &::ng-deep {
         mat-icon.mat-icon {
-          font-size: 24px;
-          height: 24px;
-          line-height: 23px;
-          width: 24px;
+          color: #777777;
         }
       }
     }
 
     &::ng-deep {
       img {
-        filter: $drop-shadow;
-        max-height: 16px;
-        margin: -2px 8px 0px 0px;
+        filter: shadows.$drop-shadow;
+        max-height: 14px;
       }
 
       mat-icon.mat-icon {
         color: #ffff55;
         font-size: 16px;
-        height: 20px;
-        line-height: 18px;
-        margin-right: 6px;
+        height: 21px;
+        line-height: 22px;
         vertical-align: text-bottom;
         width: 16px;
-
-        &:not(:first-child):not(:last-child) {
-          margin-right: 6px;
-        }
-
-        &:only-child {
-          margin-right: 0px;
-        }
       }
 
       mat-spinner.mat-spinner:not(:last-child) {
-        margin-right: 6px;
         margin-top: 0px;
       }
 
-      span.mat-button-wrapper {
-        align-items: center;
-        display: flex;
-        height: 100%;
-        justify-content: center;
+      > div {
+        display: inline-block;
+        white-space: nowrap;
 
-        > div {
-          display: inline-block;
-          margin-top: -2px;
+        div {
+          display: block;
 
-          &:not(:last-child) {
-            margin-right: 6px;
-          }
-
-          div {
-            display: block;
-
-            &:nth-child(2) {
-              font-size: 10px;
-            }
+          &:nth-child(2) {
+            font-size: 10px;
           }
         }
+      }
 
-        div:not(.badge) + mat-icon {
-          margin-right: 0px;
-          outline: none;
-          white-space: nowrap;
-        }
+      div:not(.badge) + mat-icon {
+        margin-right: 0px;
+        outline: none;
+        white-space: nowrap;
       }
     }
   }

@@ -1,4 +1,6 @@
-@import 'src/assets/scss/form.scss';
+@use 'src/assets/scss/form.scss' as form;
+
+@include form.styles;
 
 app-toggle-section {
   app-button {

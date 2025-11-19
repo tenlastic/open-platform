@@ -4,12 +4,13 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { AuthorizationModel, AuthorizationService } from '@tenlastic/http';
 
-import { FormService, TextareaService } from '../../../../../../core/services';
-import { jsonValidator } from '../../../../../../shared/validators';
+import { FormService, TextareaService } from '@home/app/core/services';
+import { jsonValidator } from '@home/app/shared/validators';
 
 @Component({
-  templateUrl: 'json-page.component.html',
+  standalone: false,
   styleUrls: ['./json-page.component.scss'],
+  templateUrl: 'json-page.component.html',
 })
 export class AuthorizationsJsonPageComponent implements OnInit {
   public data: AuthorizationModel;

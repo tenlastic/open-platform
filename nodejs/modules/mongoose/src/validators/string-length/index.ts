@@ -3,10 +3,10 @@ export const stringLengthValidator = (max: number, min?: number) => {
   const minMsg = min ? ` less than ${min}` : '';
   const andMsg = minMsg && maxMsg ? ' and' : '';
 
-  const msg = `Value cannot be${minMsg}${andMsg}${maxMsg} characters.`;
+  const message = `Value cannot be${minMsg}${andMsg}${maxMsg} characters.`;
 
   return {
-    msg,
+    message,
     validator: (value: string) => (!max || value.length <= max) && (!min || value.length >= min),
   };
 };

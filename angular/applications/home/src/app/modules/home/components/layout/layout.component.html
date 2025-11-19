@@ -1,43 +1,106 @@
 <app-header-toolbar *ngIf="!isElectron">
   <img src="/assets/images/logo.png" />
 
+  <ng-container *appResponsive="'desktop'">
+    <app-button color="accent"
+                routerLink="/"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }">
+      <mat-icon>home</mat-icon>
+      <div>Home</div>
+    </app-button>
+
+    <app-button color="accent"
+                routerLink="api-documentation"
+                routerLinkActive="active">
+      <mat-icon>description</mat-icon>
+      <div>API Documentation</div>
+    </app-button>
+
+    <app-button color="accent"
+                href="https://github.com/tenlastic/open-platform"
+                target="_blank">
+      <mat-icon>code</mat-icon>
+      <div>Github Repository</div>
+    </app-button>
+
+    <app-button color="accent"
+                routerLink="web-socket-documentation"
+                routerLinkActive="active">
+      <mat-icon>description</mat-icon>
+      <div>Web Socket Documentation</div>
+    </app-button>
+
+    <div class="space"></div>
+
+    <app-button color="primary"
+                [href]="launcherUrl">
+      <div>Download Launcher</div>
+    </app-button>
+  </ng-container>
+
+  <ng-container *appResponsive="'mobile'">
+    <div class="space"></div>
+
+    <app-button color="accent"
+                size="large"
+                (OnClick)="toggleSideMenu()">
+      <mat-icon>{{ ($sideMenuIsVisible | async) ? 'close' : 'menu' }}</mat-icon>
+    </app-button>
+  </ng-container>
+</app-header-toolbar>
+
+<div class="row">
+  <div class="content">
+    <router-outlet></router-outlet>
+  </div>
+
+  <ng-container *appResponsive="'mobile'">
+    <app-side-menu-overlay *ngIf="$sideMenuIsVisible | async">
+      <app-side-menu></app-side-menu>
+    </app-side-menu-overlay>
+  </ng-container>
+</div>
+
+<ng-template #sideMenu>
   <app-button color="accent"
+              layout="vertical"
               routerLink="/"
               routerLinkActive="active"
-              [routerLinkActiveOptions]="{ exact: true }">
+              [routerLinkActiveOptions]="{ exact: true }"
+              text="left"
+              width="full">
     <mat-icon>home</mat-icon>
     <div>Home</div>
   </app-button>
 
   <app-button color="accent"
+              layout="vertical"
               routerLink="api-documentation"
-              routerLinkActive="active">
+              routerLinkActive="active"
+              text="left"
+              width="full">
     <mat-icon>description</mat-icon>
     <div>API Documentation</div>
   </app-button>
 
   <app-button color="accent"
               href="https://github.com/tenlastic/open-platform"
-              target="_blank">
+              layout="vertical"
+              target="_blank"
+              text="left"
+              width="full">
     <mat-icon>code</mat-icon>
     <div>Github Repository</div>
   </app-button>
 
   <app-button color="accent"
+              layout="vertical"
               routerLink="web-socket-documentation"
-              routerLinkActive="active">
+              routerLinkActive="active"
+              text="left"
+              width="full">
     <mat-icon>description</mat-icon>
     <div>Web Socket Documentation</div>
   </app-button>
-
-  <div class="space"></div>
-
-  <app-button color="primary"
-              [href]="launcherUrl">
-    <div>Download Launcher</div>
-  </app-button>
-</app-header-toolbar>
-
-<div class="content">
-  <router-outlet></router-outlet>
-</div>
+</ng-template>

@@ -1,0 +1,34 @@
+@use './shadows.scss' as shadows;
+
+@mixin styles {
+  .cdk-overlay-pane.dialog-content {
+    background: var(--background-image);
+    background-attachment: fixed;
+    background-position: center;
+    background-size: cover;
+    border-radius: 0px;
+    box-shadow: shadows.$box-shadow;
+    color: white;
+    max-height: 80vh;
+    max-width: 80vw;
+    padding: 16px;
+
+    > ng-component {
+      align-items: stretch;
+      display: flex;
+      justify-content: stretch;
+      overflow: visible;
+      position: static;
+      width: 100%;
+
+      > * {
+        overflow: visible;
+        width: 100%;
+      }
+    }
+  }
+
+  .cdk-overlay-backdrop.dialog-background {
+    background: rgba(0, 0, 0, 0.75);
+  }
+}

@@ -2,9 +2,10 @@ import { Component, Input } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 
 @Component({
-  templateUrl: 'environment-variables-form.component.html',
   selector: 'app-workflow-environment-variables-form',
+  standalone: false,
   styleUrls: ['./environment-variables-form.component.scss'],
+  templateUrl: 'environment-variables-form.component.html',
 })
 export class WorkflowEnvironmentVariablesFormComponent {
   @Input() public formArray: FormArray;

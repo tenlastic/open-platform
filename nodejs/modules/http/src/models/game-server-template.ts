@@ -7,13 +7,13 @@ export class GameServerTemplateModel extends BaseModel {
   public cpu: number;
   public description: string;
   public memory: number;
-  public metadata: any;
+  public metadata: unknown;
   public name: string;
   public namespaceId: string;
   public ports: IGameServer.Port[];
   public preemptible: boolean;
   public probes: IGameServer.Probes;
-  public secrets: any;
+  public secrets: unknown;
 
   constructor(parameters?: Partial<GameServerTemplateModel>) {
     super(parameters);

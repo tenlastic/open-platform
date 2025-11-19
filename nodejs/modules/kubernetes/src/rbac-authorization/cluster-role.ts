@@ -5,7 +5,10 @@ import { ClusterBaseApiV1 } from '../bases';
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
 
-export class ClusterRoleApiV1 extends ClusterBaseApiV1<k8s.V1ClusterRole> {
+export class ClusterRoleApiV1 extends ClusterBaseApiV1<
+  k8s.RbacAuthorizationV1Api,
+  k8s.V1ClusterRole
+> {
   protected api = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
   protected singular = 'ClusterRole';
 }

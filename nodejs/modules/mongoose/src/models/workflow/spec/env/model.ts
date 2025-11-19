@@ -1,27 +1,41 @@
-import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
 import { Chance } from 'chance';
+import * as mongoose from 'mongoose';
 
-@modelOptions({ schemaOptions: { _id: false } })
-export class WorkflowSpecEnvSchema {
-  @prop({ required: true, type: String, validate: (v) => /[A-Z0-9_]+/.test(v) })
-  public name: string;
+export interface WorkflowSpecEnv {
+  name: string;
+  value: string;
+}
 
-  @prop({ required: true, type: String })
-  public value: string;
+export interface WorkflowSpecEnvDocument
+  extends mongoose.Document<mongoose.Types.ObjectId>,
+    WorkflowSpecEnv {}
 
+export interface WorkflowSpecEnvModelType extends mongoose.Model<WorkflowSpecEnvDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(
-    this: typeof WorkflowSpecEnvModel,
-    values: Partial<WorkflowSpecEnvSchema> = {},
-  ) {
-    const chance = new Chance();
-    const defaults = { name: chance.hash(), value: chance.hash() };
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(this: WorkflowSpecEnvModelType, values?: Partial<WorkflowSpecEnv>): WorkflowSpecEnvDocument;
 }
 
-export type WorkflowSpecEnvDocument = DocumentType<WorkflowSpecEnvSchema>;
-export const WorkflowSpecEnvModel = getModelForClass(WorkflowSpecEnvSchema);
+export const WorkflowSpecEnvSchema = new mongoose.Schema<WorkflowSpecEnvDocument>(
+  {
+    name: { type: String, required: true, validate: (v: string) => /[A-Z0-9_]+/.test(v) },
+    value: { type: String, required: true },
+  },
+  { _id: false },
+);
+
+WorkflowSpecEnvSchema.statics.mock = function (
+  this: WorkflowSpecEnvModelType,
+  values: Partial<WorkflowSpecEnv> = {},
+) {
+  const chance = new Chance();
+  const defaults = { name: chance.hash(), value: chance.hash() };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const WorkflowSpecEnvModel = mongoose.model<
+  WorkflowSpecEnvDocument,
+  WorkflowSpecEnvModelType
+>('WorkflowSpecEnv', WorkflowSpecEnvSchema);

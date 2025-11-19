@@ -54,7 +54,7 @@ export async function createBuild(build: string, page: Page) {
   await waitForXPath(
     page,
     `//app-build-status-node[contains(div, 'Workflow') and contains(div, 'Succeeded')]`,
-    { timeout: 3 * 60 * 1000 },
+    3 * 60 * 1000,
   );
 }
 
@@ -87,7 +87,10 @@ export async function createNamespace(namespace: string, page: Page) {
 
   // Wait for the Namespace to run successfully.
   await wait(100, 2 * 60 * 1000, async () => {
-    const [input] = await page.$x(`//mat-form-field[.//mat-label[contains(., 'Phase')]]//input`);
+    const input = await waitForXPath(
+      page,
+      `//mat-form-field[.//mat-label[contains(., 'Phase')]]//input`,
+    );
     const value = await page.evaluate((i) => i.value, input);
 
     return value === 'Running';
@@ -124,57 +127,41 @@ export async function deleteUser(username: string) {
 
 export async function getButtonByIcon(icon: string, page: Page, timeout = 2500) {
   const selector = `//app-button//button[not(@disabled) and .//mat-icon[text() = '${icon}']]`;
-  await waitForXPath(page, selector, { timeout });
-  const elements = await page.$x(selector);
-  return elements[0];
+  return waitForXPath(page, selector, timeout);
 }
 
 export async function getButtonByText(page: Page, text: string, timeout = 2500) {
   const selector = `//app-button//button[not(@disabled) and .//div[text() = '${text}']]`;
-  await waitForXPath(page, selector, { timeout });
-  const elements = await page.$x(selector);
-  return elements[0];
+  return waitForXPath(page, selector, timeout);
 }
 
 export async function getButtonByTooltip(page: Page, tooltip: string, timeout = 2500) {
   const selector = `//app-button[@matTooltip='${tooltip}']//button[not(@disabled)]`;
-  await waitForXPath(page, selector, { timeout });
-  const elements = await page.$x(selector);
-  return elements[0];
+  return waitForXPath(page, selector, timeout);
 }
 
 export async function getDropdownByLabel(label: string, page: Page, timeout = 2500) {
   const selector = `//mat-form-field[.//mat-label[contains(text(), '${label}')]]`;
-  await waitForXPath(page, selector, { timeout });
-  const elements = await page.$x(selector);
-  return elements[0];
+  return waitForXPath(page, selector, timeout);
 }
 
 export async function getElementByXPath(page: Page, selector: string, timeout = 2500) {
-  await waitForXPath(page, selector, { timeout });
-  const elements = await page.$x(selector);
-  return elements[0];
+  return waitForXPath(page, selector, timeout);
 }
 
 export async function getInputByLabel(label: string, page: Page, timeout = 2500) {
   const selector = `//mat-form-field//input[..//mat-label[contains(text(), '${label}')]]`;
-  await waitForXPath(page, selector, { timeout });
-  const elements = await page.$x(selector);
-  return elements[0];
+  return waitForXPath(page, selector, timeout);
 }
 
 export async function getInputByPlaceholder(page: Page, placeholder: string, timeout = 2500) {
   const selector = `//mat-form-field//input[@placeholder='${placeholder}']`;
-  await waitForXPath(page, selector, { timeout });
-  const elements = await page.$x(selector);
-  return elements[0];
+  return waitForXPath(page, selector, timeout);
 }
 
 export async function getTextareaByLabel(label: string, page: Page, timeout = 2500) {
   const selector = `//mat-form-field//textarea[..//mat-label[contains(text(), '${label}')]]`;
-  await waitForXPath(page, selector, { timeout });
-  const elements = await page.$x(selector);
-  return elements[0];
+  return waitForXPath(page, selector, timeout);
 }
 
 export async function newPage(logIn = false) {
@@ -220,13 +207,6 @@ export async function type(element: ElementHandle, page: Page, text: string) {
   await page.keyboard.type(text);
 }
 
-export async function waitForXPath(
-  page: Page,
-  selector: string,
-  options: WaitForXPathOptions = { interval: 100, timeout: 2500 },
-) {
-  return wait(options.interval || 100, options.timeout || 2500, async () => {
-    const elements = await page.$x(selector);
-    return elements.length > 0 ? elements : null;
-  });
+export async function waitForXPath(page: Page, selector: string, timeout = 2500) {
+  return page.waitForSelector(`::-p-xpath(${selector})`, { timeout });
 }

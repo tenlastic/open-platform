@@ -12,7 +12,7 @@ GameServerEvent.async(async (payload) => {
   const { matchId } = payload.fullDocument;
 
   if (payload.operationType === 'delete' && matchId) {
-    return MatchModel.findOneAndUpdate(
+    await MatchModel.findOneAndUpdate(
       { _id: matchId, finishedAt: { $exists: false } },
       { finishedAt: new Date() },
     );
@@ -38,17 +38,15 @@ MatchEvent.async(async (payload) => {
     fullDocument.acceptedUserIds.length === fullDocument.userIds.length &&
     payload.updateDescription.updatedFields.acceptedUserIds
   ) {
-    return MatchModel.findOneAndUpdate(
+    await MatchModel.findOneAndUpdate(
       { _id: fullDocument._id, startedAt: { $exists: false } },
       { startedAt: new Date() },
     );
-  }
-
-  if (
+  } else if (
     fullDocument.declinedUserIds.length > 0 &&
     payload.updateDescription.updatedFields.declinedUserIds
   ) {
-    return MatchModel.deleteOne({
+    await MatchModel.deleteOne({
       _id: fullDocument._id,
       invitationsExpireAt: { $exists: true },
       startedAt: { $exists: false },
@@ -63,12 +61,12 @@ MatchInvitationEvent.async(async (payload) => {
   }
 
   if (payload.updateDescription.updatedFields.acceptedAt) {
-    return MatchModel.findOneAndUpdate(
+    await MatchModel.findOneAndUpdate(
       { _id: payload.fullDocument.matchId },
       { $addToSet: { acceptedUserIds: payload.fullDocument.userId } },
     );
   } else if (payload.updateDescription.updatedFields.declinedAt) {
-    return MatchModel.findOneAndUpdate(
+    await MatchModel.findOneAndUpdate(
       { _id: payload.fullDocument.matchId },
       { $addToSet: { declinedUserIds: payload.fullDocument.userId } },
     );
@@ -77,8 +75,7 @@ MatchInvitationEvent.async(async (payload) => {
 
 // Delete Matches if associated Namespace is deleted.
 NamespaceEvent.async(async (payload) => {
-  switch (payload.operationType) {
-    case 'delete':
-      return MatchModel.deleteMany({ namespaceId: payload.fullDocument._id });
+  if (payload.operationType === 'delete') {
+    await MatchModel.deleteMany({ namespaceId: payload.fullDocument._id });
   }
 });

@@ -1,4 +1,4 @@
-import { UserPermissions } from '@tenlastic/mongoose';
+import { UserModel, UserPermissionOptions } from '@tenlastic/mongoose';
 import { deleteOne } from '@tenlastic/web-server';
 
-export const handler = deleteOne(UserPermissions);
+export const handler = deleteOne(UserModel, UserPermissionOptions);

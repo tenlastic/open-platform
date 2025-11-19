@@ -1,23 +1,25 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
-  AuthorizationQuery,
   AuthorizationService,
+  AuthorizationState,
   IAuthorization,
   UserModel,
-  UserQuery,
   UserService,
+  UserState,
 } from '@tenlastic/http';
 import { combineLatest, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { IdentityService } from '../../../../../../core/services';
+import { IdentityService, SideMenuService } from '@home/app/core/services';
 
 @Component({
+  standalone: false,
   templateUrl: './layout.component.html',
-  styleUrls: ['./layout.component.scss'],
 })
-export class LayoutComponent implements OnInit {
+export class LayoutComponent implements AfterViewInit, OnDestroy, OnInit {
+  @ViewChild('sideMenu') private sideMenuTemplate: TemplateRef<unknown>;
+
   public get $displayName() {
     return this.$user.pipe(map((u) => u.displayName));
   }
@@ -26,16 +28,16 @@ export class LayoutComponent implements OnInit {
     const userId = this.identityService.user?._id;
 
     return combineLatest([
-      this.authorizationQuery.selectHasRoles(null, roles, userId),
-      this.authorizationQuery.selectHasRoles(this.params.namespaceId, roles, userId),
+      this.authorizationState.selectHasRoles(null, roles, userId),
+      this.authorizationState.selectHasRoles(this.params.namespaceId, roles, userId),
     ]).pipe(map(([a, b]) => a || b));
   }
   public $user: Observable<UserModel>;
   public IAuthorization = IAuthorization;
   public get isActive() {
     return (
-      this.router.url.endsWith(`/namespaces/${this.params.namespaceId}`) ||
-      this.router.url.endsWith(`/namespaces/${this.params.namespaceId}/json`)
+      this.router.url.endsWith(`/users/${this.params.userId}`) ||
+      this.router.url.endsWith(`/users/${this.params.userId}/json`)
     );
   }
 
@@ -43,11 +45,12 @@ export class LayoutComponent implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private authorizationQuery: AuthorizationQuery,
+    private authorizationState: AuthorizationState,
     private authorizationService: AuthorizationService,
     private identityService: IdentityService,
     private router: Router,
-    private userQuery: UserQuery,
+    private sideMenuService: SideMenuService,
+    private userState: UserState,
     private userService: UserService,
   ) {}
 
@@ -59,7 +62,7 @@ export class LayoutComponent implements OnInit {
         return;
       }
 
-      this.$user = this.userQuery.selectEntity(params.userId);
+      this.$user = this.userState.selectOne(params.userId);
 
       await Promise.all([
         this.authorizationService.findUserAuthorizations(null, params.userId),
@@ -68,12 +71,20 @@ export class LayoutComponent implements OnInit {
     });
   }
 
+  public ngAfterViewInit() {
+    this.sideMenuService.add(this.sideMenuTemplate);
+  }
+
+  public ngOnDestroy() {
+    this.sideMenuService.remove(this.sideMenuTemplate);
+  }
+
   public $hasPermission(roles: IAuthorization.Role[]) {
     const userId = this.identityService.user?._id;
 
     return combineLatest([
-      this.authorizationQuery.selectHasRoles(null, roles, userId),
-      this.authorizationQuery.selectHasRoles(this.params.namespaceId, roles, userId),
+      this.authorizationState.selectHasRoles(null, roles, userId),
+      this.authorizationState.selectHasRoles(this.params.namespaceId, roles, userId),
     ]).pipe(map(([a, b]) => a || b));
   }
 }

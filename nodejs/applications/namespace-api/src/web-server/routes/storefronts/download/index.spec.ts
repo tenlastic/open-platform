@@ -8,11 +8,11 @@ import {
 } from '@tenlastic/mongoose';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
+import chaiAsPromised from 'chai-as-promised';
 import * as fs from 'fs';
 
 import { MinioStorefront } from '../../../../minio';
-import { handler } from './';
+import { DownloadStorefrontContext, handler } from './';
 
 use(chaiAsPromised);
 
@@ -34,16 +34,16 @@ describe('web-server/storefronts/download', function () {
       fs.createReadStream(__filename),
     );
 
-    const ctx = new ContextMock({
+    const ctx = ContextMock<DownloadStorefrontContext>({
       params: {
         field: 'background',
-        namespaceId: storefront.namespaceId,
-        storefrontId: storefront._id,
+        namespaceId: storefront.namespaceId.toHexString(),
+        storefrontId: storefront._id.toHexString(),
       },
-      state: { user },
-    } as any);
+      state: { user: { _id: user._id.toHexString() } },
+    });
 
-    await handler(ctx as any);
+    await handler(ctx);
 
     expect(ctx.response.body).to.exist;
   });

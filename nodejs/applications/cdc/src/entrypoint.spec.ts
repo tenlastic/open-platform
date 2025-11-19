@@ -10,6 +10,7 @@ let connection: Connection;
 before(async function () {
   // MongoDB.
   connection = await mongoose.connect({
+    autoCreate: true,
     connectionString: mongoConnectionString,
     databaseName: `cdc-test`,
   });

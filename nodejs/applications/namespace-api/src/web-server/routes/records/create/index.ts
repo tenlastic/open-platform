@@ -1,7 +1,14 @@
-import { CollectionModel, RecordPermissions, RecordSchema } from '@tenlastic/mongoose';
-import { Context, RecordNotFoundError } from '@tenlastic/web-server';
+import {
+  CollectionModel,
+  getRecordModel,
+  getRecordPermissionOptions,
+  RecordDocument,
+} from '@tenlastic/mongoose';
+import * as permissions from '@tenlastic/mongoose-permissions';
+import { CreateContext, RecordNotFoundError } from '@tenlastic/web-server';
+import * as mongoose from 'mongoose';
 
-export async function handler(ctx: Context) {
+export async function handler(ctx: CreateContext<RecordDocument>) {
   const { collectionId } = ctx.params;
 
   const collection = await CollectionModel.findOne({ _id: collectionId });
@@ -9,17 +16,20 @@ export async function handler(ctx: Context) {
     throw new RecordNotFoundError('Collection');
   }
 
-  const Model = RecordSchema.getModel(collection);
-  const Permissions = RecordPermissions(collection, Model);
+  const Model = getRecordModel(collection);
+  const options = getRecordPermissionOptions(collection);
 
-  const credentials = { ...ctx.state };
-  const override = { collectionId, namespaceId: collection.namespaceId } as any;
+  const context = { credentials: { ...ctx.state }, Model, options };
+  const overlayParameters: Partial<RecordDocument> = {
+    collectionId,
+    namespaceId: collection.namespaceId,
+  };
   if (ctx.state.user) {
-    override.userId = ctx.state.user._id;
+    overlayParameters.userId = new mongoose.Types.ObjectId(ctx.state.user._id);
   }
 
-  const result = await Permissions.create(credentials, override, ctx.request.body);
-  const record = await Permissions.read(credentials, result);
+  const result = await permissions.create(context, ctx.request.body, overlayParameters);
+  const record = await permissions.read(context, result);
 
   ctx.response.body = { record };
 }

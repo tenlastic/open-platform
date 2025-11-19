@@ -1,11 +1,12 @@
 import { BuildModel } from '@tenlastic/http';
 import * as minio from '@tenlastic/minio';
 import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-import * as Chance from 'chance';
+import chaiAsPromised from 'chai-as-promised';
+import { Chance } from 'chance';
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as JSZip from 'jszip';
+import { Readable } from 'stream';
 
 import { unzip } from './';
 
@@ -26,14 +27,14 @@ describe('unzip', function () {
       compression: 'DEFLATE',
       compressionOptions: { level: 1 },
     });
-    await minio.putObject(process.env.MINIO_BUCKET, build.getZipPath(), stream);
+    await minio.putObject(process.env.MINIO_BUCKET, build.getZipPath(), stream as Readable);
 
     // Calculate MD5 for zipped file.
     await new Promise((resolve, reject) => {
       const fileStream = fs.createReadStream(__filename);
       const hash = crypto.createHash('md5');
       fileStream.on('error', (err) => reject(err));
-      fileStream.on('data', (chunk) => hash.update(chunk));
+      fileStream.on('data', (chunk) => hash.update(chunk as crypto.BinaryLike));
       fileStream.on('end', () => resolve(hash.digest('hex')));
     });
   });

@@ -7,4 +7,4 @@ if [ ! -d "./dist/" ]; then
 fi
 
 # Build Typescript files.
-tsc -p ./tsconfig.app.json
+tsc -p ./tsconfig.app.json "$@"

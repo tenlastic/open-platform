@@ -7,13 +7,17 @@ describe('json-schema/json-to-mongoose', function () {
   context('when the schema is invalid', function () {
     it('throws an error', function () {
       const input = { type: 'objectttt' };
-      const func = () => jsonToMongoose(input, null);
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const func = () => jsonToMongoose(input as any, null);
 
       expect(func).to.throw(/Unsupported JSON schema/);
     });
 
     it('throws an error', function () {
       const input = { properties: 'not an object', type: 'object' };
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const func = () => jsonToMongoose(input as any, null);
 
       expect(func).to.throw(/Unsupported JSON schema/);
@@ -24,7 +28,9 @@ describe('json-schema/json-to-mongoose', function () {
         properties: { email: { type: 'not a type' } },
         type: 'object',
       };
-      const func = () => jsonToMongoose(input, null);
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const func = () => jsonToMongoose(input as any, null);
 
       expect(func).to.throw(/Unsupported JSON schema/);
     });
@@ -55,7 +61,8 @@ describe('json-schema/json-to-mongoose', function () {
         type: 'object',
       };
 
-      const result = jsonToMongoose(json, null);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = jsonToMongoose(json as any, null);
 
       expect(result.path('address').schema['options']._id).to.eql(false);
       expect(result.path('address').schema.path('builtAt').instance).to.eql('Date');
@@ -74,7 +81,7 @@ describe('json-schema/json-to-mongoose', function () {
       expect(result.path('object').schema.path('key').instance).to.eql('String');
       expect(result.path('object').schema.path('key').options.required).to.eql(true);
 
-      expect(result.path('objectId').instance).to.eql('ObjectID');
+      expect(result.path('objectId').instance).to.eql('ObjectId');
 
       expect(result.path('string').instance).to.eql('String');
       expect(result.path('string').options.match).to.eql(new RegExp('^\\d{3}$'));

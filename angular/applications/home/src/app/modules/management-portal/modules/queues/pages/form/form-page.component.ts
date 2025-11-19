@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
-  AuthorizationQuery,
+  AuthorizationState,
   GameServerTemplateModel,
   GameServerTemplateService,
   IAuthorization,
@@ -12,10 +12,10 @@ import {
   NamespaceModel,
   NamespaceService,
   QueueModel,
-  QueueQuery,
   QueueService,
+  QueueState,
 } from '@tenlastic/http';
-import { Subscription } from 'rxjs';
+import { map, Subscription } from 'rxjs';
 
 import { FormService, IdentityService } from '../../../../../../core/services';
 import { PromptComponent } from '../../../../../../shared/components';
@@ -27,8 +27,9 @@ interface PropertyFormGroup {
 }
 
 @Component({
-  templateUrl: 'form-page.component.html',
+  standalone: false,
   styleUrls: ['./form-page.component.scss'],
+  templateUrl: 'form-page.component.html',
 })
 export class QueuesFormPageComponent implements OnDestroy, OnInit {
   public get cpus() {
@@ -63,7 +64,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private authorizationQuery: AuthorizationQuery,
+    private authorizationState: AuthorizationState,
     private formBuilder: FormBuilder,
     private formService: FormService,
     private gameServerTemplateService: GameServerTemplateService,
@@ -71,7 +72,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private namespaceService: NamespaceService,
-    private queueQuery: QueueQuery,
+    private queueState: QueueState,
     private queueService: QueueService,
     private router: Router,
   ) {}
@@ -83,8 +84,8 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       const roles = [IAuthorization.Role.QueuesWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
-        this.authorizationQuery.hasRoles(null, roles, userId) ||
-        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
+        this.authorizationState.hasRoles(null, roles, userId) ||
+        this.authorizationState.hasRoles(params.namespaceId, roles, userId);
 
       this.gameServerTemplates = await this.gameServerTemplateService.find(params.namespaceId, {});
       this.namespace = await this.namespaceService.findOne(params.namespaceId);
@@ -284,8 +285,9 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
     this.form.valueChanges.subscribe(() => (this.errors = []));
 
     if (this.data._id) {
-      this.updateQueue$ = this.queueQuery
-        .selectAll({ filterBy: (q) => q._id === this.data._id })
+      this.updateQueue$ = this.queueState
+        .selectMany()
+        .pipe(map((qs) => qs.filter((q) => q._id === this.data._id)))
         .subscribe((queues) => (this.data = queues[0]));
     }
   }

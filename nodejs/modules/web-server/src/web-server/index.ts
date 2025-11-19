@@ -38,7 +38,7 @@ export class WebServer {
     });
   }
 
-  public use(middleware: koa.Middleware<any, koa.DefaultContext & koa.Context>) {
+  public use(middleware: koa.Middleware<koa.DefaultState, koa.DefaultContext & koa.Context>) {
     this.app.use(middleware);
   }
 }

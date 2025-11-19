@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 export interface IPasswordResetRequested {
@@ -7,7 +7,7 @@ export interface IPasswordResetRequested {
 
 @Component({
   selector: 'app-password-reset-request-form',
-  styleUrls: ['password-reset-request-form.component.scss'],
+  standalone: false,
   templateUrl: 'password-reset-request-form.component.html',
 })
 export class PasswordResetRequestFormComponent implements OnInit {

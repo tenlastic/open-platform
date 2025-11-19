@@ -1,27 +1,15 @@
 import * as mongoose from 'mongoose';
 
-interface JsonSchema {
-  [key: string]: any;
-  default?: any;
-  format?: string;
-  enum?: any[];
-  items?: JsonSchema;
-  pattern?: string;
-  properties?: Record<string, JsonSchema>;
-  required?: string[];
-  type: JsonSchemaType | string;
-}
-
-type JsonSchemaType = 'array' | 'boolean' | 'integer' | 'number' | 'object' | 'string';
+import { JsonSchema } from '../types';
 
 export function jsonToMongoose(jsonSchema: JsonSchema, options: mongoose.SchemaOptions) {
-  const schema: Record<string, mongoose.SchemaType<any> | mongoose.Schema> = {};
+  const schema: Record<string, mongoose.SchemaTypeOptions<unknown>> = {};
 
   const properties = jsonSchema.properties || {};
   const required = jsonSchema.required || [];
 
   for (const [key, value] of Object.entries(properties)) {
-    let field: mongoose.SchemaType<any> | any = {};
+    let field: mongoose.SchemaTypeOptions<unknown> = {};
 
     switch (value.type) {
       case 'array':
@@ -98,7 +86,7 @@ export function jsonToMongoose(jsonSchema: JsonSchema, options: mongoose.SchemaO
   return new mongoose.Schema(schema, options);
 }
 
-function convertType(schema: JsonSchema): any {
+function convertType(schema: JsonSchema) {
   switch (schema.type) {
     case 'array':
       return [convertType(schema.items)];

@@ -1,4 +1,4 @@
-import { NamespacePermissions } from '@tenlastic/mongoose';
+import { NamespaceModel, NamespacePermissionOptions } from '@tenlastic/mongoose';
 import { findOne } from '@tenlastic/web-server';
 
-export const handler = findOne(NamespacePermissions);
+export const handler = findOne(NamespaceModel, NamespacePermissionOptions);

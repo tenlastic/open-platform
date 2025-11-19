@@ -1,33 +1,51 @@
-import { DocumentType, getModelForClass, modelOptions, prop, PropType } from '@typegoose/typegoose';
+import * as mongoose from 'mongoose';
 
 import { arrayLengthValidator } from '../../../../../validators';
 
-@modelOptions({ schemaOptions: { _id: false } })
-export class GameServerProbesProbeExecSchema {
-  @prop(
-    {
-      maxlength: 64,
-      required: true,
-      trim: true,
-      type: String,
-      validate: arrayLengthValidator(10, 1),
-    },
-    PropType.ARRAY,
-  )
-  public command: string[];
+export interface GameServerProbesProbeExec {
+  command: string[];
+}
 
+export type GameServerProbesProbeExecDocument = mongoose.Document<mongoose.Types.ObjectId> &
+  GameServerProbesProbeExec;
+
+export interface GameServerProbesProbeExecModelType
+  extends mongoose.Model<GameServerProbesProbeExecDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(
-    this: typeof GameServerProbesProbeExecModel,
-    values: Partial<GameServerProbesProbeExecSchema> = {},
-  ) {
-    const defaults = { command: ['command'] };
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(
+    this: GameServerProbesProbeExecModelType,
+    values?: Partial<GameServerProbesProbeExec>,
+  ): GameServerProbesProbeExecDocument;
 }
 
-export type GameServerProbesProbeExecDocument = DocumentType<GameServerProbesProbeExecSchema>;
-export const GameServerProbesProbeExecModel = getModelForClass(GameServerProbesProbeExecSchema);
+const GameServerProbesProbeExecSchema = new mongoose.Schema<GameServerProbesProbeExecDocument>(
+  {
+    command: {
+      maxlength: 64,
+      required: true,
+      trim: true,
+      type: [String],
+      validate: arrayLengthValidator(10, 1),
+    },
+  },
+  { _id: false },
+);
+
+GameServerProbesProbeExecSchema.statics.mock = function (
+  values: Partial<GameServerProbesProbeExec> = {},
+) {
+  const defaults: Partial<GameServerProbesProbeExec> = { command: ['command'] };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const GameServerProbesProbeExecModel = mongoose.model<
+  GameServerProbesProbeExecDocument,
+  GameServerProbesProbeExecModelType
+>('GameServerProbesProbeExecSchema', GameServerProbesProbeExecSchema);
+
+export { GameServerProbesProbeExecSchema };
+
+export default GameServerProbesProbeExecModel;

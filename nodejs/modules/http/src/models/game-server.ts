@@ -112,7 +112,7 @@ export class GameServerModel extends BaseModel {
   public description: string;
   public matchId: string;
   public memory: number;
-  public metadata: any;
+  public metadata: unknown;
   public name: string;
   public namespaceId: string;
   public get persistent() {
@@ -123,7 +123,7 @@ export class GameServerModel extends BaseModel {
   public probes: IGameServer.Probes;
   public queueId: string;
   public restartedAt: Date;
-  public secrets: any;
+  public secrets: unknown;
   public status: IGameServer.Status;
 
   constructor(parameters?: Partial<GameServerModel>) {

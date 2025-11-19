@@ -1,61 +1,79 @@
 <app-header-toolbar *ngIf="!isElectron">
   <img src="/assets/images/logo.png" />
 
-  <div class="space"></div>
+  <ng-container *appResponsive="'desktop'">
+    <div class="space"></div>
 
-  <app-button color="primary"
-              [href]="launcherUrl">
-    <div>Download Launcher</div>
-  </app-button>
+    <app-button color="primary"
+                [href]="launcherUrl">
+      <div>Download Launcher</div>
+    </app-button>
+  </ng-container>
+
+  <ng-container *appResponsive="'mobile'">
+    <div class="space"></div>
+
+    <app-button color="accent"
+                size="large"
+                (OnClick)="toggleSideMenu()">
+      <mat-icon>{{ ($sideMenuIsVisible | async) ? 'close' : 'menu' }}</mat-icon>
+    </app-button>
+  </ng-container>
 </app-header-toolbar>
 
-<div class="content">
-  <app-sidenav>
-    <div appNav
-         class="nav">
-      <app-button *ngIf="$hasPermission(IAuthorization.authorizationRoles) | async"
-                  color="accent"
-                  layout="vertical"
-                  routerLink="authorizations"
-                  routerLinkActive="active"
-                  text="left"
-                  width="full">
-        <mat-icon>vpn_key</mat-icon>
-        <div>Authorizations</div>
-      </app-button>
+<div class="row">
+  <app-side-menu *appResponsive="'desktop'"></app-side-menu>
 
-      <app-button color="accent"
-                  layout="vertical"
-                  routerLink="namespaces"
-                  routerLinkActive="active"
-                  text="left"
-                  width="full">
-        <mat-icon>layers</mat-icon>
-        <div>Namespaces</div>
-      </app-button>
-
-      <app-button color="accent"
-                  layout="vertical"
-                  routerLink="users"
-                  routerLinkActive="active"
-                  text="left"
-                  width="full">
-        <mat-icon>person</mat-icon>
-        <div>Users</div>
-      </app-button>
-
-      <app-button color="accent"
-                  layout="vertical"
-                  routerLink="web-sockets"
-                  routerLinkActive="active"
-                  text="left"
-                  width="full">
-        <mat-icon>hub</mat-icon>
-        <div>Web Sockets</div>
-      </app-button>
-    </div>
-
+  <div class="content">
     <app-loading-message *ngIf="isLoading">Loading...</app-loading-message>
     <router-outlet *ngIf="!isLoading"></router-outlet>
-  </app-sidenav>
+  </div>
+
+  <ng-container *appResponsive="'mobile'">
+    <app-side-menu-overlay *ngIf="$sideMenuIsVisible | async">
+      <app-side-menu></app-side-menu>
+    </app-side-menu-overlay>
+  </ng-container>
 </div>
+
+<ng-template #sideMenu>
+  <app-button color="accent"
+              layout="vertical"
+              routerLink="authorizations"
+              routerLinkActive="active"
+              text="left"
+              width="full">
+    <mat-icon>vpn_key</mat-icon>
+    <div>Authorizations</div>
+  </app-button>
+
+  <app-button color="accent"
+              layout="vertical"
+              routerLink="namespaces"
+              routerLinkActive="active"
+              text="left"
+              width="full">
+    <mat-icon>layers</mat-icon>
+    <div>Namespaces</div>
+  </app-button>
+
+  <app-button color="accent"
+              layout="vertical"
+              routerLink="users"
+              routerLinkActive="active"
+              text="left"
+              width="full">
+    <mat-icon>person</mat-icon>
+    <div>Users</div>
+  </app-button>
+
+  <app-button color="accent"
+              layout="vertical"
+              routerLink="web-sockets"
+              routerLinkActive="active"
+              text="left"
+              width="full">
+    <mat-icon>hub</mat-icon>
+    <div>Web Sockets</div>
+  </app-button>
+</ng-template>

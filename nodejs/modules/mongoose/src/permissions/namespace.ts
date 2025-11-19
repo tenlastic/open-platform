@@ -1,13 +1,13 @@
-import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
+import { IOptions } from '@tenlastic/mongoose-permissions';
 
-import { AuthorizationRole, NamespaceDocument, NamespaceModel } from '../models';
+import { AuthorizationRole, NamespaceDocument } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
 const administrator = {
   read: ['_id', 'createdAt', 'limits.*', 'name', 'restartedAt', 'status.*', 'updatedAt'],
 };
 
-export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(NamespaceModel, {
+export const NamespacePermissionOptions: IOptions<NamespaceDocument> = {
   create: {
     'user-write': ['limits.*', 'name'],
   },
@@ -66,4 +66,4 @@ export const NamespacePermissions = new MongoosePermissions<NamespaceDocument>(N
     'system-write': ['status.*'],
     'user-write': ['limits.*', 'name', 'restartedAt'],
   },
-});
+};

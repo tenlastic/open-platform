@@ -1,16 +1,30 @@
-import { PermissionError } from '@tenlastic/mongoose-permissions';
+import * as permissions from '@tenlastic/mongoose-permissions';
 import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
+import chaiAsPromised from 'chai-as-promised';
+import { Chance } from 'chance';
+import * as mongoose from 'mongoose';
+import * as sinon from 'sinon';
 
-import { ContextMock } from '../../context';
-import { updateOneDate } from './';
+import { ContextMock } from '../../mocks';
+import { dependencies, updateOneDate, UpdateOneDateContext } from './';
 
+const chance = new Chance();
 use(chaiAsPromised);
 
+const Schema = new mongoose.Schema({ restartedAt: Date });
+type Document = mongoose.Document & mongoose.InferSchemaType<typeof Schema>;
+const Model = mongoose.model<Document>('handlers/update-one-date', Schema);
+const Permissions = {};
+
 describe('handlers/update-one-date', function () {
+  afterEach(async function () {
+    sinon.restore();
+  });
+
   context('when permission is granted', function () {
     it('returns the record', async function () {
-      const yesterday = new Date(Date.now() - 1 * 24 * 60 * 60 * 1000);
+      const ctx = ContextMock<UpdateOneDateContext<Document>>();
+      const restartedAt = new Date(Date.now() - 1 * 24 * 60 * 60 * 1000);
       const record = {
         save() {
           return Promise.resolve(this);
@@ -19,36 +33,33 @@ describe('handlers/update-one-date', function () {
           this[k] = v;
           return this;
         },
-        updatedAt: yesterday,
+        restartedAt,
       };
 
-      const ctx = new ContextMock();
-      const Permissions = {
-        findOne: () => Promise.resolve(record),
-        getFieldPermissions: () => ['updatedAt'],
-        read: (c, r) => Promise.resolve(r),
-      };
+      sinon.stub(dependencies, 'findOne').resolves(record);
+      sinon.stub(dependencies, 'getFieldPermissions').resolves(['restartedAt']);
+      sinon.stub(dependencies, 'read').resolves(record);
 
-      const handler = updateOneDate('updatedAt' as any, Permissions as any);
-      await handler(ctx as any);
+      const handler = updateOneDate('restartedAt', Model, Permissions);
+      await handler(ctx);
 
-      expect(ctx.response.body.record).to.exist;
-      expect(ctx.response.body.record.updatedAt).to.be.greaterThan(yesterday);
+      expect(ctx.response.body.record.restartedAt).to.exist;
+      expect(ctx.response.body.record.restartedAt).to.not.eql(restartedAt);
     });
   });
 
   context('when permission is denied', function () {
     it('throws an error', async function () {
-      const ctx = new ContextMock();
-      const Permissions = {
-        findOne: () => Promise.resolve({}),
-        getFieldPermissions: () => ['updatedAt'],
-      };
+      const ctx = ContextMock<UpdateOneDateContext<Document>>();
+      const name = chance.hash();
 
-      const handler = updateOneDate('key' as any, Permissions as any);
-      const promise = handler(ctx as any);
+      sinon.stub(dependencies, 'findOne').resolves({ name });
+      sinon.stub(dependencies, 'getFieldPermissions').resolves([]);
 
-      return expect(promise).to.be.rejectedWith(PermissionError);
+      const handler = updateOneDate('restartedAt', Model, Permissions);
+      const promise = handler(ctx);
+
+      return expect(promise).to.be.rejectedWith(permissions.PermissionError);
     });
   });
 });

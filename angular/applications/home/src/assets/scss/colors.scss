@@ -1,0 +1,9 @@
+@use 'sass:color';
+
+$accent: rgba(255, 255, 255, 0);
+$accent-active: rgba(255, 255, 255, 0.2);
+$accent-hover: rgba(255, 255, 255, 0.1);
+$error: #f44336;
+$primary: #d32f2f;
+$primary-active: color.adjust($primary, $lightness: 20%);
+$primary-hover: color.adjust($primary, $lightness: 10%);

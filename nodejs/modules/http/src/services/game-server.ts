@@ -1,7 +1,11 @@
 import { GameServerModel } from '../models/game-server';
-import { GameServerStore } from '../states/game-server';
 import { ApiService } from './api';
-import { BaseService, BaseServiceFindQuery } from './base';
+import {
+  BaseService,
+  BaseServiceCountQuery,
+  BaseServiceFindQuery,
+  BaseServiceRecordResponse,
+} from './base';
 import { EnvironmentService } from './environment';
 
 export class GameServerService {
@@ -11,22 +15,14 @@ export class GameServerService {
 
   private baseService: BaseService<GameServerModel>;
 
-  constructor(
-    private apiService: ApiService,
-    private environmentService: EnvironmentService,
-    private gameServerStore: GameServerStore,
-  ) {
-    this.baseService = new BaseService<GameServerModel>(
-      this.apiService,
-      GameServerModel,
-      this.gameServerStore,
-    );
+  constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
+    this.baseService = new BaseService<GameServerModel>(this.apiService, GameServerModel);
   }
 
   /**
    * Returns the number of Records satisfying the query.
    */
-  public async count(namespaceId: string, query: any) {
+  public async count(namespaceId: string, query: BaseServiceCountQuery) {
     const url = this.getUrl(namespaceId);
     return this.baseService.count(query, url);
   }
@@ -68,14 +64,13 @@ export class GameServerService {
    */
   public async restart(namespaceId: string, _id: string) {
     const url = this.getUrl(namespaceId);
-    const response = await this.apiService.request({
+    const response = await this.apiService.request<BaseServiceRecordResponse<GameServerModel>>({
       method: 'patch',
       url: `${url}/${_id}/restarted-at`,
     });
 
     const record = new GameServerModel(response.data.record);
     this.emitter.emit('update', record);
-    this.gameServerStore.upsertMany([record]);
 
     return record;
   }

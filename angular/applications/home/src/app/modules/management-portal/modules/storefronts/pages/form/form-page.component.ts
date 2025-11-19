@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
-  AuthorizationQuery,
+  AuthorizationState,
   IAuthorization,
   StorefrontModel,
   StorefrontService,
@@ -25,8 +25,9 @@ interface PropertyFormGroup {
 }
 
 @Component({
-  templateUrl: 'form-page.component.html',
+  standalone: false,
   styleUrls: ['./form-page.component.scss'],
+  templateUrl: 'form-page.component.html',
 })
 export class StorefrontsFormPageComponent implements OnInit {
   public data: StorefrontModel;
@@ -39,7 +40,7 @@ export class StorefrontsFormPageComponent implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private authorizationQuery: AuthorizationQuery,
+    private authorizationState: AuthorizationState,
     private formBuilder: FormBuilder,
     private formService: FormService,
     private identityService: IdentityService,
@@ -56,8 +57,8 @@ export class StorefrontsFormPageComponent implements OnInit {
       const roles = [IAuthorization.Role.StorefrontsWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
-        this.authorizationQuery.hasRoles(null, roles, userId) ||
-        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
+        this.authorizationState.hasRoles(null, roles, userId) ||
+        this.authorizationState.hasRoles(params.namespaceId, roles, userId);
 
       const storefronts = await this.storefrontService.find(params.namespaceId, {
         limit: 1,

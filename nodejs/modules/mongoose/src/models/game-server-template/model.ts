@@ -1,13 +1,3 @@
-import {
-  DocumentType,
-  getModelForClass,
-  index,
-  modelOptions,
-  plugin,
-  prop,
-  PropType,
-  Severity,
-} from '@typegoose/typegoose';
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
@@ -18,91 +8,99 @@ import {
   GameServerPortDocument,
   GameServerPortModel,
   GameServerPortSchema,
-  GameServerProbesDocument,
-  GameServerProbesSchema,
-} from '../game-server';
+} from '../game-server/port';
+import { GameServerProbesDocument, GameServerProbesSchema } from '../game-server/probes';
 
-@index({ authorizedUserIds: 1 })
-@index({ buildId: 1 })
-@index({ currentUserIds: 1 })
-@index({ matchId: 1 })
-@index({ namespaceId: 1 })
-@index({ queueId: 1 })
-@modelOptions({
-  options: { allowMixed: Severity.ALLOW },
-  schemaOptions: { collection: 'game-server-templates', timestamps: true },
-})
-@plugin(unsetPlugin)
-export class GameServerTemplateSchema {
-  public _id: mongoose.Types.ObjectId;
+export interface GameServerTemplate {
+  _id: mongoose.Types.ObjectId;
+  authorizationDocuments?: AuthorizationDocument[];
+  buildId: mongoose.Types.ObjectId;
+  cpu: number;
+  createdAt?: Date;
+  description?: string;
+  memory: number;
+  metadata?: unknown;
+  name: string;
+  namespaceId: mongoose.Types.ObjectId;
+  ports: GameServerPortDocument[];
+  preemptible?: boolean;
+  probes?: GameServerProbesDocument;
+  secrets?: unknown;
+  updatedAt?: Date;
+}
 
-  @prop({ ref: 'BuildSchema', required: true, type: mongoose.Schema.Types.ObjectId })
-  public buildId: mongoose.Types.ObjectId;
+export type GameServerTemplateDocument = mongoose.Document<mongoose.Types.ObjectId> &
+  GameServerTemplate;
 
-  @prop({ min: 0.1, required: true, type: Number })
-  public cpu: number;
-
-  public createdAt: Date;
-
-  @prop({ maxlength: 128, trim: true, type: String })
-  public description: string;
-
-  @prop({ min: 100 * 1000 * 1000, required: true, type: Number })
-  public memory: number;
-
-  @prop({ type: mongoose.Schema.Types.Mixed, unset: false })
-  public metadata: any;
-
-  @prop({ maxlength: 64, required: true, trim: true, type: String })
-  public name: string;
-
-  @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
-  public namespaceId: mongoose.Types.ObjectId;
-
-  @prop(
-    {
-      required: true,
-      type: GameServerPortSchema,
-      validate: [arrayLengthValidator(5, 1), duplicateValidator],
-    },
-    PropType.ARRAY,
-  )
-  public ports: GameServerPortDocument[];
-
-  @prop({ type: Boolean })
-  public preemptible: boolean;
-
-  @prop({ type: GameServerProbesSchema })
-  public probes: GameServerProbesDocument;
-
-  @prop({ type: mongoose.Schema.Types.Mixed, unset: false })
-  public secrets: any;
-
-  public updatedAt: Date;
-
-  @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
-  public authorizationDocuments: AuthorizationDocument[];
-
+export interface GameServerTemplateModelType extends mongoose.Model<GameServerTemplateDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(
-    this: typeof GameServerTemplateModel,
-    values: Partial<GameServerTemplateSchema> = {},
-  ) {
-    const chance = new Chance();
-    const defaults = {
-      buildId: new mongoose.Types.ObjectId(),
-      cpu: chance.floating({ max: 1, min: 0.1 }),
-      memory: chance.integer({ max: 1 * 1000 * 1000 * 1000, min: 100 * 1000 * 1000 }),
-      name: chance.hash(),
-      namespaceId: new mongoose.Types.ObjectId(),
-      ports: [GameServerPortModel.mock()],
-    };
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(
+    this: GameServerTemplateModelType,
+    values?: Partial<GameServerTemplate>,
+  ): GameServerTemplateDocument;
 }
 
-export type GameServerTemplateDocument = DocumentType<GameServerTemplateSchema>;
-export const GameServerTemplateModel = getModelForClass(GameServerTemplateSchema);
+const GameServerTemplateSchema = new mongoose.Schema<
+  GameServerTemplateDocument,
+  GameServerTemplateModelType
+>(
+  {
+    buildId: { ref: 'BuildSchema', required: true, type: mongoose.Schema.Types.ObjectId },
+    cpu: { min: 0.1, required: true, type: Number },
+    description: { maxlength: 128, trim: true, type: String },
+    memory: { min: 100 * 1000 * 1000, required: true, type: Number },
+    metadata: { type: mongoose.Schema.Types.Mixed, unset: false },
+    name: { maxlength: 64, required: true, trim: true, type: String },
+    namespaceId: { ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId },
+    ports: {
+      required: true,
+      type: [GameServerPortSchema],
+      validate: [arrayLengthValidator(5, 1), duplicateValidator],
+    },
+    preemptible: { type: Boolean },
+    probes: { type: GameServerProbesSchema },
+    secrets: { type: mongoose.Schema.Types.Mixed, unset: false },
+  },
+  { collection: 'game-server-templates', timestamps: true },
+);
+
+GameServerTemplateSchema.index({ authorizedUserIds: 1 });
+GameServerTemplateSchema.index({ buildId: 1 });
+GameServerTemplateSchema.index({ currentUserIds: 1 });
+GameServerTemplateSchema.index({ matchId: 1 });
+GameServerTemplateSchema.index({ namespaceId: 1 });
+GameServerTemplateSchema.index({ queueId: 1 });
+
+GameServerTemplateSchema.plugin(unsetPlugin);
+
+GameServerTemplateSchema.virtual('authorizationDocuments', {
+  foreignField: 'namespaceId',
+  justOne: false,
+  localField: 'namespaceId',
+  ref: 'AuthorizationSchema',
+});
+
+GameServerTemplateSchema.statics.mock = function (values: Partial<GameServerTemplate> = {}) {
+  const chance = new Chance();
+  const defaults: Partial<GameServerTemplate> = {
+    buildId: new mongoose.Types.ObjectId(),
+    cpu: chance.floating({ max: 1, min: 0.1 }),
+    memory: chance.integer({ max: 1 * 1000 * 1000 * 1000, min: 100 * 1000 * 1000 }),
+    name: chance.hash(),
+    namespaceId: new mongoose.Types.ObjectId(),
+    ports: [GameServerPortModel.mock()],
+  };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const GameServerTemplateModel = mongoose.model<
+  GameServerTemplateDocument,
+  GameServerTemplateModelType
+>('GameServerTemplateSchema', GameServerTemplateSchema);
+
+export { GameServerTemplateSchema };
+
+export default GameServerTemplateModel;

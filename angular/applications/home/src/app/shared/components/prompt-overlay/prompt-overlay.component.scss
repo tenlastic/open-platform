@@ -1,0 +1,15 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  row-gap: 16px;
+
+  div.actions {
+    display: flex;
+    column-gap: 8px;
+    justify-content: center;
+  }
+
+  p {
+    margin: 0px;
+  }
+}

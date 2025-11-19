@@ -1,31 +1,50 @@
-import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
+import * as mongoose from 'mongoose';
 
-@modelOptions({ schemaOptions: { _id: false } })
-export class NamespaceStatusLimitsSchema {
-  @prop({ default: 0, type: Number })
-  public bandwidth: number;
+export interface NamespaceStatusLimits {
+  bandwidth?: number;
+  cpu?: number;
+  memory?: number;
+  storage?: number;
+}
 
-  @prop({ default: 0, type: Number })
-  public cpu: number;
+export type NamespaceStatusLimitsDocument = mongoose.Document<mongoose.Types.ObjectId> &
+  NamespaceStatusLimits;
 
-  @prop({ default: 0, type: Number })
-  public memory: number;
-
-  @prop({ default: 0, type: Number })
-  public storage: number;
-
+export interface NamespaceStatusLimitsModelType
+  extends mongoose.Model<NamespaceStatusLimitsDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(
-    this: typeof NamespaceStatusLimitsModel,
-    values: Partial<NamespaceStatusLimitsSchema> = {},
-  ) {
-    const defaults = {};
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(
+    this: NamespaceStatusLimitsModelType,
+    values?: Partial<NamespaceStatusLimits>,
+  ): NamespaceStatusLimitsDocument;
 }
 
-export type NamespaceStatusLimitsDocument = DocumentType<NamespaceStatusLimitsSchema>;
-export const NamespaceStatusLimitsModel = getModelForClass(NamespaceStatusLimitsSchema);
+const NamespaceStatusLimitsSchema = new mongoose.Schema<
+  NamespaceStatusLimitsDocument,
+  NamespaceStatusLimitsModelType
+>(
+  {
+    bandwidth: { default: 0, type: Number },
+    cpu: { default: 0, type: Number },
+    memory: { default: 0, type: Number },
+    storage: { default: 0, type: Number },
+  },
+  { _id: false },
+);
+
+NamespaceStatusLimitsSchema.statics.mock = function (values: Partial<NamespaceStatusLimits> = {}) {
+  const defaults: Partial<NamespaceStatusLimits> = {};
+
+  return new this({ ...defaults, ...values });
+};
+
+export const NamespaceStatusLimitsModel = mongoose.model<
+  NamespaceStatusLimitsDocument,
+  NamespaceStatusLimitsModelType
+>('NamespaceStatusLimitsSchema', NamespaceStatusLimitsSchema);
+
+export { NamespaceStatusLimitsSchema };
+
+export default NamespaceStatusLimitsModel;

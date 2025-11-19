@@ -1,15 +1,28 @@
-import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
+import * as permissions from '@tenlastic/mongoose-permissions';
 import * as mongoose from 'mongoose';
 
-import { Context } from '../../context';
+import { Context, CountRequest, CountResponse } from '../../types';
+
+export type CountContext<TDocument extends mongoose.Document> = Context<
+  mongoose.FilterQuery<TDocument>,
+  CountRequest<TDocument>,
+  CountResponse
+>;
 
 export function count<TDocument extends mongoose.Document>(
-  Permissions: MongoosePermissions<TDocument>,
+  Model: mongoose.Model<TDocument>,
+  options: permissions.IOptions<TDocument>,
 ) {
-  return async function (ctx: Context) {
-    const credentials = { ...ctx.state };
-    const result = await Permissions.count(credentials, ctx.params, ctx.request.query.where);
+  return async function (ctx: CountContext<TDocument>) {
+    const context = { credentials: { ...ctx.state }, Model, options };
+    const result = await dependencies.count<TDocument>(
+      context,
+      ctx.request.query.where,
+      ctx.params,
+    );
 
     ctx.response.body = { count: result };
   };
 }
+
+export const dependencies = { count: permissions.count };

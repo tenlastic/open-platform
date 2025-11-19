@@ -1,4 +1,4 @@
-import { QueueMemberPermissions } from '@tenlastic/mongoose';
+import { QueueMemberModel, QueueMemberPermissionOptions } from '@tenlastic/mongoose';
 import { deleteOne } from '@tenlastic/web-server';
 
-export const handler = deleteOne(QueueMemberPermissions);
+export const handler = deleteOne(QueueMemberModel, QueueMemberPermissionOptions);

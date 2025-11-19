@@ -1,6 +1,6 @@
-import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
+import { IOptions } from '@tenlastic/mongoose-permissions';
 
-import { AuthorizationRole, WorkflowDocument, WorkflowModel } from '../models';
+import { AuthorizationRole, WorkflowDocument } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
 const administrator = {
@@ -37,7 +37,7 @@ const administrator = {
   ],
 };
 
-export const WorkflowPermissions = new MongoosePermissions<WorkflowDocument>(WorkflowModel, {
+export const WorkflowPermissionOptions: IOptions<WorkflowDocument> = {
   create: {
     'namespace-write': administrator.create,
     'user-write': administrator.create,
@@ -102,4 +102,4 @@ export const WorkflowPermissions = new MongoosePermissions<WorkflowDocument>(Wor
   update: {
     'system-write': ['finishedAt', 'status.*'],
   },
-});
+};

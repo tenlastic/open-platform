@@ -1,18 +1,25 @@
 import {
   CollectionDocument,
   CollectionModel,
-  CollectionJsonSchemaType,
   CollectionPermissionsModel,
+  JsonSchemaType,
   NamespaceModel,
+  RecordDocument,
   UserDocument,
   UserModel,
 } from '@tenlastic/mongoose';
-import { ContextMock } from '@tenlastic/web-server';
+import { ContextMock, CreateContext } from '@tenlastic/web-server';
+
 import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-import * as Chance from 'chance';
+import chaiAsPromised from 'chai-as-promised';
+import { Chance } from 'chance';
 
 import { handler } from './';
+
+interface Properties {
+  email?: string;
+  name?: string;
+}
 
 const chance = new Chance();
 use(chaiAsPromised);
@@ -28,10 +35,10 @@ describe('web-server/records/create', function () {
     collection = await CollectionModel.mock({
       jsonSchema: {
         properties: {
-          email: { type: CollectionJsonSchemaType.String },
-          name: { type: CollectionJsonSchemaType.String },
+          email: { type: JsonSchemaType.String },
+          name: { type: JsonSchemaType.String },
         },
-        type: CollectionJsonSchemaType.Object,
+        type: JsonSchemaType.Object,
       },
       namespaceId: namespace._id,
       permissions: CollectionPermissionsModel.mock({
@@ -49,13 +56,13 @@ describe('web-server/records/create', function () {
 
   it('creates a new record', async function () {
     const properties = { email: chance.email(), name: chance.name() };
-    const ctx = new ContextMock({
+    const ctx = ContextMock<CreateContext<RecordDocument<Properties>>>({
       params: { collectionId: collection._id },
       request: { body: { properties } },
-      state: { user },
+      state: { user: { _id: user._id.toHexString() } },
     });
 
-    await handler(ctx as any);
+    await handler(ctx);
 
     expect(ctx.response.body.record).to.exist;
     expect(ctx.response.body.record.properties.email).to.eql(properties.email);

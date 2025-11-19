@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 export interface PromptComponentData {
   buttons: Array<{ color?: string; label: string }>;
@@ -9,6 +9,7 @@ export interface PromptComponentData {
 
 @Component({
   selector: 'app-prompt',
+  standalone: false,
   styleUrls: ['./prompt.component.scss'],
   templateUrl: 'prompt.component.html',
 })

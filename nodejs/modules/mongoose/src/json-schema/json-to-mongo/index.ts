@@ -1,5 +1,7 @@
+import { BsonSchema, BsonSchemaType, JsonSchema, JsonSchemaType } from '../types';
+
 const schemaParamsToMongo = {
-  enum: (value: any[]) => ({ enum: value }),
+  enum: (value: unknown[]) => ({ enum: value }),
   maxLength: (value: number) => ({ maxlength: value }),
   maximum: (value: number) => ({ maximum: value }),
   minLength: (value: number) => ({ minlength: value }),
@@ -14,7 +16,7 @@ const typeToMongoose = {
   string: ['null', 'string'],
 };
 
-export function jsonToMongo(jsonSchema: any) {
+export function jsonToMongo(jsonSchema: JsonSchema): BsonSchema {
   if (jsonSchema.constructor !== Object) {
     throw new Error(`Unsupported JSON schema type: ${jsonSchema.type}.`);
   }
@@ -23,31 +25,37 @@ export function jsonToMongo(jsonSchema: any) {
   const typeIsDefined = 'type' in jsonSchema;
 
   if (typeIsDate) {
-    return { bsonType: ['date', 'null'] };
+    return { bsonType: [BsonSchemaType.Date, BsonSchemaType.Null] };
   } else if (jsonSchema.type in typeToMongoose) {
     return Object.entries(jsonSchema).reduce(toMongoParams, {});
-  } else if (jsonSchema.type === 'object') {
+  } else if (jsonSchema.type === JsonSchemaType.Object) {
     return getObjectType(jsonSchema);
-  } else if (jsonSchema.type === 'array') {
+  } else if (jsonSchema.type === JsonSchemaType.Array) {
     return getArrayType(jsonSchema);
   } else if (!typeIsDefined) {
-    return { bsonType: ['null', 'object'] };
+    return { bsonType: [BsonSchemaType.Null, BsonSchemaType.Object] };
   }
 
   throw new Error(`Unsupported JSON schema type: ${jsonSchema.type}.`);
 }
 
-function getArrayType(jsonSchema: any) {
+function getArrayType(jsonSchema: JsonSchema): BsonSchema {
   if (jsonSchema.items && Object.keys(jsonSchema.items).length > 0) {
-    return { bsonType: ['array', 'null'], items: jsonToMongo(jsonSchema.items) };
+    return {
+      bsonType: [BsonSchemaType.Array, BsonSchemaType.Null],
+      items: jsonToMongo(jsonSchema.items),
+    };
   }
 
-  return { bsonType: ['array', 'null'], items: { bsonType: ['null', 'object'] } };
+  return {
+    bsonType: [BsonSchemaType.Array, BsonSchemaType.Null],
+    items: { bsonType: [BsonSchemaType.Null, BsonSchemaType.Object] },
+  };
 }
 
-function getObjectType(jsonSchema: any) {
+function getObjectType(jsonSchema: JsonSchema): BsonSchema {
   if (!jsonSchema.properties || Object.keys(jsonSchema.properties).length === 0) {
-    return { bsonType: ['null', 'object'] };
+    return { bsonType: [BsonSchemaType.Null, BsonSchemaType.Object] };
   }
 
   const properties = Object.entries(jsonSchema.properties).reduce((previousValue, [key, value]) => {
@@ -55,7 +63,10 @@ function getObjectType(jsonSchema: any) {
     return previousValue;
   }, {});
 
-  const converted: any = { bsonType: ['null', 'object'], properties };
+  const converted: BsonSchema = {
+    bsonType: [BsonSchemaType.Null, BsonSchemaType.Object],
+    properties,
+  };
 
   if ('additionalProperties' in jsonSchema) {
     converted.additionalProperties = jsonSchema.additionalProperties;
@@ -68,12 +79,12 @@ function getObjectType(jsonSchema: any) {
   return converted;
 }
 
-function toMongoParams(acc: any, [key, value]) {
+function toMongoParams(previous: unknown, [key, value]) {
   const constructor = schemaParamsToMongo[key];
 
   if (constructor) {
-    return Object.assign(acc, constructor(value));
+    return Object.assign(previous, constructor(value));
   }
 
-  return acc;
+  return previous;
 }

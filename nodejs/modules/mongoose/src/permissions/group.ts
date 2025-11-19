@@ -1,9 +1,9 @@
-import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
+import { IOptions } from '@tenlastic/mongoose-permissions';
 
-import { AuthorizationRole, GroupDocument, GroupModel } from '../models';
+import { AuthorizationRole, GroupDocument } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
-export const GroupPermissions = new MongoosePermissions<GroupDocument>(GroupModel, {
+export const GroupPermissionOptions: IOptions<GroupDocument> = {
   create: {
     'group-leader-write': ['namespaceId'],
     'namespace-write': ['namespaceId'],
@@ -46,4 +46,4 @@ export const GroupPermissions = new MongoosePermissions<GroupDocument>(GroupMode
   update: {
     'group-leader-write': ['userId'],
   },
-});
+};

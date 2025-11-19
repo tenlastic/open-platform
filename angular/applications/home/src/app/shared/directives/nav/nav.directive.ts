@@ -1,6 +1,9 @@
-import { Directive, ElementRef, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Directive, ElementRef, OnDestroy, OnInit } from '@angular/core';
 
-@Directive({ selector: '[appNav]' })
+@Directive({
+  selector: '[appNav]',
+  standalone: false,
+})
 export class NavDirective implements OnDestroy, OnInit {
   constructor(private elementRef: ElementRef) {}
 

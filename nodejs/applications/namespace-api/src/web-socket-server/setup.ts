@@ -1,5 +1,5 @@
-import { WebSocketDocument, WebSocketModel } from '@tenlastic/mongoose';
-import { State, WebSocketServer } from '@tenlastic/web-socket-server';
+import { WebSocketModel } from '@tenlastic/mongoose';
+import { WebSocketServer } from '@tenlastic/web-socket-server';
 import { Server } from 'http';
 
 import { connection } from './connection';
@@ -20,9 +20,7 @@ export async function setup(options: SetupOptions) {
 
   // Web Sockets.
   const webSocketServer = new WebSocketServer(options.server);
-  webSocketServer.connection((state, ws) =>
-    connection(options.podName, state as State<WebSocketDocument>, ws),
-  );
+  webSocketServer.connection((state, ws) => connection(options.podName, state, ws));
   webSocketServer.message(routes);
   webSocketServer.listen();
 }

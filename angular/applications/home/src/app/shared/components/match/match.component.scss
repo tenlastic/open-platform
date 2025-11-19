@@ -1,4 +1,4 @@
-@import 'src/assets/scss/theme.scss';
+@use 'src/assets/scss/shadows.scss' as shadows;
 
 @keyframes color {
   0% {
@@ -6,7 +6,7 @@
   }
   50% {
     background-color: rgba(255, 255, 85, 0.25);
-    box-shadow: $box-shadow;
+    box-shadow: shadows.$box-shadow;
   }
   100% {
     background-color: transparent;

@@ -1,11 +1,21 @@
-::-webkit-scrollbar {
-  width: 12px;
-}
+@use 'src/assets/scss/responsive.scss' as responsive;
 
-::-webkit-scrollbar-thumb {
-  background: white;
-}
+@mixin styles {
+  ::-webkit-scrollbar {
+    width: 12px;
+  }
 
-::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.25);
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.25);
+  }
+
+  @include responsive.mobile {
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+  }
 }

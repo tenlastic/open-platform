@@ -1,4 +1,4 @@
-import { DocumentType, getModelForClass, modelOptions, prop, PropType } from '@typegoose/typegoose';
+import * as mongoose from 'mongoose';
 
 import { WorkflowStatusNodeDocument, WorkflowStatusNodeSchema } from './node';
 
@@ -10,35 +10,52 @@ export enum WorkflowStatusPhase {
   Succeeded = 'Succeeded',
 }
 
-@modelOptions({ schemaOptions: { _id: false } })
-export class WorkflowStatusSchema {
-  @prop({ type: Date })
-  public finishedAt: Date;
+export interface WorkflowStatus {
+  finishedAt?: Date;
+  message?: string;
+  nodes?: WorkflowStatusNodeDocument[];
+  phase?: WorkflowStatusPhase;
+  startedAt?: Date;
+  version?: string;
+}
 
-  @prop({ type: String })
-  public message: string;
+export interface WorkflowStatusDocument
+  extends mongoose.Document<mongoose.Types.ObjectId>,
+    WorkflowStatus {}
 
-  @prop({ type: WorkflowStatusNodeSchema }, PropType.ARRAY)
-  public nodes: WorkflowStatusNodeDocument[];
-
-  @prop({ default: () => WorkflowStatusPhase.Pending, enum: WorkflowStatusPhase, type: String })
-  public phase: WorkflowStatusPhase;
-
-  @prop({ type: Date })
-  public startedAt: Date;
-
-  @prop({ type: String })
-  public version: string;
-
+export interface WorkflowStatusModelType extends mongoose.Model<WorkflowStatusDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: typeof WorkflowStatusModel, values: Partial<WorkflowStatusSchema> = {}) {
-    const defaults = {};
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(this: WorkflowStatusModelType, values?: Partial<WorkflowStatus>): WorkflowStatusDocument;
 }
 
-export type WorkflowStatusDocument = DocumentType<WorkflowStatusSchema>;
-export const WorkflowStatusModel = getModelForClass(WorkflowStatusSchema);
+export const WorkflowStatusSchema = new mongoose.Schema<WorkflowStatusDocument>(
+  {
+    finishedAt: { type: Date },
+    message: { type: String },
+    nodes: { type: [WorkflowStatusNodeSchema] },
+    phase: {
+      default: WorkflowStatusPhase.Pending,
+      enum: Object.values(WorkflowStatusPhase),
+      type: String,
+    },
+    startedAt: { type: Date },
+    version: { type: String },
+  },
+  { _id: false },
+);
+
+WorkflowStatusSchema.statics.mock = function (
+  this: WorkflowStatusModelType,
+  values: Partial<WorkflowStatus> = {},
+) {
+  const defaults = {};
+
+  return new this({ ...defaults, ...values });
+};
+
+export const WorkflowStatusModel = mongoose.model<WorkflowStatusDocument, WorkflowStatusModelType>(
+  'WorkflowStatus',
+  WorkflowStatusSchema,
+);

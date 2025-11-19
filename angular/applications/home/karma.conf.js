@@ -34,7 +34,7 @@ module.exports = function (config) {
       require('karma-jasmine-html-reporter'),
       require('karma-coverage'),
       require('karma-mocha-reporter'),
-      require('@angular-devkit/build-angular/plugins/karma'),
+      
     ],
     port: 9876,
     reporters: ['mocha'],

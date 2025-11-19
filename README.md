@@ -10,10 +10,10 @@ Start a Development container with the following command:
 
 ```
 # Run container as root.
-GROUP_ID="0" USER_ID="0" docker-compose run development-cli
+GROUP_ID="0" USER_ID="0" docker compose run --rm development-cli
 
 # Run container as current user.
-GROUP_ID="$(id -g)" USER_ID="$(id -u)" docker-compose run development-cli
+GROUP_ID="$(id -g)" USER_ID="$(id -u)" docker compose run --rm development-cli
 ```
 
 - [Deploy resources to Google Cloud Platform with Deployment Manager and Terraform.](./gcp/README.md)

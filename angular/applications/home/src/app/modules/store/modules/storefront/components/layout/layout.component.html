@@ -1,4 +1,4 @@
-<app-sidenav>
+<app-side-menu>
   <div *ngIf="$storefront | async as storefront"
        appNav
        class="nav">
@@ -55,7 +55,7 @@
   <router-outlet></router-outlet>
 
   <app-social></app-social>
-</app-sidenav>
+</app-side-menu>
 
 <app-download *ngIf="!isElectron"
               [storefront]="$storefront | async"></app-download>

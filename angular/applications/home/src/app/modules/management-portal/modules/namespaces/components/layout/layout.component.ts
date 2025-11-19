@@ -1,52 +1,37 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { Component, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
-  AuthorizationQuery,
   AuthorizationService,
-  BaseModel,
-  BuildModel,
-  BuildService,
-  BuildStore,
-  CollectionModel,
-  CollectionService,
-  CollectionStore,
-  GameServerModel,
-  GameServerService,
-  GameServerStore,
-  GameServerTemplateModel,
-  GameServerTemplateService,
-  GameServerTemplateStore,
+  AuthorizationState,
+  BuildState,
+  CollectionState,
+  GameServerState,
+  GameServerTemplateState,
   IAuthorization,
   NamespaceModel,
-  NamespaceQuery,
   NamespaceService,
-  QueueModel,
-  QueueService,
-  QueueStore,
+  NamespaceState,
+  QueueState,
   StorefrontModel,
-  StorefrontQuery,
   StorefrontService,
-  SubscriptionService,
-  WebSocketModel,
-  WebSocketRequest,
+  StorefrontState,
   WebSocketService,
-  WebSocketStore,
-  WorkflowModel,
-  WorkflowService,
-  WorkflowStore,
+  WebSocketState,
+  WorkflowState,
 } from '@tenlastic/http';
 import { combineLatest, Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { v4 as uuid } from 'uuid';
 
-import { environment } from '../../../../../../../environments/environment';
-import { IdentityService } from '../../../../../../core/services';
+import { IdentityService, SideMenuService } from '@home/app/core/services';
+import { environment } from '@home/environments/environment';
 
 @Component({
+  standalone: false,
   templateUrl: './layout.component.html',
-  styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent implements OnDestroy, OnInit {
+  @ViewChild('sideMenu', { static: true }) private sideMenuTemplate: TemplateRef<unknown>;
+
   public get $hasRelated() {
     const roles = [
       ...IAuthorization.articleRoles,
@@ -60,99 +45,52 @@ export class LayoutComponent implements OnDestroy, OnInit {
     const userId = this.identityService.user?._id;
 
     return combineLatest([
-      this.authorizationQuery.selectHasRoles(null, roles, userId),
-      this.authorizationQuery.selectHasRoles(this.params.namespaceId, roles, userId),
+      this.authorizationState.selectHasRoles(null, roles, userId),
+      this.authorizationState.selectHasRoles(this.namespaceId, roles, userId),
     ]).pipe(map(([a, b]) => a || b));
   }
   public $namespace: Observable<NamespaceModel>;
+  public get $sideMenuIsVisible() {
+    return this.sideMenuService.$visible;
+  }
   public $storefront: Observable<StorefrontModel>;
   public IAuthorization = IAuthorization;
   public get isActive() {
     return (
-      this.router.url.endsWith(`/namespaces/${this.params.namespaceId}`) ||
-      this.router.url.endsWith(`/namespaces/${this.params.namespaceId}/json`)
+      this.router.url.endsWith(`/namespaces/${this.namespaceId}`) ||
+      this.router.url.endsWith(`/namespaces/${this.namespaceId}/json`)
     );
   }
 
   private fetchStorefront$ = new Subscription();
   private subscribe$ = new Subscription();
-  private params: Params;
-  private subscriptions = [
-    {
-      Model: BuildModel,
-      request: { _id: uuid(), path: '/subscriptions/builds' } as WebSocketRequest,
-      service: this.buildService,
-      store: this.buildStore,
-    },
-    {
-      Model: CollectionModel,
-      request: { _id: uuid(), path: '/subscriptions/collections' } as WebSocketRequest,
-      service: this.collectionService,
-      store: this.collectionStore,
-    },
-    {
-      Model: GameServerModel,
-      request: { _id: uuid(), path: '/subscriptions/game-servers' } as WebSocketRequest,
-      service: this.gameServerService,
-      store: this.gameServerStore,
-    },
-    {
-      Model: GameServerTemplateModel,
-      request: { _id: uuid(), path: '/subscriptions/game-server-templates' } as WebSocketRequest,
-      service: this.gameServerTemplateService,
-      store: this.gameServerTemplateStore,
-    },
-    {
-      Model: QueueModel,
-      request: { _id: uuid(), path: '/subscriptions/queues' } as WebSocketRequest,
-      service: this.queueService,
-      store: this.queueStore,
-    },
-    {
-      Model: WebSocketModel,
-      request: { _id: uuid(), path: '/subscriptions/web-sockets' } as WebSocketRequest,
-      service: this.webSocketService,
-      store: this.webSocketStore,
-    },
-    {
-      Model: WorkflowModel,
-      request: { _id: uuid(), path: '/subscriptions/workflows' } as WebSocketRequest,
-      service: this.workflowService,
-      store: this.workflowStore,
-    },
-  ];
+  private namespaceId: string;
   private get webSocket() {
     return this.webSocketService.webSockets.find((ws) => this.webSocketUrl === ws.url);
   }
   private get webSocketUrl() {
-    return `${environment.wssUrl}/namespaces/${this.params?.namespaceId}`;
+    return `${environment.wssUrl}/namespaces/${this.namespaceId}`;
   }
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private authorizationQuery: AuthorizationQuery,
+    private authorizationState: AuthorizationState,
     private authorizationService: AuthorizationService,
-    private buildService: BuildService,
-    private buildStore: BuildStore,
-    private collectionService: CollectionService,
-    private collectionStore: CollectionStore,
-    private gameServerService: GameServerService,
-    private gameServerStore: GameServerStore,
-    private gameServerTemplateService: GameServerTemplateService,
-    private gameServerTemplateStore: GameServerTemplateStore,
+    private buildState: BuildState,
+    private collectionState: CollectionState,
+    private gameServerState: GameServerState,
+    private gameServerTemplateState: GameServerTemplateState,
     private identityService: IdentityService,
-    private namespaceQuery: NamespaceQuery,
+    private namespaceState: NamespaceState,
     private namespaceService: NamespaceService,
-    private queueService: QueueService,
-    private queueStore: QueueStore,
+    private queueState: QueueState,
     private router: Router,
-    private storefrontQuery: StorefrontQuery,
+    private sideMenuService: SideMenuService,
+    private storefrontState: StorefrontState,
     private storefrontService: StorefrontService,
-    private subscriptionService: SubscriptionService,
     private webSocketService: WebSocketService,
-    private webSocketStore: WebSocketStore,
-    private workflowService: WorkflowService,
-    private workflowStore: WorkflowStore,
+    private webSocketState: WebSocketState,
+    private workflowState: WorkflowState,
   ) {}
 
   public async ngOnInit() {
@@ -161,18 +99,18 @@ export class LayoutComponent implements OnDestroy, OnInit {
         this.webSocketService.close(this.webSocket);
       }
 
-      this.params = params;
+      this.namespaceId = params?.namespaceId;
 
-      if (params.namespaceId === 'new') {
+      if (this.namespaceId === 'new') {
         return;
       }
 
-      this.$namespace = this.namespaceQuery.selectEntity(params.namespaceId);
-      this.$storefront = this.storefrontQuery.selectEntity(params.namespaceId);
+      this.$namespace = this.namespaceState.selectOne(this.namespaceId);
+      this.$storefront = this.storefrontState.selectOne(this.namespaceId);
 
       this.fetchStorefront$ = this.$namespace.subscribe(async (namespace) => {
         if (namespace?.status.phase === 'Running') {
-          return this.storefrontService.find(params.namespaceId, { limit: 1 });
+          return this.storefrontService.find(this.namespaceId, { limit: 1 });
         }
       });
       this.subscribe$ = this.$namespace.subscribe((namespace) => {
@@ -181,23 +119,26 @@ export class LayoutComponent implements OnDestroy, OnInit {
         }
       });
 
+      this.sideMenuService.add(this.sideMenuTemplate);
+
       await Promise.all([
-        this.authorizationService.findUserAuthorizations(params.namespaceId, null),
-        this.namespaceService.findOne(params.namespaceId),
+        this.authorizationService.findUserAuthorizations(this.namespaceId, null),
+        this.namespaceService.findOne(this.namespaceId),
       ]);
     });
   }
 
   public ngOnDestroy() {
-    this.buildStore.reset();
-    this.collectionStore.reset();
-    this.gameServerStore.reset();
-    this.gameServerTemplateStore.reset();
-    this.queueStore.reset();
-    this.webSocketStore.reset();
-    this.workflowStore.reset();
+    this.buildState.reset();
+    this.collectionState.reset();
+    this.gameServerState.reset();
+    this.gameServerTemplateState.reset();
+    this.queueState.reset();
+    this.webSocketState.reset();
+    this.workflowState.reset();
 
     this.fetchStorefront$.unsubscribe();
+    this.sideMenuService.remove(this.sideMenuTemplate);
     this.subscribe$.unsubscribe();
     this.webSocketService.close(this.webSocket);
   }
@@ -206,8 +147,8 @@ export class LayoutComponent implements OnDestroy, OnInit {
     const userId = this.identityService.user?._id;
 
     return combineLatest([
-      this.authorizationQuery.selectHasRoles(null, roles, userId),
-      this.authorizationQuery.selectHasRoles(this.params.namespaceId, roles, userId),
+      this.authorizationState.selectHasRoles(null, roles, userId),
+      this.authorizationState.selectHasRoles(this.namespaceId, roles, userId),
     ]).pipe(map(([a, b]) => a || b));
   }
 
@@ -216,21 +157,6 @@ export class LayoutComponent implements OnDestroy, OnInit {
       return;
     }
 
-    return Promise.all([this.webSocketService.connect(this.webSocketUrl), this.subscribe()]);
-  }
-
-  private async subscribe() {
-    const promises = this.subscriptions.map((s) =>
-      this.subscriptionService.subscribe<BaseModel>(
-        s.Model,
-        { ...s.request },
-        s.service,
-        s.store,
-        this.webSocket,
-        { acks: true },
-      ),
-    );
-
-    return Promise.all(promises);
+    return Promise.all([this.webSocketService.connect(this.webSocketUrl)]);
   }
 }

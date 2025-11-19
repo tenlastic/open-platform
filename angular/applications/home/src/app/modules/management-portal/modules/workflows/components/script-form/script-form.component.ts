@@ -4,9 +4,10 @@ import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { MatChipInputEvent } from '@angular/material/chips';
 
 @Component({
-  templateUrl: 'script-form.component.html',
   selector: 'app-workflow-script-form',
+  standalone: false,
   styleUrls: ['./script-form.component.scss'],
+  templateUrl: 'script-form.component.html',
 })
 export class WorkflowScriptFormComponent {
   @Input() public formGroup: FormGroup;

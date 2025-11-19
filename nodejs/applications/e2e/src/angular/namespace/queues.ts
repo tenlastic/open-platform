@@ -1,5 +1,5 @@
 import wait from '@tenlastic/wait';
-import * as Chance from 'chance';
+import { Chance } from 'chance';
 import { Page } from 'puppeteer';
 
 import * as helpers from '../helpers';
@@ -98,7 +98,10 @@ describe('/angular/namespace/queues', () => {
 
     // Wait for the Queue to be Running.
     await wait(100, 60 * 1000, async () => {
-      const [input] = await page.$x(`//mat-form-field[.//mat-label[contains(., 'Phase')]]//input`);
+      const input = await helpers.waitForXPath(
+        page,
+        `//mat-form-field[.//mat-label[contains(., 'Phase')]]//input`,
+      );
       const value = await page.evaluate((i) => i.value, input);
 
       return value === 'Running';
@@ -119,7 +122,7 @@ describe('/angular/namespace/queues', () => {
     await helpers.waitForXPath(
       page,
       `//app-logs-dialog//div[contains(., 'Found 0 initial Queue Members.')]`,
-      { timeout: 10 * 1000 },
+      10 * 1000,
     );
   });
 });

@@ -1,7 +1,6 @@
 import { WorkflowModel } from '../models/workflow';
-import { WorkflowStore } from '../states/workflow';
 import { ApiService } from './api';
-import { BaseService, BaseServiceFindQuery } from './base';
+import { BaseService, BaseServiceCountQuery, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 
 export class WorkflowService {
@@ -11,22 +10,14 @@ export class WorkflowService {
 
   private baseService: BaseService<WorkflowModel>;
 
-  constructor(
-    private apiService: ApiService,
-    private environmentService: EnvironmentService,
-    private workflowStore: WorkflowStore,
-  ) {
-    this.baseService = new BaseService<WorkflowModel>(
-      this.apiService,
-      WorkflowModel,
-      this.workflowStore,
-    );
+  constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
+    this.baseService = new BaseService<WorkflowModel>(this.apiService, WorkflowModel);
   }
 
   /**
    * Returns the number of Records satisfying the query.
    */
-  public async count(namespaceId: string, query: any) {
+  public async count(namespaceId: string, query: BaseServiceCountQuery) {
     const url = this.getUrl(namespaceId);
     return this.baseService.count(query, url);
   }

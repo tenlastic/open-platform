@@ -1,4 +1,4 @@
-@import 'src/assets/scss/theme.scss';
+@use 'src/assets/scss/shadows.scss' as shadows;
 
 app-markdown {
   display: block;
@@ -26,7 +26,7 @@ div.main-media {
   background-position: center;
   background-size: cover;
   display: block;
-  filter: $drop-shadow;
+  filter: shadows.$drop-shadow;
   margin-bottom: 8px;
   width: 100%;
 }
@@ -57,16 +57,16 @@ mat-grid-list.mat-grid-list {
   mat-grid-tile.mat-grid-tile {
     background-position: center;
     background-size: cover;
-    filter: brightness(0.5) $drop-shadow;
+    filter: brightness(0.5) shadows.$drop-shadow;
     cursor: pointer;
 
     &:hover {
-      filter: brightness(1) $drop-shadow;
+      filter: brightness(1) shadows.$drop-shadow;
     }
 
     &.selected {
       cursor: initial;
-      filter: brightness(1) $drop-shadow;
+      filter: brightness(1) shadows.$drop-shadow;
     }
 
     ::ng-deep {

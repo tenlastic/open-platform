@@ -1,9 +1,16 @@
 import * as minio from '@tenlastic/minio';
 import { Context } from '@tenlastic/web-server';
 
+import { Stream } from 'stream';
 import { MinioStorefront } from '../../../../minio';
 
-export async function handler(ctx: Context) {
+export type DownloadStorefrontContext = Context<
+  { _id?: string; field?: string; namespaceId?: string; storefrontId?: string },
+  void,
+  Stream
+>;
+
+export async function handler(ctx: DownloadStorefrontContext) {
   const { _id, field, namespaceId, storefrontId } = ctx.params;
 
   const bucket = process.env.MINIO_BUCKET;

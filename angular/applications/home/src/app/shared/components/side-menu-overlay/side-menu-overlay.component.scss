@@ -1,0 +1,34 @@
+@use 'src/assets/scss/shadows.scss' as shadows;
+
+div.invisible {
+  display: none;
+}
+
+div.invisible,
+div.visible {
+  height: 100%;
+  position: absolute;
+  right: 0px;
+  width: 100%;
+
+  div {
+    flex: 1;
+  }
+}
+
+div.visible {
+  display: flex;
+  flex-direction: column;
+}
+
+:host {
+  ::ng-deep {
+    app-side-menu {
+      width: 100%;
+
+      div.container {
+        height: auto;
+      }
+    }
+  }
+}

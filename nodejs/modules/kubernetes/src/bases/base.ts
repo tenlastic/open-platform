@@ -24,16 +24,16 @@ export interface BaseResponse<T> {
   response: IncomingMessage;
 }
 
-export abstract class BaseApiV1<T extends BaseBody> {
-  protected api: any;
+export abstract class BaseApiV1<TApi, TBody extends BaseBody> {
+  protected api: TApi;
   protected singular: string;
 
-  public create(namespace: string, body: T): Promise<BaseResponse<T>> {
+  public create(namespace: string, body: TBody): Promise<BaseResponse<TBody>> {
     const method = `createNamespaced${this.singular}`;
     return this.api[method](namespace, body);
   }
 
-  public async createOrRead(namespace: string, body: T): Promise<BaseResponse<T>> {
+  public async createOrRead(namespace: string, body: TBody): Promise<BaseResponse<TBody>> {
     try {
       return await this.create(namespace, body);
     } catch (e) {
@@ -45,7 +45,7 @@ export abstract class BaseApiV1<T extends BaseBody> {
     }
   }
 
-  public async createOrReplace(namespace: string, body: T): Promise<BaseResponse<T>> {
+  public async createOrReplace(namespace: string, body: TBody): Promise<BaseResponse<TBody>> {
     try {
       return await this.create(namespace, body);
     } catch (e) {
@@ -57,14 +57,17 @@ export abstract class BaseApiV1<T extends BaseBody> {
     }
   }
 
-  public async delete(name: string, namespace: string): Promise<BaseResponse<T>> {
+  public async delete(name: string, namespace: string): Promise<BaseResponse<TBody>> {
     try {
       const method = `deleteNamespaced${this.singular}`;
       return await this.api[method](name, namespace);
     } catch {}
   }
 
-  public async deleteCollection(namespace: string, query: BaseListQuery): Promise<BaseResponse<T>> {
+  public async deleteCollection(
+    namespace: string,
+    query: BaseListQuery,
+  ): Promise<BaseResponse<TBody>> {
     const method = `deleteCollectionNamespaced${this.singular}`;
     return this.api[method](
       namespace,
@@ -91,7 +94,10 @@ export abstract class BaseApiV1<T extends BaseBody> {
     return true;
   }
 
-  public list(namespace: string, query: BaseListQuery): Promise<BaseResponse<BaseListResponse<T>>> {
+  public list(
+    namespace: string,
+    query: BaseListQuery,
+  ): Promise<BaseResponse<BaseListResponse<TBody>>> {
     const method = `listNamespaced${this.singular}`;
     return this.api[method](
       namespace,
@@ -103,19 +109,19 @@ export abstract class BaseApiV1<T extends BaseBody> {
     );
   }
 
-  public patch(name: string, namespace: string, body: Partial<T>) {
+  public patch(name: string, namespace: string, body: Partial<TBody>) {
     const method = `patchNamespaced${this.singular}`;
     return this.api[method](name, namespace, body, undefined, undefined, undefined, undefined, {
       headers: { 'Content-Type': 'application/strategic-merge-patch+json' },
     });
   }
 
-  public read(name: string, namespace: string): Promise<BaseResponse<T>> {
+  public read(name: string, namespace: string): Promise<BaseResponse<TBody>> {
     const method = `readNamespaced${this.singular}`;
     return this.api[method](name, namespace);
   }
 
-  public async replace(name: string, namespace: string, body: T): Promise<BaseResponse<T>> {
+  public async replace(name: string, namespace: string, body: TBody): Promise<BaseResponse<TBody>> {
     const response = await this.read(name, namespace);
 
     const arrayMerge = (destination, source) => source;
@@ -128,7 +134,7 @@ export abstract class BaseApiV1<T extends BaseBody> {
   public async watch(
     namespace: string,
     options: BaseWatchOptions,
-    callback: BaseWatchCallback<T>,
+    callback: BaseWatchCallback<TBody>,
     done?: BaseWatchDoneCallback,
   ) {
     const endpoint = this.getEndpoint(namespace);

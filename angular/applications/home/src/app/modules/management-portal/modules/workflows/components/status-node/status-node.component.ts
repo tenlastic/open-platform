@@ -1,30 +1,29 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Order } from '@datorama/akita';
 import {
-  AuthorizationQuery,
+  AuthorizationState,
   IAuthorization,
   IWorkflow,
   SubscriptionService,
   WebSocketService,
   WorkflowLogModel,
-  WorkflowLogQuery,
   WorkflowLogService,
-  WorkflowLogStore,
+  WorkflowLogState,
   WorkflowModel,
-  WorkflowQuery,
+  WorkflowState,
 } from '@tenlastic/http';
 import { map } from 'rxjs/operators';
 import { v4 as uuid } from 'uuid';
 
-import { IdentityService } from '../../../../../../core/services';
 import { environment } from '../../../../../../../environments/environment';
+import { IdentityService } from '../../../../../../core/services';
 import { LogsDialogComponent, LogsDialogComponentData } from '../../../../../../shared/components';
 
 type WorkflowStatusNodeWithParent = IWorkflow.Node & { parent: string };
 
 @Component({
   selector: 'app-workflow-status-node',
+  standalone: false,
   styleUrls: ['./status-node.component.scss'],
   templateUrl: 'status-node.component.html',
 })
@@ -47,23 +46,22 @@ export class WorkflowStatusNodeComponent implements OnInit {
   }
 
   constructor(
-    private authorizationQuery: AuthorizationQuery,
+    private authorizationState: AuthorizationState,
     private identityService: IdentityService,
     private matDialog: MatDialog,
     private subscriptionService: SubscriptionService,
     private webSocketService: WebSocketService,
-    private workflowLogQuery: WorkflowLogQuery,
+    private workflowLogState: WorkflowLogState,
     private workflowLogService: WorkflowLogService,
-    private workflowLogStore: WorkflowLogStore,
-    private workflowQuery: WorkflowQuery,
+    private workflowState: WorkflowState,
   ) {}
 
   public ngOnInit() {
     const userId = this.identityService.user?._id;
     const logRoles = [IAuthorization.Role.WorkflowLogsRead];
     this.hasLogAuthorization =
-      this.authorizationQuery.hasRoles(null, logRoles, userId) ||
-      this.authorizationQuery.hasRoles(this.workflow.namespaceId, logRoles, userId);
+      this.authorizationState.hasRoles(null, logRoles, userId) ||
+      this.authorizationState.hasRoles(this.workflow.namespaceId, logRoles, userId);
   }
 
   public getLabel(displayName: string) {
@@ -79,14 +77,11 @@ export class WorkflowStatusNodeComponent implements OnInit {
   public showLogsDialog() {
     const _id = uuid();
     const data = {
-      $logs: this.workflowLogQuery.selectAll({
-        filterBy: (log) => log.workflowId === this.workflow._id,
-        sortBy: 'unix',
-        sortByOrder: Order.DESC,
-      }),
-      $nodes: this.workflowQuery
-        .selectEntity(this.workflow._id)
-        .pipe(map((workflow) => this.getNodes(workflow))),
+      $logs: this.workflowLogState
+        .selectMany()
+        .pipe(map((wls) => wls.filter((wl) => wl.workflowId === this.workflow._id)))
+        .pipe(map((wls) => wls.sort((a, b) => b.unix - a.unix))),
+      $nodes: this.workflowState.selectOne(this.workflow._id).pipe(map((w) => this.getNodes(w))),
       find: (container, pod) =>
         this.workflowLogService.find(this.workflow.namespaceId, this.workflow._id, pod, container, {
           tail: 500,
@@ -103,7 +98,6 @@ export class WorkflowStatusNodeComponent implements OnInit {
             path: `/subscriptions/workflows/${this.workflow._id}/logs/${pod}/${container}`,
           },
           this.workflowLogService,
-          this.workflowLogStore,
           this.webSocket,
           {
             acks: true,
@@ -119,7 +113,7 @@ export class WorkflowStatusNodeComponent implements OnInit {
     } as LogsDialogComponentData;
 
     const dialogRef = this.matDialog.open(LogsDialogComponent, { autoFocus: false, data });
-    dialogRef.afterClosed().subscribe(() => this.workflowLogStore.reset());
+    dialogRef.afterClosed().subscribe(() => this.workflowLogState.reset());
   }
 
   private getNodes(workflow: WorkflowModel) {

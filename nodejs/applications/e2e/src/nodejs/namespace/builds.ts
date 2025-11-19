@@ -1,9 +1,10 @@
 import wait from '@tenlastic/wait';
 import { expect } from 'chai';
-import * as Chance from 'chance';
+import { Chance } from 'chance';
 import * as fs from 'fs';
 import * as unzipper from 'unzipper';
 
+import { Readable } from 'stream';
 import dependencies from '../../dependencies';
 import * as helpers from '../helpers';
 
@@ -29,7 +30,7 @@ describe('/nodejs/namespace/builds', function () {
     const build = await helpers.createBuild(dockerfile, _id);
 
     // Download the Build.
-    const stream = await dependencies.buildService.download(_id, build._id, {
+    const stream = await dependencies.buildService.download<Readable>(_id, build._id, {
       responseType: 'stream',
     });
     const result = await new Promise<{ content: string; path: string }>((resolve, reject) => {

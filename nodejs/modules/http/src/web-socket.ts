@@ -1,6 +1,5 @@
 import wait from '@tenlastic/wait';
 import { EventEmitter } from 'events';
-import IsomorphicWS from 'isomorphic-ws';
 import TypedEmitter from 'typed-emitter';
 import { v4 as uuid } from 'uuid';
 
@@ -18,16 +17,16 @@ export interface WebSocketInterceptors {
   connect: WebSocketConnectInterceptor[];
 }
 
-export interface WebSocketRequest {
+export interface WebSocketRequest<TBody> {
   _id?: string;
-  body?: { [key: string]: any };
+  body?: TBody;
   method?: WebSocketMethod;
   path: string;
 }
 
-export interface WebSocketResponse {
+export interface WebSocketResponse<TBody = WebSocketResponseBody> {
   _id: string;
-  body?: WebSocketResponseBody;
+  body?: TBody;
   status: number;
 }
 
@@ -43,8 +42,8 @@ export interface WebSocketResponseError {
 
 export type WebSocketConnectInterceptor = (url: string) => string | Promise<string>;
 
-export type WebSocketDurableRequest = () => WebSocketRequest | Promise<WebSocketRequest>;
-export type WebSocketDurableResponse = (response: WebSocketResponse) => any | Promise<any>;
+export type WebSocketDurableRequest<T> = () => WebSocketRequest<T> | Promise<WebSocketRequest<T>>;
+export type WebSocketDurableResponse = (response: WebSocketResponse) => void | Promise<void>;
 
 export type WebSocketEvents = {
   close: (status: number) => void;
@@ -58,10 +57,10 @@ export class WebSocket {
   public readyState = 0;
   public url: string;
 
-  private durableRequests = new Map<string, WebSocketDurableRequest>();
+  private durableRequests = new Map<string, WebSocketDurableRequest<unknown>>();
   private durableResponses = new Map<string, WebSocketDurableResponse>();
   private interval: ReturnType<typeof setInterval>;
-  private webSocket: IsomorphicWS;
+  private webSocket: globalThis.WebSocket;
 
   constructor(url: string) {
     this.emitter.setMaxListeners(25);
@@ -83,7 +82,7 @@ export class WebSocket {
     }
 
     this.readyState = 0;
-    this.webSocket = new IsomorphicWS(`${url}`);
+    this.webSocket = new globalThis.WebSocket(`${url}`);
 
     clearInterval(this.interval);
     this.interval = setInterval(() => this.ping(), 5 * 1000);
@@ -131,9 +130,9 @@ export class WebSocket {
     });
   }
 
-  public async createDurableRequest<T extends WebSocketResponse>(
+  public async createDurableRequest<TRequest, TResponse extends WebSocketResponse>(
     _id: string,
-    durableRequest: WebSocketDurableRequest,
+    durableRequest: WebSocketDurableRequest<TRequest>,
     durableResponse?: WebSocketDurableResponse,
   ) {
     // Make sure the web socket exists.
@@ -160,7 +159,7 @@ export class WebSocket {
       this.emitter.on('message', callback);
     }
 
-    return this.response<T>(_id);
+    return this.response<TResponse>(_id);
   }
 
   public deleteDurableRequest(_id: string) {
@@ -177,7 +176,9 @@ export class WebSocket {
     return this.durableRequests.has(_id);
   }
 
-  public async request<T extends WebSocketResponse>(request: WebSocketRequest) {
+  public async request<TRequest, TResponse extends WebSocketResponse>(
+    request: WebSocketRequest<TRequest>,
+  ) {
     // Make sure the web socket exists.
     await wait(100, 5 * 1000, () => this.webSocket);
 
@@ -187,7 +188,7 @@ export class WebSocket {
       this.emitter.on('open', () => this.send(request));
     }
 
-    return this.response<T>(request._id);
+    return this.response<TResponse>(request._id);
   }
 
   private async ping() {
@@ -199,7 +200,7 @@ export class WebSocket {
         console.error(error);
       }
     } else if (this.webSocket.readyState === 1) {
-      const request: WebSocketRequest = {
+      const request: WebSocketRequest<void> = {
         _id: uuid(),
         method: WebSocketMethod.Get,
         path: '/probes/liveness',
@@ -235,7 +236,7 @@ export class WebSocket {
     });
   }
 
-  private send(request: WebSocketRequest) {
+  private send<TRequest>(request: WebSocketRequest<TRequest>) {
     const json = JSON.stringify(request);
     this.webSocket.send(json);
   }

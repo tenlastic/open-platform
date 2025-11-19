@@ -5,7 +5,7 @@ import { ClusterBaseApiV1 } from '../bases';
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
 
-export class PriorityClassApiV1 extends ClusterBaseApiV1<k8s.V1PriorityClass> {
+export class PriorityClassApiV1 extends ClusterBaseApiV1<k8s.SchedulingV1Api, k8s.V1PriorityClass> {
   protected api = kc.makeApiClient(k8s.SchedulingV1Api);
   protected singular = 'PriorityClass';
 

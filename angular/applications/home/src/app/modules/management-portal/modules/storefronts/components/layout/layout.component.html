@@ -1,8 +1,8 @@
-<app-sidenav>
+<router-outlet></router-outlet>
+
+<ng-template #sideMenu>
   <ng-container *ngIf="$namespace | async as namespace">
-    <div *ngIf="$storefront | async as storefront"
-         appNav
-         class="nav">
+    <ng-container *ngIf="$storefront | async as storefront">
       <app-button color="accent"
                   [disabled]="namespace.status.phase !== 'Running'"
                   layout="vertical"
@@ -72,8 +72,6 @@
         <mat-icon>healing</mat-icon>
         <div>Patch Notes</div>
       </app-button>
-    </div>
-
-    <router-outlet></router-outlet>
+    </ng-container>
   </ng-container>
-</app-sidenav>
+</ng-template>

@@ -1,7 +1,6 @@
 import { UserModel } from '../models/user';
-import { UserStore } from '../states/user';
 import { ApiService } from './api';
-import { BaseService, BaseServiceFindQuery } from './base';
+import { BaseService, BaseServiceCountQuery, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 
 export class UserService {
@@ -11,18 +10,14 @@ export class UserService {
 
   private baseService: BaseService<UserModel>;
 
-  constructor(
-    private apiService: ApiService,
-    private environmentService: EnvironmentService,
-    private userStore: UserStore,
-  ) {
-    this.baseService = new BaseService<UserModel>(this.apiService, UserModel, this.userStore);
+  constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
+    this.baseService = new BaseService<UserModel>(this.apiService, UserModel);
   }
 
   /**
    * Returns the number of Records satisfying the query.
    */
-  public async count(query: any) {
+  public async count(query: BaseServiceCountQuery) {
     const url = this.getUrl();
     return this.baseService.count(query, url);
   }

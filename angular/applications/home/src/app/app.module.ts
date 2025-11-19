@@ -1,15 +1,14 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule, TitleStrategy } from '@angular/router';
-import { AkitaNgDevtools } from '@datorama/akita-ngdevtools';
+import { RouterModule, Routes, TitleStrategy } from '@angular/router';
 
 import { environment } from '../environments/environment';
+import { AppComponent } from './app.component';
 import { CoreModule } from './core/core.module';
 import { IdentityGuard, LoginGuard } from './core/guards';
 import { ElectronService } from './core/services';
 import { DefaultTitleStrategy } from './core/title-strategies';
 import { LayoutComponent } from './shared/components';
 import { SharedModule } from './shared/shared.module';
-import { AppComponent } from './app.component';
 
 export const ROUTES: Routes = [
   {
@@ -61,12 +60,10 @@ export const ROUTES: Routes = [
   bootstrap: [AppComponent],
   declarations: [AppComponent],
   imports: [
-    environment.production ? [] : AkitaNgDevtools,
     CoreModule,
     SharedModule,
     RouterModule.forRoot(ROUTES, {
       paramsInheritanceStrategy: 'always',
-      relativeLinkResolution: 'corrected',
       useHash: environment.useHash,
     }),
   ],

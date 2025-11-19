@@ -23,13 +23,13 @@ export abstract class CustomObjectBaseApiV1<T extends CustomObjectBaseBody> {
   protected version: string;
 
   public create(namespace: string, body: T) {
-    return customObjects.createNamespacedCustomObject(
-      this.group,
-      this.version,
+    return customObjects.createNamespacedCustomObject({
+      body: { apiVersion: `${this.group}/${this.version}`, kind: this.kind, ...body },
+      group: this.group,
       namespace,
-      this.plural,
-      { apiVersion: `${this.group}/${this.version}`, kind: this.kind, ...body },
-    ) as Promise<BaseResponse<T>>;
+      plural: this.plural,
+      version: this.version,
+    }) as Promise<BaseResponse<T>>;
   }
 
   public async createOrRead(namespace: string, body: T) {
@@ -58,13 +58,13 @@ export abstract class CustomObjectBaseApiV1<T extends CustomObjectBaseBody> {
 
   public async delete(name: string, namespace: string) {
     try {
-      return (await customObjects.deleteNamespacedCustomObject(
-        this.group,
-        this.version,
-        namespace,
-        this.plural,
+      return (await customObjects.deleteNamespacedCustomObject({
+        group: this.group,
         name,
-      )) as BaseResponse<T>;
+        namespace,
+        plural: this.plural,
+        version: this.version,
+      })) as BaseResponse<T>;
     } catch {}
   }
 
@@ -98,41 +98,38 @@ export abstract class CustomObjectBaseApiV1<T extends CustomObjectBaseBody> {
   }
 
   public list(namespace: string, query: BaseListQuery) {
-    return customObjects.listNamespacedCustomObject(
-      this.group,
-      this.version,
+    return customObjects.listNamespacedCustomObject({
+      fieldSelector: query.fieldSelector,
+      group: this.group,
+      labelSelector: query.labelSelector,
       namespace,
-      this.plural,
-      undefined,
-      undefined,
-      query.fieldSelector,
-      query.labelSelector,
-    ) as Promise<BaseResponse<BaseListResponse<T>>>;
+      plural: this.plural,
+      version: this.version,
+    }) as Promise<BaseResponse<BaseListResponse<T>>>;
   }
 
   public patch(name: string, namespace: string, body: Partial<T>) {
     return customObjects.patchNamespacedCustomObject(
-      this.group,
-      this.version,
-      namespace,
-      this.plural,
-      name,
-      body,
-      undefined,
-      undefined,
-      undefined,
-      { headers: { 'Content-Type': 'application/merge-patch+json' } },
+      {
+        body,
+        group: this.group,
+        name,
+        namespace,
+        plural: this.plural,
+        version: this.version,
+      },
+      k8s.setHeaderOptions('Content-Type', k8s.PatchStrategy.MergePatch),
     ) as Promise<BaseResponse<T>>;
   }
 
   public read(name: string, namespace: string) {
-    return customObjects.getNamespacedCustomObject(
-      this.group,
-      this.version,
-      namespace,
-      this.plural,
+    return customObjects.getNamespacedCustomObject({
+      group: this.group,
       name,
-    ) as Promise<BaseResponse<T>>;
+      namespace,
+      plural: this.plural,
+      version: this.version,
+    }) as Promise<BaseResponse<T>>;
   }
 
   public async replace(name: string, namespace: string, body: T) {
@@ -141,14 +138,14 @@ export abstract class CustomObjectBaseApiV1<T extends CustomObjectBaseBody> {
     const arrayMerge = (destination, source) => source;
     const copy = deepmerge(response.body, body, { arrayMerge });
 
-    return customObjects.replaceNamespacedCustomObject(
-      this.group,
-      this.version,
-      namespace,
-      this.plural,
+    return customObjects.replaceNamespacedCustomObject({
+      body: { apiVersion: `${this.group}/${this.version}`, kind: this.kind, ...copy },
+      group: this.group,
       name,
-      { apiVersion: `${this.group}/${this.version}`, kind: this.kind, ...copy },
-    ) as Promise<BaseResponse<T>>;
+      namespace,
+      plural: this.plural,
+      version: this.version,
+    }) as Promise<BaseResponse<T>>;
   }
 
   public async watch(

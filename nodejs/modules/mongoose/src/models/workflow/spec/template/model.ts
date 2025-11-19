@@ -1,5 +1,5 @@
-import { DocumentType, getModelForClass, modelOptions, prop, PropType } from '@typegoose/typegoose';
 import { Chance } from 'chance';
+import * as mongoose from 'mongoose';
 
 import { WorkflowSpecTemplateDagDocument, WorkflowSpecTemplateDagSchema } from './dag';
 import { WorkflowSpecTemplateInputsDocument, WorkflowSpecTemplateInputsSchema } from './inputs';
@@ -10,39 +10,53 @@ import {
 import { WorkflowSpecTemplateScriptDocument, WorkflowSpecTemplateScriptSchema } from './script';
 import { WorkflowSpecTemplateSidecarDocument, WorkflowSpecTemplateSidecarSchema } from './sidecar';
 
-@modelOptions({ schemaOptions: { _id: false } })
-export class WorkflowSpecTemplateSchema {
-  @prop({ type: WorkflowSpecTemplateDagSchema })
-  public dag: WorkflowSpecTemplateDagDocument;
+export interface WorkflowSpecTemplate {
+  dag?: WorkflowSpecTemplateDagDocument;
+  inputs?: WorkflowSpecTemplateInputsDocument;
+  name: string;
+  retryStrategy?: WorkflowSpecTemplateRetryStrategyDocument;
+  script?: WorkflowSpecTemplateScriptDocument;
+  sidecars?: WorkflowSpecTemplateSidecarDocument[];
+}
 
-  @prop({ type: WorkflowSpecTemplateInputsSchema })
-  public inputs: WorkflowSpecTemplateInputsDocument;
+export interface WorkflowSpecTemplateDocument
+  extends mongoose.Document<mongoose.Types.ObjectId>,
+    WorkflowSpecTemplate {}
 
-  @prop({ required: true, type: String })
-  public name: string;
-
-  @prop({ type: WorkflowSpecTemplateRetryStrategySchema })
-  public retryStrategy: WorkflowSpecTemplateRetryStrategyDocument;
-
-  @prop({ type: WorkflowSpecTemplateScriptSchema })
-  public script: WorkflowSpecTemplateScriptDocument;
-
-  @prop({ type: WorkflowSpecTemplateSidecarSchema }, PropType.ARRAY)
-  public sidecars: WorkflowSpecTemplateSidecarDocument[];
-
+export interface WorkflowSpecTemplateModelType
+  extends mongoose.Model<WorkflowSpecTemplateDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(
-    this: typeof WorkflowSpecTemplateModel,
-    values: Partial<WorkflowSpecTemplateSchema> = {},
-  ) {
-    const chance = new Chance();
-    const defaults = { name: chance.hash() };
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(
+    this: WorkflowSpecTemplateModelType,
+    values?: Partial<WorkflowSpecTemplate>,
+  ): WorkflowSpecTemplateDocument;
 }
 
-export type WorkflowSpecTemplateDocument = DocumentType<WorkflowSpecTemplateSchema>;
-export const WorkflowSpecTemplateModel = getModelForClass(WorkflowSpecTemplateSchema);
+export const WorkflowSpecTemplateSchema = new mongoose.Schema<WorkflowSpecTemplateDocument>(
+  {
+    dag: { type: WorkflowSpecTemplateDagSchema },
+    inputs: { type: WorkflowSpecTemplateInputsSchema },
+    name: { type: String, required: true },
+    retryStrategy: { type: WorkflowSpecTemplateRetryStrategySchema },
+    script: { type: WorkflowSpecTemplateScriptSchema },
+    sidecars: { type: [WorkflowSpecTemplateSidecarSchema] },
+  },
+  { _id: false },
+);
+
+WorkflowSpecTemplateSchema.statics.mock = function (
+  this: WorkflowSpecTemplateModelType,
+  values: Partial<WorkflowSpecTemplate> = {},
+) {
+  const chance = new Chance();
+  const defaults = { name: chance.hash() };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const WorkflowSpecTemplateModel = mongoose.model<
+  WorkflowSpecTemplateDocument,
+  WorkflowSpecTemplateModelType
+>('WorkflowSpecTemplate', WorkflowSpecTemplateSchema);

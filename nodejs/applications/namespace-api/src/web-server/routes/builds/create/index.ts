@@ -1,17 +1,19 @@
 import * as minio from '@tenlastic/minio';
 import {
+  BuildDocument,
   BuildModel,
-  BuildPermissions,
-  NamespaceModel,
+  BuildPermissionOptions,
   NamespaceLimitError,
+  NamespaceModel,
 } from '@tenlastic/mongoose';
 import { NamespaceStorageLimitEvent } from '@tenlastic/mongoose-nats';
-import { Context } from '@tenlastic/web-server';
+import * as permissions from '@tenlastic/mongoose-permissions';
+import { CreateContext } from '@tenlastic/web-server';
 import * as Busboy from 'busboy';
 
 import { MinioBuild } from '../../../../minio';
 
-export async function handler(ctx: Context) {
+export async function handler(ctx: CreateContext<BuildDocument>) {
   const namespace = await NamespaceModel.findOne({ _id: ctx.params.namespaceId });
   namespace.checkCpuLimit(0.1);
   namespace.checkMemoryLimit(100 * 1000 * 1000);
@@ -21,7 +23,7 @@ export async function handler(ctx: Context) {
   const build = new BuildModel({ ...ctx.params });
   await new Promise((resolve, reject) => {
     const busboy = Busboy({ headers: ctx.request.headers, limits: { files: 1, fileSize: limit } });
-    let promise = Promise.resolve('');
+    let promise = Promise.resolve<string>(null);
 
     busboy.on('error', reject);
     busboy.on('field', (name, value) => {
@@ -62,13 +64,16 @@ export async function handler(ctx: Context) {
   });
 
   try {
-    const credentials = { ...ctx.state };
-    const result = await BuildPermissions.create(
-      credentials,
-      { ...ctx.params, _id: build._id },
-      build.toObject(),
-    );
-    const record = await BuildPermissions.read(credentials, result);
+    const baseParameters = build.toObject();
+    const context = {
+      credentials: { ...ctx.state },
+      Model: BuildModel,
+      options: BuildPermissionOptions,
+    };
+    const overlayParameters = { ...ctx.params, _id: build._id };
+
+    const result = await permissions.create(context, baseParameters, overlayParameters);
+    const record = await permissions.read(context, result);
 
     ctx.response.body = { record };
   } catch (e) {

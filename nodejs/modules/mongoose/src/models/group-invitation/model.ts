@@ -1,25 +1,53 @@
-import {
-  DocumentType,
-  getModelForClass,
-  index,
-  modelOptions,
-  plugin,
-  pre,
-  prop,
-} from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
 import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
-import { GroupDocument } from '../group';
 import { AuthorizationDocument } from '../authorization';
+import { GroupDocument } from '../group';
 
-@index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
-@index({ fromUserId: 1 })
-@index({ groupId: 1, namespaceId: 1, toUserId: 1 }, { unique: true })
-@modelOptions({ schemaOptions: { collection: 'group-invitations', timestamps: true } })
-@plugin(duplicateKeyErrorPlugin)
-@plugin(unsetPlugin)
-@pre('validate', function (this: GroupInvitationDocument) {
+export interface GroupInvitation {
+  _id: mongoose.Types.ObjectId;
+  authorizationDocuments?: AuthorizationDocument[];
+  createdAt?: Date;
+  expiresAt: Date;
+  fromUserId: mongoose.Types.ObjectId;
+  groupDocument?: GroupDocument;
+  groupId: mongoose.Types.ObjectId;
+  namespaceId: mongoose.Types.ObjectId;
+  toUserId: mongoose.Types.ObjectId;
+  updatedAt?: Date;
+}
+
+export type GroupInvitationDocument = mongoose.Document<mongoose.Types.ObjectId> & GroupInvitation;
+
+export interface GroupInvitationModelType extends mongoose.Model<GroupInvitationDocument> {
+  /**
+   * Creates a record with randomized required parameters if not specified.
+   */
+  mock(this: GroupInvitationModelType, values?: Partial<GroupInvitation>): GroupInvitationDocument;
+}
+
+const GroupInvitationSchema = new mongoose.Schema<
+  GroupInvitationDocument,
+  GroupInvitationModelType
+>(
+  {
+    expiresAt: { required: true, type: Date },
+    fromUserId: { ref: 'UserSchema', required: true, type: mongoose.Schema.Types.ObjectId },
+    groupId: { ref: 'GroupSchema', required: true, type: mongoose.Schema.Types.ObjectId },
+    namespaceId: { ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId },
+    toUserId: { ref: 'UserSchema', required: true, type: mongoose.Schema.Types.ObjectId },
+  },
+  { collection: 'group-invitations', timestamps: true },
+);
+
+GroupInvitationSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+GroupInvitationSchema.index({ fromUserId: 1 });
+GroupInvitationSchema.index({ groupId: 1, namespaceId: 1, toUserId: 1 }, { unique: true });
+
+GroupInvitationSchema.plugin(duplicateKeyErrorPlugin);
+GroupInvitationSchema.plugin(unsetPlugin);
+
+GroupInvitationSchema.pre('validate', function (this: GroupInvitationDocument) {
   if (!this.isNew) {
     return;
   }
@@ -28,50 +56,37 @@ import { AuthorizationDocument } from '../authorization';
   const date = new Date();
   date.setTime(date.getTime() + 1 * 60 * 1000);
   this.expiresAt = date;
-})
-export class GroupInvitationSchema {
-  public _id: mongoose.Types.ObjectId;
-  public createdAt: Date;
+});
 
-  @prop({ required: true, type: Date })
-  public expiresAt: Date;
+GroupInvitationSchema.virtual('authorizationDocuments', {
+  foreignField: 'namespaceId',
+  justOne: false,
+  localField: 'namespaceId',
+  ref: 'AuthorizationSchema',
+});
 
-  @prop({ ref: 'UserSchema', required: true, type: mongoose.Schema.Types.ObjectId })
-  public fromUserId: mongoose.Types.ObjectId;
+GroupInvitationSchema.virtual('groupDocument', {
+  foreignField: '_id',
+  justOne: true,
+  localField: 'groupId',
+  ref: 'GroupSchema',
+});
 
-  @prop({ ref: 'GroupSchema', required: true, type: mongoose.Schema.Types.ObjectId })
-  public groupId: mongoose.Types.ObjectId;
+GroupInvitationSchema.statics.mock = function (values: Partial<GroupInvitation> = {}) {
+  const defaults: Partial<GroupInvitation> = {
+    fromUserId: new mongoose.Types.ObjectId(),
+    groupId: new mongoose.Types.ObjectId(),
+    toUserId: new mongoose.Types.ObjectId(),
+  };
 
-  @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
-  public namespaceId: mongoose.Types.ObjectId;
+  return new this({ ...defaults, ...values });
+};
 
-  @prop({ ref: 'UserSchema', required: true, type: mongoose.Schema.Types.ObjectId })
-  public toUserId: mongoose.Types.ObjectId;
+export const GroupInvitationModel = mongoose.model<
+  GroupInvitationDocument,
+  GroupInvitationModelType
+>('GroupInvitationSchema', GroupInvitationSchema);
 
-  public updatedAt: Date;
+export { GroupInvitationSchema };
 
-  @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
-  public authorizationDocuments: AuthorizationDocument[];
-
-  @prop({ foreignField: '_id', justOne: true, localField: 'groupId', ref: 'GroupSchema' })
-  public groupDocument: GroupDocument;
-
-  /**
-   * Creates a record with randomized required parameters if not specified.
-   */
-  public static mock(
-    this: typeof GroupInvitationModel,
-    values: Partial<GroupInvitationSchema> = {},
-  ) {
-    const defaults = {
-      fromUserId: new mongoose.Types.ObjectId(),
-      groupId: new mongoose.Types.ObjectId(),
-      toUserId: new mongoose.Types.ObjectId(),
-    };
-
-    return new this({ ...defaults, ...values });
-  }
-}
-
-export type GroupInvitationDocument = DocumentType<GroupInvitationSchema>;
-export const GroupInvitationModel = getModelForClass(GroupInvitationSchema);
+export default GroupInvitationModel;

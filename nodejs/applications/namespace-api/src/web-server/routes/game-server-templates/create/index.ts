@@ -1,4 +1,4 @@
-import { GameServerTemplatePermissions } from '@tenlastic/mongoose';
+import { GameServerTemplateModel, GameServerTemplatePermissionOptions } from '@tenlastic/mongoose';
 import { create } from '@tenlastic/web-server';
 
-export const handler = create(GameServerTemplatePermissions);
+export const handler = create(GameServerTemplateModel, GameServerTemplatePermissionOptions);

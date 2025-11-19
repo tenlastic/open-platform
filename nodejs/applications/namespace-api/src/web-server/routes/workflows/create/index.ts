@@ -1,7 +1,13 @@
-import { NamespaceModel, WorkflowPermissions } from '@tenlastic/mongoose';
-import { Context, RequiredFieldError } from '@tenlastic/web-server';
+import {
+  NamespaceModel,
+  WorkflowDocument,
+  WorkflowModel,
+  WorkflowPermissionOptions,
+} from '@tenlastic/mongoose';
+import * as permissions from '@tenlastic/mongoose-permissions';
+import { CreateContext, RequiredFieldError } from '@tenlastic/web-server';
 
-export async function handler(ctx: Context) {
+export async function handler(ctx: CreateContext<WorkflowDocument>) {
   const { cpu, memory, preemptible } = ctx.request.body;
   if (!cpu || !memory) {
     throw new RequiredFieldError(['cpu', 'memory']);
@@ -12,9 +18,13 @@ export async function handler(ctx: Context) {
   namespace.checkMemoryLimit(memory);
   namespace.checkNonPreemptibleLimit(preemptible);
 
-  const credentials = { ...ctx.state };
-  const result = await WorkflowPermissions.create(credentials, ctx.params, ctx.request.body);
-  const record = await WorkflowPermissions.read(credentials, result);
+  const context = {
+    credentials: { ...ctx.state },
+    Model: WorkflowModel,
+    options: WorkflowPermissionOptions,
+  };
+  const result = await permissions.create(context, ctx.params, ctx.request.body);
+  const record = await permissions.read(context, result);
 
   ctx.response.body = { record };
 }

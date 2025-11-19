@@ -1,10 +1,12 @@
 import { PasswordResetModel, UserModel } from '@tenlastic/mongoose';
 import { Context, RequiredFieldError } from '@tenlastic/web-server';
-import * as Chance from 'chance';
+import { Chance } from 'chance';
+
+export type CreatePasswordResetContext = Context<unknown, { email?: string }, void>;
 
 const chance = new Chance();
 
-export async function handler(ctx: Context) {
+export async function handler(ctx: CreatePasswordResetContext) {
   const { email } = ctx.request.body;
   if (!email) {
     throw new RequiredFieldError(['email']);
@@ -19,5 +21,4 @@ export async function handler(ctx: Context) {
   }
 
   ctx.response.status = 200;
-  ctx.response.body = {};
 }

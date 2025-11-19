@@ -4,6 +4,10 @@ export interface GetPartnerAppListForWebApiKeyOptions {
   key: string;
 }
 
+export interface GetPartnerAppListForWebApiKeyRequest {
+  key: string;
+}
+
 export interface GetPartnerAppListForWebApiKeyResponse {
   applist: {
     apps: {
@@ -20,8 +24,12 @@ export interface GetPartnerAppListForWebApiKeyResponse {
 
 export async function getPartnerAppListForWebApiKey(options: GetPartnerAppListForWebApiKeyOptions) {
   const method = 'get';
-  const params = { key: options.key };
+  const params: GetPartnerAppListForWebApiKeyRequest = { key: options.key };
   const url = `https://partner.steam-api.com/ISteamApps/GetPartnerAppListForWebAPIKey/v2`;
 
-  return request<GetPartnerAppListForWebApiKeyResponse>({ method, params, url });
+  return request<GetPartnerAppListForWebApiKeyRequest, GetPartnerAppListForWebApiKeyResponse>({
+    method,
+    params,
+    url,
+  });
 }

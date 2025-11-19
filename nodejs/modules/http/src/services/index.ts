@@ -21,7 +21,6 @@ export * from './queue';
 export * from './queue-log';
 export * from './queue-member';
 export * from './record';
-export * from './refresh-token';
 export * from './steam-integration';
 export * from './storefront';
 export * from './subscription';

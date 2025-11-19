@@ -1,1 +1,3 @@
-@import 'src/assets/scss/page.scss';
+@use 'src/assets/scss/page.scss' as page;
+
+@include page.styles;

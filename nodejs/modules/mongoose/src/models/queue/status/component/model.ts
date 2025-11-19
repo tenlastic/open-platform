@@ -1,40 +1,63 @@
-import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
 import { Chance } from 'chance';
+import * as mongoose from 'mongoose';
 
-import { QueueStatusComponentName, QueueStatusPhase } from '../model';
+import { QueueStatusComponentName, QueueStatusPhase } from '../types';
 
-@modelOptions({ schemaOptions: { _id: false } })
-export class QueueStatusComponentSchema {
-  @prop({ type: Number })
-  public current: number;
+export interface QueueStatusComponent {
+  current?: number;
+  name: QueueStatusComponentName;
+  phase?: QueueStatusPhase;
+  total?: number;
+}
 
-  @prop({ enum: QueueStatusComponentName, required: true, type: String })
-  public name: QueueStatusComponentName;
+export type QueueStatusComponentDocument = mongoose.Document<mongoose.Types.ObjectId> &
+  QueueStatusComponent;
 
-  @prop({ default: () => QueueStatusPhase.Pending, enum: QueueStatusPhase, type: String })
-  public phase: QueueStatusPhase;
-
-  @prop({ type: Number })
-  public total: number;
-
+export interface QueueStatusComponentModelType
+  extends mongoose.Model<QueueStatusComponentDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(
-    this: typeof QueueStatusComponentModel,
-    values: Partial<QueueStatusComponentSchema> = {},
-  ) {
-    const chance = new Chance();
-    const defaults = {
-      current: chance.integer({ min: 0 }),
-      name: QueueStatusComponentName.Application,
-      phase: QueueStatusPhase.Running,
-      total: chance.integer({ min: 0 }),
-    };
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(
+    this: QueueStatusComponentModelType,
+    values?: Partial<QueueStatusComponent>,
+  ): QueueStatusComponentDocument;
 }
 
-export type QueueStatusComponentDocument = DocumentType<QueueStatusComponentSchema>;
-export const QueueStatusComponentModel = getModelForClass(QueueStatusComponentSchema);
+const QueueStatusComponentSchema = new mongoose.Schema<
+  QueueStatusComponentDocument,
+  QueueStatusComponentModelType
+>(
+  {
+    current: { type: Number },
+    name: { enum: Object.values(QueueStatusComponentName), required: true, type: String },
+    phase: {
+      default: () => QueueStatusPhase.Pending,
+      enum: Object.values(QueueStatusPhase),
+      type: String,
+    },
+    total: { type: Number },
+  },
+  { _id: false },
+);
+
+QueueStatusComponentSchema.statics.mock = function (values: Partial<QueueStatusComponent> = {}) {
+  const chance = new Chance();
+  const defaults: Partial<QueueStatusComponent> = {
+    current: chance.integer({ min: 0 }),
+    name: QueueStatusComponentName.Application,
+    phase: QueueStatusPhase.Running,
+    total: chance.integer({ min: 0 }),
+  };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const QueueStatusComponentModel = mongoose.model<
+  QueueStatusComponentDocument,
+  QueueStatusComponentModelType
+>('QueueStatusComponentSchema', QueueStatusComponentSchema);
+
+export { QueueStatusComponentSchema };
+
+export default QueueStatusComponentModel;

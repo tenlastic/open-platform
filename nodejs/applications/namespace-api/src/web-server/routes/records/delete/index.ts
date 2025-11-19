@@ -1,7 +1,13 @@
-import { CollectionModel, RecordPermissions, RecordSchema } from '@tenlastic/mongoose';
-import { Context, RecordNotFoundError } from '@tenlastic/web-server';
+import {
+  CollectionModel,
+  getRecordModel,
+  getRecordPermissionOptions,
+  RecordDocument,
+} from '@tenlastic/mongoose';
+import * as permissions from '@tenlastic/mongoose-permissions';
+import { DeleteOneContext, RecordNotFoundError } from '@tenlastic/web-server';
 
-export async function handler(ctx: Context) {
+export async function handler(ctx: DeleteOneContext<RecordDocument>) {
   const { _id, collectionId } = ctx.params;
 
   const collection = await CollectionModel.findOne({ _id: collectionId });
@@ -9,17 +15,17 @@ export async function handler(ctx: Context) {
     throw new RecordNotFoundError('Collection');
   }
 
-  const Model = RecordSchema.getModel(collection);
-  const Permissions = RecordPermissions(collection, Model);
+  const Model = getRecordModel(collection);
+  const options = getRecordPermissionOptions(collection);
 
-  const credentials = { ...ctx.state };
-  const existing = await Permissions.findOne(credentials, { where: { _id, collectionId } }, {});
-  if (!existing) {
+  const context = { credentials: { ...ctx.state }, Model, options };
+  const result = await permissions.findOne(context, {}, { where: { _id, collectionId } });
+  if (!result) {
     throw new RecordNotFoundError('Record');
   }
 
-  const result = await Permissions.delete(credentials, existing);
-  const record = await Permissions.read(credentials, result);
+  await permissions.deleteOne(context, result);
+  const record = await permissions.read(context, result);
 
   ctx.response.body = { record };
 }

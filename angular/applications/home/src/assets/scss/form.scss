@@ -1,89 +1,36 @@
-@import './theme.scss';
+@use 'src/assets/scss/shadows.scss' as shadows;
 
-div {
-  color: white;
-}
-
-div.form-error {
-  color: #f44336;
-  text-align: left;
-
-  &:first-of-type {
-    margin-top: -4px;
+@mixin styles {
+  :host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
   }
 
-  &:last-of-type {
-    margin-bottom: 4px;
-  }
-}
-
-div.offset-sm-6 {
-  text-align: right;
-
-  app-button {
-    margin-top: 14px;
-  }
-}
-
-div.page {
-  height: 100%;
-  overflow-x: hidden;
-  overflow-y: auto;
-  padding: 16px;
-}
-
-div.page-actions {
-  background: rgba(0, 0, 0, 0.5);
-  box-shadow: $box-shadow-top;
-  display: flex;
-  flex-direction: column;
-  margin-top: auto;
-  padding: 8px;
-
-  app-button {
-    flex: 1 1 auto;
-    width: 100%;
-  }
-}
-
-div.row {
-  margin: 0px;
-
-  &:first-of-type {
-    align-items: baseline;
-
-    div.col-sm-6 {
-      padding: 0px;
-
-      &:nth-child(2) {
-        text-align: right;
-
-        app-button {
-          margin-left: 8px;
-          margin-right: 0px;
-        }
-      }
-    }
+  app-form-field {
+    flex: 0;
+    min-width: 180px;
   }
 
-  .col-sm-3 {
-    padding-left: 0px;
-    padding-right: 0px;
+  div.actions {
+    background: rgba(0, 0, 0, 0.5);
+    box-shadow: shadows.$box-shadow-top;
+    display: flex;
+    flex-direction: column;
+    margin-top: auto;
+    padding: 8px;
   }
-}
 
-form {
-  & > app-button {
-    margin-right: 8px;
+  div.content {
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 16px;
   }
-}
 
-h2,
-h3,
-h4 {
-  margin: 0px 0px 16px;
-}
-
-mat-form-field.mat-form-field {
-  display: inline-block;
+  h2,
+  h3,
+  h4 {
+    margin: 0px;
+  }
 }

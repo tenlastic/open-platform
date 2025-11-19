@@ -1,4 +1,4 @@
-import { BuildPermissions } from '@tenlastic/mongoose';
+import { BuildModel, BuildPermissionOptions } from '@tenlastic/mongoose';
 import { updateOne } from '@tenlastic/web-server';
 
-export const handler = updateOne(BuildPermissions);
+export const handler = updateOne(BuildModel, BuildPermissionOptions);

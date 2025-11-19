@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-markdown',
+  standalone: false,
   styleUrls: ['./markdown.component.scss'],
   templateUrl: './markdown.component.html',
 })

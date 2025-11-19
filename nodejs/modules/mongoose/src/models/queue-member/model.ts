@@ -1,14 +1,3 @@
-import {
-  DocumentType,
-  getModelForClass,
-  index,
-  modelOptions,
-  plugin,
-  post,
-  pre,
-  prop,
-  PropType,
-} from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
 import { DuplicateKeyError, duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
@@ -41,187 +30,200 @@ export class QueueMemberMatchError extends Error {
   }
 }
 
-@index({ namespaceId: 1, queueId: 1, userIds: 1 }, { unique: true })
-@index({ webSocketId: 1 })
-@modelOptions({ schemaOptions: { collection: 'queue-members', timestamps: true } })
-@plugin(duplicateKeyErrorPlugin)
-@plugin(unsetPlugin)
-@pre('save', async function (this: QueueMemberDocument) {
-  await this.setUserIds();
+export interface QueueMember {
+  _id: mongoose.Types.ObjectId;
+  authorizationDocuments?: AuthorizationDocument[];
+  createdAt?: Date;
+  groupDocument?: GroupDocument;
+  groupId?: mongoose.Types.ObjectId;
+  matchedAt?: Date;
+  namespaceId: mongoose.Types.ObjectId;
+  queueDocument?: QueueDocument;
+  queueId: mongoose.Types.ObjectId;
+  team?: QueueMemberTeamDocument;
+  unix?: number;
+  updatedAt?: Date;
+  userId: mongoose.Types.ObjectId;
+  userIds: mongoose.Types.ObjectId[];
+  webSocketId: mongoose.Types.ObjectId;
+}
 
-  await this.checkGroupSize();
-  await this.checkMatches();
-  this.checkUsers();
+export type QueueMemberDocument = mongoose.Document<mongoose.Types.ObjectId> & QueueMember;
 
-  await this.setTeam();
-})
-@post('save', function (err: any, doc: QueueMemberDocument, next) {
-  if (err.code === 11000 && err.name === 'MongoError') {
+export interface QueueMemberModelType extends mongoose.Model<QueueMemberDocument> {
+  /** Get the number of Users matching the criteria. */
+  getUserIdCount(this: QueueMemberModelType, $match?: unknown): Promise<number>;
+
+  /** Creates a record with randomized required parameters if not specified. */
+  mock(this: QueueMemberModelType, values?: Partial<QueueMember>): QueueMemberDocument;
+}
+
+const QueueMemberSchema = new mongoose.Schema<QueueMemberDocument, QueueMemberModelType>(
+  {
+    groupId: { ref: 'GroupSchema', type: mongoose.Schema.Types.ObjectId },
+    matchedAt: { type: Date },
+    namespaceId: { ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId },
+    queueId: { ref: 'QueueSchema', required: true, type: mongoose.Schema.Types.ObjectId },
+    team: { type: QueueMemberTeamSchema },
+    unix: { default: () => Date.now(), type: Number },
+    userId: { ref: 'UserSchema', required: true, type: mongoose.Schema.Types.ObjectId },
+    userIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'UserSchema' }],
+    webSocketId: { ref: 'WebSocketSchema', required: true, type: mongoose.Schema.Types.ObjectId },
+  },
+  { collection: 'queue-members', timestamps: true },
+);
+
+QueueMemberSchema.index({ namespaceId: 1, queueId: 1, userIds: 1 }, { unique: true });
+QueueMemberSchema.index({ webSocketId: 1 });
+
+QueueMemberSchema.plugin(duplicateKeyErrorPlugin);
+QueueMemberSchema.plugin(unsetPlugin);
+
+QueueMemberSchema.pre('save', async function (this: QueueMemberDocument) {
+  await setUserIds(this);
+
+  await checkGroupSize(this);
+  await checkMatches(this);
+  checkUsers(this);
+
+  await setTeam(this);
+});
+
+QueueMemberSchema.post('save', function (err, doc: QueueMemberDocument, next) {
+  if (err?.code === 11000 && err?.name === 'MongoError') {
     const uniqueError = new DuplicateKeyError(err.keyValue);
 
     const i = uniqueError.paths.indexOf('userIds');
-    const userIds = uniqueError.values[i];
+    const userIds = uniqueError.values[i] as string[];
     const duplicateQueueMemberError = new QueueMemberDuplicateKeyError(userIds);
 
     return next(duplicateQueueMemberError);
   }
 
   return next(err);
-})
-export class QueueMemberSchema {
-  public _id: mongoose.Types.ObjectId;
-  public createdAt: Date;
+});
 
-  @prop({ ref: 'GroupSchema', type: mongoose.Schema.Types.ObjectId })
-  public groupId: mongoose.Types.ObjectId;
+QueueMemberSchema.virtual('authorizationDocuments', {
+  ref: 'AuthorizationSchema',
+  localField: 'namespaceId',
+  foreignField: 'namespaceId',
+});
 
-  @prop({ type: Date })
-  public matchedAt: Date;
+QueueMemberSchema.virtual('groupDocument', {
+  ref: 'GroupSchema',
+  justOne: true,
+  localField: 'groupId',
+  foreignField: '_id',
+});
 
-  @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
-  public namespaceId: mongoose.Types.ObjectId;
+QueueMemberSchema.virtual('queueDocument', {
+  ref: 'QueueSchema',
+  justOne: true,
+  localField: 'queueId',
+  foreignField: '_id',
+});
 
-  @prop({ ref: 'QueueSchema', required: true, type: mongoose.Schema.Types.ObjectId })
-  public queueId: mongoose.Types.ObjectId;
+QueueMemberSchema.statics.getUserIdCount = async function (
+  this: QueueMemberModelType,
+  $match?: unknown,
+) {
+  const results = await this.aggregate([
+    { $match: $match ? this.find().cast(this, $match) : {} },
+    { $unwind: '$userIds' },
+    { $count: 'count' },
+  ]);
 
-  @prop({ type: QueueMemberTeamSchema })
-  public team: QueueMemberTeamDocument;
+  return results && results[0] ? results[0].count : 0;
+};
 
-  @prop({ default: () => Date.now(), type: Number })
-  public unix: number;
+QueueMemberSchema.statics.mock = function (values: Partial<QueueMember> = {}) {
+  const defaults: Partial<QueueMember> = {
+    namespaceId: new mongoose.Types.ObjectId(),
+    queueId: new mongoose.Types.ObjectId(),
+    userId: new mongoose.Types.ObjectId(),
+    webSocketId: new mongoose.Types.ObjectId(),
+  };
 
-  public updatedAt: Date;
+  return new this({ ...defaults, ...values });
+};
 
-  @prop({ ref: 'UserSchema', required: true, type: mongoose.Schema.Types.ObjectId })
-  public userId: mongoose.Types.ObjectId;
+export const QueueMemberModel = mongoose.model<QueueMemberDocument, QueueMemberModelType>(
+  'QueueMemberSchema',
+  QueueMemberSchema,
+);
 
-  @prop({ ref: 'UserSchema', type: mongoose.Schema.Types.ObjectId }, PropType.ARRAY)
-  public userIds: mongoose.Types.ObjectId[];
+export { QueueMemberSchema };
 
-  @prop({ ref: 'WebSocketSchema', required: true, type: mongoose.Schema.Types.ObjectId })
-  public webSocketId: mongoose.Types.ObjectId;
+export default QueueMemberModel;
 
-  @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
-  public authorizationDocuments: AuthorizationDocument[];
-
-  @prop({ foreignField: '_id', justOne: true, localField: 'groupId', ref: 'GroupSchema' })
-  public groupDocument: GroupDocument;
-
-  @prop({ foreignField: '_id', justOne: true, localField: 'queueId', ref: 'QueueSchema' })
-  public queueDocument: QueueDocument;
-
-  /**
-   * Get the number of Users matching the criteria.
-   */
-  public static async getUserIdCount(this: typeof QueueMemberModel, $match: any = {}) {
-    const results = await this.aggregate([
-      { $match: this.find().cast(this, $match) },
-      { $unwind: '$userIds' },
-      { $count: 'count' },
-    ]);
-
-    return results && results[0] ? results[0].count : 0;
+async function checkGroupSize(queueMember: QueueMemberDocument) {
+  if (!queueMember.populated('queueDocument')) {
+    await queueMember.populate('queueDocument');
   }
 
-  /**
-   * Creates a record with randomized required parameters if not specified.
-   */
-  public static mock(this: typeof QueueMemberModel, values: Partial<QueueMemberSchema> = {}) {
-    const defaults: Partial<QueueMemberDocument> = {
-      namespaceId: new mongoose.Types.ObjectId(),
-      queueId: new mongoose.Types.ObjectId(),
-      userId: new mongoose.Types.ObjectId(),
-      webSocketId: new mongoose.Types.ObjectId(),
-    };
-
-    return new this({ ...defaults, ...values });
-  }
-
-  /**
-   *
-   */
-  private async checkGroupSize(this: QueueMemberDocument) {
-    if (!this.populated('queueDocument')) {
-      await this.populate('queueDocument');
-    }
-
-    if (!this.queueDocument.groupSizes.includes(this.userIds.length)) {
-      throw new Error('Group size is not valid for this Queue.');
-    }
-  }
-
-  /**
-   * Throws an error if a User is already in a Match.
-   */
-  private async checkMatches(this: QueueMemberDocument) {
-    const matches = await MatchModel.find({
-      finishedAt: { $exists: false },
-      'teams.userIds': { $in: this.userIds },
-    });
-    if (matches.length === 0) {
-      return;
-    }
-
-    const userIds = matches.map((m) => m.userIds).flat();
-    const intersection = this.userIds.filter((userId) => userIds.some((ui) => ui.equals(userId)));
-
-    throw new QueueMemberMatchError(intersection);
-  }
-
-  /**
-   * Throws an error if the User is not in the User IDs.
-   */
-  private checkUsers(this: QueueMemberDocument) {
-    if (!this.userIds.some((ui) => ui.equals(this.userId))) {
-      throw new Error('User is not in the Group.');
-    }
-  }
-
-  /**
-   * Upserts the Team.
-   */
-  private async setTeam(this: QueueMemberDocument) {
-    if (!this.populated('queueDocument')) {
-      await this.populate('queueDocument');
-    }
-
-    if (!this.queueDocument.teams) {
-      return;
-    }
-
-    const team = await TeamModel.findOneAndUpdate(
-      {
-        namespaceId: this.namespaceId,
-        queueId: this.queueId,
-        userIds: { $all: this.userIds, $size: this.userIds.length },
-      },
-      {
-        $setOnInsert: { rating: this.queueDocument.initialRating },
-        namespaceId: this.namespaceId,
-        queueId: this.queueId,
-        userIds: this.userIds,
-      },
-      { new: true, upsert: true },
-    );
-
-    this.team = new QueueMemberTeamModel({ rating: team.rating, teamId: team._id });
-  }
-
-  /**
-   * Sets the User IDs.
-   */
-  private async setUserIds(this: QueueMemberDocument) {
-    if (this.groupId) {
-      if (!this.populated('groupDocument')) {
-        await this.populate('groupDocument');
-      }
-
-      this.userIds = this.groupDocument?.userIds ?? [];
-    } else {
-      this.userIds = [this.userId];
-    }
+  if (!queueMember.queueDocument?.groupSizes?.includes(queueMember.userIds.length)) {
+    throw new Error('Group size is not valid for this Queue.');
   }
 }
 
-export type QueueMemberDocument = mongoose.Document & DocumentType<QueueMemberSchema>;
-export const QueueMemberModel = getModelForClass(QueueMemberSchema);
+async function checkMatches(queueMember: QueueMemberDocument) {
+  const matches = await MatchModel.find({
+    finishedAt: { $exists: false },
+    'teams.userIds': { $in: queueMember.userIds },
+  });
+  if (matches.length === 0) {
+    return;
+  }
+
+  const userIds = matches.map((m) => m.userIds).flat();
+  const intersection = queueMember.userIds.filter((userId) =>
+    userIds.some((ui) => ui.equals(userId)),
+  );
+
+  throw new QueueMemberMatchError(intersection);
+}
+
+async function checkUsers(queueMember: QueueMemberDocument) {
+  if (!queueMember.userIds.some((ui) => ui.equals(queueMember.userId))) {
+    throw new Error('User is not in the Group.');
+  }
+}
+
+async function setTeam(queueMember: QueueMemberDocument) {
+  if (!queueMember.populated('queueDocument')) {
+    await queueMember.populate('queueDocument');
+  }
+
+  if (!queueMember.queueDocument?.teams) {
+    return;
+  }
+
+  const team = await TeamModel.findOneAndUpdate(
+    {
+      namespaceId: queueMember.namespaceId,
+      queueId: queueMember.queueId,
+      userIds: { $all: queueMember.userIds, $size: queueMember.userIds.length },
+    },
+    {
+      $setOnInsert: { rating: queueMember.queueDocument?.initialRating },
+      namespaceId: queueMember.namespaceId,
+      queueId: queueMember.queueId,
+      userIds: queueMember.userIds,
+    },
+    { new: true, upsert: true },
+  );
+
+  queueMember.team = new QueueMemberTeamModel({ rating: team.rating, teamId: team._id });
+}
+
+async function setUserIds(queueMember: QueueMemberDocument) {
+  if (queueMember.groupId) {
+    if (!queueMember.populated('groupDocument')) {
+      await queueMember.populate('groupDocument');
+    }
+
+    queueMember.userIds = queueMember.groupDocument?.userIds ?? [];
+  } else {
+    queueMember.userIds = [queueMember.userId];
+  }
+}

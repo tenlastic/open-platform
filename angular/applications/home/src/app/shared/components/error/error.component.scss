@@ -1,0 +1,12 @@
+@use 'src/assets/scss/colors.scss' as colors;
+
+:host {
+  color: colors.$error;
+  display: block;
+  font-size: 12px;
+  position: relative;
+
+  span {
+    position: absolute;
+  }
+}

@@ -10,7 +10,7 @@
 </app-header-toolbar>
 
 <div class="content">
-  <app-sidenav *ngIf="$storefronts | async as storefronts">
+  <app-side-menu *ngIf="$storefronts | async as storefronts">
     <div *ngIf="!isElectron && storefronts.length > 1"
          appNav
          class="nav">
@@ -47,5 +47,5 @@
     </div>
 
     <router-outlet></router-outlet>
-  </app-sidenav>
+  </app-side-menu>
 </div>

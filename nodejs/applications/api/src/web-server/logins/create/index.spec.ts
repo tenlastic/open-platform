@@ -1,9 +1,9 @@
 import { UserDocument, UserModel } from '@tenlastic/mongoose';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
+import chaiAsPromised from 'chai-as-promised';
 
-import { handler } from '.';
+import { CreateLoginWithCredentialsContext, handler } from '.';
 
 use(chaiAsPromised);
 
@@ -16,13 +16,12 @@ describe('web-server/logins/create', function () {
 
   context('when credentials are correct', function () {
     it('returns the access and refresh tokens', async function () {
-      const ctx: any = new ContextMock({
+      const ctx = ContextMock<CreateLoginWithCredentialsContext>({
         request: {
           body: {
             password: 'password',
             username: user.username,
           },
-          headers: {},
         },
       });
 
@@ -36,7 +35,7 @@ describe('web-server/logins/create', function () {
 
   context('when credentials are incorrect', function () {
     it('returns an error message', function () {
-      const ctx: any = new ContextMock({
+      const ctx = ContextMock<CreateLoginWithCredentialsContext>({
         request: {
           body: {
             password: 'wrong',

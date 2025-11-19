@@ -7,9 +7,9 @@ import {
 } from '@tenlastic/mongoose';
 import { ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
+import chaiAsPromised from 'chai-as-promised';
 
-import { handler } from '.';
+import { handler, LeaveGroupContext } from '.';
 
 use(chaiAsPromised);
 
@@ -30,16 +30,16 @@ describe('web-server/groups/leave', function () {
       userIds: [user._id, otherUser._id],
     }).save();
 
-    const ctx = new ContextMock({
+    const ctx = ContextMock<LeaveGroupContext>({
       params: {
-        _id: record.userIds[0],
-        groupId: record._id,
-        namespaceId: record.namespaceId,
+        _id: record.userIds[0].toHexString(),
+        groupId: record._id.toHexString(),
+        namespaceId: record.namespaceId.toHexString(),
       },
-      state: { user },
+      state: { user: { _id: user._id.toHexString() } },
     });
 
-    await handler(ctx as any);
+    await handler(ctx);
 
     expect(ctx.response.body.record.userId.equals(record.userIds[1])).to.eql(true);
     expect(ctx.response.body.record.userIds.length).to.eql(1);
@@ -62,16 +62,16 @@ describe('web-server/groups/leave', function () {
       userIds: [user._id, otherUser._id],
     }).save();
 
-    const ctx = new ContextMock({
+    const ctx = ContextMock<LeaveGroupContext>({
       params: {
-        _id: record.userIds[1],
-        groupId: record._id,
-        namespaceId: record.namespaceId,
+        _id: record.userIds[1].toHexString(),
+        groupId: record._id.toHexString(),
+        namespaceId: record.namespaceId.toHexString(),
       },
-      state: { user: otherUser },
+      state: { user: { _id: otherUser._id.toHexString() } },
     });
 
-    await handler(ctx as any);
+    await handler(ctx);
 
     expect(ctx.response.body.record.userId.equals(record.userIds[0])).to.eql(true);
     expect(ctx.response.body.record.userIds.length).to.eql(1);

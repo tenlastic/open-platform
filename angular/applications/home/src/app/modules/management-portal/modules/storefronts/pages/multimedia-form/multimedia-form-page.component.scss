@@ -1,6 +1,9 @@
-@import 'src/assets/scss/form.scss';
-@import 'src/assets/scss/page.scss';
-@import 'src/assets/scss/theme.scss';
+@use 'src/assets/scss/form.scss' as form;
+@use 'src/assets/scss/page.scss' as page;
+@use 'src/assets/scss/shadows.scss' as shadows;
+
+@include form.styles;
+@include page.styles;
 
 app-toggle-section {
   ::ng-deep {
@@ -28,7 +31,7 @@ mat-grid-list.mat-grid-list {
   mat-grid-tile.mat-grid-tile {
     background-position: center;
     background-size: cover;
-    filter: $drop-shadow;
+    filter: shadows.$drop-shadow;
 
     ::ng-deep {
       .mat-figure {
@@ -61,7 +64,7 @@ mat-grid-list.mat-grid-list {
 
     &.pending {
       background-color: rgba(0, 0, 0, 0.2);
-      box-shadow: $box-shadow;
+      box-shadow: shadows.$box-shadow;
     }
   }
 }

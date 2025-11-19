@@ -1,5 +1,5 @@
 import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { BaseLogModel, WebSocketResponse } from '@tenlastic/http';
 import { Observable, Subscription } from 'rxjs';
 import { first, map } from 'rxjs/operators';
@@ -20,7 +20,7 @@ export interface LogsDialogComponentNode {
 }
 
 @Component({
-  selector: 'app-logs-dialog',
+  standalone: false,
   styleUrls: ['./logs-dialog.component.scss'],
   templateUrl: 'logs-dialog.component.html',
 })
@@ -92,7 +92,7 @@ export class LogsDialogComponent implements OnDestroy, OnInit {
     }
 
     try {
-      this.logJson[log._id] = JSON.parse(log.body);
+      this.logJson[log._id] = JSON.parse(log.body as string);
     } catch {
       this.logJson[log._id] = null;
     }

@@ -1,12 +1,12 @@
 import { RefreshTokenModel, UserModel } from '@tenlastic/mongoose';
 import { ContextMock, RequiredFieldError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-import * as Chance from 'chance';
+import chaiAsPromised from 'chai-as-promised';
+import { Chance } from 'chance';
 import * as jwt from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
 
-import { handler } from '.';
+import { CreateLoginWithRefreshTokenContext, handler } from '.';
 
 const chance = new Chance();
 use(chaiAsPromised);
@@ -18,7 +18,7 @@ describe('web-server/logins/refresh-token', function () {
 
   context('when a token is not provided', function () {
     it('throws an error', async function () {
-      const ctx: any = new ContextMock();
+      const ctx = ContextMock<CreateLoginWithRefreshTokenContext>();
 
       const promise = handler(ctx);
 
@@ -33,7 +33,7 @@ describe('web-server/logins/refresh-token', function () {
     context('when the JWT fails verification', function () {
       it('throws an error', async function () {
         const token = jwt.sign({}, chance.hash());
-        const ctx: any = new ContextMock({
+        const ctx = ContextMock<CreateLoginWithRefreshTokenContext>({
           request: {
             body: { token },
           },
@@ -51,7 +51,7 @@ describe('web-server/logins/refresh-token', function () {
           const token = jwt.sign({}, process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'), {
             algorithm: 'RS256',
           });
-          const ctx: any = new ContextMock({
+          const ctx = ContextMock<CreateLoginWithRefreshTokenContext>({
             request: {
               body: { token },
             },
@@ -71,7 +71,7 @@ describe('web-server/logins/refresh-token', function () {
               algorithm: 'RS256',
               jwtid: chance.hash(),
             });
-            const ctx: any = new ContextMock({
+            const ctx = ContextMock<CreateLoginWithRefreshTokenContext>({
               request: {
                 body: { token },
               },
@@ -88,13 +88,13 @@ describe('web-server/logins/refresh-token', function () {
             it('throws an error', async function () {
               const user = await UserModel.mock().save();
               const refreshToken = await RefreshTokenModel.mock({
-                userId: new mongoose.Types.ObjectId() as any,
+                userId: new mongoose.Types.ObjectId(),
               }).save();
               const token = jwt.sign({ user }, process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n'), {
                 algorithm: 'RS256',
                 jwtid: refreshToken._id.toString(),
               });
-              const ctx: any = new ContextMock({
+              const ctx = ContextMock<CreateLoginWithRefreshTokenContext>({
                 request: {
                   body: { token },
                 },
@@ -118,7 +118,7 @@ describe('web-server/logins/refresh-token', function () {
                   jwtid: refreshToken._id.toString(),
                 },
               );
-              const ctx: any = new ContextMock({
+              const ctx = ContextMock<CreateLoginWithRefreshTokenContext>({
                 request: {
                   body: { token },
                 },

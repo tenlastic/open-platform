@@ -1,7 +1,9 @@
 import { PasswordResetModel, RefreshTokenModel, UserModel } from '@tenlastic/mongoose';
 import { Context, RequiredFieldError } from '@tenlastic/web-server';
 
-export async function handler(ctx: Context) {
+export type DeletePasswordResetContext = Context<{ hash?: string }, { password?: string }, void>;
+
+export async function handler(ctx: DeletePasswordResetContext) {
   const { hash } = ctx.params;
 
   const { password } = ctx.request.query;
@@ -22,5 +24,4 @@ export async function handler(ctx: Context) {
   } catch {}
 
   ctx.response.status = 200;
-  ctx.response.body = {};
 }

@@ -1,8 +1,9 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 
-import { FormResolver } from '../../../../core/resolvers';
-import { SharedModule } from '../../../../shared/shared.module';
+import { FormResolver } from '@home/app/core/resolvers';
+import { SharedModule } from '@home/app/shared/shared.module';
+import { LogsOverlayComponent } from './components';
 import {
   GameServersFormPageComponent,
   GameServersJsonPageComponent,
@@ -25,6 +26,7 @@ export const ROUTES: Routes = [
   },
 ];
 
+const components = [LogsOverlayComponent];
 const pages = [
   GameServersFormPageComponent,
   GameServersJsonPageComponent,
@@ -32,7 +34,7 @@ const pages = [
 ];
 
 @NgModule({
-  declarations: [...pages],
+  declarations: [...components, ...pages],
   imports: [SharedModule, RouterModule.forChild(ROUTES)],
 })
 export class GameServerModule {}

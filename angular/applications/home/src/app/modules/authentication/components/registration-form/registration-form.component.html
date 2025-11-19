@@ -1,43 +1,39 @@
 <form [formGroup]="form"
       id="form"
+      row-gap-16
       (ngSubmit)="submit()">
-  <mat-form-field floatLabel="always">
-    <mat-label>Username</mat-label>
+  <app-form-field floatLabel="always">
+    <label>Username</label>
     <input appAutofocus
            formControlName="username"
-           matInput
            maxlength="24" />
-    <mat-error>Enter a valid alphanumeric username.</mat-error>
-  </mat-form-field>
+    <app-error>Enter a valid alphanumeric username.</app-error>
+  </app-form-field>
 
-  <div formGroupName="passwords">
-    <mat-form-field floatLabel="always"
-                    margin-top>
-      <mat-label>Password</mat-label>
-      <input matInput
-             type="password"
-             formControlName="password" />
-      <mat-error>Enter a password.</mat-error>
-    </mat-form-field>
+  <div formGroupName="passwords"
+       row-gap-16>
+    <app-form-field floatLabel="always">
+      <label>Password</label>
+      <input formControlName="password"
+             type="password" />
+      <app-error>Enter a password.</app-error>
+    </app-form-field>
 
-    <mat-form-field floatLabel="always"
-                    margin-top>
-      <mat-label>Confirm Password</mat-label>
-      <input matInput
-             type="password"
-             formControlName="confirmPassword" />
-      <mat-error>Passwords do not match.</mat-error>
-    </mat-form-field>
+    <app-form-field floatLabel="always">
+      <label>Confirm Password</label>
+      <input formControlName="confirmPassword"
+             type="password" />
+      <app-error>Passwords do not match.</app-error>
+    </app-form-field>
   </div>
 
-  <mat-form-field floatLabel="always">
-    <mat-label>Email Address (Optional, for Password Reset)</mat-label>
+  <app-form-field floatLabel="always">
+    <label>Email Address (Optional, for Password Reset)</label>
     <input formControlName="email"
-           matInput
            maxlength="256"
            type="email" />
-    <mat-error>Enter a valid email address.</mat-error>
-  </mat-form-field>
+    <app-error>Enter a valid email address.</app-error>
+  </app-form-field>
 
   <app-form-message *ngIf="error"
                     level="error"

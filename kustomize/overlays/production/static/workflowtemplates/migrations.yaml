@@ -1,0 +1,121 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: migrations
+  namespace: static
+spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: tenlastic.com/low-priority
+                operator: Exists
+    podAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 1
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: workflows.argoproj.io/workflow
+                  operator: In
+                  values:
+                    - "{{workflow.name}}"
+            topologyKey: kubernetes.io/hostname
+  archiveLogs: true
+  arguments:
+    parameters:
+      - name: revision
+  artifactGC:
+    forceFinalizerRemoval: true
+    serviceAccountName: argo-workflows
+    strategy: OnWorkflowDeletion
+  entrypoint: entrypoint
+  podGC:
+    strategy: OnWorkflowSuccess
+  serviceAccountName: argo-workflows
+  ttlStrategy:
+    secondsAfterSuccess: 86400
+  volumeClaimTemplates:
+    - metadata:
+        name: workspace
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10G
+        storageClassName: balanced-expandable
+  volumes:
+    - name: continuous-deployment
+      secret:
+        secretName: continuous-deployment
+        items:
+          - key: GITHUB_PRIVATE_KEY
+            path: id_rsa
+  templates:
+    - name: entrypoint
+      inputs:
+        parameters:
+          - name: revision
+      steps:
+        - - name: checkout
+            templateRef:
+              name: checkout
+              template: entrypoint
+            arguments:
+              parameters:
+                - name: revision
+                  value: "{{inputs.parameters.revision}}"
+        - - name: nodejs
+            template: nodejs
+            arguments:
+              parameters:
+                - name: branch
+                  value: "{{steps.checkout.outputs.parameters.branch}}"
+
+    - name: nodejs
+      inputs:
+        parameters:
+          - name: branch
+      parallelism: 5
+      steps:
+        - - name: bootstrap
+            template: bootstrap
+            arguments:
+              parameters:
+                - name: workingDir
+                  value: /workspace/open-platform/nodejs/
+        - - name: migrations
+            when: "'{{inputs.parameters.branch}}' == 'origin/master'"
+            template: migrations
+
+    - name: bootstrap
+      container:
+        image: tenlastic/node-development:latest
+        command: [bash]
+        args: [/workspace/open-platform/scripts/bootstrap.sh]
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - name: workspace
+            mountPath: /workspace/
+        workingDir: "{{inputs.parameters.workingDir}}"
+      inputs:
+        parameters:
+          - name: workingDir
+
+    - name: migrations
+      container:
+        image: tenlastic/node-development:latest
+        command: [bash]
+        args: [/workspace/open-platform/scripts/migrations.sh]
+        envFrom:
+          - secretRef:
+              name: continuous-deployment
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - name: workspace
+            mountPath: /workspace/
+        workingDir: /workspace/open-platform/nodejs/
+
+    - name: suspend
+      suspend: {}

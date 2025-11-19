@@ -1,19 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 
-import { ElectronService, IdentityService } from '../../../../core/services';
-import { environment } from '../../../../../environments/environment';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   AuthorizationService,
   StorefrontModel,
-  StorefrontQuery,
   StorefrontService,
+  StorefrontState,
 } from '@tenlastic/http';
 import { Observable } from 'rxjs';
-import { ActivatedRoute, Router } from '@angular/router';
+import { environment } from '../../../../../environments/environment';
+import { ElectronService, IdentityService } from '../../../../core/services';
 
 @Component({
-  templateUrl: './layout.component.html',
+  standalone: false,
   styleUrls: ['./layout.component.scss'],
+  templateUrl: './layout.component.html',
 })
 export class LayoutComponent implements OnInit {
   public $storefronts: Observable<StorefrontModel[]>;
@@ -28,12 +29,12 @@ export class LayoutComponent implements OnInit {
     private electronService: ElectronService,
     private identityService: IdentityService,
     private router: Router,
-    private storefrontQuery: StorefrontQuery,
+    private storefrontState: StorefrontState,
     private storefrontService: StorefrontService,
   ) {}
 
   public async ngOnInit() {
-    this.$storefronts = this.storefrontQuery.selectAll();
+    this.$storefronts = this.storefrontState.selectMany();
 
     const [, storefronts] = await Promise.all([
       this.authorizationService.findUserAuthorizations(null, this.identityService.user?._id),

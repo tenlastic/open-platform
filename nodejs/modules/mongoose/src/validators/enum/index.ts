@@ -1,5 +1,5 @@
-export const enumValidator = (values: any[]) => {
-  const msg = `Value must be one of the following: ${values.join(', ')}.`;
+export const enumValidator = (values: unknown[]) => {
+  const message = `Value must be one of the following: ${values.join(', ')}.`;
 
-  return { msg, validator: (value: any) => values.includes(value) };
+  return { message, validator: (value: unknown) => values.includes(value) };
 };

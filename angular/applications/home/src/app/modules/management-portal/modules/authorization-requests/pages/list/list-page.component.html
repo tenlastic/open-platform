@@ -1,103 +1,73 @@
-<app-loading-message *ngIf="message">{{ message }}</app-loading-message>
-
-<div *ngIf="!message"
-     class="page">
+<div class="page"
+     row-gap-16>
   <app-title>Authorization Requests</app-title>
 
-  <div class="row">
-    <div class="col-sm-3">
-      <app-data-source-filter [dataSource]="dataSource">
-        Filter Authorization Requests
-      </app-data-source-filter>
+  <div align-items="end"
+       column-gap-16
+       flex-wrap-16>
+    <app-data-source-filter (OnValueSet)="setFilter($event)">
+      Name
+    </app-data-source-filter>
+
+    <div align-items="end"
+         column-gap-8
+         margin-left-auto>
+      <div *ngIf="hasWriteAuthorization">
+        <app-button color="accent"
+                    [routerLink]="['new']">
+          <mat-icon>add</mat-icon>
+          <div>New Authorization Request</div>
+        </app-button>
+      </div>
+
+      <div>
+        <app-button color="accent"
+                    (OnClick)="table.refresh()">
+          <mat-icon>refresh</mat-icon>
+          <div>Refresh</div>
+        </app-button>
+      </div>
     </div>
   </div>
 
-  <table mat-table
-         [dataSource]="dataSource"
-         matSort
-         matSortActive="createdAt"
-         matSortDirection="desc">
-    <ng-container matColumnDef="roles">
-      <th mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header>Roles</th>
-      <td mat-cell
-          *matCellDef="let element">{{ element.roles?.length || 0 }}</td>
+  <ng-template #actions
+               let-element>
+    <ng-container *ngIf="hasWriteAuthorization">
+      <app-button *ngIf="!element.deniedAt && !element.grantedAt"
+                  color="accent"
+                  appHighlight
+                  (OnClick)="deny($event, element)">
+        <mat-icon>close</mat-icon>
+        <div>Deny</div>
+      </app-button>
+
+      <app-button *ngIf="!element.deniedAt && !element.grantedAt"
+                  color="accent"
+                  appHighlight
+                  (OnClick)="grant($event, element)">
+        <mat-icon>check</mat-icon>
+        <div>Grant</div>
+      </app-button>
+
+      <app-button color="accent"
+                  appHighlight
+                  (OnClick)="showDeletePrompt($event, element)">
+        <mat-icon>delete</mat-icon>
+        <div>Delete</div>
+      </app-button>
     </ng-container>
+  </ng-template>
 
-    <ng-container matColumnDef="user">
-      <th mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header>User</th>
-      <td mat-cell
-          *matCellDef="let element">{{ getUser(element.userId)?.displayName }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="createdAt">
-      <th mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header>Created At</th>
-      <td mat-cell
-          *matCellDef="let element">{{ element.createdAt | date:"MMM d, y 'at' h:mm a" }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="deniedAt">
-      <th mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header>Denied At</th>
-      <td mat-cell
-          *matCellDef="let element">{{ element.deniedAt | date:"MMM d, y 'at' h:mm a" }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="grantedAt">
-      <th mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header>Granted At</th>
-      <td mat-cell
-          *matCellDef="let element">{{ element.grantedAt | date:"MMM d, y 'at' h:mm a" }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell
-          *matHeaderCellDef></th>
-      <td mat-cell
-          *matCellDef="let element">
-        <ng-container *ngIf="hasWriteAuthorization">
-          <app-button *ngIf="!element.deniedAt && !element.grantedAt"
-                      color="accent"
-                      appHighlight
-                      matTooltip="Deny"
-                      (OnClick)="deny($event, element)">
-            <mat-icon>close</mat-icon>
-          </app-button>
-
-          <app-button *ngIf="!element.deniedAt && !element.grantedAt"
-                      color="accent"
-                      appHighlight
-                      matTooltip="Grant"
-                      (OnClick)="grant($event, element)">
-            <mat-icon>check</mat-icon>
-          </app-button>
-
-          <app-button color="accent"
-                      appHighlight
-                      matTooltip="Delete"
-                      (OnClick)="showDeletePrompt($event, element)">
-            <mat-icon>delete</mat-icon>
-          </app-button>
-        </ng-container>
-      </td>
-    </ng-container>
-
-    <tr mat-header-row
-        *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row
-        *matRowDef="let row; columns: displayedColumns"
-        appHighlight
-        [routerLink]="[row._id]">
-    </tr>
-  </table>
-
-  <mat-paginator [pageSizeOptions]="[10, 25, 100]"
-                 showFirstLastButtons></mat-paginator>
+  <app-list-table #table
+                  [$records]="$records"
+                  [$refresh]="$refresh"
+                  [columns]="columns"
+                  [count]="count"
+                  [filter]="filter"
+                  [find]="find"
+                  [navigate]="navigate"
+                  [subscriptions]="subscriptions"
+                  [template]="actions"
+                  [webSocket]="webSocket">
+  </app-list-table>
 </div>

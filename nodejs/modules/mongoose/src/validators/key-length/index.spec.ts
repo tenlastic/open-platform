@@ -3,23 +3,23 @@ import { expect } from 'chai';
 import { keyLengthValidator } from './';
 
 describe('validators/key-length', function () {
-  describe('msg', function () {
+  describe('message', function () {
     it('shows the min message', function () {
-      const { msg } = keyLengthValidator(0, 5);
+      const { message } = keyLengthValidator(0, 5);
 
-      expect(msg).to.eql('Keys cannot be less than 5 characters.');
+      expect(message).to.eql('Keys cannot be less than 5 characters.');
     });
 
     it('shows the max messages', function () {
-      const { msg } = keyLengthValidator(10);
+      const { message } = keyLengthValidator(10);
 
-      expect(msg).to.eql('Keys cannot be more than 10 characters.');
+      expect(message).to.eql('Keys cannot be more than 10 characters.');
     });
 
     it('shows the min and max messages', function () {
-      const { msg } = keyLengthValidator(10, 5);
+      const { message } = keyLengthValidator(10, 5);
 
-      expect(msg).to.eql('Keys cannot be less than 5 and more than 10 characters.');
+      expect(message).to.eql('Keys cannot be less than 5 and more than 10 characters.');
     });
   });
 

@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validator } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
@@ -23,8 +23,9 @@ export interface InputDialogComponentOption {
 
 @Component({
   selector: 'app-input-dialog',
-  templateUrl: 'input-dialog.component.html',
+  standalone: false,
   styleUrls: ['./input-dialog.component.scss'],
+  templateUrl: 'input-dialog.component.html',
 })
 export class InputDialogComponent implements OnInit {
   public form: FormGroup;

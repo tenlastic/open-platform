@@ -1,20 +1,9 @@
-import { EntityState, QueryEntity, StoreConfig } from '@datorama/akita';
+import { StorefrontModel } from '../models';
+import { StorefrontService } from '../services';
+import { BaseState } from './base';
 
-import { StorefrontModel } from '../models/storefront';
-import { BaseStore } from './base';
-
-export interface StorefrontState extends EntityState<StorefrontModel> {}
-
-@StoreConfig({
-  idKey: 'namespaceId',
-  deepFreezeFn: (o) => o,
-  name: 'storefronts',
-  resettable: true,
-})
-export class StorefrontStore extends BaseStore<StorefrontState, StorefrontModel> {}
-
-export class StorefrontQuery extends QueryEntity<StorefrontState, StorefrontModel> {
-  constructor(protected store: StorefrontStore) {
-    super(store);
+export class StorefrontState extends BaseState<StorefrontModel, StorefrontService> {
+  constructor(service: StorefrontService) {
+    super('namespaceId', service);
   }
 }

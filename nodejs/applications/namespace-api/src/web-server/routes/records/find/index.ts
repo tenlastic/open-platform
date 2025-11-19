@@ -1,7 +1,13 @@
-import { CollectionModel, RecordPermissions, RecordSchema } from '@tenlastic/mongoose';
-import { Context, RecordNotFoundError } from '@tenlastic/web-server';
+import {
+  CollectionModel,
+  getRecordModel,
+  getRecordPermissionOptions,
+  RecordDocument,
+} from '@tenlastic/mongoose';
+import * as permissions from '@tenlastic/mongoose-permissions';
+import { FindContext, RecordNotFoundError } from '@tenlastic/web-server';
 
-export async function handler(ctx: Context) {
+export async function handler(ctx: FindContext<RecordDocument>) {
   const { collectionId } = ctx.params;
 
   const collection = await CollectionModel.findOne({ _id: collectionId });
@@ -9,16 +15,12 @@ export async function handler(ctx: Context) {
     throw new RecordNotFoundError('Collection');
   }
 
-  const Model = RecordSchema.getModel(collection);
-  const Permissions = RecordPermissions(collection, Model);
+  const Model = getRecordModel(collection);
+  const options = getRecordPermissionOptions(collection);
 
-  const credentials = { ...ctx.state };
-  const results = await Permissions.find(
-    credentials,
-    { where: { collectionId } },
-    ctx.request.query,
-  );
-  const records = await Promise.all(results.map((r) => Permissions.read(credentials, r)));
+  const context = { credentials: { ...ctx.state }, Model, options };
+  const results = await permissions.find(context, ctx.request.query, { where: { collectionId } });
+  const records = await Promise.all(results.map((r) => permissions.read(context, r)));
 
   ctx.response.body = { records };
 }

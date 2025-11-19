@@ -6,10 +6,10 @@ import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
   ApiError,
-  AuthorizationQuery,
+  AuthorizationState,
   BuildModel,
-  BuildQuery,
   BuildService,
+  BuildState,
   IAuthorization,
   IBuild,
 } from '@tenlastic/http';
@@ -43,8 +43,9 @@ interface StatusNode {
 }
 
 @Component({
-  templateUrl: 'form-page.component.html',
+  standalone: false,
   styleUrls: ['./form-page.component.scss'],
+  templateUrl: 'form-page.component.html',
 })
 export class BuildsFormPageComponent implements OnInit {
   public $data: Observable<BuildModel>;
@@ -67,8 +68,8 @@ export class BuildsFormPageComponent implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private authorizationQuery: AuthorizationQuery,
-    private buildQuery: BuildQuery,
+    private authorizationState: AuthorizationState,
+    private buildState: BuildState,
     private buildService: BuildService,
     private changeDetectorRef: ChangeDetectorRef,
     private fileReaderService: FileReaderService,
@@ -86,8 +87,8 @@ export class BuildsFormPageComponent implements OnInit {
       const roles = [IAuthorization.Role.BuildsWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
-        this.authorizationQuery.hasRoles(null, roles, userId) ||
-        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
+        this.authorizationState.hasRoles(null, roles, userId) ||
+        this.authorizationState.hasRoles(params.namespaceId, roles, userId);
 
       if (params.buildId !== 'new') {
         this.data = await this.buildService.findOne(params.namespaceId, params.buildId);
@@ -249,13 +250,16 @@ export class BuildsFormPageComponent implements OnInit {
       this.form.get('platform').disable({ emitEvent: false });
       this.form.get('reference').disable({ emitEvent: false });
 
-      this.$data = this.buildQuery.selectAll({ filterBy: (b) => b._id === this.data._id }).pipe(
-        map(([build]) => {
-          this.dataSource.data = build.getNestedStatusNodes();
-          this.form.get('files').setValue(build.files);
-          return build;
-        }),
-      );
+      this.$data = this.buildState
+        .selectMany()
+        .pipe(map((bs) => bs.filter((b) => b._id === this.data._id)))
+        .pipe(
+          map(([b]) => {
+            this.dataSource.data = b.getNestedStatusNodes();
+            this.form.get('files').setValue(b.files);
+            return b;
+          }),
+        );
     }
   }
 

@@ -13,12 +13,12 @@ export namespace ICollection {
 
   export interface IndexOptions {
     expireAfterSeconds?: number;
-    partialFilterExpression?: any;
+    partialFilterExpression?: unknown;
     unique?: boolean;
   }
 
   export interface JsonSchemaProperty {
-    default?: any;
+    default?: unknown;
     format?: string;
     items?: JsonSchemaProperty;
     properties?: { [key: string]: JsonSchemaProperty };
@@ -29,10 +29,10 @@ export namespace ICollection {
   export interface Permissions {
     create?: { [key: string]: string[] };
     delete?: { [key: string]: boolean };
-    find?: { [key: string]: any };
+    find?: { [key: string]: object };
     populate?: PopulatePermissions[];
     read?: { [key: string]: string[] };
-    roles?: { [key: string]: any };
+    roles?: { [key: string]: object };
     update?: { [key: string]: string[] };
   }
 

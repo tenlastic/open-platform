@@ -50,9 +50,12 @@ mongorestore \
   --authenticationDatabase admin \
   --drop \
   --host localhost \
-  --password "password" \
+  --maintainInsertionOrder \
+  --numParallelCollections 1 \
+  --password "$PASSWORD" \
   --port $PORT \
-  --username "root" \
+  --stopOnError \
+  --username "$USERNAME" \
   "$DIRECTORY"
 
 if [ $? -eq 0 ]; then

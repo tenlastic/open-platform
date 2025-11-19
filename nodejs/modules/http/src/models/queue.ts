@@ -64,7 +64,7 @@ export class QueueModel extends BaseModel {
   public initialRating: number;
   public invitationSeconds: number;
   public memory: number;
-  public metadata: any;
+  public metadata: unknown;
   public name: string;
   public namespaceId: string;
   public preemptible: boolean;

@@ -1,16 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import {
+  AbstractControl,
+  FormArray,
   FormBuilder,
   FormGroup,
-  Validators,
-  FormArray,
-  AbstractControl,
   ValidationErrors,
+  Validators,
 } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
-  AuthorizationQuery,
+  AuthorizationState,
   CollectionModel,
   CollectionService,
   IAuthorization,
@@ -57,8 +57,9 @@ export interface RoleFormGroup {
 }
 
 @Component({
-  templateUrl: 'form-page.component.html',
+  standalone: false,
   styleUrls: ['./form-page.component.scss'],
+  templateUrl: 'form-page.component.html',
 })
 export class CollectionsFormPageComponent implements OnInit {
   public data: CollectionModel;
@@ -77,7 +78,7 @@ export class CollectionsFormPageComponent implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private authorizationQuery: AuthorizationQuery,
+    private authorizationState: AuthorizationState,
     private collectionService: CollectionService,
     private formBuilder: FormBuilder,
     private formService: FormService,
@@ -93,8 +94,8 @@ export class CollectionsFormPageComponent implements OnInit {
       const roles = [IAuthorization.Role.CollectionsWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
-        this.authorizationQuery.hasRoles(null, roles, userId) ||
-        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
+        this.authorizationState.hasRoles(null, roles, userId) ||
+        this.authorizationState.hasRoles(params.namespaceId, roles, userId);
 
       if (params.collectionId !== 'new') {
         this.data = await this.collectionService.findOne(params.namespaceId, params.collectionId);
@@ -461,7 +462,7 @@ export class CollectionsFormPageComponent implements OnInit {
 
     const properties = this.form.get('properties').value;
     const roles = this.form.get('roles').value.reduce((previous, current: RoleFormGroup) => {
-      previous[current.key] = this.getQueryFromRole(properties, current);
+      previous[current.key] = this.getStateFromRole(properties, current);
       return previous;
     }, {});
 
@@ -473,7 +474,7 @@ export class CollectionsFormPageComponent implements OnInit {
     return property ? property.type : 'string';
   }
 
-  private getQueryFromRole(properties: PropertyFormGroup[], role: RoleFormGroup) {
+  private getStateFromRole(properties: PropertyFormGroup[], role: RoleFormGroup) {
     const criteria = role.criteria.map((c) => this.getJsonFromCriterion(c, properties));
     return { [role.operator]: criteria };
   }

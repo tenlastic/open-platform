@@ -1,12 +1,20 @@
-import { QueueMemberModel, QueueMemberPermissions } from '@tenlastic/mongoose';
-import { PermissionError } from '@tenlastic/mongoose-permissions';
-import { Context } from '@tenlastic/web-server';
+import {
+  QueueMemberDocument,
+  QueueMemberModel,
+  QueueMemberPermissionOptions,
+} from '@tenlastic/mongoose';
+import * as permissions from '@tenlastic/mongoose-permissions';
+import { CountContext } from '@tenlastic/web-server';
 
-export async function handler(ctx: Context) {
-  const credentials = { ...ctx.state };
-  const $match = await QueueMemberPermissions.where(credentials, ctx.request.query.where);
+export async function handler(ctx: CountContext<QueueMemberDocument>) {
+  const context = {
+    credentials: { ...ctx.state },
+    Model: QueueMemberModel,
+    options: QueueMemberPermissionOptions,
+  };
+  const $match = await permissions.where(context, ctx.request.query.where);
   if ($match === null) {
-    throw new PermissionError();
+    throw new permissions.PermissionError();
   }
 
   const result = await QueueMemberModel.getUserIdCount($match);

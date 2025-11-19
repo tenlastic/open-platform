@@ -25,6 +25,7 @@ export enum State {
 
 @Component({
   selector: 'app-download',
+  standalone: false,
   styleUrls: ['./download.component.scss'],
   templateUrl: './download.component.html',
 })
@@ -142,7 +143,7 @@ export class DownloadComponent implements OnInit {
 
     this.progress = { current: 0, speed: 0, total: totalBytes };
     const response = await this.buildService.download(this.namespaceId, this.status.build._id, {
-      onDownloadProgress: (event: ProgressEvent) => {
+      onDownloadProgress: (event) => {
         this.progress = {
           current: event.loaded > totalBytes ? totalBytes : event.loaded,
           speed: (event.loaded / (performance.now() - start)) * 1000,

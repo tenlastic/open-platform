@@ -1,7 +1,7 @@
 import { BaseModel } from './base';
 
 export class BaseLogModel extends BaseModel {
-  public body: any;
+  public body: string | unknown;
   public container: string;
   public level: string;
   public pod: string;

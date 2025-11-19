@@ -1,264 +1,191 @@
-import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
+import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatTableDataSource } from '@angular/material/table';
-import { ActivatedRoute, Params } from '@angular/router';
-import { Order } from '@datorama/akita';
+import { ActivatedRoute } from '@angular/router';
 import {
-  AuthorizationQuery,
-  BuildQuery,
+  AuthorizationState,
   BuildService,
-  GameServerLogModel,
-  GameServerLogQuery,
-  GameServerLogStore,
+  BuildState,
   GameServerModel,
-  GameServerQuery,
   GameServerService,
+  GameServerState,
   IAuthorization,
-  IGameServer,
-  GameServerLogService,
-  SubscriptionService,
-  WebSocketService,
-  QueueQuery,
   QueueService,
+  QueueState,
+  WebSocketService,
 } from '@tenlastic/http';
-import { Subject } from 'rxjs';
-import { debounceTime, map } from 'rxjs/operators';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 
-import { environment } from '../../../../../../../environments/environment';
-import { IdentityService } from '../../../../../../core/services';
+import { IdentityService, OverlayService } from '@home/app/core/services';
 import {
-  LogsDialogComponent,
-  LogsDialogComponentData,
-  PromptComponent,
-} from '../../../../../../shared/components';
+  DeletionOverlayComponent,
+  DeletionOverlayComponentData,
+  ListTableColumn,
+  ListTableSubscription,
+} from '@home/app/shared/components';
+import { environment } from '@home/environments/environment';
+import { LogsOverlayComponent, LogsOverlayComponentData } from '../../components';
 
 @Component({
-  templateUrl: 'list-page.component.html',
+  standalone: false,
   styleUrls: ['./list-page.component.scss'],
+  templateUrl: 'list-page.component.html',
 })
-export class GameServersListPageComponent implements AfterViewInit, OnDestroy, OnInit {
-  @ViewChild(MatPaginator) private paginator: MatPaginator;
-
-  public dataSource = new MatTableDataSource<GameServerModel>();
-  public displayedColumns = ['name', 'build', 'currentUserIds', 'description', 'status', 'actions'];
-  public filter: string;
-  public hasLogAuthorization: boolean;
-  public hasWriteAuthorization: boolean;
-  public get includeQueues() {
-    return this._includeQueues;
+export class GameServersListPageComponent implements OnInit {
+  public $filter = new BehaviorSubject<string>(null);
+  public $records: Observable<GameServerModel[]>;
+  public $refresh = new Subject<void>();
+  public columns: ListTableColumn<GameServerModel>[] = [];
+  public hasLogAuthorization = false;
+  public hasWriteAuthorization = false;
+  public queueId: string;
+  public get queues() {
+    return this._queues;
   }
-  public set includeQueues(value: boolean) {
-    this._includeQueues = value;
+  public set queues(value: boolean) {
+    this._queues = value;
 
     if (value) {
-      this.displayedColumns = [
-        'name',
-        'build',
-        'currentUserIds',
-        'description',
-        'queue',
-        'status',
-        'actions',
+      this.columns = [
+        { header: 'Name', text: (v) => v.name },
+        { header: 'Build', text: (v) => this.getBuild(v.buildId)?.name },
+        { header: 'Current Users', text: (v) => `${v.currentUserIds?.length}` },
+        { header: 'Description', text: (v) => v.description },
+        { header: 'Queue', text: (v) => this.getQueue(v.queueId)?.name },
+        { header: 'Status', text: (v) => this.getStatus(v) },
       ];
     } else {
-      this.displayedColumns = [
-        'name',
-        'build',
-        'currentUserIds',
-        'description',
-        'status',
-        'actions',
+      this.columns = [
+        { header: 'Name', text: (v) => v.name },
+        { header: 'Build', text: (v) => this.getBuild(v.buildId)?.name },
+        { header: 'Current Users', text: (v) => `${v.currentUserIds?.length}` },
+        { header: 'Description', text: (v) => v.description },
+        { header: 'Status', text: (v) => this.getStatus(v) },
       ];
     }
   }
-  public message: string;
-  public get pageIndex() {
-    return this.paginator?.pageIndex || 0;
-  }
-  public get pageSize() {
-    return this.paginator?.pageSize || 10;
-  }
-  public get queueId() {
-    return this.params?.queueId;
+  public subscriptions: ListTableSubscription[] = [
+    {
+      Model: GameServerModel,
+      request: { _id: uuid(), path: `/subscriptions/game-servers` },
+      service: this.gameServerService,
+    },
+  ];
+  public get webSocket() {
+    return this.webSocketService.webSockets.find(
+      (ws) => `${environment.wssUrl}/namespaces/${this.namespaceId}` === ws.url,
+    );
   }
 
-  private filter$ = new Subject();
-  private _includeQueues = false;
-  private count = 0;
-  private date = new Date(0);
-  private params: Params;
-  private timeout: NodeJS.Timeout;
-  private get webSocket() {
-    const url = `${environment.wssUrl}/namespaces/${this.params.namespaceId}`;
-    return this.webSocketService.webSockets.find((ws) => url === ws.url);
+  private _queues = false;
+  private namespaceId: string;
+  private get where() {
+    let where: any = {};
+
+    if (this.$filter.value) {
+      where.name = { $regex: this.$filter.value, $options: 'i' };
+    }
+
+    where.namespaceId = this.namespaceId;
+
+    if (this.queueId) {
+      where.queueId = this.queueId;
+    } else if (!this.queues) {
+      where.queueId = null;
+    }
+
+    return where;
   }
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private authorizationQuery: AuthorizationQuery,
-    private buildQuery: BuildQuery,
+    private authorizationState: AuthorizationState,
+    private buildState: BuildState,
     private buildService: BuildService,
-    private gameServerLogQuery: GameServerLogQuery,
-    private gameServerLogService: GameServerLogService,
-    private gameServerLogStore: GameServerLogStore,
-    private gameServerQuery: GameServerQuery,
+    private gameServerState: GameServerState,
     private gameServerService: GameServerService,
     private identityService: IdentityService,
-    private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
-    private queueQuery: QueueQuery,
+    private overlayService: OverlayService,
+    private queueState: QueueState,
     private queueService: QueueService,
-    private subscriptionService: SubscriptionService,
     private webSocketService: WebSocketService,
   ) {}
 
   public async ngOnInit() {
-    this.filter$.pipe(debounceTime(300)).subscribe(() => this.fetchGameServers());
+    this.$records = this.gameServerState.selectMany();
 
     this.activatedRoute.params.subscribe(async (params) => {
-      this.message = 'Loading...';
-      this.params = params;
+      this.namespaceId = params.namespaceId;
+      this.queueId = params.queueId;
+      this.queues = false;
 
       const userId = this.identityService.user?._id;
       const logRoles = [IAuthorization.Role.GameServerLogsRead];
       this.hasLogAuthorization =
-        this.authorizationQuery.hasRoles(null, logRoles, userId) ||
-        this.authorizationQuery.hasRoles(params.namespaceId, logRoles, userId);
+        this.authorizationState.hasRoles(null, logRoles, userId) ||
+        this.authorizationState.hasRoles(params.namespaceId, logRoles, userId);
       const writeRoles = [IAuthorization.Role.GameServersWrite];
       this.hasWriteAuthorization =
-        this.authorizationQuery.hasRoles(null, writeRoles, userId) ||
-        this.authorizationQuery.hasRoles(params.namespaceId, writeRoles, userId);
+        this.authorizationState.hasRoles(null, writeRoles, userId) ||
+        this.authorizationState.hasRoles(params.namespaceId, writeRoles, userId);
 
-      await this.fetchGameServers();
-
-      this.message = null;
-    });
-
-    this.gameServerService.emitter.on('create', (a) => {
-      if (!this.match(a)) {
-        return;
-      }
-
-      if (this.dataSource.data[0]?.createdAt >= a.createdAt) {
-        return;
-      }
-
-      if (this.dataSource.data[this.dataSource.data.length]?.createdAt <= a.createdAt) {
-        return;
-      }
-
-      this.fetchGameServers(true);
-    });
-
-    this.gameServerService.emitter.on('delete', (a) => {
-      const index = this.dataSource.data.findIndex((d) => d._id === a._id);
-
-      if (index < 0 || index > this.dataSource.data.length) {
-        return;
-      }
-
-      this.fetchGameServers(true);
-    });
-
-    this.gameServerService.emitter.on('update', (a) => {
-      const index = this.dataSource.data.findIndex((d) => d._id === a._id);
-
-      if (index < 0 || index > this.dataSource.data.length) {
-        return;
-      }
-
-      if (this.match(a)) {
-        this.dataSource.data[index] = a;
-        this.dataSource.data = [...this.dataSource.data];
-      } else {
-        this.fetchGameServers(true);
-      }
+      this.$refresh.next();
     });
   }
 
-  public ngAfterViewInit() {
-    this.paginator.length = this.count;
-  }
+  public count = () => {
+    return this.gameServerService.count(this.namespaceId, { where: this.where });
+  };
 
-  public ngOnDestroy() {
-    clearTimeout(this.timeout);
-  }
-
-  public async fetchGameServers(throttle = false) {
-    const date = new Date();
-    const threshold = this.date.getTime() + 5 * 1000;
-
-    if (date.getTime() < threshold && throttle) {
-      this.timeout = setTimeout(() => this.fetchGameServers(), threshold - date.getTime());
-      return;
+  public filter = (record: GameServerModel) => {
+    const regex = new RegExp(this.$filter.value, 'i');
+    if (this.$filter.value && !record.name.match(regex)) {
+      return false;
     }
 
-    this.date = date;
-
-    let where: any = {};
-    if (this.filter) {
-      where.name = { $regex: `^${this.filter}`, $options: 'i' };
-    }
-    where.namespaceId = this.params.namespaceId;
-    if (this.params.queueId) {
-      where.queueId = this.params.queueId;
-    } else if (!this.includeQueues) {
-      where.queueId = null;
+    if (this.namespaceId !== record.namespaceId) {
+      return false;
     }
 
-    this.dataSource.data = await this.gameServerService.find(this.params.namespaceId, {
-      limit: this.pageSize,
-      skip: this.pageIndex * this.pageSize,
-      sort: `name`,
-      where,
+    if (this.queueId && this.queueId !== record.queueId) {
+      return false;
+    }
+
+    if (!this.queueId && !this.queues && record.queueId) {
+      return false;
+    }
+
+    return true;
+  };
+
+  public find = async (page: number, pageSize: number) => {
+    const records = await this.gameServerService.find(this.namespaceId, {
+      limit: pageSize,
+      skip: page * pageSize,
+      sort: 'name',
+      where: this.where,
     });
 
-    this.count = await this.gameServerService.count(this.params.namespaceId, {
-      where,
-    });
+    await Promise.all([
+      this.buildService.find(this.namespaceId, {
+        select: '-files -reference.files',
+        where: { _id: { $in: records.map((gs) => gs.buildId) } },
+      }),
+      this.queueService.find(this.namespaceId, {
+        where: { _id: { $in: records.map((gs) => gs.queueId) } },
+      }),
+    ]);
 
-    if (this.paginator) {
-      this.paginator.length = this.count;
+    const _ids = records.map((r) => r._id);
+    this.subscriptions[0].request.body = { where: { _id: { $in: _ids } } };
 
-      if (this.paginator.length < this.pageIndex * this.pageSize) {
-        this.paginator.firstPage();
-      }
-    }
+    return records;
+  };
 
-    const buildIds = this.dataSource.data
-      .map((d) => d.buildId)
-      .filter((ui) => !this.buildQuery.hasEntity(ui));
-
-    if (buildIds.length > 0) {
-      await this.buildService.find(this.params.namespaceId, { where: { _id: { $in: buildIds } } });
-    }
-
-    const queueIds = this.dataSource.data
-      .map((d) => d.queueId)
-      .filter((qi) => qi && !this.queueQuery.hasEntity(qi));
-
-    if (queueIds.length > 0) {
-      await this.queueService.find(this.params.namespaceId, { where: { _id: { $in: queueIds } } });
-    }
-  }
-
-  public getBuild(_id: string) {
-    return this.buildQuery.getEntity(_id);
-  }
-
-  public getQueue(_id: string) {
-    return this.queueQuery.getEntity(_id);
-  }
-
-  public getStatus(record: GameServerModel) {
-    const current = record.status.components.reduce((a, b) => a + b.current, 0);
-    const total = record.status.components.reduce((a, b) => a + b.total, 0);
-
-    return `${record.status.phase} (${current} / ${total})`;
-  }
+  public navigate = (record: GameServerModel) => {
+    return [record._id];
+  };
 
   public async restart($event: Event, record: GameServerModel) {
     $event.stopPropagation();
@@ -268,117 +195,35 @@ export class GameServersListPageComponent implements AfterViewInit, OnDestroy, O
   }
 
   public setFilter(value: string) {
-    this.filter = value;
-    this.filter$.next();
+    this.$filter.next(value);
+    this.$refresh.next();
   }
 
   public showDeletePrompt($event: Event, record: GameServerModel) {
     $event.stopPropagation();
-
-    const dialogRef = this.matDialog.open(PromptComponent, {
-      data: {
-        buttons: [
-          { color: 'primary', label: 'No' },
-          { color: 'accent', label: 'Yes' },
-        ],
-        message: `Are you sure you want to delete this Game Server?`,
-      },
-    });
-
-    dialogRef.afterClosed().subscribe(async (result) => {
-      if (result === 'Yes') {
-        await this.gameServerService.delete(record.namespaceId, record._id);
-        this.matSnackBar.open('Game Server deleted successfully.');
-      }
+    this.overlayService.open<DeletionOverlayComponentData>(DeletionOverlayComponent, {
+      delete: () => this.gameServerService.delete(record.namespaceId, record._id),
+      name: 'Game Server',
     });
   }
 
-  public showLogsDialog($event: Event, record: GameServerModel) {
+  public showLogsOverlay($event: Event, record: GameServerModel) {
     $event.stopPropagation();
-
-    const _id = uuid();
-    const data = {
-      $logs: this.gameServerLogQuery.selectAll({
-        filterBy: (log) => log.gameServerId === record._id,
-        sortBy: 'unix',
-        sortByOrder: Order.DESC,
-      }),
-      $nodes: this.gameServerQuery
-        .selectEntity(record._id)
-        .pipe(map((gameServer) => this.getNodes(gameServer))),
-      find: (container, pod) =>
-        this.gameServerLogService.find(record.namespaceId, record._id, pod, container, {
-          tail: 500,
-        }),
-      subscribe: (container, pod, unix) => {
-        const resumeToken = unix ? new Date(unix) : new Date();
-
-        return this.subscriptionService.subscribe<GameServerLogModel>(
-          GameServerLogModel,
-          {
-            _id,
-            body: { resumeToken: resumeToken.toISOString() },
-            path: `/subscriptions/game-servers/${record._id}/logs/${pod}/${container}`,
-          },
-          this.gameServerLogService,
-          this.gameServerLogStore,
-          this.webSocket,
-          {
-            acks: true,
-            callback: (response) => {
-              response.body.fullDocument.container = container;
-              response.body.fullDocument.gameServerId = record._id;
-              response.body.fullDocument.pod = pod;
-            },
-          },
-        );
-      },
-      unsubscribe: () => this.subscriptionService.unsubscribe(_id, this.webSocket),
-    } as LogsDialogComponentData;
-
-    const dialogRef = this.matDialog.open(LogsDialogComponent, { autoFocus: false, data });
-    dialogRef.afterClosed().subscribe(() => this.gameServerLogStore.reset());
+    this.overlayService.open<LogsOverlayComponentData>(LogsOverlayComponent, { record });
   }
 
-  private getNodes(gameServer: GameServerModel) {
-    return gameServer.status.nodes
-      .map((n) => {
-        let label: string = 'Game Server';
-        if (
-          n.component === IGameServer.StatusComponentName.Sidecar &&
-          n.container === 'endpoints-sidecar'
-        ) {
-          label = `${IGameServer.StatusComponentName.Sidecar} (Endpoints)`;
-        } else if (
-          n.component === IGameServer.StatusComponentName.Sidecar &&
-          n.container === 'status-sidecar'
-        ) {
-          label = `${IGameServer.StatusComponentName.Sidecar} (Status)`;
-        }
-
-        return { container: n.container, label: label, pod: n.pod };
-      })
-      .sort((a, b) => (a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1));
+  public getBuild(_id: string) {
+    return this.buildState.getOne(_id);
   }
 
-  private match(gameServer: GameServerModel) {
-    const regex = new RegExp(`^${this.filter}`, 'i');
-    if (this.filter && !gameServer.name.match(regex)) {
-      return false;
-    }
+  public getQueue(_id: string) {
+    return this.queueState.getOne(_id);
+  }
 
-    if (this.params.namespaceId !== gameServer.namespaceId) {
-      return false;
-    }
+  public getStatus(record: GameServerModel) {
+    const current = record.status.components.reduce((a, b) => a + b.current, 0);
+    const total = record.status.components.reduce((a, b) => a + b.total, 0);
 
-    if (this.params.queueId && this.params.queueId !== gameServer.queueId) {
-      return false;
-    }
-
-    if (!this.params.queueId && !this.includeQueues && gameServer.queueId) {
-      return false;
-    }
-
-    return true;
+    return `${record.status.phase} (${current} / ${total})`;
   }
 }

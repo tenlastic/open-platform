@@ -1,4 +1,4 @@
-@import 'src/assets/scss/theme.scss';
+@use 'src/assets/scss/shadows.scss' as shadows;
 
 :host {
   display: flex;
@@ -6,10 +6,10 @@
   height: 100%;
 }
 
-mat-toolbar.mat-toolbar {
+div.toolbar {
   background: rgba(0, 0, 0, 0.75);
-  box-shadow: $box-shadow;
-  height: 32px;
+  box-shadow: shadows.$box-shadow;
+  display: flex;
   overflow: initial;
   padding: 4px;
 
@@ -36,7 +36,8 @@ mat-toolbar.mat-toolbar {
   }
 
   &::ng-deep {
-    button.mat-button[color='accent'] {
+    button[color='accent'] {
+      column-gap: 6px;
       font-size: 12px;
       height: 24px;
       line-height: 24px;
@@ -48,14 +49,11 @@ mat-toolbar.mat-toolbar {
         box-shadow: none;
       }
 
-      span.mat-button-wrapper > div {
-        margin-top: 0px;
-      }
-
       mat-icon.mat-icon {
         font-size: 14px;
-        height: 19px;
-        width: 14px;
+        height: 12px;
+        line-height: 12px;
+        width: 12px;
       }
     }
 

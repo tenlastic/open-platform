@@ -1,4 +1,4 @@
-import { MatchInvitationPermissions } from '@tenlastic/mongoose';
+import { MatchInvitationModel, MatchInvitationPermissionOptions } from '@tenlastic/mongoose';
 import { findOne } from '@tenlastic/web-server';
 
-export const handler = findOne(MatchInvitationPermissions);
+export const handler = findOne(MatchInvitationModel, MatchInvitationPermissionOptions);

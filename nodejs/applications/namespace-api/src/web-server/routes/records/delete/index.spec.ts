@@ -2,13 +2,13 @@ import {
   CollectionDocument,
   CollectionModel,
   CollectionPermissionsModel,
+  getRecordModel,
   NamespaceModel,
   RecordDocument,
-  RecordSchema,
   UserDocument,
   UserModel,
 } from '@tenlastic/mongoose';
-import { ContextMock } from '@tenlastic/web-server';
+import { ContextMock, DeleteOneContext } from '@tenlastic/web-server';
 import { expect } from 'chai';
 
 import { handler } from './';
@@ -32,7 +32,7 @@ describe('web-server/records/delete', function () {
       }),
     }).save();
 
-    const Model = RecordSchema.getModel(collection);
+    const Model = getRecordModel(collection);
     record = await Model.create({
       collectionId: collection._id,
       namespaceId: namespace._id,
@@ -41,12 +41,12 @@ describe('web-server/records/delete', function () {
   });
 
   it('returns the matching record', async function () {
-    const ctx = new ContextMock({
+    const ctx = ContextMock<DeleteOneContext<RecordDocument>>({
       params: { _id: record._id.toString(), collectionId: collection._id },
-      state: { user },
+      state: { user: { _id: user._id.toHexString() } },
     });
 
-    await handler(ctx as any);
+    await handler(ctx);
 
     expect(ctx.response.body.record).to.exist;
   });

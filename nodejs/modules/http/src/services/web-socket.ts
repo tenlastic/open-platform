@@ -2,7 +2,6 @@ import { EventEmitter } from 'events';
 import TypedEmitter from 'typed-emitter';
 
 import { WebSocketModel } from '../models/web-socket';
-import { WebSocketStore } from '../states/web-socket';
 import {
   WebSocket,
   WebSocketInterceptors,
@@ -10,7 +9,7 @@ import {
   WebSocketResponse,
 } from '../web-socket';
 import { ApiService } from './api';
-import { BaseService, BaseServiceFindQuery } from './base';
+import { BaseService, BaseServiceCountQuery, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 
 export type WebSocketServiceEvents = {
@@ -28,16 +27,8 @@ export class WebSocketService {
 
   private baseService: BaseService<WebSocketModel>;
 
-  constructor(
-    private apiService: ApiService,
-    private environmentService: EnvironmentService,
-    private webSocketStore: WebSocketStore,
-  ) {
-    this.baseService = new BaseService<WebSocketModel>(
-      this.apiService,
-      WebSocketModel,
-      this.webSocketStore,
-    );
+  constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
+    this.baseService = new BaseService<WebSocketModel>(this.apiService, WebSocketModel);
   }
 
   /**
@@ -49,11 +40,6 @@ export class WebSocketService {
     }
 
     webSocket.close();
-
-    const index = this.webSockets.indexOf(webSocket);
-    this.webSockets.splice(index, 1);
-
-    this.onWebSocketsSet.emit('delete', webSocket);
   }
 
   /**
@@ -63,7 +49,9 @@ export class WebSocketService {
     const webSocket = new WebSocket(url);
     webSocket.emitter.on('close', () => {
       const index = this.webSockets.indexOf(webSocket);
-      this.webSockets.splice(index, 1);
+      if (index >= 0) {
+        this.webSockets.splice(index, 1);
+      }
 
       this.onWebSocketsSet.emit('delete', webSocket);
     });
@@ -80,7 +68,7 @@ export class WebSocketService {
   /**
    * Returns the number of Records satisfying the query.
    */
-  public async count(namespaceId: string, query: any) {
+  public async count(namespaceId: string, query: BaseServiceCountQuery) {
     const url = this.getUrl(namespaceId);
     return this.baseService.count(query, url);
   }
@@ -104,12 +92,8 @@ export class WebSocketService {
   /**
    * Sends a request through the web socket.
    */
-  public request<T extends WebSocketResponse>(request: WebSocketRequest, webSocket: WebSocket) {
-    if (!webSocket) {
-      return;
-    }
-
-    return webSocket.request<T>(request);
+  public request<TRequest, TResponse>(request: WebSocketRequest<TRequest>, webSocket: WebSocket) {
+    return webSocket?.request<TRequest, WebSocketResponse<TResponse>>(request);
   }
 
   /**

@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 export interface MediaDialogComponentData {
   src: string;
@@ -7,6 +7,7 @@ export interface MediaDialogComponentData {
 }
 
 @Component({
+  standalone: false,
   styleUrls: ['media-dialog.component.scss'],
   templateUrl: 'media-dialog.component.html',
 })

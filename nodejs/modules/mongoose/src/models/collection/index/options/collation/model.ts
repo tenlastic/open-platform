@@ -1,4 +1,4 @@
-import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
+import * as mongoose from 'mongoose';
 
 export enum CollectionIndexOptionsCollationLocale {
   Afrikaans = 'af',
@@ -104,29 +104,54 @@ export enum CollectionIndexOptionsCollationLocale {
   Zulu = 'zu',
 }
 
-@modelOptions({ schemaOptions: { _id: false } })
-export class CollectionIndexOptionsCollationSchema {
-  @prop({ enum: CollectionIndexOptionsCollationLocale, required: true, type: String })
-  public locale: CollectionIndexOptionsCollationLocale;
+export interface CollectionIndexOptionsCollation {
+  locale: CollectionIndexOptionsCollationLocale;
+  strength: number;
+}
 
-  @prop({ max: 5, min: 1, required: true, type: Number })
-  public strength: number;
+export type CollectionIndexOptionsCollationDocument = mongoose.Document<mongoose.Types.ObjectId> &
+  CollectionIndexOptionsCollation;
 
+export interface CollectionIndexOptionsCollationModelType
+  extends mongoose.Model<CollectionIndexOptionsCollationDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(
-    this: typeof CollectionIndexOptionsCollationModel,
-    values: Partial<CollectionIndexOptionsCollationSchema> = {},
-  ) {
-    const defaults = { locale: CollectionIndexOptionsCollationLocale.English, strength: 1 };
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(
+    this: CollectionIndexOptionsCollationModelType,
+    values?: Partial<CollectionIndexOptionsCollation>,
+  ): CollectionIndexOptionsCollationDocument;
 }
 
-export type CollectionIndexOptionsCollationDocument =
-  DocumentType<CollectionIndexOptionsCollationSchema>;
-export const CollectionIndexOptionsCollationModel = getModelForClass(
-  CollectionIndexOptionsCollationSchema,
-);
+const CollectionIndexOptionsCollationSchema =
+  new mongoose.Schema<CollectionIndexOptionsCollationDocument>(
+    {
+      locale: {
+        enum: Object.values(CollectionIndexOptionsCollationLocale),
+        required: true,
+        type: String,
+      },
+      strength: { max: 5, min: 1, required: true, type: Number },
+    },
+    { _id: false },
+  );
+
+CollectionIndexOptionsCollationSchema.statics.mock = function (
+  values: Partial<CollectionIndexOptionsCollation> = {},
+) {
+  const defaults: Partial<CollectionIndexOptionsCollation> = {
+    locale: CollectionIndexOptionsCollationLocale.English,
+    strength: 1,
+  };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const CollectionIndexOptionsCollationModel = mongoose.model<
+  CollectionIndexOptionsCollationDocument,
+  CollectionIndexOptionsCollationModelType
+>('CollectionIndexOptionsCollationSchema', CollectionIndexOptionsCollationSchema);
+
+export { CollectionIndexOptionsCollationSchema };
+
+export default CollectionIndexOptionsCollationModel;

@@ -5,7 +5,10 @@ import { BaseApiV1 } from '../bases';
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
 
-export class PersistentVolumeClaimApiV1 extends BaseApiV1<k8s.V1PersistentVolumeClaim> {
+export class PersistentVolumeClaimApiV1 extends BaseApiV1<
+  k8s.CoreV1Api,
+  k8s.V1PersistentVolumeClaim
+> {
   protected api = kc.makeApiClient(k8s.CoreV1Api);
   protected singular = 'PersistentVolumeClaim';
 

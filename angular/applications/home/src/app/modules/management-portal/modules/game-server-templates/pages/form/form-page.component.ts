@@ -3,19 +3,19 @@ import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
-  AuthorizationQuery,
+  AuthorizationState,
   BuildModel,
   BuildService,
   GameServerTemplateModel,
-  GameServerTemplateQuery,
   GameServerTemplateService,
+  GameServerTemplateState,
   IAuthorization,
   IBuild,
   IGameServer,
   NamespaceModel,
   NamespaceService,
 } from '@tenlastic/http';
-import { Subscription } from 'rxjs';
+import { map, Subscription } from 'rxjs';
 
 import { FormService, IdentityService } from '../../../../../../core/services';
 import { ProbeFieldComponent } from '../../../../../../shared/components';
@@ -27,8 +27,9 @@ interface PropertyFormGroup {
 }
 
 @Component({
-  templateUrl: 'form-page.component.html',
+  standalone: false,
   styleUrls: ['./form-page.component.scss'],
+  templateUrl: 'form-page.component.html',
 })
 export class GameServerTemplatesFormPageComponent implements OnDestroy, OnInit {
   public builds: BuildModel[];
@@ -66,11 +67,11 @@ export class GameServerTemplatesFormPageComponent implements OnDestroy, OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private authorizationQuery: AuthorizationQuery,
+    private authorizationState: AuthorizationState,
     private buildService: BuildService,
     private formBuilder: FormBuilder,
     private formService: FormService,
-    private gameServerTemplateQuery: GameServerTemplateQuery,
+    private gameServerTemplateState: GameServerTemplateState,
     private gameServerTemplateService: GameServerTemplateService,
     private identityService: IdentityService,
     private matSnackBar: MatSnackBar,
@@ -85,8 +86,8 @@ export class GameServerTemplatesFormPageComponent implements OnDestroy, OnInit {
       const roles = [IAuthorization.Role.GameServersWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
-        this.authorizationQuery.hasRoles(null, roles, userId) ||
-        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
+        this.authorizationState.hasRoles(null, roles, userId) ||
+        this.authorizationState.hasRoles(params.namespaceId, roles, userId);
 
       this.builds = await this.buildService.find(params.namespaceId, {
         select: '-files -reference.files',
@@ -244,8 +245,9 @@ export class GameServerTemplatesFormPageComponent implements OnDestroy, OnInit {
     this.form.valueChanges.subscribe(() => (this.errors = []));
 
     if (this.data._id) {
-      this.updateGameServerTemplate$ = this.gameServerTemplateQuery
-        .selectAll({ filterBy: (gs) => gs._id === this.data._id })
+      this.updateGameServerTemplate$ = this.gameServerTemplateState
+        .selectMany()
+        .pipe(map((gsts) => gsts.filter((gst) => gst._id === this.data._id)))
         .subscribe((gsts) => (this.data = gsts[0]));
     }
   }

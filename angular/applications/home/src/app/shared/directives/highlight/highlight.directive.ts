@@ -7,7 +7,10 @@ import {
   SimpleChanges,
 } from '@angular/core';
 
-@Directive({ selector: '[appHighlight]' })
+@Directive({
+  selector: '[appHighlight]',
+  standalone: false,
+})
 export class HighlightDirective implements OnChanges {
   @Input() public appHighlight = true;
 

@@ -1,6 +1,6 @@
 import { QueueMemberModel, QueueModel } from '@tenlastic/http';
 import { expect } from 'chai';
-import * as Chance from 'chance';
+import { Chance } from 'chance';
 
 import { getTeams } from './';
 

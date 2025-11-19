@@ -1,4 +1,4 @@
-@import 'src/assets/scss/theme.scss';
+@use 'src/assets/scss/shadows.scss' as shadows;
 
 :host {
   height: 100%;
@@ -10,78 +10,33 @@
     font-family: 'Oswald' !important;
   }
 
-  button.authorization__btn {
-    display: none;
-  }
-
-  div.body-param-content-type {
-    display: none;
-  }
-
-  button.expand-operation {
-    display: none;
-  }
-
-  div.scheme-container {
-    display: none;
-  }
-
-  div.swagger-ui {
-    margin-top: -24px;
-    padding-bottom: 32px;
-  }
-
-  div.try-out {
-    display: none;
-  }
-
   a.nostyle,
   div.opblock-summary-description {
     color: white !important;
   }
 
+  button {
+    border-radius: 0px !important;
+    color: white !important;
+  }
+
   code {
     background: rgba(0, 0, 0, 0.25) !important;
-    box-shadow: $box-shadow;
+    box-shadow: shadows.$box-shadow;
     color: white !important;
     font-weight: 400 !important;
   }
 
-  h2,
-  h3,
-  h4,
-  p {
+  div {
     color: white !important;
   }
 
-  h2.title div {
+  div.info {
+    margin: 0px;
+  }
+
+  div.loading {
     display: none;
-  }
-
-  h4.opblock-tag {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.25) !important;
-  }
-
-  h4.opblock-title {
-    font-weight: 700 !important;
-  }
-
-  hgroup.main a {
-    display: none;
-  }
-
-  div.copy-to-clipboard {
-    display: none;
-  }
-
-  div.execute-wrapper {
-    display: none;
-  }
-
-  div.model-example {
-    ul.tab {
-      display: none;
-    }
   }
 
   div.opblock {
@@ -91,15 +46,8 @@
 
   div.opblock-section-header {
     background: rgba(0, 0, 0, 0.25) !important;
-    box-shadow: $box-shadow !important;
+    box-shadow: shadows.$box-shadow !important;
     color: white !important;
-  }
-
-  div.opblock > div.no-margin > div.opblock-body > div.opblock-section {
-    & > div.opblock-section-header,
-    & > div.parameters-container {
-      display: none;
-    }
   }
 
   div.opblock-section-request-body {
@@ -109,8 +57,86 @@
     }
   }
 
+  div.scheme-container {
+    background: transparent;
+    box-shadow: none;
+    margin: 0px auto;
+    max-width: 960px;
+    padding: 0px 8px;
+
+    select {
+      background-color: transparent;
+      border-color: white;
+      border-radius: 0px;
+      color: white;
+    }
+
+    section {
+      padding: 0px;
+    }
+
+    span {
+      color: white;
+    }
+  }
+
+  div.swagger-ui {
+    padding-bottom: 32px;
+  }
+
   div.swagger-ui button.opblock-summary-control:focus {
     outline: none;
+  }
+
+  div.wrapper {
+    max-width: 960px;
+    padding: 8px;
+  }
+
+  h1 {
+    color: white !important;
+
+    span {
+      display: none;
+    }
+  }
+
+  h2,
+  h3,
+  h4,
+  h5,
+  p {
+    color: white !important;
+  }
+
+  h2.title div {
+    display: none;
+  }
+
+  h3.opblock-tag {
+    border-bottom: none !important;
+    padding: 10px 0px 0px;
+  }
+
+  h3.opblock-title {
+    font-weight: 700 !important;
+  }
+
+  hgroup.main a {
+    display: none;
+  }
+
+  input {
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 1px solid white !important;
+    border-radius: 0px !important;
+    color: white !important;
+  }
+
+  input::placeholder {
+    opacity: 0.75;
+    color: white !important;
   }
 
   p {
@@ -119,19 +145,42 @@
 
   pre {
     background: rgba(0, 0, 0, 0.25) !important;
-    box-shadow: $box-shadow !important;
+    box-shadow: shadows.$box-shadow !important;
     color: white !important;
     font-weight: 400 !important;
     max-height: initial !important;
   }
 
-  section.response-controls {
-    display: none;
+  select {
+    appearance: auto;
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 1px solid white !important;
+    border-radius: 0px !important;
+    box-shadow: none !important;
+    color: white !important;
+    padding-left: 0px !important;
+
+    option {
+      background: rgba(0, 0, 0, 0.25) !important;
+    }
+  }
+
+  small {
+    color: white !important;
   }
 
   small pre {
     background: none !important;
     box-shadow: none !important;
+  }
+
+  span {
+    color: white !important;
+
+    &::after {
+      color: white;
+    }
   }
 
   span.opblock-summary-method {
@@ -143,20 +192,25 @@
     display: none;
   }
 
-  td.response-col_links {
-    display: none;
+  td {
+    color: white !important;
   }
 
   textarea {
     background: rgba(0, 0, 0, 0.25) !important;
-    box-shadow: $box-shadow;
+    box-shadow: shadows.$box-shadow;
     caret-color: white;
     color: white !important;
+    field-sizing: content;
     font-weight: 400 !important;
 
     &:focus {
       border: none;
     }
+  }
+
+  th {
+    color: white !important;
   }
 
   tr.responses-header td,

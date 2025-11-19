@@ -6,6 +6,12 @@ export interface CheckAppOwnershipOptions {
   steamId: string;
 }
 
+export interface CheckAppOwnershipRequest {
+  appid: number;
+  key: string;
+  steamid: string;
+}
+
 export interface CheckAppOwnershipResponse {
   appownership: {
     ownersteamid: string;
@@ -20,8 +26,12 @@ export interface CheckAppOwnershipResponse {
 
 export async function checkAppOwnership(options: CheckAppOwnershipOptions) {
   const method = 'get';
-  const params = { appid: options.appId, key: options.key, steamid: options.steamId };
+  const params: CheckAppOwnershipRequest = {
+    appid: options.appId,
+    key: options.key,
+    steamid: options.steamId,
+  };
   const url = `https://partner.steam-api.com/ISteamUser/CheckAppOwnership/v2`;
 
-  return request<CheckAppOwnershipResponse>({ method, params, url });
+  return request<CheckAppOwnershipRequest, CheckAppOwnershipResponse>({ method, params, url });
 }

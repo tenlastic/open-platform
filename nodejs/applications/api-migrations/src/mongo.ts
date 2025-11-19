@@ -3,21 +3,20 @@ import {
   AuthorizationRequestModel,
   connect,
   enablePrePostImages,
+  getSchemaModel,
   LoginModel,
   NamespaceModel,
   PasswordResetModel,
   RefreshTokenModel,
-  SchemaSchema,
   SteamIntegrationModel,
   syncIndexes,
   UserModel,
   WebSocketModel,
 } from '@tenlastic/mongoose';
-import { getModelForClass } from '@typegoose/typegoose';
 
 export async function mongo(connectionString: string, databaseName: string) {
-  const connection = await connect({ connectionString, databaseName });
-  const SchemaModel = getModelForClass(SchemaSchema);
+  const connection = await connect({ autoCreate: true, connectionString, databaseName });
+  const SchemaModel = getSchemaModel();
 
   console.log('Syncing indexes...');
   await Promise.all([

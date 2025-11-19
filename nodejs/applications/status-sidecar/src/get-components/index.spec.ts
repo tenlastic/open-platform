@@ -12,7 +12,7 @@ describe('get-components', function () {
     const deployments = [
       {
         metadata: { labels: { 'tenlastic.com/role': 'A' } },
-        spec: { replicas },
+        spec: { replicas, selector: null, template: null },
         status: { readyReplicas: 0, replicas },
       },
     ];
@@ -26,7 +26,9 @@ describe('get-components', function () {
       {
         metadata: {
           labels: { 'tenlastic.com/role': 'A' },
-          ownerReferences: [{ kind: 'ReplicaSet' }],
+          ownerReferences: [
+            { apiVersion: 'apiVersion', kind: 'ReplicaSet', name: 'name', uid: 'uid' },
+          ],
         },
       },
       {
@@ -37,12 +39,12 @@ describe('get-components', function () {
     const statefulSets = [
       {
         metadata: { labels: { 'tenlastic.com/role': 'D' } },
-        spec: { replicas },
-        status: { readyReplicas: replicas },
+        spec: { replicas, selector: null, template: null },
+        status: { readyReplicas: replicas, replicas: null },
       },
     ];
 
-    const result = getComponents(deployments as any, jobs as any, pods as any, statefulSets as any);
+    const result = getComponents(deployments, jobs, pods, statefulSets);
 
     expect(result[0]).to.eql({ current: 0, name: 'A', phase: 'Pending', total: replicas });
     expect(result[1]).to.eql({ current: 0, name: 'B', phase: 'Succeeded', total: 0 });

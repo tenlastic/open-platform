@@ -3,6 +3,7 @@ import { FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-property-field',
+  standalone: false,
   styleUrls: ['./property-field.component.scss'],
   templateUrl: 'property-field.component.html',
 })

@@ -6,32 +6,6 @@
   width: 100vw;
 }
 
-app-header-toolbar::ng-deep {
-  app-button a.mat-button span.mat-button-wrapper {
-    & > div {
-      margin-top: 0px;
-
-      div {
-        margin-top: -4px;
-      }
-    }
-
-    img {
-      height: 32px;
-      max-height: initial;
-      margin: -10px 12px -10px 0px;
-    }
-
-    mat-icon.mat-icon {
-      line-height: 18px;
-    }
-  }
-
-  mat-toolbar {
-    padding: 0px 8px;
-  }
-}
-
 app-social {
   div.content {
     display: flex;
@@ -94,7 +68,7 @@ div.content {
     }
   }
 
-  app-sidenav div.content {
+  app-side-menu div.content {
     overflow: auto;
   }
 }

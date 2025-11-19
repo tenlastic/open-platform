@@ -3,11 +3,11 @@ import { expect } from 'chai';
 import { enumValidator } from './';
 
 describe('validators/enum', function () {
-  describe('msg', function () {
+  describe('message', function () {
     it('shows the message', function () {
-      const { msg } = enumValidator([1, 3, 5]);
+      const { message } = enumValidator([1, 3, 5]);
 
-      expect(msg).to.eql('Value must be one of the following: 1, 3, 5.');
+      expect(message).to.eql('Value must be one of the following: 1, 3, 5.');
     });
   });
 

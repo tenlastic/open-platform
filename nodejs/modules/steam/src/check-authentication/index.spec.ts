@@ -8,18 +8,12 @@ import { checkAuthentication } from './';
 const chance = new Chance();
 
 describe('get-partner-app-list-for-web-api-key', function () {
-  let sandbox: sinon.SinonSandbox;
-
-  beforeEach(function () {
-    sandbox = sinon.createSandbox();
-  });
-
   afterEach(function () {
-    sandbox.restore();
+    sinon.restore();
   });
 
   it('returns false', async function () {
-    sandbox.stub(request, 'request').resolves({ data: 'is_valid:false', status: 200 });
+    sinon.stub(request, 'request').resolves({ data: 'is_valid:false', status: 200 });
 
     const response = await checkAuthentication({
       assocHandle: chance.hash(),
@@ -35,7 +29,7 @@ describe('get-partner-app-list-for-web-api-key', function () {
   });
 
   it('returns true', async function () {
-    sandbox.stub(request, 'request').resolves({ data: 'is_valid:true', status: 200 });
+    sinon.stub(request, 'request').resolves({ data: 'is_valid:true', status: 200 });
 
     const response = await checkAuthentication({
       assocHandle: chance.hash(),

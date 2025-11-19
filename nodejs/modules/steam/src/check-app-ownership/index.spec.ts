@@ -8,14 +8,8 @@ import { checkAppOwnership } from './';
 const chance = new Chance();
 
 describe('check-app-ownership', function () {
-  let sandbox: sinon.SinonSandbox;
-
-  beforeEach(function () {
-    sandbox = sinon.createSandbox();
-  });
-
   afterEach(function () {
-    sandbox.restore();
+    sinon.restore();
   });
 
   it('returns App Ownership from Steam', async function () {
@@ -28,7 +22,7 @@ describe('check-app-ownership', function () {
       timedtrial: chance.bool(),
       timestamp: chance.hash(),
     };
-    sandbox.stub(request, 'request').resolves({ data: { appownership }, status: 200 });
+    sinon.stub(request, 'request').resolves({ data: { appownership }, status: 200 });
 
     const response = await checkAppOwnership({
       appId: chance.integer(),

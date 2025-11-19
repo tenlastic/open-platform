@@ -1,9 +1,19 @@
-import { GameServerPermissions, NamespaceModel } from '@tenlastic/mongoose';
-import { Context, RecordNotFoundError } from '@tenlastic/web-server';
+import {
+  GameServerDocument,
+  GameServerModel,
+  GameServerPermissionOptions,
+  NamespaceModel,
+} from '@tenlastic/mongoose';
+import * as permissions from '@tenlastic/mongoose-permissions';
+import { RecordNotFoundError, UpdateOneContext } from '@tenlastic/web-server';
 
-export async function handler(ctx: Context) {
-  const credentials = { ...ctx.state };
-  const existing = await GameServerPermissions.findOne(credentials, { where: ctx.params }, {});
+export async function handler(ctx: UpdateOneContext<GameServerDocument>) {
+  const context = {
+    credentials: { ...ctx.state },
+    Model: GameServerModel,
+    options: GameServerPermissionOptions,
+  };
+  const existing = await permissions.findOne(context, {}, { where: ctx.params });
   if (!existing) {
     throw new RecordNotFoundError('Record');
   }
@@ -16,13 +26,8 @@ export async function handler(ctx: Context) {
     namespace.checkNonPreemptibleLimit(preemptible ?? existing.preemptible);
   }
 
-  const result = await GameServerPermissions.update(
-    credentials,
-    ctx.params,
-    ctx.request.body,
-    existing,
-  );
-  const record = await GameServerPermissions.read(credentials, result);
+  const result = await permissions.updateOne(context, ctx.request.body, ctx.params, existing);
+  const record = await permissions.read(context, result);
 
   ctx.response.body = { record };
 }

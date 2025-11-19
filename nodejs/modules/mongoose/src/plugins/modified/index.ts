@@ -1,12 +1,13 @@
 import { Schema } from 'mongoose';
 
 export interface ModifiedPlugin {
+  previouslyModifiedPaths?: string[];
   wasModified(path?: string | string[]): boolean;
   wasNew: boolean;
 }
 
 export function modifiedPlugin(schema: Schema) {
-  schema.method('wasModified', function (path?: string | string[]) {
+  schema.method('wasModified', function (this: ModifiedPlugin, path?: string | string[]) {
     if (Array.isArray(path)) {
       return this.previouslyModifiedPaths.some((pmp) => path.includes(pmp));
     } else if (path) {

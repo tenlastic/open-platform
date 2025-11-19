@@ -4,21 +4,22 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  AuthorizationQuery,
+  AuthorizationState,
   IAuthorization,
   INamespace,
   NamespaceModel,
-  NamespaceQuery,
   NamespaceService,
+  NamespaceState,
 } from '@tenlastic/http';
-import { Subscription } from 'rxjs';
+import { map, Subscription } from 'rxjs';
 
-import { FormService, IdentityService } from '../../../../../../core/services';
-import { PromptComponent } from '../../../../../../shared/components';
+import { FormService, IdentityService } from '@home/app/core/services';
+import { PromptComponent } from '@home/app/shared/components';
 
 @Component({
-  templateUrl: 'form-page.component.html',
+  standalone: false,
   styleUrls: ['./form-page.component.scss'],
+  templateUrl: 'form-page.component.html',
 })
 export class NamespacesFormPageComponent implements OnDestroy, OnInit {
   public data: NamespaceModel;
@@ -32,13 +33,13 @@ export class NamespacesFormPageComponent implements OnDestroy, OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private authorizationQuery: AuthorizationQuery,
+    private authorizationState: AuthorizationState,
     private formBuilder: FormBuilder,
     private formService: FormService,
     private identityService: IdentityService,
     private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
-    private namespaceQuery: NamespaceQuery,
+    private namespaceState: NamespaceState,
     private namespaceService: NamespaceService,
     private router: Router,
   ) {}
@@ -47,8 +48,8 @@ export class NamespacesFormPageComponent implements OnDestroy, OnInit {
     this.activatedRoute.params.subscribe(async (params) => {
       const roles = [IAuthorization.Role.NamespacesWrite];
       const userId = this.identityService.user?._id;
-      this.hasWriteAuthorization = this.authorizationQuery.hasRoles(null, roles, userId);
-      this.hasWriteAuthorizationForNamespace = this.authorizationQuery.hasRoles(
+      this.hasWriteAuthorization = this.authorizationState.hasRoles(null, roles, userId);
+      this.hasWriteAuthorizationForNamespace = this.authorizationState.hasRoles(
         params.namespaceId,
         roles,
         userId,
@@ -176,8 +177,9 @@ export class NamespacesFormPageComponent implements OnDestroy, OnInit {
     this.form.valueChanges.subscribe(() => (this.errors = []));
 
     if (this.data._id) {
-      this.updateNamespace$ = this.namespaceQuery
-        .selectAll({ filterBy: (q) => q._id === this.data._id })
+      this.updateNamespace$ = this.namespaceState
+        .selectMany()
+        .pipe(map((ns) => ns.filter((n) => n._id === this.data._id)))
         .subscribe((namespaces) => (this.data = namespaces[0]));
     }
   }

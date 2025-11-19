@@ -1,35 +1,49 @@
-import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
 import { Chance } from 'chance';
+import * as mongoose from 'mongoose';
 
-@modelOptions({ schemaOptions: { _id: false } })
-export class BuildFileSchema {
-  @prop({ required: true, type: Number })
-  public compressedBytes: number;
+export interface BuildFile {
+  compressedBytes: number;
+  md5: string;
+  path: string;
+  uncompressedBytes: number;
+}
 
-  @prop({ maxlength: 128, required: true, trim: true, type: String })
-  public md5: string;
+export type BuildFileDocument = mongoose.Document<mongoose.Types.ObjectId> & BuildFile;
 
-  @prop({ maxlength: 256, required: true, trim: true, type: String })
-  public path: string;
-
-  @prop({ required: true, type: Number })
-  public uncompressedBytes: number;
-
+export interface BuildFileModelType extends mongoose.Model<BuildFileDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: typeof BuildFileModel, values: Partial<BuildFileSchema> = {}) {
-    const chance = new Chance();
-    const defaults = {
-      compressedBytes: chance.integer(),
-      md5: chance.hash(),
-      path: chance.hash(),
-      uncompressedBytes: chance.integer(),
-    };
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(this: BuildFileModelType, values?: Partial<BuildFile>): BuildFileDocument;
 }
 
-export type BuildFileDocument = DocumentType<BuildFileSchema>;
-export const BuildFileModel = getModelForClass(BuildFileSchema);
+const BuildFileSchema = new mongoose.Schema<BuildFileDocument, BuildFileModelType>(
+  {
+    compressedBytes: { required: true, type: Number },
+    md5: { maxlength: 128, required: true, trim: true, type: String },
+    path: { maxlength: 256, required: true, trim: true, type: String },
+    uncompressedBytes: { required: true, type: Number },
+  },
+  { _id: false },
+);
+
+BuildFileSchema.statics.mock = function (values: Partial<BuildFile> = {}) {
+  const chance = new Chance();
+  const defaults: Partial<BuildFile> = {
+    compressedBytes: chance.integer(),
+    md5: chance.hash(),
+    path: chance.hash(),
+    uncompressedBytes: chance.integer(),
+  };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const BuildFileModel = mongoose.model<BuildFileDocument, BuildFileModelType>(
+  'BuildFileSchema',
+  BuildFileSchema,
+);
+
+export { BuildFileSchema };
+
+export default BuildFileModel;

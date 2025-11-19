@@ -1,39 +1,51 @@
-import {
-  DocumentType,
-  getModelForClass,
-  index,
-  modelOptions,
-  plugin,
-  prop,
-} from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
+
 import { unsetPlugin } from '../../plugins';
 
-@index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
-@index({ userId: 1 })
-@modelOptions({ schemaOptions: { collection: 'refresh-tokens', timestamps: true } })
-@plugin(unsetPlugin)
-export class RefreshTokenSchema {
-  public _id: mongoose.Types.ObjectId;
-  public createdAt: Date;
+export interface RefreshToken {
+  _id: mongoose.Types.ObjectId;
+  createdAt?: Date;
+  expiresAt: Date;
+  updatedAt?: Date;
+  userId: mongoose.Types.ObjectId;
+}
 
-  @prop({ required: true, type: Date })
-  public expiresAt: Date;
+export type RefreshTokenDocument = mongoose.Document<mongoose.Types.ObjectId> & RefreshToken;
 
-  public updatedAt: Date;
-
-  @prop({ ref: 'UserSchema', required: true, type: mongoose.Schema.Types.ObjectId })
-  public userId: mongoose.Types.ObjectId;
-
+export interface RefreshTokenModelType extends mongoose.Model<RefreshTokenDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: typeof RefreshTokenModel, values: Partial<RefreshTokenSchema> = {}) {
-    const defaults = { expiresAt: new Date(), userId: new mongoose.Types.ObjectId() };
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(this: RefreshTokenModelType, values?: Partial<RefreshToken>): RefreshTokenDocument;
 }
 
-export type RefreshTokenDocument = DocumentType<RefreshTokenSchema>;
-export const RefreshTokenModel = getModelForClass(RefreshTokenSchema);
+const RefreshTokenSchema = new mongoose.Schema<RefreshTokenDocument, RefreshTokenModelType>(
+  {
+    expiresAt: { required: true, type: Date },
+    userId: { ref: 'UserSchema', required: true, type: mongoose.Schema.Types.ObjectId },
+  },
+  { collection: 'refresh-tokens', timestamps: true },
+);
+
+RefreshTokenSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+RefreshTokenSchema.index({ userId: 1 });
+
+RefreshTokenSchema.plugin(unsetPlugin);
+
+RefreshTokenSchema.statics.mock = function (values: Partial<RefreshToken> = {}) {
+  const defaults: Partial<RefreshToken> = {
+    expiresAt: new Date(),
+    userId: new mongoose.Types.ObjectId(),
+  };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const RefreshTokenModel = mongoose.model<RefreshTokenDocument, RefreshTokenModelType>(
+  'RefreshTokenSchema',
+  RefreshTokenSchema,
+);
+
+export { RefreshTokenSchema };
+
+export default RefreshTokenModel;

@@ -1,10 +1,10 @@
-import * as minio from '@tenlastic/minio';
 import { BuildModel, IBuild } from '@tenlastic/http';
+import * as minio from '@tenlastic/minio';
 
 const minioBucket = process.env.MINIO_BUCKET;
 
 export async function copy(build: BuildModel, path: string, referenceBuild: BuildModel) {
-  path = path.replace(/[\.]+\//g, '');
+  path = path.replace(/[\\.]+\//g, '');
 
   const referenceFile = referenceBuild.files.find((f) => f.path === path);
   if (!referenceFile) {

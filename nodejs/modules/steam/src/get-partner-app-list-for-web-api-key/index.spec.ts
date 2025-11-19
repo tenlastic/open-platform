@@ -8,19 +8,13 @@ import { getPartnerAppListForWebApiKey } from './';
 const chance = new Chance();
 
 describe('get-partner-app-list-for-web-api-key', function () {
-  let sandbox: sinon.SinonSandbox;
-
-  beforeEach(function () {
-    sandbox = sinon.createSandbox();
-  });
-
   afterEach(function () {
-    sandbox.restore();
+    sinon.restore();
   });
 
   it('returns App List from Steam', async function () {
     const app = { app_name: chance.hash(), app_type: chance.hash(), appid: chance.integer() };
-    sandbox
+    sinon
       .stub(request, 'request')
       .resolves({ data: { applist: { apps: { app: [app] } } }, status: 200 });
 

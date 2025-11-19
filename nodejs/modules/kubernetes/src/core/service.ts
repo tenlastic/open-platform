@@ -5,7 +5,7 @@ import { BaseApiV1, BaseListQuery, BaseResponse } from '../bases';
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
 
-export class ServiceApiV1 extends BaseApiV1<k8s.V1Service> {
+export class ServiceApiV1 extends BaseApiV1<k8s.CoreV1Api, k8s.V1Service> {
   protected api = kc.makeApiClient(k8s.CoreV1Api);
   protected singular = 'Service';
 

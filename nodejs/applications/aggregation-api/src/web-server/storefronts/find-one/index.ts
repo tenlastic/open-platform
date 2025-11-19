@@ -1,4 +1,4 @@
-import { StorefrontPermissions } from '@tenlastic/mongoose';
+import { StorefrontModel, StorefrontPermissionOptions } from '@tenlastic/mongoose';
 import { findOne } from '@tenlastic/web-server';
 
-export const handler = findOne(StorefrontPermissions);
+export const handler = findOne(StorefrontModel, StorefrontPermissionOptions);

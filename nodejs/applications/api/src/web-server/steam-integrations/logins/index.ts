@@ -1,18 +1,27 @@
 import {
   AuthorizationModel,
+  LoginDocument,
   LoginModel,
+  SteamIntegrationDocument,
   SteamIntegrationModel,
   UserModel,
 } from '@tenlastic/mongoose';
-import steam from '@tenlastic/steam';
+import * as steam from '@tenlastic/steam';
 import {
   Context,
   RecordNotFoundError,
   RequiredFieldError,
   UnauthorizedError,
 } from '@tenlastic/web-server';
+import * as mongoose from 'mongoose';
 
-export async function handler(ctx: Context) {
+export type CreateLoginWithSteamIntegrationContext = Context<
+  mongoose.FilterQuery<SteamIntegrationDocument>,
+  { ticket?: string },
+  { accessToken?: string; record?: LoginDocument; refreshToken?: string }
+>;
+
+export async function handler(ctx: CreateLoginWithSteamIntegrationContext) {
   const { ticket } = ctx.request.body;
   if (!ticket) {
     throw new RequiredFieldError(['ticket']);
@@ -24,7 +33,7 @@ export async function handler(ctx: Context) {
   }
 
   // Authenticate the Session Ticket with Steam.
-  const authenticateUserTicketResponse = await steam.authenticateUserTicket({
+  const authenticateUserTicketResponse = await dependencies.authenticateUserTicket({
     appId: steamIntegration.applicationId,
     key: steamIntegration.apiKey,
     ticket,
@@ -38,7 +47,7 @@ export async function handler(ctx: Context) {
 
   // Make sure the User owns the application.
   const steamId = authenticateUserTicketResponse.data.response.params.steamid;
-  const checkAppOwnershipResponse = await steam.checkAppOwnership({
+  const checkAppOwnershipResponse = await dependencies.checkAppOwnership({
     appId: steamIntegration.applicationId,
     key: steamIntegration.apiKey,
     steamId,
@@ -52,7 +61,7 @@ export async function handler(ctx: Context) {
 
   let steamPersonaName: string;
   try {
-    const response = await steam.getPlayerSummaries({
+    const response = await dependencies.getPlayerSummaries({
       key: steamIntegration.apiKey,
       steamIds: [steamId],
     });
@@ -87,7 +96,13 @@ export async function handler(ctx: Context) {
     const record = await LoginModel.create({ refreshTokenId, userId: user._id });
 
     ctx.response.body = { accessToken, record, refreshToken };
-  } catch (e) {
+  } catch {
     throw new UnauthorizedError();
   }
 }
+
+export const dependencies = {
+  authenticateUserTicket: steam.authenticateUserTicket,
+  checkAppOwnership: steam.checkAppOwnership,
+  getPlayerSummaries: steam.getPlayerSummaries,
+};

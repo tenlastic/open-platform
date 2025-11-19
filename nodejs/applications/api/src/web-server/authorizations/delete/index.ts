@@ -1,4 +1,4 @@
-import { AuthorizationPermissions } from '@tenlastic/mongoose';
+import { AuthorizationModel, AuthorizationPermissionOptions } from '@tenlastic/mongoose';
 import { deleteOne } from '@tenlastic/web-server';
 
-export const handler = deleteOne(AuthorizationPermissions);
+export const handler = deleteOne(AuthorizationModel, AuthorizationPermissionOptions);

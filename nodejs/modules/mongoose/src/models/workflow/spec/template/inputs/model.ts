@@ -1,24 +1,44 @@
-import { DocumentType, getModelForClass, modelOptions, prop, PropType } from '@typegoose/typegoose';
+import * as mongoose from 'mongoose';
 
 import { WorkflowSpecParameterDocument, WorkflowSpecParameterSchema } from '../../parameter';
 
-@modelOptions({ schemaOptions: { _id: false } })
-export class WorkflowSpecTemplateInputsSchema {
-  @prop({ type: WorkflowSpecParameterSchema }, PropType.ARRAY)
-  public parameters: WorkflowSpecParameterDocument[];
+export interface WorkflowSpecTemplateInputs {
+  parameters?: WorkflowSpecParameterDocument[];
+}
 
+export interface WorkflowSpecTemplateInputsDocument
+  extends mongoose.Document<mongoose.Types.ObjectId>,
+    WorkflowSpecTemplateInputs {}
+
+export interface WorkflowSpecTemplateInputsModelType
+  extends mongoose.Model<WorkflowSpecTemplateInputsDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(
-    this: typeof WorkflowSpecTemplateInputsModel,
-    values: Partial<WorkflowSpecTemplateInputsSchema> = {},
-  ) {
-    const defaults = {};
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(
+    this: WorkflowSpecTemplateInputsModelType,
+    values?: Partial<WorkflowSpecTemplateInputs>,
+  ): WorkflowSpecTemplateInputsDocument;
 }
 
-export type WorkflowSpecTemplateInputsDocument = DocumentType<WorkflowSpecTemplateInputsSchema>;
-export const WorkflowSpecTemplateInputsModel = getModelForClass(WorkflowSpecTemplateInputsSchema);
+export const WorkflowSpecTemplateInputsSchema =
+  new mongoose.Schema<WorkflowSpecTemplateInputsDocument>(
+    {
+      parameters: { type: [WorkflowSpecParameterSchema], default: undefined },
+    },
+    { _id: false },
+  );
+
+WorkflowSpecTemplateInputsSchema.statics.mock = function (
+  this: WorkflowSpecTemplateInputsModelType,
+  values: Partial<WorkflowSpecTemplateInputs> = {},
+) {
+  const defaults = {};
+
+  return new this({ ...defaults, ...values });
+};
+
+export const WorkflowSpecTemplateInputsModel = mongoose.model<
+  WorkflowSpecTemplateInputsDocument,
+  WorkflowSpecTemplateInputsModelType
+>('WorkflowSpecTemplateInputs', WorkflowSpecTemplateInputsSchema);

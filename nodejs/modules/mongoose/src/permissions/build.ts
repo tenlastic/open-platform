@@ -1,6 +1,6 @@
-import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
+import { IOptions } from '@tenlastic/mongoose-permissions';
 
-import { AuthorizationRole, BuildDocument, BuildModel } from '../models';
+import { AuthorizationRole, BuildDocument } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
 const administrator = {
@@ -21,7 +21,7 @@ const administrator = {
   update: ['entrypoint', 'name', 'publishedAt'],
 };
 
-export const BuildPermissions = new MongoosePermissions<BuildDocument>(BuildModel, {
+export const BuildPermissionOptions: IOptions<BuildDocument> = {
   create: {
     'namespace-write': administrator.create,
     'user-write': administrator.create,
@@ -100,4 +100,4 @@ export const BuildPermissions = new MongoosePermissions<BuildDocument>(BuildMode
     'system-write': [...administrator.update, 'files.*', 'status.*'],
     'user-write': administrator.update,
   },
-});
+};

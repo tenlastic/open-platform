@@ -1,14 +1,20 @@
-import { Component, OnInit } from '@angular/core';
-import { AuthorizationQuery, AuthorizationService, IAuthorization } from '@tenlastic/http';
+import { AfterViewInit, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { AuthorizationService, AuthorizationState, IAuthorization } from '@tenlastic/http';
 
 import { environment } from '../../../../../environments/environment';
-import { ElectronService, IdentityService } from '../../../../core/services';
+import { ElectronService, IdentityService, SideMenuService } from '../../../../core/services';
 
 @Component({
-  templateUrl: './layout.component.html',
+  standalone: false,
   styleUrls: ['./layout.component.scss'],
+  templateUrl: './layout.component.html',
 })
-export class LayoutComponent implements OnInit {
+export class LayoutComponent implements AfterViewInit, OnInit {
+  @ViewChild('sideMenu') private sideMenuTemplate: TemplateRef<unknown>;
+
+  public get $sideMenuIsVisible() {
+    return this.sideMenuService.$visible;
+  }
   public IAuthorization = IAuthorization;
   public get isElectron() {
     return this.electronService.isElectron;
@@ -17,10 +23,11 @@ export class LayoutComponent implements OnInit {
   public launcherUrl = environment.launcherUrl;
 
   constructor(
-    private authorizationQuery: AuthorizationQuery,
+    private authorizationState: AuthorizationState,
     private authorizationService: AuthorizationService,
     private electronService: ElectronService,
     private identityService: IdentityService,
+    private sideMenuService: SideMenuService,
   ) {}
 
   public async ngOnInit() {
@@ -29,7 +36,23 @@ export class LayoutComponent implements OnInit {
     this.isLoading = false;
   }
 
+  public ngAfterViewInit() {
+    this.sideMenuService.add(this.sideMenuTemplate);
+  }
+
+  public ngOnDestroy() {
+    this.sideMenuService.remove(this.sideMenuTemplate);
+  }
+
   public $hasPermission(roles: IAuthorization.Role[]) {
-    return this.authorizationQuery.selectHasRoles(null, roles, this.identityService.user?._id);
+    return this.authorizationState.selectHasRoles(null, roles, this.identityService.user?._id);
+  }
+
+  public toggleSideMenu() {
+    if (this.sideMenuService.visible) {
+      this.sideMenuService.hide();
+    } else {
+      this.sideMenuService.show();
+    }
   }
 }

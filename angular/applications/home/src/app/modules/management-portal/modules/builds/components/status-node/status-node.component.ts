@@ -1,32 +1,31 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Order } from '@datorama/akita';
 import {
-  IBuild,
-  BuildModel,
+  AuthorizationState,
   BuildLogModel,
-  BuildLogQuery,
-  BuildLogStore,
-  BuildQuery,
   BuildLogService,
-  SubscriptionService,
+  BuildLogState,
+  BuildModel,
+  BuildState,
   IAuthorization,
-  AuthorizationQuery,
+  IBuild,
+  SubscriptionService,
   WebSocketService,
 } from '@tenlastic/http';
 import { map } from 'rxjs/operators';
 import { v4 as uuid } from 'uuid';
 
-import { IdentityService } from '../../../../../../core/services';
 import { environment } from '../../../../../../../environments/environment';
+import { IdentityService } from '../../../../../../core/services';
 import { LogsDialogComponent, LogsDialogComponentData } from '../../../../../../shared/components';
 
 type BuildStatusNodeWithParent = IBuild.Node & { parent: string };
 
 @Component({
-  templateUrl: 'status-node.component.html',
   selector: 'app-build-status-node',
+  standalone: false,
   styleUrls: ['./status-node.component.scss'],
+  templateUrl: 'status-node.component.html',
 })
 export class BuildStatusNodeComponent implements OnInit {
   @Input() public build: BuildModel;
@@ -47,11 +46,10 @@ export class BuildStatusNodeComponent implements OnInit {
   }
 
   constructor(
-    private authorizationQuery: AuthorizationQuery,
-    private buildLogQuery: BuildLogQuery,
+    private authorizationState: AuthorizationState,
+    private buildLogState: BuildLogState,
     private buildLogService: BuildLogService,
-    private buildLogStore: BuildLogStore,
-    private buildQuery: BuildQuery,
+    private buildState: BuildState,
     private identityService: IdentityService,
     private matDialog: MatDialog,
     private subscriptionService: SubscriptionService,
@@ -62,8 +60,8 @@ export class BuildStatusNodeComponent implements OnInit {
     const userId = this.identityService.user?._id;
     const logRoles = [IAuthorization.Role.BuildLogsRead];
     this.hasLogAuthorization =
-      this.authorizationQuery.hasRoles(null, logRoles, userId) ||
-      this.authorizationQuery.hasRoles(this.build.namespaceId, logRoles, userId);
+      this.authorizationState.hasRoles(null, logRoles, userId) ||
+      this.authorizationState.hasRoles(this.build.namespaceId, logRoles, userId);
   }
 
   public getLabel(displayName: string) {
@@ -79,14 +77,11 @@ export class BuildStatusNodeComponent implements OnInit {
   public showLogsDialog() {
     const _id = uuid();
     const data = {
-      $logs: this.buildLogQuery.selectAll({
-        filterBy: (log) => log.buildId === this.build._id,
-        sortBy: 'unix',
-        sortByOrder: Order.DESC,
-      }),
-      $nodes: this.buildQuery
-        .selectEntity(this.build._id)
-        .pipe(map((build) => this.getNodes(build))),
+      $logs: this.buildLogState
+        .selectMany()
+        .pipe(map((bls) => bls.filter((log) => log.buildId === this.build._id)))
+        .pipe(map((bls) => bls.sort((a, b) => b.unix - a.unix))),
+      $nodes: this.buildState.selectOne(this.build._id).pipe(map((b) => this.getNodes(b))),
       find: (container, pod) =>
         this.buildLogService.find(this.build.namespaceId, this.build._id, pod, container, {
           tail: 500,
@@ -103,7 +98,6 @@ export class BuildStatusNodeComponent implements OnInit {
             path: `/subscriptions/builds/${this.build._id}/logs/${pod}/${container}`,
           },
           this.buildLogService,
-          this.buildLogStore,
           this.webSocket,
           {
             acks: true,
@@ -119,7 +113,7 @@ export class BuildStatusNodeComponent implements OnInit {
     } as LogsDialogComponentData;
 
     const dialogRef = this.matDialog.open(LogsDialogComponent, { autoFocus: false, data });
-    dialogRef.afterClosed().subscribe(() => this.buildLogStore.reset());
+    dialogRef.afterClosed().subscribe(() => this.buildLogState.reset());
   }
 
   private getNodes(build: BuildModel) {

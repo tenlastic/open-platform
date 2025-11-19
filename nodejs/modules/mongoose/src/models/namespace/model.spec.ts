@@ -1,8 +1,8 @@
 import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
+import chaiAsPromised from 'chai-as-promised';
 
 import { NamespaceLimitsModel } from './limits';
-import { NamespaceModel, NamespaceLimitError } from './model';
+import { NamespaceLimitError, NamespaceModel } from './model';
 
 use(chaiAsPromised);
 

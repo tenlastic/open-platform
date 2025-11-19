@@ -1,0 +1,56 @@
+@use 'src/assets/scss/responsive.scss' as responsive;
+@use 'src/assets/scss/shadows.scss' as shadows;
+
+div.container {
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: shadows.$box-shadow;
+  display: flex;
+  flex: 0 0 auto;
+  height: 100%;
+  overflow: auto;
+  row-gap: 4px;
+  z-index: 2;
+
+  div.column {
+    box-shadow: shadows.$box-shadow;
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    row-gap: 4px;
+
+    &:not(:last-of-type) {
+      ::ng-deep {
+        app-button div {
+          display: none;
+        }
+      }
+    }
+
+    ::ng-deep {
+      app-button {
+        min-height: 36.8px;
+      }
+
+      hr {
+        background: rgba(255, 255, 255, 0.25);
+        border-color: rgba(255, 255, 255, 0.25);
+        border-width: 0.5px;
+        margin: 0px;
+      }
+    }
+  }
+}
+
+@include responsive.mobile {
+  div.container {
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), var(--background-image);
+    background-attachment: fixed;
+    background-position: center;
+    background-size: cover;
+    overflow-x: hidden;
+
+    div.column:last-of-type {
+      width: 100%;
+    }
+  }
+}

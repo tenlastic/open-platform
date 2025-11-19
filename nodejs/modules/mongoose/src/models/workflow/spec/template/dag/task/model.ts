@@ -1,35 +1,52 @@
-import { DocumentType, getModelForClass, modelOptions, prop, PropType } from '@typegoose/typegoose';
 import { Chance } from 'chance';
+import * as mongoose from 'mongoose';
 
-import { WorkflowSpecArgumentsSchema } from '../../../arguments';
+import { WorkflowSpecArgumentsDocument, WorkflowSpecArgumentsSchema } from '../../../arguments';
 
-@modelOptions({ schemaOptions: { _id: false } })
-export class WorkflowSpecTemplateDagTaskSchema {
-  @prop({ WorkflowSpecArgumentsSchema })
-  public arguments: WorkflowSpecArgumentsSchema;
+export interface WorkflowSpecTemplateDagTask {
+  arguments?: WorkflowSpecArgumentsDocument;
+  dependencies?: string[];
+  name: string;
+  template: string;
+}
 
-  @prop({ default: undefined, type: String }, PropType.ARRAY)
-  public dependencies: string[];
+export interface WorkflowSpecTemplateDagTaskDocument
+  extends mongoose.Document<mongoose.Types.ObjectId>,
+    WorkflowSpecTemplateDagTask {}
 
-  @prop({ required: true, type: String })
-  public name: string;
-
-  @prop({ required: true, type: String })
-  public template: string;
-
+export interface WorkflowSpecTemplateDagTaskModelType
+  extends mongoose.Model<WorkflowSpecTemplateDagTaskDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(
-    this: typeof WorkflowSpecTemplateDagTaskModel,
-    values: Partial<WorkflowSpecTemplateDagTaskSchema> = {},
-  ) {
-    const chance = new Chance();
-    const defaults = { name: chance.hash(), template: chance.hash() };
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(
+    this: WorkflowSpecTemplateDagTaskModelType,
+    values?: Partial<WorkflowSpecTemplateDagTask>,
+  ): WorkflowSpecTemplateDagTaskDocument;
 }
 
-export type WorkflowSpecTemplateDagTaskDocument = DocumentType<WorkflowSpecTemplateDagTaskSchema>;
-export const WorkflowSpecTemplateDagTaskModel = getModelForClass(WorkflowSpecTemplateDagTaskSchema);
+export const WorkflowSpecTemplateDagTaskSchema =
+  new mongoose.Schema<WorkflowSpecTemplateDagTaskDocument>(
+    {
+      arguments: { type: WorkflowSpecArgumentsSchema },
+      dependencies: { type: [String], default: undefined },
+      name: { type: String, required: true },
+      template: { type: String, required: true },
+    },
+    { _id: false },
+  );
+
+WorkflowSpecTemplateDagTaskSchema.statics.mock = function (
+  this: WorkflowSpecTemplateDagTaskModelType,
+  values: Partial<WorkflowSpecTemplateDagTask> = {},
+) {
+  const chance = new Chance();
+  const defaults = { name: chance.hash(), template: chance.hash() };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const WorkflowSpecTemplateDagTaskModel = mongoose.model<
+  WorkflowSpecTemplateDagTaskDocument,
+  WorkflowSpecTemplateDagTaskModelType
+>('WorkflowSpecTemplateDagTask', WorkflowSpecTemplateDagTaskSchema);

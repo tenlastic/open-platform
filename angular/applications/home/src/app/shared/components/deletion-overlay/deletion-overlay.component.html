@@ -1,0 +1,15 @@
+<div>
+  <p>Are you sure you want to delete this {{ name }}?</p>
+</div>
+
+<div class="actions">
+  <app-button color="primary"
+              (OnClick)="no()">
+    <div>No</div>
+  </app-button>
+
+  <app-button color="accent"
+              (OnClick)="yes()">
+    <div>Yes</div>
+  </app-button>
+</div>

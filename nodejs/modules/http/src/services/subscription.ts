@@ -9,48 +9,44 @@ import {
   WebSocketResponse,
   WebSocketResponseError,
 } from '../web-socket';
+import { ServiceEvents } from './base';
 import { WebSocketService } from './web-socket';
 
-export interface SubscribeRequest extends WebSocketRequest {
-  body?: SubscribeRequestBody;
+export interface ServiceWithEmitter<TModel extends BaseModel = BaseModel> {
+  emitter: TypedEmitter<ServiceEvents<TModel>>;
 }
 
 export interface SubscribeRequestBody {
   operationType?: string[];
   resumeToken?: string;
   startDate?: Date;
-  where?: any;
+  where?: unknown;
 }
 
-export interface SubscribeOptions<T extends BaseModel> {
+export interface SubscribeOptions<T extends BaseModel = BaseModel> {
   acks?: boolean;
-  callback?: (response: SubscribeResponse<T>) => any | Promise<any>;
+  callback?: (response: SubscribeResponse<T>) => void | Promise<void>;
 }
 
 export type DatabaseOperationType = 'delete' | 'insert' | 'replace' | 'update';
 
-interface Service {
-  emitter: TypedEmitter<any>;
-}
+export type SubscribeRequest = WebSocketRequest<SubscribeRequestBody>;
 
-interface Store {
-  remove: (_id: string) => void;
-  upsertMany: (records: any) => void;
-}
+export type SubscribeResponse<TModel extends BaseModel> = WebSocketResponse<
+  SubscribeResponseBody<TModel>
+>;
 
-interface SubscribeResponse<T extends BaseModel> extends WebSocketResponse {
-  body: {
-    documentKey: any;
-    errors?: WebSocketResponseError[];
-    fullDocument?: T;
-    ns: { coll: string; db: string };
-    operationType: DatabaseOperationType;
-    resumeToken?: string;
-    updateDescription?: {
-      removedFields: string[];
-      truncatedArrays?: Array<{ field: string; newSize: number }>;
-      updatedFields: { [key: string]: any };
-    };
+interface SubscribeResponseBody<TModel extends BaseModel> {
+  documentKey: unknown;
+  errors?: WebSocketResponseError[];
+  fullDocument?: TModel;
+  ns: { coll: string; db: string };
+  operationType: DatabaseOperationType;
+  resumeToken?: string;
+  updateDescription?: {
+    removedFields: string[];
+    truncatedArrays?: Array<{ field: string; newSize: number }>;
+    updatedFields: { [key: string]: unknown };
   };
 }
 
@@ -60,8 +56,7 @@ export class SubscriptionService {
   public async subscribe<T extends BaseModel = BaseModel>(
     Model: new (parameters?: Partial<T>) => T,
     request: SubscribeRequest,
-    service: Service,
-    store: Store,
+    service: ServiceWithEmitter<T>,
     webSocket: WebSocket,
     options: SubscribeOptions<T> = {},
   ) {
@@ -109,7 +104,8 @@ export class SubscriptionService {
           try {
             await options.callback(response);
           } catch {
-            return this.nak(request._id, webSocket);
+            await this.nak(request._id, webSocket);
+            return;
           }
         } else if (options.callback) {
           await options.callback(response);
@@ -118,16 +114,13 @@ export class SubscriptionService {
         const record = new Model(response.body.fullDocument);
         if (response.body.operationType === 'delete') {
           service.emitter.emit('delete', record);
-          store.remove(record._id);
         } else if (response.body.operationType === 'insert') {
           service.emitter.emit('create', record);
-          store.upsertMany([record]);
         } else if (
           response.body.operationType === 'replace' ||
           response.body.operationType === 'update'
         ) {
           service.emitter.emit('update', record);
-          store.upsertMany([record]);
         }
 
         if (options.acks) {
@@ -140,7 +133,7 @@ export class SubscriptionService {
   public async unsubscribe(_id: string, webSocket: WebSocket) {
     webSocket.deleteDurableRequest(_id);
 
-    const request: WebSocketRequest = {
+    const request: WebSocketRequest<void> = {
       _id: uuid(),
       method: WebSocketMethod.Delete,
       path: `/subscriptions/${_id}`,
@@ -149,7 +142,7 @@ export class SubscriptionService {
   }
 
   private async ack(_id: string, webSocket: WebSocket) {
-    const request: WebSocketRequest = {
+    const request: WebSocketRequest<void> = {
       _id: uuid(),
       method: WebSocketMethod.Post,
       path: `/subscriptions/${_id}/acks`,
@@ -158,7 +151,7 @@ export class SubscriptionService {
   }
 
   private async nak(_id: string, webSocket: WebSocket) {
-    const request: WebSocketRequest = {
+    const request: WebSocketRequest<void> = {
       _id: uuid(),
       method: WebSocketMethod.Post,
       path: `/subscriptions/${_id}/naks`,

@@ -1,6 +1,7 @@
 import {
   AuthorizationModel,
   AuthorizationRole,
+  GroupDocument,
   GroupInvitationModel,
   GroupModel,
   NamespaceDocument,
@@ -8,9 +9,9 @@ import {
   UserDocument,
   UserModel,
 } from '@tenlastic/mongoose';
-import { ContextMock } from '@tenlastic/web-server';
+import { ContextMock, UpdateOneContext } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
+import chaiAsPromised from 'chai-as-promised';
 
 import { handler } from '.';
 
@@ -24,7 +25,7 @@ describe('web-server/groups/join', function () {
   });
 
   context('when a Group Invitation exists', function () {
-    let ctx: ContextMock;
+    let ctx: UpdateOneContext<GroupDocument>;
     let namespace: NamespaceDocument;
     let otherUser: UserDocument;
 
@@ -50,14 +51,14 @@ describe('web-server/groups/join', function () {
         toUserId: otherUser._id,
       }).save();
 
-      ctx = new ContextMock({
+      ctx = ContextMock({
         params: { _id: group._id, namespaceId: namespace._id },
-        state: { user: otherUser },
-      } as any);
+        state: { user: { _id: otherUser._id.toHexString() } },
+      });
     });
 
     it('adds the current User to the Group', async function () {
-      await handler(ctx as any);
+      await handler(ctx);
 
       expect(ctx.response.body.record).to.exist;
       expect(ctx.response.body.record.userIds[1].equals(otherUser._id)).to.eql(true);
@@ -65,7 +66,7 @@ describe('web-server/groups/join', function () {
   });
 
   context('when a Group Invitation does not exist', function () {
-    let ctx: ContextMock;
+    let ctx: UpdateOneContext<GroupDocument>;
     let namespace: NamespaceDocument;
     let otherUser: UserDocument;
 
@@ -81,14 +82,14 @@ describe('web-server/groups/join', function () {
 
       const group = await GroupModel.mock({ userId: user._id, userIds: [user._id] }).save();
 
-      ctx = new ContextMock({
+      ctx = ContextMock({
         params: { _id: group._id, namespaceId: namespace._id },
-        state: { user: otherUser },
-      } as any);
+        state: { user: { _id: otherUser._id.toHexString() } },
+      });
     });
 
     it('returns an error', async function () {
-      const promise = handler(ctx as any);
+      const promise = handler(ctx);
 
       return expect(promise).to.be.rejectedWith('Record not found.');
     });

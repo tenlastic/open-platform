@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
-@Pipe({ name: 'duration' })
+@Pipe({ name: 'duration', standalone: false })
 export class DurationPipe implements PipeTransform {
   public transform(milliseconds: number) {
     const days = Math.floor(milliseconds / (24 * 60 * 60 * 1000));

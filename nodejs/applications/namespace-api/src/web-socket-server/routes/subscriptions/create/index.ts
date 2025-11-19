@@ -1,93 +1,122 @@
 import {
+  ArticleDocument,
   ArticleModel,
-  ArticlePermissions,
+  ArticlePermissionOptions,
+  BuildDocument,
   BuildModel,
-  BuildPermissions,
+  BuildPermissionOptions,
+  CollectionDocument,
   CollectionModel,
-  CollectionPermissions,
+  CollectionPermissionOptions,
+  GameServerDocument,
   GameServerModel,
-  GameServerPermissions,
+  GameServerPermissionOptions,
+  GameServerTemplateDocument,
   GameServerTemplateModel,
-  GameServerTemplatePermissions,
+  GameServerTemplatePermissionOptions,
+  getRecordModel,
+  getRecordPermissionOptions,
+  GroupDocument,
+  GroupInvitationDocument,
   GroupInvitationModel,
-  GroupInvitationPermissions,
+  GroupInvitationPermissionOptions,
   GroupModel,
-  GroupPermissions,
+  GroupPermissionOptions,
+  MatchDocument,
+  MatchInvitationDocument,
   MatchInvitationModel,
-  MatchInvitationPermissions,
+  MatchInvitationPermissionOptions,
   MatchModel,
-  MatchPermissions,
+  MatchPermissionOptions,
+  QueueDocument,
+  QueueMemberDocument,
   QueueMemberModel,
-  QueueMemberPermissions,
+  QueueMemberPermissionOptions,
   QueueModel,
-  QueuePermissions,
-  RecordPermissions,
-  RecordSchema,
+  QueuePermissionOptions,
+  RecordDocument,
+  StorefrontDocument,
   StorefrontModel,
-  StorefrontPermissions,
+  StorefrontPermissionOptions,
+  TeamDocument,
   TeamModel,
-  TeamPermissions,
+  TeamPermissionOptions,
+  WebSocketDocument,
   WebSocketModel,
-  WebSocketPermissions,
+  WebSocketPermissionOptions,
+  WorkflowDocument,
   WorkflowModel,
-  WorkflowPermissions,
+  WorkflowPermissionOptions,
 } from '@tenlastic/mongoose';
 import { Context, subscribe, SubscribeOptions } from '@tenlastic/web-socket-server';
+import * as mongoose from 'mongoose';
 
-export async function handler(ctx: Context<SubscribeOptions>) {
+export async function handler(ctx: Context<SubscribeOptions<mongoose.Document>>) {
   switch (ctx.params.collection) {
     case 'articles':
-      return subscribe(ctx, ArticleModel, ArticlePermissions);
+      return subscribe<ArticleDocument>(ctx, ArticleModel, ArticlePermissionOptions);
 
     case 'builds':
-      return subscribe(ctx, BuildModel, BuildPermissions);
+      return subscribe<BuildDocument>(ctx, BuildModel, BuildPermissionOptions);
 
     case 'collections':
-      return subscribe(ctx, CollectionModel, CollectionPermissions);
+      return subscribe<CollectionDocument>(ctx, CollectionModel, CollectionPermissionOptions);
 
     case 'game-server-templates':
-      return subscribe(ctx, GameServerTemplateModel, GameServerTemplatePermissions);
+      return subscribe<GameServerTemplateDocument>(
+        ctx,
+        GameServerTemplateModel,
+        GameServerTemplatePermissionOptions,
+      );
 
     case 'game-servers':
-      return subscribe(ctx, GameServerModel, GameServerPermissions);
+      return subscribe<GameServerDocument>(ctx, GameServerModel, GameServerPermissionOptions);
 
     case 'group-invitations':
-      return subscribe(ctx, GroupInvitationModel, GroupInvitationPermissions);
+      return subscribe<GroupInvitationDocument>(
+        ctx,
+        GroupInvitationModel,
+        GroupInvitationPermissionOptions,
+      );
 
     case 'groups':
-      return subscribe(ctx, GroupModel, GroupPermissions);
+      return subscribe<GroupDocument>(ctx, GroupModel, GroupPermissionOptions);
 
     case 'match-invitations':
-      return subscribe(ctx, MatchInvitationModel, MatchInvitationPermissions);
+      return subscribe<MatchInvitationDocument>(
+        ctx,
+        MatchInvitationModel,
+        MatchInvitationPermissionOptions,
+      );
 
     case 'matches':
-      return subscribe(ctx, MatchModel, MatchPermissions);
+      return subscribe<MatchDocument>(ctx, MatchModel, MatchPermissionOptions);
 
     case 'queue-members':
-      return subscribe(ctx, QueueMemberModel, QueueMemberPermissions);
+      return subscribe<QueueMemberDocument>(ctx, QueueMemberModel, QueueMemberPermissionOptions);
 
     case 'queues':
-      return subscribe(ctx, QueueModel, QueuePermissions);
+      return subscribe<QueueDocument>(ctx, QueueModel, QueuePermissionOptions);
 
     case 'storefronts':
-      return subscribe(ctx, StorefrontModel, StorefrontPermissions);
+      return subscribe<StorefrontDocument>(ctx, StorefrontModel, StorefrontPermissionOptions);
 
     case 'teams':
-      return subscribe(ctx, TeamModel, TeamPermissions);
+      return subscribe<TeamDocument>(ctx, TeamModel, TeamPermissionOptions);
 
     case 'web-sockets':
-      return subscribe(ctx, WebSocketModel, WebSocketPermissions);
+      return subscribe<WebSocketDocument>(ctx, WebSocketModel, WebSocketPermissionOptions);
 
     case 'workflows':
-      return subscribe(ctx, WorkflowModel, WorkflowPermissions);
+      return subscribe<WorkflowDocument>(ctx, WorkflowModel, WorkflowPermissionOptions);
   }
 
   // Records.
   if (ctx.params.collectionId) {
     const collection = await CollectionModel.findOne({ _id: ctx.params.collectionId });
-    const Model = RecordSchema.getModel(collection);
-    const Permissions = RecordPermissions(collection, Model);
+    const Model = getRecordModel(collection);
+    const RecordPermissionOptions = getRecordPermissionOptions(collection);
 
-    return subscribe(ctx, Model, Permissions);
+    return subscribe<RecordDocument>(ctx, Model, RecordPermissionOptions);
   }
 }

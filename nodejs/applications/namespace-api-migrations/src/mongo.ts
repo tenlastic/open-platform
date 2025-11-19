@@ -7,14 +7,14 @@ import {
   enablePrePostImages,
   GameServerModel,
   GameServerTemplateModel,
+  getSchemaModel,
   GroupInvitationModel,
   GroupModel,
   MatchInvitationModel,
   MatchModel,
   NamespaceModel,
-  QueueModel,
   QueueMemberModel,
-  SchemaSchema,
+  QueueModel,
   StorefrontModel,
   syncIndexes,
   TeamModel,
@@ -22,11 +22,10 @@ import {
   WebSocketModel,
   WorkflowModel,
 } from '@tenlastic/mongoose';
-import { getModelForClass } from '@typegoose/typegoose';
 
 export async function mongo(connectionString: string, databaseName: string) {
   const connection = await connect({ connectionString, databaseName });
-  const SchemaModel = getModelForClass(SchemaSchema);
+  const SchemaModel = getSchemaModel();
 
   console.log('Syncing indexes...');
   await Promise.all([

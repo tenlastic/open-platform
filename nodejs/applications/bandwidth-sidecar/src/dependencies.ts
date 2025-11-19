@@ -3,9 +3,7 @@ import {
   ApiKeyInterceptor,
   ApiService,
   EnvironmentService,
-  GameServerQuery,
   GameServerService,
-  GameServerStore,
   RetryInterceptor,
 } from '@tenlastic/http';
 import { Axios } from 'axios';
@@ -28,20 +26,11 @@ injector.inject([
   { provide: Axios, useValue: new Axios() },
   { provide: EnvironmentService, useValue: new EnvironmentService({ apiKey, apiUrl }) },
   {
-    deps: [GameServerStore],
-    provide: GameServerQuery,
-    useFactory: (gameServerStore: GameServerStore) => new GameServerQuery(gameServerStore),
-  },
-  {
-    deps: [ApiService, EnvironmentService, GameServerStore],
+    deps: [ApiService, EnvironmentService],
     provide: GameServerService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      gameServerStore: GameServerStore,
-    ) => new GameServerService(apiService, environmentService, gameServerStore),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new GameServerService(apiService, environmentService),
   },
-  { provide: GameServerStore, useValue: new GameServerStore() },
   {
     deps: [Axios],
     provide: RetryInterceptor,
@@ -53,7 +42,5 @@ export default {
   apiService: injector.get(ApiService),
   axios: injector.get(Axios),
   environmentService: injector.get(EnvironmentService),
-  gameServerQuery: injector.get(GameServerQuery),
   gameServerService: injector.get(GameServerService),
-  gameServerStore: injector.get(GameServerStore),
 };

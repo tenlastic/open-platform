@@ -1,29 +1,22 @@
-import steam from '@tenlastic/steam';
 import { ContextMock, RequiredFieldError, UnauthorizedError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-import * as Chance from 'chance';
+import chaiAsPromised from 'chai-as-promised';
+import { Chance } from 'chance';
 import * as sinon from 'sinon';
 
-import { handler } from '.';
+import { CreateLoginWithSteamContext, dependencies, handler } from '.';
 
 const chance = new Chance();
 use(chaiAsPromised);
 
-describe('web-server/steam-integrations/logins', function () {
-  let sandbox: sinon.SinonSandbox;
-
+describe('web-server/logins/steam', function () {
   afterEach(function () {
-    sandbox.restore();
-  });
-
-  beforeEach(async function () {
-    sandbox = sinon.createSandbox();
+    sinon.restore();
   });
 
   context('when parameters are not provided', function () {
     it('throws an error', async function () {
-      const ctx: any = new ContextMock();
+      const ctx = ContextMock<CreateLoginWithSteamContext>();
 
       const promise = handler(ctx);
 
@@ -38,7 +31,7 @@ describe('web-server/steam-integrations/logins', function () {
   context('when parameters are provided', function () {
     context('when authentication is invalid', function () {
       it('throws an error', async function () {
-        const ctx: any = new ContextMock({
+        const ctx = ContextMock<CreateLoginWithSteamContext>({
           request: {
             body: {
               assocHandle: chance.hash(),
@@ -52,7 +45,7 @@ describe('web-server/steam-integrations/logins', function () {
           },
         });
 
-        sandbox.stub(steam, 'checkAuthentication').resolves(false);
+        sinon.stub(dependencies, 'checkAuthentication').resolves(false);
 
         const promise = handler(ctx);
 
@@ -63,7 +56,7 @@ describe('web-server/steam-integrations/logins', function () {
     context('when authentication is valid', function () {
       context('when the User is not found', function () {
         it('returns accessToken and refreshToken', async function () {
-          const ctx: any = new ContextMock({
+          const ctx = ContextMock<CreateLoginWithSteamContext>({
             request: {
               body: {
                 assocHandle: chance.hash(),
@@ -77,7 +70,7 @@ describe('web-server/steam-integrations/logins', function () {
             },
           });
 
-          sandbox.stub(steam, 'checkAuthentication').resolves(true);
+          sinon.stub(dependencies, 'checkAuthentication').resolves(true);
 
           await handler(ctx);
 
@@ -88,7 +81,7 @@ describe('web-server/steam-integrations/logins', function () {
 
       context('when the User is found', function () {
         it('returns accessToken and refreshToken', async function () {
-          const ctx: any = new ContextMock({
+          const ctx = ContextMock<CreateLoginWithSteamContext>({
             request: {
               body: {
                 assocHandle: chance.hash(),
@@ -102,7 +95,7 @@ describe('web-server/steam-integrations/logins', function () {
             },
           });
 
-          sandbox.stub(steam, 'checkAuthentication').resolves(true);
+          sinon.stub(dependencies, 'checkAuthentication').resolves(true);
 
           await handler(ctx);
 

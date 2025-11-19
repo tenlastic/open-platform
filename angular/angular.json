@@ -9,7 +9,7 @@
     "home": {
       "architect": {
         "build": {
-          "builder": "@angular-builders/custom-webpack:browser",
+          "builder": "@angular/build:application",
           "options": {
             "allowedCommonJsDependencies": [
               "@tenlastic/wait",
@@ -20,62 +20,35 @@
               "spark-md5"
             ],
             "aot": true,
-            "assets": ["applications/home/src/favicon.ico", "applications/home/src/assets"],
+            "assets": ["applications/home/src/favicon.ico", "applications/home/src/assets/"],
             "index": "applications/home/src/index.html",
-            "main": "applications/home/src/main.ts",
-            "outputPath": "applications/home/dist/angular/",
-            "polyfills": "applications/home/src/polyfills.ts",
-            "scripts": ["node_modules/marked/lib/marked.js"],
+            "outputPath": {
+              "base": "applications/home/dist/angular/"
+            },
+            "polyfills": [
+              "applications/home/src/polyfills.ts"
+            ],
+            "scripts": [
+              "node_modules/marked/lib/marked.js",
+              "node_modules/swagger-ui-dist/swagger-ui-bundle.js",
+              "node_modules/swagger-ui-dist/swagger-ui-standalone-preset.js"
+            ],
+            "stylePreprocessorOptions": { "includePaths": ["applications/home/"] },
             "styles": [
               "node_modules/swagger-ui-dist/swagger-ui.css",
-              "applications/home/src/assets/scss/index.scss",
-              {
-                "input": "node_modules/@angular/material/prebuilt-themes/indigo-pink.css"
-              }
+              "applications/home/src/assets/scss/index.scss"
             ],
             "tsConfig": "applications/home/tsconfig.app.json",
-            "webWorkerTsConfig": "applications/home/tsconfig.worker.json"
+            "webWorkerTsConfig": "applications/home/tsconfig.worker.json",
+            "browser": "applications/home/src/main.ts"
           },
           "configurations": {
             "development": {
               "aot": true,
-              "buildOptimizer": false,
               "extractLicenses": false,
               "namedChunks": false,
               "optimization": false,
-              "sourceMap": true,
-              "vendorChunk": false
-            },
-            "electron": {
-              "aot": true,
-              "budgets": [
-                {
-                  "maximumError": "10kb",
-                  "maximumWarning": "6kb",
-                  "type": "anyComponentStyle"
-                },
-                {
-                  "maximumError": "5mb",
-                  "maximumWarning": "3mb",
-                  "type": "initial"
-                }
-              ],
-              "buildOptimizer": true,
-              "customWebpackConfig": {
-                "path": "applications/home/electron.webpack.js"
-              },
-              "extractLicenses": true,
-              "fileReplacements": [
-                {
-                  "replace": "applications/home/src/environments/environment.ts",
-                  "with": "applications/home/src/environments/environment.electron.ts"
-                }
-              ],
-              "namedChunks": false,
-              "optimization": true,
-              "outputHashing": "all",
-              "sourceMap": false,
-              "vendorChunk": false
+              "sourceMap": true
             },
             "production": {
               "aot": true,
@@ -91,7 +64,6 @@
                   "type": "initial"
                 }
               ],
-              "buildOptimizer": true,
               "extractLicenses": true,
               "fileReplacements": [
                 {
@@ -102,8 +74,7 @@
               "namedChunks": false,
               "optimization": true,
               "outputHashing": "all",
-              "sourceMap": false,
-              "vendorChunk": false
+              "sourceMap": false
             }
           }
         },
@@ -114,24 +85,24 @@
           }
         },
         "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
+          "builder": "@angular/build:dev-server",
           "configurations": {
             "development": {
-              "browserTarget": "home:build:development"
+              "buildTarget": "home:build:development"
             },
             "production": {
-              "browserTarget": "home:build:production"
+              "buildTarget": "home:build:production"
             }
           },
           "defaultConfiguration": "development"
         },
         "test": {
-          "builder": "@angular-devkit/build-angular:karma",
+          "builder": "@angular/build:karma",
           "options": {
             "assets": ["applications/home/src/favicon.ico", "applications/home/src/assets"],
             "karmaConfig": "applications/home/karma.conf.js",
             "main": "applications/home/src/test.ts",
-            "polyfills": "applications/home/src/polyfills.ts",
+            "polyfills": ["applications/home/src/polyfills.ts"],
             "scripts": [],
             "styles": ["applications/home/src/assets/scss/index.scss"],
             "tsConfig": "applications/home/tsconfig.spec.json"
@@ -141,13 +112,41 @@
       "prefix": "app",
       "projectType": "application",
       "root": "applications/home",
-      "schematics": {
-        "@schematics/angular:component": {
-          "style": "scss"
-        }
-      },
+      "schematics": { "@schematics/angular:component": { "style": "scss" } },
       "sourceRoot": "applications/home/src"
     }
   },
-  "version": 1
+  "version": 1,
+  "schematics": {
+    "@angular-eslint/schematics:application": {
+      "setParserOptionsProject": true
+    },
+    "@angular-eslint/schematics:library": {
+      "setParserOptionsProject": true
+    },
+    "@schematics/angular:component": {
+      "type": "component"
+    },
+    "@schematics/angular:directive": {
+      "type": "directive"
+    },
+    "@schematics/angular:service": {
+      "type": "service"
+    },
+    "@schematics/angular:guard": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:interceptor": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:module": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:pipe": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:resolver": {
+      "typeSeparator": "."
+    }
+  }
 }

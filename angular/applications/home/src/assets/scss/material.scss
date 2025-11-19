@@ -1,631 +1,649 @@
-@import '~bootstrap/scss/bootstrap-grid.scss';
-@import './theme.scss';
+@use './colors.scss' as colors;
+@use './shadows.scss' as shadows;
 
-a.mat-list-item {
-  mat-icon.mat-icon {
-    color: #ffff00 !important;
-    font-size: 20px;
-    height: 20px;
-    line-height: 21px;
-    margin: 0px 8px 0px 0px;
-    width: 20px;
-  }
-}
-
-button.mat-icon-button[disabled][disabled] {
-  color: rgba(255, 255, 255, 0.25);
-}
-
-button.mat-menu-item {
-  height: 36px;
-  line-height: 36px;
-}
-
-div.cdk-overlay-dark-backdrop {
-  background: rgba(0, 0, 0, 0.5);
-}
-
-div.mat-autocomplete-panel {
-  background: black;
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
-
-  mat-option.mat-option {
-    color: white;
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
-  }
-}
-
-div.mat-card-header-text {
-  margin: 0px;
-}
-
-div.mat-dialog-actions {
-  justify-content: center;
-  margin-bottom: 0px;
-  padding-bottom: 0px;
-}
-
-div.mat-dialog-content {
-  p {
-    margin: 8px 0px;
-  }
-}
-
-div.mat-menu-content {
-  padding: 0px;
-}
-
-div.mat-menu-panel {
-  backdrop-filter: blur(5px);
-  background: rgba(0, 0, 0, 0.5);
-  border-radius: 0px;
-  min-height: auto;
-  min-width: auto;
-  overflow: initial;
-
-  div.mat-menu-content:not(:empty) {
-    padding: 0px;
-  }
-}
-
-div.mat-select-arrow {
-  color: white;
-}
-
-div.mat-select-panel {
-  background: black;
-}
-
-div.mat-select-value {
-  color: white;
-}
-
-div.mat-sort-header-content {
-  color: white;
-}
-
-div.mat-sort-header-sorted {
-  color: black;
-}
-
-div.mat-tooltip {
-  background: rgba(0, 0, 0, 0.5);
-  background-attachment: fixed;
-  background-position: center;
-  background-size: cover;
-  border-radius: 0px;
-  box-shadow: $box-shadow;
-  font-family: 'Oswald', sans-serif;
-  font-size: 14px;
-  padding: 6px 12px;
-  text-shadow: $text-shadow;
-  white-space: pre;
-}
-
-input.mat-chip-input {
-  margin-bottom: -2px !important;
-  margin-top: 0px !important;
-}
-
-mat-checkbox.mat-checkbox.mat-accent {
-  &.mat-checkbox-checked {
-    span.mat-checkbox-background {
-      background-color: white;
+@mixin old-styles {
+  a.mat-list-item {
+    mat-icon.mat-icon {
+      color: #ffff00 !important;
+      font-size: 20px;
+      height: 20px;
+      line-height: 21px;
+      margin: 0px 8px 0px 0px;
+      width: 20px;
     }
   }
 
-  &.mat-checkbox-disabled {
-    span.mat-checkbox-frame {
-      border-style: dashed;
-    }
+  button.mat-icon-button[disabled][disabled] {
+    color: rgba(255, 255, 255, 0.25);
   }
 
-  span.mat-checkbox-background {
-    border-radius: 0px;
-    bottom: 4px;
-    filter: $drop-shadow;
-    left: 4px;
-    right: 4px;
-    top: 4px;
-
-    svg {
-      display: none;
-    }
+  button.mat-menu-item {
+    height: 36px;
+    line-height: 36px;
   }
 
-  span.mat-checkbox-frame {
-    border-color: white;
-    border-radius: 0px;
-    filter: $drop-shadow;
+  div.cdk-overlay-dark-backdrop {
+    background: rgba(0, 0, 0, 0.5);
   }
 
-  span.mat-checkbox-inner-container {
-    height: 20px;
-    width: 20px;
-  }
+  div.mat-autocomplete-panel {
+    background: black;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
 
-  span.mat-checkbox-label {
-    color: white;
-    line-height: 19px;
-  }
-}
+    mat-option.mat-option {
+      color: white;
 
-mat-chip.mat-chip.mat-standard-chip {
-  background-color: rgba(0, 0, 0, 0.25);
-  border-radius: 0px;
-  box-shadow: $box-shadow;
-  color: white;
-
-  &:focus::after,
-  &:hover::after {
-    opacity: 0;
-  }
-
-  &.mat-chip-with-trailing-icon {
-    height: auto;
-    line-height: 16px;
-    min-height: initial;
-    padding-top: 4px;
-    padding-bottom: 4px;
-    padding-right: 4px;
-    padding-left: 8px;
-  }
-
-  mat-icon.mat-chip-remove {
-    color: #ffff00;
-    opacity: 1;
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.1);
-      opacity: 1 !important;
-    }
-  }
-}
-
-mat-chip-list.mat-chip-list {
-  div.mat-chip-list-wrapper {
-    margin-bottom: 4px;
-    margin-top: -4px;
-  }
-}
-
-mat-datepicker-content.mat-datepicker-content {
-  background: black;
-  color: white;
-
-  button.mat-calendar-period-button {
-    &:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
-  }
-
-  button.mat-icon-button {
-    border-radius: 0px;
-    color: white;
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
-  }
-
-  div.mat-calendar-arrow {
-    border-top-color: #ffff55;
-  }
-
-  div.mat-calendar-body-cell-content {
-    border-radius: 0px;
-    color: white;
-  }
-
-  div.mat-calendar-body-selected {
-    background: rgba(255, 255, 255, 0.2);
-  }
-
-  div.mat-calendar-body-today:not(.mat-calendar-body-selected) {
-    border-color: rgba(255, 255, 255, 0.5);
-  }
-
-  td.mat-calendar-body-cell:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  td.mat-calendar-body-label {
-    color: white;
-  }
-
-  thead.mat-calendar-table-header {
-    color: white;
-  }
-}
-
-mat-dialog-container.mat-dialog-container {
-  background: var(--background-image);
-  background-attachment: fixed;
-  background-position: center;
-  background-size: cover;
-  border-radius: 0px;
-  box-shadow: $box-shadow;
-  color: white;
-  padding: 16px 24px;
-}
-
-mat-form-field.mat-form-field {
-  display: block;
-
-  &.disabled {
-    pointer-events: none;
-
-    div.mat-form-field-underline {
-      background-image: linear-gradient(
-        to right,
-        rgba(0, 0, 0, 0.42) 0,
-        rgba(0, 0, 0, 0.42) 33%,
-        transparent 0
-      );
-      background-repeat: repeat-x;
-      background-size: 4px 100%;
-    }
-
-    mat-chip-list.mat-chip-list {
-      div.mat-chip-list-wrapper {
-        margin-bottom: 0px;
+      &:hover {
+        background: rgba(255, 255, 255, 0.2);
       }
     }
   }
 
-  &.mat-form-field-appearance-legacy {
-    div.mat-form-field-underline {
-      background-color: white;
+  div.mat-card-header-text {
+    margin: 0px;
+  }
+
+  div.mat-dialog-actions {
+    justify-content: center;
+    margin-bottom: 0px;
+    padding-bottom: 0px;
+  }
+
+  div.mat-dialog-content {
+    p {
+      margin: 8px 0px;
+    }
+  }
+
+  div.mat-menu-content {
+    padding: 0px;
+  }
+
+  div.mat-menu-panel {
+    backdrop-filter: blur(5px);
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 0px;
+    min-height: auto;
+    min-width: auto;
+    overflow: initial;
+
+    div.mat-menu-content:not(:empty) {
+      padding: 0px;
+    }
+  }
+
+  div.mat-select-arrow {
+    color: white;
+  }
+
+  div.mat-select-panel {
+    background: black;
+  }
+
+  div.mat-select-value {
+    color: white;
+  }
+
+  div.mat-sort-header-content {
+    color: white;
+  }
+
+  div.mat-sort-header-sorted {
+    color: black;
+  }
+
+  div.mat-tooltip {
+    background: rgba(0, 0, 0, 0.5);
+    background-attachment: fixed;
+    background-position: center;
+    background-size: cover;
+    border-radius: 0px;
+    box-shadow: shadows.$box-shadow;
+    font-family: 'Oswald', sans-serif;
+    font-size: 14px;
+    padding: 6px 12px;
+    text-shadow: shadows.$text-shadow;
+    white-space: pre;
+  }
+
+  input.mat-chip-input {
+    margin-bottom: -2px !important;
+    margin-top: 0px !important;
+  }
+
+  mat-checkbox.mat-checkbox.mat-accent {
+    &.mat-checkbox-checked {
+      span.mat-checkbox-background {
+        background-color: white;
+      }
     }
 
-    input {
-      caret-color: white;
+    &.mat-checkbox-disabled {
+      span.mat-checkbox-frame {
+        border-style: dashed;
+      }
+    }
+
+    span.mat-checkbox-background {
+      border-radius: 0px;
+      bottom: 4px;
+      filter: shadows.$drop-shadow;
+      left: 4px;
+      right: 4px;
+      top: 4px;
+
+      svg {
+        display: none;
+      }
+    }
+
+    span.mat-checkbox-frame {
+      border-color: white;
+      border-radius: 0px;
+      filter: shadows.$drop-shadow;
+    }
+
+    span.mat-checkbox-inner-container {
+      height: 20px;
+      width: 20px;
+    }
+
+    span.mat-checkbox-label {
       color: white;
-      line-height: 24px;
-      text-overflow: ellipsis;
+      line-height: 19px;
+    }
+  }
+
+  mat-chip.mat-chip.mat-standard-chip {
+    background-color: rgba(0, 0, 0, 0.25);
+    border-radius: 0px;
+    box-shadow: shadows.$box-shadow;
+    color: white;
+
+    &:focus::after,
+    &:hover::after {
+      opacity: 0;
+    }
+
+    &.mat-chip-with-trailing-icon {
+      height: auto;
+      line-height: 16px;
+      min-height: initial;
+      padding-top: 4px;
+      padding-bottom: 4px;
+      padding-right: 4px;
+      padding-left: 8px;
+    }
+
+    mat-icon.mat-chip-remove {
+      color: #ffff00;
+      opacity: 1;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+        opacity: 1 !important;
+      }
+    }
+  }
+
+  mat-chip-list.mat-chip-list {
+    div.mat-chip-list-wrapper {
+      margin-bottom: 4px;
+      margin-top: -4px;
+    }
+  }
+
+  mat-datepicker-content.mat-datepicker-content {
+    background: black;
+    color: white;
+
+    button.mat-calendar-period-button {
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+    }
+
+    button.mat-icon-button {
+      border-radius: 0px;
+      color: white;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+    }
+
+    div.mat-calendar-arrow {
+      border-top-color: #ffff55;
+    }
+
+    div.mat-calendar-body-cell-content {
+      border-radius: 0px;
+      color: white;
+    }
+
+    div.mat-calendar-body-selected {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    div.mat-calendar-body-today:not(.mat-calendar-body-selected) {
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    td.mat-calendar-body-cell:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    td.mat-calendar-body-label {
+      color: white;
+    }
+
+    thead.mat-calendar-table-header {
+      color: white;
+    }
+  }
+
+  mat-dialog-container.mat-dialog-container {
+    background: var(--background-image);
+    background-attachment: fixed;
+    background-position: center;
+    background-size: cover;
+    border-radius: 0px;
+    box-shadow: shadows.$box-shadow;
+    color: white;
+    padding: 16px 24px;
+  }
+
+  mat-form-field.mat-form-field {
+    display: block;
+
+    &.disabled {
+      pointer-events: none;
+
+      div.mat-form-field-underline {
+        background-image: linear-gradient(
+          to right,
+          rgba(0, 0, 0, 0.42) 0,
+          rgba(0, 0, 0, 0.42) 33%,
+          transparent 0
+        );
+        background-repeat: repeat-x;
+        background-size: 4px 100%;
+      }
+
+      mat-chip-list.mat-chip-list {
+        div.mat-chip-list-wrapper {
+          margin-bottom: 0px;
+        }
+      }
+    }
+
+    &.mat-form-field-appearance-legacy {
+      div.mat-form-field-underline {
+        background-color: white;
+      }
+
+      input {
+        caret-color: white;
+        color: white;
+        line-height: 24px;
+        text-overflow: ellipsis;
+
+        &::placeholder {
+          color: white;
+          font-weight: 300;
+          opacity: 0.5;
+        }
+      }
+
+      label.mat-form-field-label {
+        color: white;
+      }
+    }
+
+    &.mat-form-field-invalid {
+      padding-bottom: 16px;
+    }
+
+    div.mat-form-field-infix {
+      width: 180px;
+
+      &:not(:only-child) {
+        width: 148px;
+      }
+    }
+
+    div.mat-form-field-suffix {
+      margin-left: 4px;
+    }
+
+    .mat-input-element:disabled {
+      color: white;
+    }
+
+    mat-error.mat-error {
+      line-height: 14px;
+    }
+
+    mat-select.mat-select {
+      margin-top: 3.5px;
+    }
+
+    textarea {
+      caret-color: white;
+      line-height: normal;
+      overflow-y: hidden;
 
       &::placeholder {
         color: white;
         font-weight: 300;
         opacity: 0.5;
       }
-    }
 
-    label.mat-form-field-label {
+      & + span label {
+        line-height: 24px;
+      }
+    }
+  }
+
+  mat-form-field.mat-form-field-appearance-legacy {
+    div.mat-form-field-suffix .mat-icon-button {
       color: white;
     }
   }
 
-  &.mat-form-field-invalid {
-    padding-bottom: 16px;
+  mat-icon.mat-icon {
+    overflow: visible;
   }
 
-  div.mat-form-field-infix {
-    width: 180px;
+  mat-nav-list.mat-nav-list {
+    padding-top: 0px;
 
-    &:not(:only-child) {
-      width: 148px;
+    a.mat-list-item {
+      background: rgba(0, 0, 0, 0.5);
+      color: rgba(255, 255, 255, 0.5);
+
+      &.active,
+      &:hover {
+        background: transparent;
+      }
+
+      div.mat-list-item-content {
+        color: white;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
     }
   }
 
-  div.mat-form-field-suffix {
-    margin-left: 4px;
+  mat-option.mat-option {
+    color: rgba(255, 255, 255, 0.5);
+
+    &.mat-option.mat-active:not(.mat-selected) {
+      color: rgba(255, 255, 255, 0.5);
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+    }
+
+    &.mat-option.mat-selected:not(.mat-option-disabled) {
+      color: white;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+    }
+
+    &:hover,
+    &:hover:not(.mat-option-disabled) {
+      background: rgba(255, 255, 255, 0.2);
+    }
   }
 
-  .mat-input-element:disabled {
+  mat-paginator.mat-paginator {
+    background: transparent;
     color: white;
+
+    .mat-paginator-container {
+      padding: 0px;
+    }
   }
 
-  mat-error.mat-error {
-    line-height: 14px;
+  mat-progress-bar.mat-progress-bar {
+    div.mat-progress-bar-buffer {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    div.mat-progress-bar-fill {
+      transition-duration: 10ms;
+
+      &::after {
+        background: #ffff55;
+      }
+    }
+
+    svg.mat-progress-bar-background {
+      fill: transparent;
+    }
+  }
+
+  mat-pseudo-checkbox.mat-pseudo-checkbox {
+    color: rgba(255, 255, 255, 0.5);
   }
 
   mat-select.mat-select {
-    margin-top: 3.5px;
-  }
+    margin-bottom: -2px;
 
-  textarea {
-    caret-color: white;
-    line-height: normal;
-    overflow-y: hidden;
+    &.mat-select-disabled {
+      div.mat-select-arrow {
+        color: white !important;
+      }
 
-    &::placeholder {
-      color: white;
-      font-weight: 300;
-      opacity: 0.5;
+      div.mat-select-value {
+        color: white !important;
+      }
     }
 
-    & + span label {
-      line-height: 24px;
-    }
-  }
-}
-
-mat-form-field.mat-form-field-appearance-legacy {
-  div.mat-form-field-suffix .mat-icon-button {
-    color: white;
-  }
-}
-
-mat-icon.mat-icon {
-  overflow: visible;
-}
-
-mat-nav-list.mat-nav-list {
-  padding-top: 0px;
-
-  a.mat-list-item {
-    background: rgba(0, 0, 0, 0.5);
-    color: rgba(255, 255, 255, 0.5);
-
-    &.active,
-    &:hover {
-      background: transparent;
-    }
-
-    div.mat-list-item-content {
-      color: white;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-  }
-}
-
-mat-option.mat-option {
-  color: rgba(255, 255, 255, 0.5);
-
-  &.mat-option.mat-active:not(.mat-selected) {
-    color: rgba(255, 255, 255, 0.5);
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.2);
+    .mat-select-placeholder {
+      color: rgba(255, 255, 255, 0.5);
     }
   }
 
-  &.mat-option.mat-selected:not(.mat-option-disabled) {
-    color: white;
+  mat-spinner.mat-spinner {
+    display: inline-block;
+    filter: shadows.$drop-shadow;
+    margin-right: 8px;
+    margin-top: 2px;
+    vertical-align: middle;
 
-    &:hover {
-      background: rgba(255, 255, 255, 0.2);
+    circle {
+      stroke: white;
     }
   }
 
-  &:hover,
-  &:hover:not(.mat-option-disabled) {
-    background: rgba(255, 255, 255, 0.2);
-  }
-}
+  mat-tree.mat-tree {
+    background: transparent;
 
-mat-paginator.mat-paginator {
-  background: transparent;
-  color: white;
-
-  .mat-paginator-container {
-    padding: 0px;
-  }
-}
-
-mat-progress-bar.mat-progress-bar {
-  div.mat-progress-bar-buffer {
-    background: rgba(255, 255, 255, 0.25);
-  }
-
-  div.mat-progress-bar-fill {
-    transition-duration: 10ms;
-
-    &::after {
-      background: #ffff55;
-    }
-  }
-
-  svg.mat-progress-bar-background {
-    fill: transparent;
-  }
-}
-
-mat-pseudo-checkbox.mat-pseudo-checkbox {
-  color: rgba(255, 255, 255, 0.5);
-}
-
-mat-radio-button.mat-radio-button.mat-accent {
-  &.mat-radio-checked {
-    span.mat-radio-inner-circle {
-      background-color: white;
-      border-radius: 2px;
-      filter: $drop-shadow;
-    }
-
-    span.mat-radio-outer-circle {
-      border-color: white;
-      border-radius: 2px;
-      filter: $drop-shadow;
-    }
-
-    span.mat-ripple {
+    .hidden {
       display: none;
     }
+
+    div.mat-tree-node,
+    li.mat-tree-node {
+      color: white;
+      padding: 0px 16px;
+    }
+
+    li,
+    ul {
+      margin-top: 0;
+      margin-bottom: 0;
+      list-style-type: none;
+    }
   }
 
-  &.mat-radio-disabled {
-    span.mat-radio-label-content {
+  snack-bar-container.mat-snack-bar-container {
+    background: rgba(0, 0, 0, 0.75);
+    color: white;
+    min-width: initial;
+    padding-left: 20px;
+
+    div.mat-simple-snackbar-action {
+      color: white;
+
+      button:hover {
+        background: rgba(255, 255, 255, 0.125);
+      }
+    }
+  }
+
+  table.mat-table {
+    background: transparent;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    width: 100%;
+
+    button.mat-sort-header-button {
       color: white;
     }
 
-    span.mat-radio-outer-circle {
-      border-style: dashed;
-    }
-  }
-
-  span.mat-radio-outer-circle {
-    border-color: white;
-    border-radius: 4px;
-    filter: $drop-shadow;
-  }
-}
-
-mat-select.mat-select {
-  margin-bottom: -2px;
-
-  &.mat-select-disabled {
-    div.mat-select-arrow {
-      color: white !important;
+    div.mat-sort-header-stem {
+      color: #ffff55;
     }
 
-    div.mat-select-value {
-      color: white !important;
+    div.mat-sort-header-indicator {
+      color: #ffff55;
     }
-  }
 
-  .mat-select-placeholder {
-    color: rgba(255, 255, 255, 0.5);
-  }
-}
+    td.mat-cell {
+      color: white;
+      min-height: 54px;
+      padding: 8px;
 
-mat-sidenav.mat-sidenav {
-  border-right: none;
+      &:first-of-type {
+        padding-left: 16px;
+      }
 
-  .mat-drawer-inner-container {
-    display: flex;
-    flex-flow: column;
-  }
-}
+      &:last-of-type {
+        padding-right: 16px;
+      }
+    }
 
-mat-sidenav-container.mat-drawer-container {
-  background: transparent;
-}
+    th.mat-header-cell {
+      color: white;
+      padding: 8px;
 
-mat-spinner.mat-spinner {
-  display: inline-block;
-  filter: $drop-shadow;
-  margin-right: 8px;
-  margin-top: 2px;
-  vertical-align: middle;
+      &:first-of-type {
+        padding-left: 16px;
+      }
 
-  circle {
-    stroke: white;
-  }
-}
+      &:last-of-type {
+        padding-right: 16px;
+      }
+    }
 
-mat-toolbar.mat-toolbar-single-row {
-  height: 36px;
-  padding: 0px;
-  overflow-y: hidden;
-}
+    tr.mat-row {
+      height: 53px;
+    }
 
-mat-tree.mat-tree {
-  background: transparent;
+    .mat-column-actions {
+      text-align: right;
 
-  .hidden {
-    display: none;
-  }
+      app-button {
+        margin-left: 8px;
+      }
+    }
 
-  div.mat-tree-node,
-  li.mat-tree-node {
-    color: white;
-    padding: 0px 16px;
-  }
+    .mat-header-row {
+      background: rgba(0, 0, 0, 0.5);
+    }
 
-  li,
-  ul {
-    margin-top: 0;
-    margin-bottom: 0;
-    list-style-type: none;
-  }
-}
+    .mat-row:nth-child(odd) {
+      background: rgba(0, 0, 0, 0.125);
 
-snack-bar-container.mat-snack-bar-container {
-  background: rgba(0, 0, 0, 0.75);
-  color: white;
-  min-width: initial;
-  padding-left: 20px;
+      &.highlight {
+        background: rgba(255, 255, 255, 0.125);
+        cursor: pointer;
+      }
+    }
 
-  div.mat-simple-snackbar-action {
-    color: white;
+    .mat-row:nth-child(even) {
+      background: rgba(0, 0, 0, 0.25);
 
-    button:hover {
-      background: rgba(255, 255, 255, 0.125);
+      &.highlight {
+        background: rgba(255, 255, 255, 0.125);
+        cursor: pointer;
+      }
     }
   }
 }
 
-table.mat-table {
-  background: transparent;
-  border: 1px solid rgba(0, 0, 0, 0.5);
-  width: 100%;
+@mixin styles {
+  :root {
+    --mat-checkbox-label-text-line-height: 37px;
+    --mat-checkbox-state-layer-size: 28px;
 
-  button.mat-sort-header-button {
-    color: white;
+    --mat-option-hover-state-layer-color: #{colors.$accent-hover};
+    --mat-option-label-text-color: white;
+    --mat-option-selected-state-layer-color: #{colors.$accent-active};
+
+    --mat-radio-label-text-line-height: 37px;
+    --mat-radio-state-layer-size: 37px;
+    --mat-radio-touch-target-size: 37px;
+
+    --mat-select-trigger-text-line-height: 36px;
+
+    --mat-sys-body-large-size: 14px;
+    --mat-sys-body-medium-size: 14px;
   }
 
-  div.mat-sort-header-stem {
-    color: #ffff55;
+  // Checkbox.
+  mat-checkbox {
+    margin-left: -4px;
   }
 
-  div.mat-sort-header-indicator {
-    color: #ffff55;
+  // Icon.
+  mat-icon.fill {
+    font-variation-settings: 'FILL' 1;
   }
 
-  td.mat-cell {
-    color: white;
-    min-height: 54px;
-    padding: 8px;
-
-    &:first-of-type {
-      padding-left: 16px;
-    }
-
-    &:last-of-type {
-      padding-right: 16px;
-    }
+  // Radio.
+  mat-radio-button div.mdc-form-field {
+    padding: 0px 8px;
   }
 
-  th.mat-header-cell {
-    color: white;
-    padding: 8px;
+  // Select.
+  div.cdk-overlay-pane {
+    div[role='listbox'] {
+      background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), var(--background-image);
+      background-attachment: fixed;
+      background-position: center;
+      background-size: cover;
+      border-radius: 0px;
+      box-shadow: shadows.$box-shadow;
+      color: white;
+      margin-top: 4px;
+      padding: 0px;
 
-    &:first-of-type {
-      padding-left: 16px;
-    }
-
-    &:last-of-type {
-      padding-right: 16px;
-    }
-  }
-
-  tr.mat-row {
-    height: 53px;
-  }
-
-  .mat-column-actions {
-    text-align: right;
-
-    app-button {
-      margin-left: 8px;
-    }
-  }
-
-  .mat-header-row {
-    background: rgba(0, 0, 0, 0.5);
-  }
-
-  .mat-row:nth-child(odd) {
-    background: rgba(0, 0, 0, 0.125);
-
-    &.highlight {
-      background: rgba(255, 255, 255, 0.125);
-      cursor: pointer;
+      mat-option.mat-mdc-option {
+        mat-pseudo-checkbox.mat-pseudo-checkbox {
+          color: white;
+        }
+      }
     }
   }
 
-  .mat-row:nth-child(even) {
-    background: rgba(0, 0, 0, 0.25);
+  mat-select {
+    border-bottom: 1px solid white;
+    cursor: pointer;
 
-    &.highlight {
-      background: rgba(255, 255, 255, 0.125);
+    &[aria-disabled='true'] {
+      border-bottom-style: dashed;
+    }
+
+    option {
+      background: black;
+      color: white;
       cursor: pointer;
     }
   }

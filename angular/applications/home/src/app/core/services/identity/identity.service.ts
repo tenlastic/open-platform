@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
 import {
   AuthorizationModel,
-  AuthorizationQuery,
+  AuthorizationState,
   Jwt,
   TokenService,
   UserModel,
-  UserQuery,
-  UserStore,
+  UserState,
 } from '@tenlastic/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -28,10 +27,9 @@ export class IdentityService {
   private _user: UserModel;
 
   constructor(
-    private authorizationQuery: AuthorizationQuery,
+    private authorizationState: AuthorizationState,
     private tokenService: TokenService,
-    private userQuery: UserQuery,
-    private userStore: UserStore,
+    private userState: UserState,
   ) {
     this.tokenService.emitter.on('accessToken', (accessToken) => this.setAccessToken(accessToken));
     this.tokenService.getAccessToken().then((accessToken) => this.setAccessToken(accessToken));
@@ -41,14 +39,16 @@ export class IdentityService {
     this._user = accessToken?.payload?.user;
 
     if (this._user) {
-      this.userStore.upsertMany([this._user]);
+      this.userState.upsertMany([this._user]);
     }
 
-    this._$authorization = this.authorizationQuery
-      .selectAll({ filterBy: (a) => !a.namespaceId && a.userId === this._user?._id })
+    this._$authorization = this.authorizationState
+      .selectMany()
+      .pipe(map((as) => as.filter((a) => !a.namespaceId && a.userId === this._user?._id)))
       .pipe(map((a) => a[0]));
-    this._$user = this.userQuery
-      .selectAll({ filterBy: (u) => this._user?._id === u?._id })
+    this._$user = this.userState
+      .selectMany()
+      .pipe(map((us) => us.filter((u) => this._user?._id === u?._id)))
       .pipe(map((u) => u[0]));
   }
 }

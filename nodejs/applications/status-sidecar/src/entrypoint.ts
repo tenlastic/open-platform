@@ -1,5 +1,5 @@
-import 'source-map-support/register';
 import '@tenlastic/logging';
+import 'source-map-support/register';
 
 import { CoreV1Event, V1Deployment, V1Job, V1Pod, V1StatefulSet } from '@kubernetes/client-node';
 import {
@@ -13,17 +13,17 @@ import {
 import axios from 'axios';
 import { isDeepStrictEqual } from 'util';
 
+import { version } from '../package.json';
+import { Component, getComponents } from './get-components';
+import { getMessage } from './get-message';
+import { getNodes, Node } from './get-nodes';
+
 interface Status {
   components: Component[];
   message: string;
   nodes: Node[];
   version: string;
 }
-
-import { version } from '../package.json';
-import { Component, getComponents } from './get-components';
-import { getMessage } from './get-message';
-import { getNodes, Node } from './get-nodes';
 
 const apiKey = process.env.API_KEY;
 const endpoint = process.env.ENDPOINT;

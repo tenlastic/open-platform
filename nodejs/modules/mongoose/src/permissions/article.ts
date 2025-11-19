@@ -1,6 +1,6 @@
-import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
+import { IOptions } from '@tenlastic/mongoose-permissions';
 
-import { ArticleDocument, ArticleModel, AuthorizationRole } from '../models';
+import { ArticleDocument, AuthorizationRole } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
 const administrator = {
@@ -8,7 +8,7 @@ const administrator = {
   update: ['body', 'publishedAt', 'subtitle', 'title', 'type'],
 };
 
-export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(ArticleModel, {
+export const ArticlePermissionOptions: IOptions<ArticleDocument> = {
   create: {
     'namespace-write': administrator.create,
     'user-write': administrator.create,
@@ -68,4 +68,4 @@ export const ArticlePermissions = new MongoosePermissions<ArticleDocument>(Artic
     'namespace-write': administrator.update,
     'user-write': administrator.update,
   },
-});
+};

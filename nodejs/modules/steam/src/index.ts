@@ -1,13 +1,5 @@
-import { authenticateUserTicket } from './authenticate-user-ticket';
-import { checkAppOwnership } from './check-app-ownership';
-import { checkAuthentication } from './check-authentication';
-import { getPartnerAppListForWebApiKey } from './get-partner-app-list-for-web-api-key';
-import { getPlayerSummaries } from './get-player-summaries';
-
-export default {
-  authenticateUserTicket,
-  checkAppOwnership,
-  checkAuthentication,
-  getPartnerAppListForWebApiKey,
-  getPlayerSummaries,
-};
+export * from './authenticate-user-ticket';
+export * from './check-app-ownership';
+export * from './check-authentication';
+export * from './get-partner-app-list-for-web-api-key';
+export * from './get-player-summaries';

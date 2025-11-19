@@ -1,4 +1,4 @@
-import { WorkflowPermissions } from '@tenlastic/mongoose';
+import { WorkflowModel, WorkflowPermissionOptions } from '@tenlastic/mongoose';
 import { find } from '@tenlastic/web-server';
 
-export const handler = find(WorkflowPermissions);
+export const handler = find(WorkflowModel, WorkflowPermissionOptions);

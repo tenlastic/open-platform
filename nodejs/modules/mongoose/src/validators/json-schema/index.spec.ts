@@ -2,7 +2,7 @@ import { expect } from 'chai';
 
 import { jsonSchemaValidator } from './';
 
-const { msg, validator } = jsonSchemaValidator;
+const { message, validator } = jsonSchemaValidator;
 
 describe('validators/json-schema', function () {
   describe('root', function () {
@@ -17,9 +17,9 @@ describe('validators/json-schema', function () {
         };
 
         const result = validator(value);
-        const message = msg();
+        const msg = message();
 
-        expect(message).to.eql('/additionalProperties must be boolean');
+        expect(msg).to.eql('/additionalProperties must be boolean');
         expect(result).to.eql(false);
       });
 
@@ -49,9 +49,9 @@ describe('validators/json-schema', function () {
           };
 
           const result = validator(value);
-          const message = msg();
+          const msg = message();
 
-          expect(message).to.eql('/properties must NOT have additional properties');
+          expect(msg).to.eql('/properties must NOT have additional properties');
           expect(result).to.eql(false);
         });
 
@@ -90,9 +90,9 @@ describe('validators/json-schema', function () {
           };
 
           const result = validator(value);
-          const message = msg();
+          const msg = message();
 
-          expect(message).to.eql(
+          expect(msg).to.eql(
             '/properties/key/items/properties/key/items/type ' +
               'must be equal to one of the allowed values',
           );
@@ -144,9 +144,9 @@ describe('validators/json-schema', function () {
             };
 
             const result = validator(value);
-            const message = msg();
+            const msg = message();
 
-            expect(message).to.eql(
+            expect(msg).to.eql(
               '/properties/key/items/properties must NOT have additional properties',
             );
             expect(result).to.eql(false);
@@ -243,9 +243,9 @@ describe('validators/json-schema', function () {
           };
 
           const result = validator(value);
-          const message = msg();
+          const msg = message();
 
-          expect(message).to.eql(
+          expect(msg).to.eql(
             '/properties/key/properties/key/properties/key/type ' +
               'must be equal to one of the allowed values',
           );
@@ -295,9 +295,9 @@ describe('validators/json-schema', function () {
             };
 
             const result = validator(value);
-            const message = msg();
+            const msg = message();
 
-            expect(message).to.eql(
+            expect(msg).to.eql(
               '/properties/key/properties/key/properties must NOT have additional properties',
             );
             expect(result).to.eql(false);
@@ -352,11 +352,9 @@ describe('validators/json-schema', function () {
             };
 
             const result = validator(value);
-            const message = msg();
+            const msg = message();
 
-            expect(message).to.eql(
-              '/properties/key/format must be equal to one of the allowed values',
-            );
+            expect(msg).to.eql('/properties/key/format must be equal to one of the allowed values');
             expect(result).to.eql(false);
           });
 
@@ -387,9 +385,9 @@ describe('validators/json-schema', function () {
         };
 
         const result = validator(value);
-        const message = msg();
+        const msg = message();
 
-        expect(message).to.eql('/required must be array');
+        expect(msg).to.eql('/required must be array');
         expect(result).to.eql(false);
       });
 
@@ -418,9 +416,9 @@ describe('validators/json-schema', function () {
         };
 
         const result = validator(value);
-        const message = msg();
+        const msg = message();
 
-        expect(message).to.eql('/type must be equal to one of the allowed values');
+        expect(msg).to.eql('/type must be equal to one of the allowed values');
         expect(result).to.eql(false);
       });
 

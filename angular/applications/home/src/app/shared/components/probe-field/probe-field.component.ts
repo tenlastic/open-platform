@@ -23,6 +23,7 @@ export interface ProbeFormGroup {
 
 @Component({
   selector: 'app-probe-field',
+  standalone: false,
   styleUrls: ['probe-field.component.scss'],
   templateUrl: 'probe-field.component.html',
 })

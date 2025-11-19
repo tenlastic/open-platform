@@ -11,7 +11,7 @@ describe('get-memory', function () {
       { status: { used: { memory: '1' } } },
     ];
 
-    const result = getMemory(resourceQuotas as any);
+    const result = getMemory(resourceQuotas);
 
     expect(result).to.eql(1001001001);
   });

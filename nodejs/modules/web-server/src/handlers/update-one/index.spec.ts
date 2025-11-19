@@ -1,42 +1,54 @@
+import * as permissions from '@tenlastic/mongoose-permissions';
 import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
+import chaiAsPromised from 'chai-as-promised';
 import { Chance } from 'chance';
+import * as mongoose from 'mongoose';
+import * as sinon from 'sinon';
 
-import { ContextMock } from '../../context';
-import { RecordNotFoundError } from '../../errors';
-import { updateOne } from './';
+import { ContextMock } from '../../mocks';
+import { dependencies, updateOne, UpdateOneContext } from './';
 
 const chance = new Chance();
 use(chaiAsPromised);
 
+const Schema = new mongoose.Schema({ name: String });
+type Document = mongoose.Document & mongoose.InferSchemaType<typeof Schema>;
+const Model = mongoose.model<Document>('handlers/update-one', Schema);
+const Permissions = {};
+
 describe('handlers/update-one', function () {
+  afterEach(async function () {
+    sinon.restore();
+  });
+
   context('when permission is granted', function () {
     it('returns the record', async function () {
+      const ctx = ContextMock<UpdateOneContext<Document>>();
       const name = chance.hash();
 
-      const ctx = new ContextMock();
-      const Permissions = {
-        findOne: () => Promise.resolve({ name }),
-        read: () => Promise.resolve({ name }),
-        update: () => Promise.resolve({ name }),
-      };
+      sinon.stub(dependencies, 'findOne').resolves({ name });
+      sinon.stub(dependencies, 'read').resolves({ name });
+      sinon.stub(dependencies, 'updateOne').resolves({ name });
 
-      const handler = updateOne(Permissions as any);
-      await handler(ctx as any);
+      const handler = updateOne(Model, Permissions);
+      await handler(ctx);
 
-      expect(ctx.response.body.record).to.exist;
+      expect(ctx.response.body.record).to.eql({ name });
     });
   });
 
   context('when permission is denied', function () {
     it('throws an error', async function () {
-      const ctx = new ContextMock();
-      const Permissions = { findOne: () => Promise.resolve(null) };
+      const ctx = ContextMock<UpdateOneContext<Document>>();
+      const name = chance.hash();
 
-      const handler = updateOne(Permissions as any);
-      const promise = handler(ctx as any);
+      sinon.stub(dependencies, 'findOne').resolves({ name });
+      sinon.stub(dependencies, 'updateOne').rejects(new permissions.PermissionError());
 
-      return expect(promise).to.be.rejectedWith(RecordNotFoundError);
+      const handler = updateOne(Model, Permissions);
+      const promise = handler(ctx);
+
+      return expect(promise).to.be.rejectedWith(permissions.PermissionError);
     });
   });
 });

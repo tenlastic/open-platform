@@ -1,4 +1,4 @@
-@import 'src/assets/scss/theme.scss';
+@use 'src/assets/scss/shadows.scss' as shadows;
 
 @keyframes color {
   0% {
@@ -36,7 +36,7 @@
 
         div.badge {
           background: transparent;
-          filter: $drop-shadow;
+          filter: shadows.$drop-shadow;
         }
       }
 
@@ -50,7 +50,7 @@
 
       div.badge {
         background: #d74444;
-        filter: $drop-shadow;
+        filter: shadows.$drop-shadow;
         float: right;
         font-size: 12px;
         height: 20px;
@@ -61,7 +61,7 @@
     }
 
     > div.nav {
-      box-shadow: $box-shadow-left !important;
+      box-shadow: shadows.$box-shadow-left !important;
       min-width: 150px;
     }
   }

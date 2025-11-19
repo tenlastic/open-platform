@@ -1,6 +1,6 @@
 import wait from '@tenlastic/wait';
 import { expect } from 'chai';
-import * as Chance from 'chance';
+import { Chance } from 'chance';
 
 import dependencies from '../../dependencies';
 import * as helpers from '../helpers';

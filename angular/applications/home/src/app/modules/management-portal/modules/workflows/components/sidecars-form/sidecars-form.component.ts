@@ -4,9 +4,10 @@ import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatChipInputEvent } from '@angular/material/chips';
 
 @Component({
-  templateUrl: 'sidecars-form.component.html',
   selector: 'app-workflow-sidecars-form',
+  standalone: false,
   styleUrls: ['./sidecars-form.component.scss'],
+  templateUrl: 'sidecars-form.component.html',
 })
 export class WorkflowSidecarsFormComponent {
   @Input() public formArray: FormArray;

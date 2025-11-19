@@ -1,6 +1,6 @@
 import * as mongoose from '@tenlastic/mongoose';
 import { expect } from 'chai';
-import * as Chance from 'chance';
+import { Chance } from 'chance';
 import { Document, Model, Schema } from 'mongoose';
 
 import { replicateFromMongo } from './';

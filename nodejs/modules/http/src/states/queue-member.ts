@@ -1,15 +1,9 @@
-import { EntityState, QueryEntity, StoreConfig } from '@datorama/akita';
+import { QueueMemberModel } from '../models';
+import { QueueMemberService } from '../services';
+import { BaseState } from './base';
 
-import { QueueMemberModel } from '../models/queue-member';
-import { BaseStore } from './base';
-
-export interface QueueMemberState extends EntityState<QueueMemberModel> {}
-
-@StoreConfig({ idKey: '_id', deepFreezeFn: (o) => o, name: 'queue-members', resettable: true })
-export class QueueMemberStore extends BaseStore<QueueMemberState, QueueMemberModel> {}
-
-export class QueueMemberQuery extends QueryEntity<QueueMemberState, QueueMemberModel> {
-  constructor(protected store: QueueMemberStore) {
-    super(store);
+export class QueueMemberState extends BaseState<QueueMemberModel, QueueMemberService> {
+  constructor(service: QueueMemberService) {
+    super('_id', service);
   }
 }

@@ -3,51 +3,31 @@ import {
   AccessTokenInterceptor,
   ApiService,
   AuthorizationService,
-  AuthorizationStore,
   BuildLogService,
-  BuildLogStore,
   BuildService,
-  BuildStore,
   CollectionService,
-  CollectionStore,
   EnvironmentService,
   GameServerLogService,
-  GameServerLogStore,
   GameServerService,
-  GameServerStore,
   GameServerTemplateService,
-  GameServerTemplateStore,
   GroupInvitationService,
-  GroupInvitationStore,
   GroupService,
-  GroupStore,
   LoginService,
   MatchService,
-  MatchStore,
   NamespaceService,
-  NamespaceStore,
   PasswordResetService,
   QueueLogService,
-  QueueLogStore,
   QueueMemberService,
-  QueueMemberStore,
   QueueService,
-  QueueStore,
   RecordService,
-  RecordStore,
   RetryInterceptor,
   SubscriptionService,
   TeamService,
-  TeamStore,
   TokenService,
   UserService,
-  UserStore,
   WebSocketService,
-  WebSocketStore,
   WorkflowLogService,
-  WorkflowLogStore,
   WorkflowService,
-  WorkflowStore,
 } from '@tenlastic/http';
 import { Axios } from 'axios';
 
@@ -76,86 +56,59 @@ const services: injector.Injection[] = [
     useFactory: (axios: Axios) => new ApiService(axios),
   },
   {
-    deps: [ApiService, AuthorizationStore, EnvironmentService],
+    deps: [ApiService, EnvironmentService],
     provide: AuthorizationService,
-    useFactory: (
-      apiService: ApiService,
-      authorizationStore: AuthorizationStore,
-      environmentService: EnvironmentService,
-    ) => new AuthorizationService(apiService, authorizationStore, environmentService),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new AuthorizationService(apiService, environmentService),
   },
   {
-    deps: [ApiService, BuildLogStore, EnvironmentService],
+    deps: [ApiService, EnvironmentService],
     provide: BuildLogService,
-    useFactory: (
-      apiService: ApiService,
-      buildLogStore: BuildLogStore,
-      environmentService: EnvironmentService,
-    ) => new BuildLogService(apiService, buildLogStore, environmentService),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new BuildLogService(apiService, environmentService),
   },
   {
-    deps: [ApiService, BuildStore, EnvironmentService],
+    deps: [ApiService, EnvironmentService],
     provide: BuildService,
-    useFactory: (
-      apiService: ApiService,
-      buildStore: BuildStore,
-      environmentService: EnvironmentService,
-    ) => new BuildService(apiService, buildStore, environmentService),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new BuildService(apiService, environmentService),
   },
   {
-    deps: [ApiService, CollectionStore, EnvironmentService],
+    deps: [ApiService, EnvironmentService],
     provide: CollectionService,
-    useFactory: (
-      apiService: ApiService,
-      collectionStore: CollectionStore,
-      environmentService: EnvironmentService,
-    ) => new CollectionService(apiService, collectionStore, environmentService),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new CollectionService(apiService, environmentService),
   },
   { provide: EnvironmentService, useValue: new EnvironmentService({ apiUrl }) },
   {
-    deps: [ApiService, EnvironmentService, GameServerLogStore],
+    deps: [ApiService, EnvironmentService],
     provide: GameServerLogService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      gameServerLogStore: GameServerLogStore,
-    ) => new GameServerLogService(apiService, environmentService, gameServerLogStore),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new GameServerLogService(apiService, environmentService),
   },
   {
-    deps: [ApiService, EnvironmentService, GameServerStore],
+    deps: [ApiService, EnvironmentService],
     provide: GameServerService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      gameServerStore: GameServerStore,
-    ) => new GameServerService(apiService, environmentService, gameServerStore),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new GameServerService(apiService, environmentService),
   },
   {
-    deps: [ApiService, EnvironmentService, GameServerTemplateStore],
+    deps: [ApiService, EnvironmentService],
     provide: GameServerTemplateService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      gameServerTemplateStore: GameServerTemplateStore,
-    ) => new GameServerTemplateService(apiService, environmentService, gameServerTemplateStore),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new GameServerTemplateService(apiService, environmentService),
   },
   {
-    deps: [ApiService, EnvironmentService, GroupInvitationStore],
+    deps: [ApiService, EnvironmentService],
     provide: GroupInvitationService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      groupInvitationStore: GroupInvitationStore,
-    ) => new GroupInvitationService(apiService, environmentService, groupInvitationStore),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new GroupInvitationService(apiService, environmentService),
   },
   {
-    deps: [ApiService, EnvironmentService, GroupStore],
+    deps: [ApiService, EnvironmentService],
     provide: GroupService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      groupStore: GroupStore,
-    ) => new GroupService(apiService, environmentService, groupStore),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new GroupService(apiService, environmentService),
   },
   {
     deps: [ApiService, EnvironmentService],
@@ -164,22 +117,16 @@ const services: injector.Injection[] = [
       new LoginService(apiService, environmentService),
   },
   {
-    deps: [ApiService, EnvironmentService, MatchStore],
+    deps: [ApiService, EnvironmentService],
     provide: MatchService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      matchStore: MatchStore,
-    ) => new MatchService(apiService, environmentService, matchStore),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new MatchService(apiService, environmentService),
   },
   {
-    deps: [ApiService, EnvironmentService, NamespaceStore],
+    deps: [ApiService, EnvironmentService],
     provide: NamespaceService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      namespaceStore: NamespaceStore,
-    ) => new NamespaceService(apiService, environmentService, namespaceStore),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new NamespaceService(apiService, environmentService),
   },
   {
     deps: [ApiService, EnvironmentService],
@@ -188,41 +135,31 @@ const services: injector.Injection[] = [
       new PasswordResetService(apiService, environmentService),
   },
   {
-    deps: [ApiService, EnvironmentService, QueueLogStore],
+    deps: [ApiService, EnvironmentService],
     provide: QueueLogService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      queueLogStore: QueueLogStore,
-    ) => new QueueLogService(apiService, environmentService, queueLogStore),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new QueueLogService(apiService, environmentService),
   },
   {
-    deps: [ApiService, EnvironmentService, QueueMemberStore, WebSocketService],
+    deps: [ApiService, EnvironmentService, WebSocketService],
     provide: QueueMemberService,
     useFactory: (
       apiService: ApiService,
       environmentService: EnvironmentService,
-      queueMemberStore: QueueMemberStore,
       webSocketService: WebSocketService,
-    ) => new QueueMemberService(apiService, environmentService, queueMemberStore, webSocketService),
+    ) => new QueueMemberService(apiService, environmentService, webSocketService),
   },
   {
-    deps: [ApiService, EnvironmentService, QueueStore],
+    deps: [ApiService, EnvironmentService],
     provide: QueueService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      queueStore: QueueStore,
-    ) => new QueueService(apiService, environmentService, queueStore),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new QueueService(apiService, environmentService),
   },
   {
-    deps: [ApiService, EnvironmentService, RecordStore],
+    deps: [ApiService, EnvironmentService],
     provide: RecordService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      recordStore: RecordStore,
-    ) => new RecordService(apiService, environmentService, recordStore),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new RecordService(apiService, environmentService),
   },
   {
     deps: [WebSocketService],
@@ -230,13 +167,10 @@ const services: injector.Injection[] = [
     useFactory: (webSocketService: WebSocketService) => new SubscriptionService(webSocketService),
   },
   {
-    deps: [ApiService, EnvironmentService, TeamStore],
+    deps: [ApiService, EnvironmentService],
     provide: TeamService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      teamStore: TeamStore,
-    ) => new TeamService(apiService, environmentService, teamStore),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new TeamService(apiService, environmentService),
   },
   {
     deps: [LoginService],
@@ -244,101 +178,56 @@ const services: injector.Injection[] = [
     useFactory: (loginService: LoginService) => new TokenService(null, loginService),
   },
   {
-    deps: [ApiService, EnvironmentService, UserStore],
+    deps: [ApiService, EnvironmentService],
     provide: UserService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      userStore: UserStore,
-    ) => new UserService(apiService, environmentService, userStore),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new UserService(apiService, environmentService),
   },
-  { provide: WebSocketStore, useValue: new WebSocketStore() },
   {
-    deps: [ApiService, EnvironmentService, WebSocketStore],
+    deps: [ApiService, EnvironmentService],
     provide: WebSocketService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      webSocketStore: WebSocketStore,
-    ) => new WebSocketService(apiService, environmentService, webSocketStore),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new WebSocketService(apiService, environmentService),
   },
   {
-    deps: [ApiService, EnvironmentService, WorkflowLogStore],
+    deps: [ApiService, EnvironmentService],
     provide: WorkflowLogService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      workflowLogStore: WorkflowLogStore,
-    ) => new WorkflowLogService(apiService, environmentService, workflowLogStore),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new WorkflowLogService(apiService, environmentService),
   },
   {
-    deps: [ApiService, EnvironmentService, WorkflowStore],
+    deps: [ApiService, EnvironmentService],
     provide: WorkflowService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      workflowStore: WorkflowStore,
-    ) => new WorkflowService(apiService, environmentService, workflowStore),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new WorkflowService(apiService, environmentService),
   },
 ];
 
-const stores: injector.Injection[] = [
-  { provide: AuthorizationStore, useValue: new AuthorizationStore() },
-  { provide: BuildLogStore, useValue: new BuildLogStore() },
-  { provide: BuildStore, useValue: new BuildStore() },
-  { provide: CollectionStore, useValue: new CollectionStore() },
-  { provide: GameServerLogStore, useValue: new GameServerLogStore() },
-  { provide: GameServerStore, useValue: new GameServerStore() },
-  { provide: GameServerTemplateStore, useValue: new GameServerTemplateStore() },
-  { provide: GroupInvitationStore, useValue: new GroupInvitationStore() },
-  { provide: GroupStore, useValue: new GroupStore() },
-  { provide: MatchStore, useValue: new MatchStore() },
-  { provide: NamespaceStore, useValue: new NamespaceStore() },
-  { provide: QueueLogStore, useValue: new QueueLogStore() },
-  { provide: QueueMemberStore, useValue: new QueueMemberStore() },
-  { provide: QueueStore, useValue: new QueueStore() },
-  { provide: RecordStore, useValue: new RecordStore() },
-  { provide: TeamStore, useValue: new TeamStore() },
-  { provide: UserStore, useValue: new UserStore() },
-  { provide: WorkflowLogStore, useValue: new WorkflowLogStore() },
-  { provide: WorkflowStore, useValue: new WorkflowStore() },
-];
-
-injector.inject([...components, ...interceptors, ...services, ...stores]);
+injector.inject([...components, ...interceptors, ...services]);
 
 export default {
   apiService: injector.get(ApiService),
   axios: injector.get(Axios),
   authorizationService: injector.get(AuthorizationService),
-  authorizationStore: injector.get(AuthorizationStore),
   buildLogService: injector.get(BuildLogService),
   buildService: injector.get(BuildService),
   collectionService: injector.get(CollectionService),
   environmentService: injector.get(EnvironmentService),
   gameServerLogService: injector.get(GameServerLogService),
-  gameServerLogStore: injector.get(GameServerLogStore),
   gameServerService: injector.get(GameServerService),
-  gameServerStore: injector.get(GameServerStore),
   gameServerTemplateService: injector.get(GameServerTemplateService),
-  gameServerTemplateStore: injector.get(GameServerTemplateStore),
   groupInvitationService: injector.get(GroupInvitationService),
-  groupInvitationStore: injector.get(GroupInvitationStore),
   groupService: injector.get(GroupService),
-  groupStore: injector.get(GroupStore),
   loginService: injector.get(LoginService),
   matchService: injector.get(MatchService),
-  matchStore: injector.get(MatchStore),
   namespaceService: injector.get(NamespaceService),
   passwordResetService: injector.get(PasswordResetService),
   queueLogService: injector.get(QueueLogService),
   queueMemberService: injector.get(QueueMemberService),
-  queueMemberStore: injector.get(QueueMemberStore),
   queueService: injector.get(QueueService),
-  queueStore: injector.get(QueueStore),
   recordService: injector.get(RecordService),
   subscriptionService: injector.get(SubscriptionService),
   teamService: injector.get(TeamService),
-  teamStore: injector.get(TeamStore),
   tokenService: injector.get(TokenService),
   userService: injector.get(UserService),
   webSocketService: injector.get(WebSocketService),

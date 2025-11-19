@@ -1,50 +1,68 @@
-import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
 import { Chance } from 'chance';
+import * as mongoose from 'mongoose';
 
 export enum GameServerStatusEndpointProtocol {
   Tcp = 'TCP',
   Udp = 'UDP',
 }
 
-@modelOptions({ schemaOptions: { _id: false } })
-export class GameServerStatusEndpointSchema {
-  @prop({ required: true, type: String })
-  public externalIp: string;
+export interface GameServerStatusEndpoint {
+  externalIp: string;
+  externalPort: number;
+  internalIp: string;
+  internalPort: number;
+  protocol: GameServerStatusEndpointProtocol;
+}
 
-  @prop({ required: true, type: Number })
-  public externalPort: string;
+export type GameServerStatusEndpointDocument = mongoose.Document<mongoose.Types.ObjectId> &
+  GameServerStatusEndpoint;
 
-  @prop({ required: true, type: String })
-  public internalIp: string;
-
-  @prop({ required: true, type: Number })
-  public internalPort: number;
-
-  @prop({
-    enum: GameServerStatusEndpointProtocol,
-    required: true,
-    type: String,
-  })
-  public protocol: GameServerStatusEndpointProtocol;
-
+export interface GameServerStatusEndpointModelType
+  extends mongoose.Model<GameServerStatusEndpointDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(
-    this: typeof GameServerStatusEndpointModel,
-    values: Partial<GameServerStatusEndpointSchema> = {},
-  ) {
-    const chance = new Chance();
-    const defaults = {
-      externalIp: chance.hash(),
-      externalPort: chance.integer({ max: 65535, min: 1 }),
-      internalIp: chance.hash(),
-      internalPort: chance.integer({ max: 65535, min: 1 }),
-    };
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(
+    this: GameServerStatusEndpointModelType,
+    values?: Partial<GameServerStatusEndpoint>,
+  ): GameServerStatusEndpointDocument;
 }
 
-export type GameServerStatusEndpointDocument = DocumentType<GameServerStatusEndpointSchema>;
-export const GameServerStatusEndpointModel = getModelForClass(GameServerStatusEndpointSchema);
+const GameServerStatusEndpointSchema = new mongoose.Schema<GameServerStatusEndpointDocument>(
+  {
+    externalIp: { required: true, type: String },
+    externalPort: { required: true, type: Number },
+    internalIp: { required: true, type: String },
+    internalPort: { required: true, type: Number },
+    protocol: {
+      enum: Object.values(GameServerStatusEndpointProtocol),
+      required: true,
+      type: String,
+    },
+  },
+  { _id: false },
+);
+
+GameServerStatusEndpointSchema.statics.mock = function (
+  values: Partial<GameServerStatusEndpoint> = {},
+) {
+  const chance = new Chance();
+  const defaults: Partial<GameServerStatusEndpoint> = {
+    externalIp: chance.hash(),
+    externalPort: chance.integer({ max: 65535, min: 1 }),
+    internalIp: chance.hash(),
+    internalPort: chance.integer({ max: 65535, min: 1 }),
+    protocol: GameServerStatusEndpointProtocol.Tcp,
+  };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const GameServerStatusEndpointModel = mongoose.model<
+  GameServerStatusEndpointDocument,
+  GameServerStatusEndpointModelType
+>('GameServerStatusEndpointSchema', GameServerStatusEndpointSchema);
+
+export { GameServerStatusEndpointSchema };
+
+export default GameServerStatusEndpointModel;

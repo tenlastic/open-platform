@@ -1,10 +1,10 @@
 import { IAuthorization, WebSocket } from '@tenlastic/http';
 import wait from '@tenlastic/wait';
-import * as Chance from 'chance';
+import { Chance } from 'chance';
 
+import { expect } from 'chai';
 import dependencies from '../../dependencies';
 import * as helpers from '../helpers';
-import { expect } from 'chai';
 
 const chance = new Chance();
 

@@ -6,8 +6,9 @@ import { ElectronService } from '../../../../core/services';
 import { IOnRegister, RegistrationFormComponent } from '../../components';
 
 @Component({
-  templateUrl: 'create-account-page.component.html',
+  standalone: false,
   styleUrls: ['./create-account-page.component.scss'],
+  templateUrl: 'create-account-page.component.html',
 })
 export class CreateAccountPageComponent {
   @ViewChild(RegistrationFormComponent)

@@ -1,26 +1,68 @@
-import {
-  DocumentType,
-  getModelForClass,
-  index,
-  modelOptions,
-  plugin,
-  pre,
-  prop,
-} from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
 import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 import { AuthorizationDocument } from '../authorization';
 import { MatchDocument } from '../match';
 
-@index({ expiresAt: 1 }, { expireAfterSeconds: 0, partialFilterExpression: { acceptedAt: null } })
-@index({ matchId: 1 })
-@index({ namespaceId: 1 })
-@index({ userId: 1 })
-@modelOptions({ schemaOptions: { collection: 'match-invitations', timestamps: true } })
-@plugin(duplicateKeyErrorPlugin)
-@plugin(unsetPlugin)
-@pre('validate', function (this: MatchInvitationDocument) {
+export interface MatchInvitation {
+  _id: mongoose.Types.ObjectId;
+  acceptedAt?: Date;
+  createdAt?: Date;
+  declinedAt?: Date;
+  expiresAt: Date;
+  matchId: mongoose.Types.ObjectId;
+  namespaceId: mongoose.Types.ObjectId;
+  queueId?: mongoose.Types.ObjectId;
+  updatedAt?: Date;
+  userId: mongoose.Types.ObjectId;
+  authorizationDocuments?: AuthorizationDocument[];
+}
+
+export type MatchInvitationDocument = mongoose.Document<mongoose.Types.ObjectId> & MatchInvitation;
+
+export interface MatchInvitationModelType extends mongoose.Model<MatchInvitationDocument> {
+  /**
+   * Creates Match Invitations for the Match.
+   */
+  createForMatch(
+    this: MatchInvitationModelType,
+    match: MatchDocument,
+  ): Promise<MatchInvitationDocument[]>;
+
+  /**
+   * Creates a record with randomized required parameters if not specified.
+   */
+  mock(this: MatchInvitationModelType, values?: Partial<MatchInvitation>): MatchInvitationDocument;
+}
+
+const MatchInvitationSchema = new mongoose.Schema<
+  MatchInvitationDocument,
+  MatchInvitationModelType
+>(
+  {
+    acceptedAt: { type: Date },
+    declinedAt: { type: Date },
+    expiresAt: { required: true, type: Date },
+    matchId: { ref: 'MatchSchema', required: true, type: mongoose.Schema.Types.ObjectId },
+    namespaceId: { ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId },
+    queueId: { ref: 'QueueSchema', type: mongoose.Schema.Types.ObjectId },
+    userId: { ref: 'UserSchema', required: true, type: mongoose.Schema.Types.ObjectId },
+  },
+  { collection: 'match-invitations', timestamps: true },
+);
+
+MatchInvitationSchema.index(
+  { expiresAt: 1 },
+  { expireAfterSeconds: 0, partialFilterExpression: { acceptedAt: null } },
+);
+MatchInvitationSchema.index({ matchId: 1 });
+MatchInvitationSchema.index({ namespaceId: 1 });
+MatchInvitationSchema.index({ userId: 1 });
+
+MatchInvitationSchema.plugin(duplicateKeyErrorPlugin);
+MatchInvitationSchema.plugin(unsetPlugin);
+
+MatchInvitationSchema.pre('validate', async function (this: MatchInvitationDocument) {
   const acceptedAtIsModified = this.isModified('acceptedAt');
   const declinedAtIsModified = this.isModified('declinedAt');
 
@@ -47,73 +89,43 @@ import { MatchDocument } from '../match';
     this.invalidate('acceptedAt', new Error(message), this.acceptedAt);
     this.invalidate('declinedAt', new Error(message), this.declinedAt);
   }
-})
-export class MatchInvitationSchema {
-  public _id: mongoose.Types.ObjectId;
+});
 
-  @prop({ filter: { create: true, update: true }, type: Date })
-  public acceptedAt: Date;
+MatchInvitationSchema.virtual('authorizationDocuments', {
+  ref: 'AuthorizationSchema',
+  localField: 'namespaceId',
+  foreignField: 'namespaceId',
+});
 
-  public createdAt: Date;
+MatchInvitationSchema.statics.createForMatch = async function (match: MatchDocument) {
+  const { namespaceId, queueId } = match;
 
-  @prop({ filter: { create: true, update: true }, type: Date })
-  public declinedAt: Date;
-
-  @prop({ required: true, type: Date })
-  public expiresAt: Date;
-
-  @prop({ ref: 'MatchSchema', required: true, type: mongoose.Schema.Types.ObjectId })
-  public matchId: mongoose.Types.ObjectId;
-
-  @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
-  public namespaceId: mongoose.Types.ObjectId;
-
-  @prop({ ref: 'QueueSchema', type: mongoose.Schema.Types.ObjectId })
-  public queueId: mongoose.Types.ObjectId;
-
-  public updatedAt: Date;
-
-  @prop({ ref: 'UserSchema', required: true, type: mongoose.Schema.Types.ObjectId })
-  public userId: mongoose.Types.ObjectId;
-
-  @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
-  public authorizationDocuments: AuthorizationDocument[];
-
-  /**
-   * Creates Match Invitations for the Match.
-   */
-  public static createForMatch(this: typeof MatchInvitationModel, match: MatchDocument) {
-    const { namespaceId, queueId } = match;
-
-    // If the Match required confirmation, use the confirmation time.
-    // If not, use the invitation time.
-    let expiresAt = new Date(Date.now() + match.invitationSeconds * 1000);
-    if (match.invitationsExpireAt && !match.startedAt) {
-      expiresAt = match.invitationsExpireAt;
-    }
-
-    const values = { expiresAt, matchId: match._id, namespaceId, queueId };
-    const matchInvitations = match.userIds.map((ui) => new this({ ...values, userId: ui }));
-
-    return MatchInvitationModel.create(matchInvitations);
+  let expiresAt = new Date(Date.now() + match.invitationSeconds * 1000);
+  if (match.invitationsExpireAt && !match.startedAt) {
+    expiresAt = match.invitationsExpireAt;
   }
 
-  /**
-   * Creates a record with randomized required parameters if not specified.
-   */
-  public static mock(
-    this: typeof MatchInvitationModel,
-    values: Partial<MatchInvitationSchema> = {},
-  ) {
-    const defaults = {
-      matchId: new mongoose.Types.ObjectId(),
-      namespaceId: new mongoose.Types.ObjectId(),
-      userId: new mongoose.Types.ObjectId(),
-    };
+  const values = { expiresAt, matchId: match._id, namespaceId, queueId };
+  const matchInvitations = match.userIds.map((ui) => ({ ...values, userId: ui }));
 
-    return new this({ ...defaults, ...values });
-  }
-}
+  return this.create(matchInvitations);
+};
 
-export type MatchInvitationDocument = DocumentType<MatchInvitationSchema>;
-export const MatchInvitationModel = getModelForClass(MatchInvitationSchema);
+MatchInvitationSchema.statics.mock = function (values: Partial<MatchInvitation> = {}) {
+  const defaults: Partial<MatchInvitation> = {
+    matchId: new mongoose.Types.ObjectId(),
+    namespaceId: new mongoose.Types.ObjectId(),
+    userId: new mongoose.Types.ObjectId(),
+  };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const MatchInvitationModel = mongoose.model<
+  MatchInvitationDocument,
+  MatchInvitationModelType
+>('MatchInvitationSchema', MatchInvitationSchema);
+
+export { MatchInvitationSchema };
+
+export default MatchInvitationModel;

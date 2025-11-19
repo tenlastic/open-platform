@@ -33,7 +33,7 @@ function skip(document: Document, key: string) {
   return skip(document, key);
 }
 
-function unset(document: Document, key: string, value: any) {
+function unset(document: Document, key: string, value: unknown) {
   if (key === '_id' || key === '__v') {
     return;
   }
@@ -49,7 +49,7 @@ function unset(document: Document, key: string, value: any) {
 
   if (value?.constructor === Object) {
     Object.entries(value).forEach(([k, v]) => unset(document, join(key, k), v));
-  } else if (value?.constructor === Array) {
+  } else if (Array.isArray(value)) {
     value.forEach((v, i) => unset(document, join(key, i), v));
   }
 }

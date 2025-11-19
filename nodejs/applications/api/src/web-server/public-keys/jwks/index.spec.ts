@@ -1,11 +1,11 @@
 import { ContextMock } from '@tenlastic/web-server';
 import { expect } from 'chai';
 
-import { handler } from '.';
+import { handler, JwksContext } from '.';
 
 describe('web-server/public-keys/jwks', function () {
   it('returns the access and refresh tokens', async function () {
-    const ctx: any = new ContextMock();
+    const ctx = ContextMock<JwksContext>();
     const publicKey = process.env.JWT_PUBLIC_KEY.replace(/\\n/g, '\n')
       .replace(/\n/g, '')
       .replace('-----BEGIN PUBLIC KEY-----', '')

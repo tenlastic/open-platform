@@ -1,7 +1,11 @@
 import { GroupModel } from '../models/group';
-import { GroupStore } from '../states/group';
 import { ApiService } from './api';
-import { BaseService, BaseServiceFindQuery } from './base';
+import {
+  BaseService,
+  BaseServiceCountQuery,
+  BaseServiceFindQuery,
+  BaseServiceRecordResponse,
+} from './base';
 import { EnvironmentService } from './environment';
 
 export class GroupService {
@@ -11,18 +15,14 @@ export class GroupService {
 
   private baseService: BaseService<GroupModel>;
 
-  constructor(
-    private apiService: ApiService,
-    private environmentService: EnvironmentService,
-    private groupStore: GroupStore,
-  ) {
-    this.baseService = new BaseService<GroupModel>(this.apiService, GroupModel, this.groupStore);
+  constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
+    this.baseService = new BaseService<GroupModel>(this.apiService, GroupModel);
   }
 
   /**
    * Returns the number of Records satisfying the query.
    */
-  public async count(namespaceId: string, query: any) {
+  public async count(namespaceId: string, query: BaseServiceCountQuery) {
     const url = this.getUrl(namespaceId);
     return this.baseService.count(query, url);
   }
@@ -64,14 +64,13 @@ export class GroupService {
    */
   public async join(namespaceId: string, _id: string) {
     const url = this.getUrl(namespaceId);
-    const response = await this.apiService.request({
+    const response = await this.apiService.request<BaseServiceRecordResponse<GroupModel>>({
       method: 'post',
       url: `${url}/${_id}/user-ids`,
     });
 
     const record = new GroupModel(response.data.record);
     this.emitter.emit('update', record);
-    this.groupStore.upsertMany([record]);
 
     return record;
   }
@@ -81,14 +80,13 @@ export class GroupService {
    */
   public async leave(namespaceId: string, groupId: string, _id: string) {
     const url = this.getUrl(namespaceId);
-    const response = await this.apiService.request({
+    const response = await this.apiService.request<BaseServiceRecordResponse<GroupModel>>({
       method: 'delete',
       url: `${url}/${groupId}/user-ids/${_id}`,
     });
 
     const record = new GroupModel(response.data.record);
     this.emitter.emit('update', record);
-    this.groupStore.upsertMany([record]);
 
     return record;
   }

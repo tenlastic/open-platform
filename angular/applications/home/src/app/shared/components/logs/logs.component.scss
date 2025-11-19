@@ -1,0 +1,60 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  row-gap: 16px;
+}
+
+app-form-field {
+  flex: 0 0 250px;
+}
+
+div.empty {
+  align-items: center;
+  justify-content: center;
+}
+
+div.log {
+  display: flex;
+  padding: 2px 4px;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+  }
+
+  &.collapsed div {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &.expanded div {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  div.level,
+  div.timestamp {
+    margin-right: 8px;
+    overflow: initial;
+    text-overflow: initial;
+    white-space: nowrap;
+  }
+}
+
+div.logs-container {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  overflow: hidden auto;
+}
+
+div.page {
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+}
+
+div.row {
+  margin: 0px;
+}

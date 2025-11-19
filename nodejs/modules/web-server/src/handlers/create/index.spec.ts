@@ -1,27 +1,36 @@
-import { PermissionError } from '@tenlastic/mongoose-permissions';
+import * as permissions from '@tenlastic/mongoose-permissions';
 import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-import * as Chance from 'chance';
+import chaiAsPromised from 'chai-as-promised';
+import { Chance } from 'chance';
+import * as mongoose from 'mongoose';
+import * as sinon from 'sinon';
 
-import { ContextMock } from '../../context';
-import { create } from './';
+import { ContextMock } from '../../mocks';
+import { create, CreateContext, dependencies } from './';
 
 const chance = new Chance();
 use(chaiAsPromised);
 
+const Schema = new mongoose.Schema({ name: String });
+type Document = mongoose.Document & mongoose.InferSchemaType<typeof Schema>;
+const Model = mongoose.model<Document>('handlers/create', Schema);
+const Permissions = {};
+
 describe('handlers/create', function () {
+  afterEach(async function () {
+    sinon.restore();
+  });
+
   context('when permission is granted', function () {
     it('creates a new record', async function () {
+      const ctx = ContextMock<CreateContext<Document>>();
       const name = chance.hash();
 
-      const ctx = new ContextMock();
-      const Permissions = {
-        create: () => Promise.resolve({ name }),
-        read: () => Promise.resolve({ name }),
-      };
+      sinon.stub(dependencies, 'create').resolves({ name });
+      sinon.stub(dependencies, 'read').resolves({ name });
 
-      const handler = create(Permissions as any);
-      await handler(ctx as any);
+      const handler = create(Model, Permissions);
+      await handler(ctx);
 
       expect(ctx.response.body.record).to.eql({ name });
     });
@@ -29,13 +38,14 @@ describe('handlers/create', function () {
 
   context('when permission is denied', function () {
     it('throws an error', async function () {
-      const ctx = new ContextMock();
-      const Permissions = { create: () => Promise.reject(new PermissionError()) };
+      const ctx = ContextMock<CreateContext<Document>>();
 
-      const handler = create(Permissions as any);
-      const promise = handler(ctx as any);
+      sinon.stub(dependencies, 'create').rejects(new permissions.PermissionError());
 
-      return expect(promise).to.be.rejectedWith(PermissionError);
+      const handler = create(Model, Permissions);
+      const promise = handler(ctx);
+
+      return expect(promise).to.be.rejectedWith(permissions.PermissionError);
     });
   });
 });

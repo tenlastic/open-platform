@@ -7,12 +7,12 @@ import { Connection } from 'mongoose';
 interface ChangeStreamDocument {
   _id: { _data: string };
   clusterTime: { $timestamp: string };
-  documentKey: { [key: string]: any };
-  fullDocument?: any;
-  fullDocumentBeforeChange?: any;
+  documentKey: { [key: string]: unknown };
+  fullDocument?: { [key: string]: unknown };
+  fullDocumentBeforeChange?: { [key: string]: unknown };
   ns: { coll: string; db: string };
   operationType: 'delete' | 'insert' | 'replace' | 'update';
-  updateDescription?: { removedFields: string[]; updatedFields: { [key: string]: any } };
+  updateDescription?: { removedFields: string[]; updatedFields: { [key: string]: unknown } };
   wallTime: Date;
 }
 
@@ -47,7 +47,7 @@ export function watch(
         console.log({ documentKey, ns, operationType });
       }
 
-      const message: DatabasePayload<any> = {
+      const message: DatabasePayload<unknown> = {
         documentKey: change.documentKey,
         fullDocument: change.fullDocument ?? change.fullDocumentBeforeChange,
         ns: change.ns,

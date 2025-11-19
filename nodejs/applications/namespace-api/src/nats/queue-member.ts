@@ -16,7 +16,7 @@ GroupEvent.async(async (payload) => {
     (payload.operationType === 'update' && payload.updateDescription.updatedFields.userIds)
   ) {
     const userIds = payload.fullDocument.userIds;
-    return QueueMemberModel.deleteMany({
+    await QueueMemberModel.deleteMany({
       $or: [{ groupId: payload.fullDocument._id }, { userIds: { $in: userIds } }],
     });
   }
@@ -30,9 +30,9 @@ MatchEvent.async(async (payload) => {
     (payload.operationType === 'insert' && payload.fullDocument.startedAt) ||
     (payload.operationType === 'update' && payload.updateDescription.updatedFields.startedAt)
   ) {
-    return QueueMemberModel.deleteMany({ userIds: { $in: payload.fullDocument.userIds } });
+    await QueueMemberModel.deleteMany({ userIds: { $in: payload.fullDocument.userIds } });
   } else if (payload.operationType === 'insert' && !payload.fullDocument.startedAt) {
-    return QueueMemberModel.updateMany(
+    await QueueMemberModel.updateMany(
       { userIds: { $in: payload.fullDocument.userIds } },
       { matchedAt: new Date() },
     );
@@ -57,17 +57,15 @@ MatchEvent.async(async (payload) => {
 
 // Delete Queue Members if associated Namespace is deleted.
 NamespaceEvent.async(async (payload) => {
-  switch (payload.operationType) {
-    case 'delete':
-      return QueueMemberModel.deleteMany({ namespaceId: payload.fullDocument._id });
+  if (payload.operationType === 'delete') {
+    await QueueMemberModel.deleteMany({ namespaceId: payload.fullDocument._id });
   }
 });
 
 // Delete Queue Member when associated Queue is deleted.
 QueueEvent.async(async (payload) => {
-  switch (payload.operationType) {
-    case 'delete':
-      return QueueMemberModel.deleteMany({ queueId: payload.fullDocument._id });
+  if (payload.operationType === 'delete') {
+    await QueueMemberModel.deleteMany({ queueId: payload.fullDocument._id });
   }
 });
 
@@ -80,6 +78,6 @@ WebSocketEvent.async(async (payload) => {
     payload.operationType === 'update' &&
     payload.updateDescription?.updatedFields?.disconnectedAt
   ) {
-    return QueueMemberModel.deleteMany({ webSocketId: payload.fullDocument._id });
+    await QueueMemberModel.deleteMany({ webSocketId: payload.fullDocument._id });
   }
 });

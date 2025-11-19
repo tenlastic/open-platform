@@ -8,7 +8,6 @@ import namespaceRoutes from './namespaces';
 import passwordResetRoutes from './password-resets';
 import probeRoutes from './probes';
 import publicKeyRoutes from './public-keys';
-import refreshTokenRoutes from './refresh-tokens';
 import steamIntegrationRoutes from './steam-integrations';
 import userRoutes from './users';
 
@@ -23,7 +22,6 @@ export function setup() {
   router.use(passwordResetRoutes);
   router.use(probeRoutes);
   router.use(publicKeyRoutes);
-  router.use(refreshTokenRoutes);
   router.use(steamIntegrationRoutes);
   router.use(userRoutes);
   webServer.use(router.routes());

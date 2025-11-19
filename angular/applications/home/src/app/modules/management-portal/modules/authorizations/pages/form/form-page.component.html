@@ -1,60 +1,72 @@
 <ng-container *ngIf="form">
-  <div class="page">
-    <div class="row">
-      <div class="col-sm-6">
-        <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Authorization</app-title>
-        <app-title *ngIf="!hasWriteAuthorization">View Authorization</app-title>
-      </div>
-      <div *ngIf="hasWriteAuthorization"
-           class="col-sm-6 align-right">
-        <app-button color="accent"
-                    (OnClick)="navigateToJson()">
-          <mat-icon>code</mat-icon>
-          <div>{{ data?._id ? 'Edit' : 'Create' }} as JSON</div>
-        </app-button>
+  <div class="page"
+       row-gap-16>
+
+    <div align-items="end"
+         column-gap-16
+         flex-wrap-16>
+      <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Authorization</app-title>
+      <app-title *ngIf="!hasWriteAuthorization">View Authorization</app-title>
+
+      <div align-items="end"
+           column-gap-8
+           margin-left-auto>
+        <div *ngIf="hasWriteAuthorization">
+          <app-button color="accent"
+                      (OnClick)="navigateToJson()">
+            <mat-icon>code</mat-icon>
+            <div>{{ data?._id ? 'Edit' : 'Create' }} as JSON</div>
+          </app-button>
+        </div>
       </div>
     </div>
+
+    <hr>
 
     <form autocomplete="off"
           [formGroup]="form"
           id="form"
+          row-gap-16
           (ngSubmit)="save()">
-      <div class="row">
-        <mat-form-field floatLabel="always">
-          <mat-label>Type</mat-label>
+      <div align-items="start"
+           column-gap-16
+           flex-wrap>
+        <app-form-field>
+          <label>Type</label>
           <mat-select formControlName="type">
             <mat-option *ngFor="let type of AuthorizationType | keyvalue"
                         [value]="type.value">
               {{ type.value }}
             </mat-option>
           </mat-select>
-          <mat-error>Choose a type.</mat-error>
-        </mat-form-field>
+          <app-error>Choose a type.</app-error>
+        </app-form-field>
 
         <ng-container *ngIf="type === AuthorizationType.ApiKey">
-          <mat-form-field floatLabel="always">
-            <mat-label>Name</mat-label>
+          <app-form-field>
+            <label>Name</label>
             <input formControlName="name"
-                   matInput
                    maxlength="64"
                    required />
-            <mat-error>Enter a name.</mat-error>
-          </mat-form-field>
+            <app-error>Enter a name.</app-error>
+          </app-form-field>
         </ng-container>
 
         <ng-container *ngIf="type === AuthorizationType.User">
           <app-autocomplete-user-field [control]="form.get('user')"></app-autocomplete-user-field>
 
-          <mat-form-field floatLabel="always">
-            <mat-label>Ban</mat-label>
+          <app-form-field>
+            <label>Ban</label>
             <mat-select formControlName="bannedAt">
               <mat-option [value]="true">Yes</mat-option>
               <mat-option [value]="false">No</mat-option>
             </mat-select>
-            <mat-error>Choose a type.</mat-error>
-          </mat-form-field>
+            <app-error>Choose a type.</app-error>
+          </app-form-field>
         </ng-container>
       </div>
+
+      <hr>
 
       <app-toggle-section *ngIf="!form.get('bannedAt').value"
                           title="Roles">
@@ -65,7 +77,7 @@
   </div>
 
   <div *ngIf="!form.disabled"
-       class="page-actions">
+       class="actions">
     <div *ngFor="let error of errors"
          class="form-error">
       {{ error }}

@@ -1,7 +1,7 @@
 import { DatabasePayload } from '@tenlastic/mongoose-nats';
 import { isJsonValid } from '@tenlastic/mongoose-permissions';
 import * as nats from '@tenlastic/nats';
-import { Document as MongooseDocument, Model as MongooseModel, Query } from 'mongoose';
+import * as mongoose from 'mongoose';
 import { AckPolicy, DeliverPolicy } from 'nats';
 import { TextDecoder } from 'util';
 
@@ -20,7 +20,7 @@ export interface ReplicateOptions {
 export async function replicateFromNats(
   collection: string,
   options: ReplicateOptions,
-  where?: any,
+  where?: mongoose.FilterQuery<mongoose.Document>,
 ) {
   const subscription = await nats.subscribe(options.subject, {
     ack_policy: AckPolicy.Explicit,
@@ -37,7 +37,7 @@ export async function replicateFromNats(
 
     try {
       const Model = getToModel(collection);
-      await eachMessage(Model, options, json, new Query().cast(Model, where));
+      await eachMessage(Model, options, json, new mongoose.Query().cast(Model, where));
       message.ack();
     } catch (e) {
       console.error(e);
@@ -47,11 +47,11 @@ export async function replicateFromNats(
   }
 }
 
-export async function eachMessage(
-  Model: MongooseModel<MongooseDocument>,
+export async function eachMessage<T>(
+  Model: mongoose.Model<T>,
   options: ReplicateOptions,
-  payload: DatabasePayload<MongooseDocument>,
-  where?: any,
+  payload: DatabasePayload<T>,
+  where?: mongoose.FilterQuery<T>,
 ) {
   const { documentKey, ns, operationType, updateDescription } = payload;
 
@@ -61,7 +61,7 @@ export async function eachMessage(
 
   if (where) {
     const fullDocument = new Model(payload.fullDocument);
-    const json = fullDocument.toJSON({ virtuals: true });
+    const json = fullDocument.toJSON({ flattenMaps: true, getters: true, virtuals: true });
 
     if (!isJsonValid(json, where)) {
       return;

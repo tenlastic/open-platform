@@ -1,13 +1,3 @@
-import {
-  DocumentType,
-  getModelForClass,
-  index,
-  modelOptions,
-  plugin,
-  prop,
-  PropType,
-  Severity,
-} from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
 import { unsetPlugin } from '../../plugins';
@@ -18,61 +8,68 @@ import {
 } from '../../validators';
 import { AuthorizationDocument } from '../authorization';
 
-@index({ userIds: 1 })
-@modelOptions({
-  options: { allowMixed: Severity.ALLOW },
-  schemaOptions: { collection: 'teams', timestamps: true },
-})
-@plugin(unsetPlugin)
-export class TeamSchema {
-  public _id: mongoose.Types.ObjectId;
-  public createdAt: Date;
+export interface Team {
+  _id: mongoose.Types.ObjectId;
+  authorizationDocuments?: AuthorizationDocument[];
+  createdAt?: Date;
+  metadata?: unknown;
+  namespaceId: mongoose.Types.ObjectId;
+  queueId: mongoose.Types.ObjectId;
+  rating: number;
+  updatedAt?: Date;
+  userIds: mongoose.Types.ObjectId[];
+}
 
-  @prop({ type: mongoose.Schema.Types.Mixed, unset: false })
-  public metadata: any;
+export type TeamDocument = mongoose.Document<mongoose.Types.ObjectId> & Team;
 
-  @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
-  public namespaceId: mongoose.Types.ObjectId;
+export interface TeamModelType extends mongoose.Model<TeamDocument> {
+  /**
+   * Creates a record with randomized required parameters if not specified.
+   */
+  mock(this: TeamModelType, values?: Partial<Team>): TeamDocument;
+}
 
-  @prop({ ref: 'QueueSchema', required: true, type: mongoose.Schema.Types.ObjectId })
-  public queueId: mongoose.Types.ObjectId;
-
-  @prop({ required: true, type: Number })
-  public rating: number;
-
-  public updatedAt: Date;
-
-  @prop(
-    {
-      ref: 'UserSchema',
+const TeamSchema = new mongoose.Schema<TeamDocument, TeamModelType>(
+  {
+    metadata: { type: mongoose.Schema.Types.Mixed, unset: false },
+    namespaceId: { ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId },
+    queueId: { ref: 'QueueSchema', required: true, type: mongoose.Schema.Types.ObjectId },
+    rating: { required: true, type: Number },
+    userIds: {
       required: true,
-      type: mongoose.Schema.Types.ObjectId,
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'UserSchema' }],
       validate: [
         arrayLengthValidator(Infinity, 1),
         arrayNullUndefinedValidator,
         duplicateValidator,
       ],
     },
-    PropType.ARRAY,
-  )
-  public userIds: mongoose.Types.ObjectId[];
+  },
+  { collection: 'teams', timestamps: true },
+);
 
-  @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
-  public authorizationDocuments: AuthorizationDocument[];
+TeamSchema.index({ userIds: 1 });
 
-  /**
-   * Creates a record with randomized required parameters if not specified.
-   */
-  public static mock(this: typeof TeamModel, values: Partial<TeamSchema> = {}) {
-    const defaults = {
-      namespaceId: new mongoose.Types.ObjectId(),
-      queueId: new mongoose.Types.ObjectId(),
-      userIds: [new mongoose.Types.ObjectId()],
-    };
+TeamSchema.plugin(unsetPlugin);
 
-    return new this({ ...defaults, ...values });
-  }
-}
+TeamSchema.virtual('authorizationDocuments', {
+  ref: 'AuthorizationSchema',
+  localField: 'namespaceId',
+  foreignField: 'namespaceId',
+});
 
-export type TeamDocument = DocumentType<TeamSchema>;
-export const TeamModel = getModelForClass(TeamSchema);
+TeamSchema.statics.mock = function (values: Partial<Team> = {}) {
+  const defaults: Partial<Team> = {
+    namespaceId: new mongoose.Types.ObjectId(),
+    queueId: new mongoose.Types.ObjectId(),
+    userIds: [new mongoose.Types.ObjectId()],
+  };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const TeamModel = mongoose.model<TeamDocument, TeamModelType>('TeamSchema', TeamSchema);
+
+export { TeamSchema };
+
+export default TeamModel;

@@ -1,13 +1,12 @@
 <ng-container *ngIf="href">
   <a [attr.color]="color"
+     [attr.disabled]="disabled"
      [attr.form]="form"
      [attr.href]="href"
      [attr.layout]="layout"
      [attr.size]="size"
      [attr.target]="target"
-     (click)="OnClick.emit($event)"
-     [disabled]="disabled"
-     mat-button>
+     (click)="OnClick.emit($event)">
     <ng-container *ngTemplateOutlet="content"></ng-container>
   </a>
 </ng-container>
@@ -19,7 +18,6 @@
           [attr.size]="size"
           (click)="OnClick.emit($event)"
           [disabled]="disabled"
-          mat-button
           [type]="form ? 'submit' : 'button'">
     <ng-container *ngTemplateOutlet="content"></ng-container>
   </button>

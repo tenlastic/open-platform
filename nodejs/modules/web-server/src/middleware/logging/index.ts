@@ -1,6 +1,6 @@
 import { Next } from 'koa';
 
-import { Context } from '../../context';
+import { Context } from '../../types';
 
 /**
  * Logs information about the request and response.

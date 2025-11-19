@@ -46,16 +46,16 @@
                         [ngClass]="{ disabled: sidecar.controls.command.disabled }">
           <mat-label>Command</mat-label>
 
-          <mat-chip-list #chipList>
-            <mat-chip *ngFor="let commandValue of sidecar.controls.command.value; let commandIndex = index"
-                      [removable]="true"
-                      [selectable]="false"
-                      (removed)="removeStringFromFormArray(sidecar.controls.command, commandIndex)">
+          <mat-chip-listbox #chipList>
+            <mat-chip-option *ngFor="let commandValue of sidecar.controls.command.value; let commandIndex = index"
+                             [removable]="true"
+                             [selectable]="false"
+                             (removed)="removeStringFromFormArray(sidecar.controls.command, commandIndex)">
               {{commandValue}}
               <mat-icon *ngIf="!sidecar.controls.command.disabled"
                         matChipRemove>remove</mat-icon>
-            </mat-chip>
-          </mat-chip-list>
+            </mat-chip-option>
+          </mat-chip-listbox>
 
           <input *ngIf="!sidecar.controls.command.disabled"
                  placeholder="/bin/sh"
@@ -74,16 +74,16 @@
                         [ngClass]="{ disabled: sidecar.controls.args.disabled }">
           <mat-label>Args</mat-label>
 
-          <mat-chip-list #chipList>
-            <mat-chip *ngFor="let argsValue of sidecar.controls.args.value; let argsIndex = index"
-                      [removable]="true"
-                      [selectable]="false"
-                      (removed)="removeStringFromFormArray(sidecar.controls.args, argsIndex)">
+          <mat-chip-listbox #chipList>
+            <mat-chip-option *ngFor="let argsValue of sidecar.controls.args.value; let argsIndex = index"
+                             [removable]="true"
+                             [selectable]="false"
+                             (removed)="removeStringFromFormArray(sidecar.controls.args, argsIndex)">
               {{argsValue}}
               <mat-icon *ngIf="!sidecar.controls.args.disabled"
                         matChipRemove>remove</mat-icon>
-            </mat-chip>
-          </mat-chip-list>
+            </mat-chip-option>
+          </mat-chip-listbox>
 
           <input *ngIf="!sidecar.controls.args.disabled"
                  placeholder="/bin/sh"

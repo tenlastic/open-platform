@@ -1,5 +1,5 @@
 import wait from '@tenlastic/wait';
-import * as Chance from 'chance';
+import { Chance } from 'chance';
 import { Page } from 'puppeteer';
 
 import * as helpers from '../helpers';

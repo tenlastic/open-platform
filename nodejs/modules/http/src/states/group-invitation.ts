@@ -1,15 +1,9 @@
-import { EntityState, QueryEntity, StoreConfig } from '@datorama/akita';
+import { GroupInvitationModel } from '../models';
+import { GroupInvitationService } from '../services';
+import { BaseState } from './base';
 
-import { GroupInvitationModel } from '../models/group-invitation';
-import { BaseStore } from './base';
-
-export interface GroupInvitationState extends EntityState<GroupInvitationModel> {}
-
-@StoreConfig({ idKey: '_id', deepFreezeFn: (o) => o, name: 'group-invitations', resettable: true })
-export class GroupInvitationStore extends BaseStore<GroupInvitationState, GroupInvitationModel> {}
-
-export class GroupInvitationQuery extends QueryEntity<GroupInvitationState, GroupInvitationModel> {
-  constructor(protected store: GroupInvitationStore) {
-    super(store);
+export class GroupInvitationState extends BaseState<GroupInvitationModel, GroupInvitationService> {
+  constructor(service: GroupInvitationService) {
+    super('_id', service);
   }
 }

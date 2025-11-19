@@ -11,7 +11,7 @@ describe('get-cpu', function () {
       { status: { used: { cpu: '10m' } } },
     ];
 
-    const result = getCpu(resourceQuotas as any);
+    const result = getCpu(resourceQuotas);
 
     expect(result).to.eql(2.11);
   });

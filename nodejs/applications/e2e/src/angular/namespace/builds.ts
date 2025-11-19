@@ -1,5 +1,5 @@
 import wait from '@tenlastic/wait';
-import * as Chance from 'chance';
+import { Chance } from 'chance';
 import { Page } from 'puppeteer';
 
 import * as helpers from '../helpers';
@@ -39,7 +39,6 @@ describe('/angular/namespace/builds', () => {
     await helpers.waitForXPath(
       page,
       `//app-logs-dialog//div[contains(., 'Downloading file: Dockerfile.')]`,
-      { timeout: 2500 },
     );
   });
 });

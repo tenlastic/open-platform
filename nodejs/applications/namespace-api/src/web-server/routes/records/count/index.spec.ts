@@ -2,12 +2,13 @@ import {
   CollectionDocument,
   CollectionModel,
   CollectionPermissionsModel,
+  getRecordModel,
   NamespaceModel,
-  RecordSchema,
+  RecordDocument,
   UserDocument,
   UserModel,
 } from '@tenlastic/mongoose';
-import { ContextMock } from '@tenlastic/web-server';
+import { ContextMock, CountContext } from '@tenlastic/web-server';
 import { expect } from 'chai';
 
 import { handler } from './';
@@ -20,6 +21,7 @@ describe('web-server/records/count', function () {
     user = await UserModel.mock().save();
 
     const namespace = await NamespaceModel.mock().save();
+
     collection = await CollectionModel.mock({
       namespaceId: namespace._id,
       permissions: CollectionPermissionsModel.mock({
@@ -32,19 +34,19 @@ describe('web-server/records/count', function () {
   });
 
   it('returns the number of matching records', async function () {
-    const Model = RecordSchema.getModel(collection);
+    const Model = getRecordModel(collection);
     await Model.create({
       collectionId: collection._id,
       namespaceId: collection.namespaceId,
       userId: user._id,
     });
 
-    const ctx = new ContextMock({
+    const ctx = ContextMock<CountContext<RecordDocument>>({
       params: { collectionId: collection._id },
-      state: { user },
+      state: { user: { _id: user._id.toHexString() } },
     });
 
-    await handler(ctx as any);
+    await handler(ctx);
 
     expect(ctx.response.body.count).to.eql(1);
   });

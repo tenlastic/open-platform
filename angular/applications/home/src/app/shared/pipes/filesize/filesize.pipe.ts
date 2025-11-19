@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
-@Pipe({ name: 'filesize' })
+@Pipe({ name: 'filesize', standalone: false })
 export class FilesizePipe implements PipeTransform {
   public transform(bytes: number, decimals = 2) {
     if (bytes === 0) {

@@ -1,18 +1,12 @@
 import {
-  DatabasePayload,
   DatabaseOperationType,
+  DatabasePayload,
   UpdateDescription,
 } from '@tenlastic/mongoose-nats';
-import {
-  filterObject,
-  ICredentials,
-  isJsonValid,
-  MongoosePermissions,
-} from '@tenlastic/mongoose-permissions';
+import * as permissions from '@tenlastic/mongoose-permissions';
 import * as nats from '@tenlastic/nats';
-import { ReturnModelType } from '@typegoose/typegoose';
-import { AckPolicy, ConsumerConfig, DeliverPolicy } from 'nats';
 import * as mongoose from 'mongoose';
+import { AckPolicy, ConsumerConfig, DeliverPolicy } from 'nats';
 import { TextDecoder } from 'util';
 
 import { Context, Response, StatusCode } from '../definitions';
@@ -20,21 +14,21 @@ import { deleteAckCallback, setAckCallback } from './ack';
 import { deleteNakCallback, setNakCallback } from './nak';
 import { deleteUnsubscribeCallback, setUnsubscribeCallback } from './unsubscribe';
 
-export interface SubscribeOptions {
+export interface SubscribeOptions<TDocument extends mongoose.Document> {
   operationType?: DatabaseOperationType[];
   resumeToken?: string;
   startDate?: string;
-  where?: any;
+  where?: mongoose.FilterQuery<TDocument>;
 }
 
-export async function subscribe(
-  ctx: Context<SubscribeOptions>,
-  Model: mongoose.Model<mongoose.Document> | ReturnModelType<any>,
-  Permissions: MongoosePermissions<any>,
+export async function subscribe<TDocument extends mongoose.Document>(
+  ctx: Context<SubscribeOptions<TDocument>>,
+  Model: mongoose.Model<TDocument>,
+  options: permissions.IOptions<TDocument>,
 ) {
   const { _id } = ctx.request;
-  const body: SubscribeOptions = { ...ctx.request.body };
-  const credentials: ICredentials = { ...ctx.state };
+  const body: SubscribeOptions<TDocument> = { ...ctx.request.body };
+  const context = { credentials: { ...ctx.state }, Model, options };
 
   // Compose the subject from database and collection.
   const coll = Model.collection.name;
@@ -43,11 +37,11 @@ export async function subscribe(
 
   // Generate group ID for NATS consumer.
   const resumeToken = body?.resumeToken || new mongoose.Types.ObjectId();
-  const username = credentials.apiKey || credentials.user?.username;
+  const username = context.credentials.apiKey || context.credentials.user?.username;
   const durable = `${subject}-${username}-${resumeToken}`.replace(/\./g, '-');
 
   const wait = 60 * 1000;
-  const options: Partial<ConsumerConfig> = {
+  const consumerConfiguration: Partial<ConsumerConfig> = {
     ack_policy: AckPolicy.All,
     ack_wait: wait * 1000 * 1000,
     durable_name: durable,
@@ -62,13 +56,13 @@ export async function subscribe(
 
     // Limit Start Date to within the past hour to prevent too many initial messages.
     if (startDate.getTime() >= oneHourAgo) {
-      options.deliver_policy = DeliverPolicy.StartTime;
-      options.opt_start_time = startDate.toISOString();
+      consumerConfiguration.deliver_policy = DeliverPolicy.StartTime;
+      consumerConfiguration.opt_start_time = startDate.toISOString();
     }
   }
 
   // Create a NATS consumer.
-  const subscription = await nats.subscribe(subject, options);
+  const subscription = await nats.subscribe(subject, consumerConfiguration);
 
   // Register unsubscribe callback.
   setUnsubscribeCallback(_id, () => subscription.stop(), ctx.ws);
@@ -87,7 +81,7 @@ export async function subscribe(
     for await (const message of subscription) {
       try {
         const decoding = new TextDecoder().decode(message.data);
-        const payload = JSON.parse(decoding) as DatabasePayload<any>;
+        const payload = JSON.parse(decoding) as DatabasePayload<TDocument>;
         const document = new Model(payload.fullDocument);
 
         // Filter by operation type.
@@ -96,24 +90,24 @@ export async function subscribe(
         }
 
         // Handle the where clause.
-        const json = document.toJSON({ virtuals: true });
-        const where = await Permissions.where(credentials, body?.where || {});
-        if (!isJsonValid(json, where)) {
+        const json = document.toJSON({ flattenMaps: true, getters: true, virtuals: true });
+        const where = await permissions.where(context, body?.where || {});
+        if (!permissions.isJsonValid(json, where)) {
           continue;
         }
 
         // Strip document of unauthorized information.
-        const fullDocument = await Permissions.read(credentials, document);
+        const fullDocument = await permissions.read(context, document);
 
         // Strip update description of unauthorized information.
-        let updateDescription: UpdateDescription;
+        let updateDescription: UpdateDescription<TDocument>;
         if (payload.updateDescription) {
-          const permissions = await Permissions.getFieldPermissions(credentials, 'read', document);
+          const fieldPermissions = await permissions.getFieldPermissions(context, 'read', document);
           const { removedFields, updatedFields } = payload.updateDescription;
 
           updateDescription = {
-            removedFields: removedFields.filter((rf) => permissions.includes(rf)),
-            updatedFields: filterObject('read', updatedFields, permissions),
+            removedFields: removedFields.filter((rf) => fieldPermissions.includes(rf)),
+            updatedFields: permissions.filterObject('read', updatedFields, fieldPermissions),
           };
         }
 

@@ -2,20 +2,14 @@ import { expect } from 'chai';
 import { Chance } from 'chance';
 import * as sinon from 'sinon';
 
-import dependencies from '../dependencies';
 import { findInitialQueueMembers } from '.';
+import dependencies from '../dependencies';
 
 const chance = new Chance();
 
 describe('find-initial-queue-members', function () {
-  let sandbox: sinon.SinonSandbox;
-
-  beforeEach(function () {
-    sandbox = sinon.createSandbox();
-  });
-
   afterEach(function () {
-    sandbox.restore();
+    sinon.restore();
   });
 
   it('recursively fetches all Queue Members', async function () {
@@ -25,7 +19,7 @@ describe('find-initial-queue-members', function () {
     const queueId = chance.hash();
     const replicas = chance.integer();
 
-    const stub = sandbox.stub(dependencies.queueMemberService, 'find');
+    const stub = sinon.stub(dependencies.queueMemberService, 'find');
 
     stub.onFirstCall().resolves(Array.from({ length: 100 }));
     stub.onSecondCall().resolves(Array.from({ length }));

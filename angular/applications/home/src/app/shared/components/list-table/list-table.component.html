@@ -1,0 +1,98 @@
+<ng-container *appResponsive="'desktop'">
+  <table class="desktop">
+    <tr>
+      <th *ngFor="let column of columns">{{ column.header }}</th>
+      <th></th>
+    </tr>
+    <tr *ngFor="let element of $elements | async"
+        appHighlight
+        [routerLink]="navigate(element)">
+      <td *ngFor="let column of columns">
+        <div class="content">
+          <mat-icon *ngIf="column.icon">{{ column.icon(element) }}</mat-icon>
+          <span *ngIf="column.text">{{ column.text(element) }}</span>
+        </div>
+      </td>
+      <td>
+        <span>
+          <ng-container *ngTemplateOutlet="template; context: { $implicit: element }" />
+        </span>
+      </td>
+    </tr>
+  </table>
+
+  <div class="pagination">
+    <div class="page">{{ pageText }}</div>
+
+    <div column-gap-8>
+      <app-button color="accent"
+                  [disabled]="!firstPageEnabled"
+                  size="large"
+                  (OnClick)="setPage(0)"><mat-icon>first_page</mat-icon></app-button>
+      <app-button color="accent"
+                  [disabled]="!previousPageEnabled"
+                  size="large"
+                  (OnClick)="setPage($page.value - 1)"><mat-icon>chevron_left</mat-icon></app-button>
+      <app-button color="accent"
+                  [disabled]="!nextPageEnabled"
+                  size="large"
+                  (OnClick)="setPage($page.value + 1)"><mat-icon>chevron_right</mat-icon></app-button>
+      <app-button color="accent"
+                  [disabled]="!lastPageEnabled"
+                  size="large"
+                  (OnClick)="setPage(POSITIVE_INFINITY)"><mat-icon>last_page</mat-icon></app-button>
+    </div>
+  </div>
+</ng-container>
+
+<ng-container *appResponsive="'mobile'">
+  <table class="mobile">
+    <tr *ngFor="let element of $elements | async"
+        appHighlight
+        [routerLink]="navigate(element)">
+      <td>
+        <div *ngFor="let column of columns">
+          <span>{{ column.header }}</span>
+          <span class="content">
+            <mat-icon *ngIf="column.icon">{{ column.icon(element) }}</mat-icon>
+            <span *ngIf="column.text">{{ column.text(element) }}</span>
+          </span>
+        </div>
+
+        <div>
+          <ng-container *ngTemplateOutlet="template; context: { $implicit: element }" />
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <ng-container *ngTemplateOutlet="pagination" />
+</ng-container>
+
+<ng-template #pagination>
+  <div class="pagination">
+    <div column-gap-8>
+      <app-button color="accent"
+                  [disabled]="!firstPageEnabled"
+                  size="large"
+                  (OnClick)="setPage(0)"><mat-icon>first_page</mat-icon></app-button>
+      <app-button color="accent"
+                  [disabled]="!previousPageEnabled"
+                  size="large"
+                  (OnClick)="setPage($page.value - 1)"><mat-icon>chevron_left</mat-icon></app-button>
+    </div>
+
+    <div class="page">{{ pageText }}</div>
+
+    <div column-gap-8>
+      <app-button color="accent"
+                  [disabled]="!nextPageEnabled"
+                  size="large"
+                  (OnClick)="setPage($page.value + 1)"><mat-icon>chevron_right</mat-icon></app-button>
+      <app-button color="accent"
+                  [disabled]="!lastPageEnabled"
+                  size="large"
+                  (OnClick)="setPage(POSITIVE_INFINITY)"><mat-icon>last_page</mat-icon></app-button>
+    </div>
+  </div>
+</ng-template>

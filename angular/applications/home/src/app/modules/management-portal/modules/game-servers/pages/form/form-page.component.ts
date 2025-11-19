@@ -4,12 +4,12 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
-  AuthorizationQuery,
+  AuthorizationState,
   BuildModel,
   BuildService,
   GameServerModel,
-  GameServerQuery,
   GameServerService,
+  GameServerState,
   GameServerTemplateModel,
   IAuthorization,
   IBuild,
@@ -17,7 +17,7 @@ import {
   NamespaceModel,
   NamespaceService,
 } from '@tenlastic/http';
-import { Subscription } from 'rxjs';
+import { map, Subscription } from 'rxjs';
 
 import { FormService, IdentityService } from '../../../../../../core/services';
 import { ProbeFieldComponent, PromptComponent } from '../../../../../../shared/components';
@@ -29,8 +29,9 @@ interface PropertyFormGroup {
 }
 
 @Component({
-  templateUrl: 'form-page.component.html',
+  standalone: false,
   styleUrls: ['./form-page.component.scss'],
+  templateUrl: 'form-page.component.html',
 })
 export class GameServersFormPageComponent implements OnDestroy, OnInit {
   public builds: BuildModel[];
@@ -69,11 +70,11 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private authorizationQuery: AuthorizationQuery,
+    private authorizationState: AuthorizationState,
     private buildService: BuildService,
     private formBuilder: FormBuilder,
     private formService: FormService,
-    private gameServerQuery: GameServerQuery,
+    private gameServerState: GameServerState,
     private gameServerService: GameServerService,
     private identityService: IdentityService,
     private matDialog: MatDialog,
@@ -81,7 +82,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
     private namespaceService: NamespaceService,
     private router: Router,
   ) {
-    const navigation = this.router.getCurrentNavigation();
+    const navigation = this.router.currentNavigation();
     this.gameServerTemplate = navigation?.extras?.state?.gameServerTemplate;
   }
 
@@ -92,8 +93,8 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
       const roles = [IAuthorization.Role.GameServersWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
-        this.authorizationQuery.hasRoles(null, roles, userId) ||
-        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
+        this.authorizationState.hasRoles(null, roles, userId) ||
+        this.authorizationState.hasRoles(params.namespaceId, roles, userId);
 
       this.builds = await this.buildService.find(params.namespaceId, {
         select: '-files -reference.files',
@@ -146,7 +147,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
       namespaceId: this.form.get('namespaceId').value,
       ports: this.form.get('ports').value,
       preemptible: this.form.get('preemptible').value,
-      secrets
+      secrets,
     };
 
     const livenessProbe = ProbeFieldComponent.getJsonFromProbe(
@@ -274,9 +275,10 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
     this.form.valueChanges.subscribe(() => (this.errors = []));
 
     if (this.data._id) {
-      this.updateGameServer$ = this.gameServerQuery
-        .selectAll({ filterBy: (gs) => gs._id === this.data._id })
-        .subscribe((gameServers) => (this.data = gameServers[0]));
+      this.updateGameServer$ = this.gameServerState
+        .selectMany()
+        .pipe(map((gss) => gss.filter((gs) => gs._id === this.data._id)))
+        .subscribe((gss) => (this.data = gss[0]));
     }
   }
 

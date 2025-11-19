@@ -18,16 +18,16 @@ export interface ClusterBaseResponse<T> {
   response: IncomingMessage;
 }
 
-export class ClusterBaseApiV1<T extends ClusterBaseBody> {
-  protected api: any;
+export class ClusterBaseApiV1<TApi, TBody extends ClusterBaseBody> {
+  protected api: TApi;
   protected singular: string;
 
-  public create(body: T): Promise<ClusterBaseResponse<T>> {
+  public create(body: TBody): Promise<ClusterBaseResponse<TBody>> {
     const method = `create${this.singular}`;
     return this.api[method](body);
   }
 
-  public async createOrRead(body: T): Promise<ClusterBaseResponse<T>> {
+  public async createOrRead(body: TBody): Promise<ClusterBaseResponse<TBody>> {
     try {
       return await this.create(body);
     } catch (e) {
@@ -39,7 +39,7 @@ export class ClusterBaseApiV1<T extends ClusterBaseBody> {
     }
   }
 
-  public async createOrReplace(body: T): Promise<ClusterBaseResponse<T>> {
+  public async createOrReplace(body: TBody): Promise<ClusterBaseResponse<TBody>> {
     try {
       return await this.create(body);
     } catch (e) {
@@ -51,14 +51,14 @@ export class ClusterBaseApiV1<T extends ClusterBaseBody> {
     }
   }
 
-  public async delete(name: string): Promise<ClusterBaseResponse<T>> {
+  public async delete(name: string): Promise<ClusterBaseResponse<TBody>> {
     try {
       const method = `delete${this.singular}`;
       return await this.api[method](name);
     } catch {}
   }
 
-  public async deleteCollection(query: ClusterBaseListQuery): Promise<ClusterBaseResponse<T>> {
+  public async deleteCollection(query: ClusterBaseListQuery): Promise<ClusterBaseResponse<TBody>> {
     const method = `deleteCollection${this.singular}`;
     return this.api[method](
       undefined,
@@ -84,19 +84,19 @@ export class ClusterBaseApiV1<T extends ClusterBaseBody> {
     return true;
   }
 
-  public patch(name: string, body: Partial<T>) {
+  public patch(name: string, body: Partial<TBody>) {
     const method = `patch${this.singular}`;
     return this.api[method](name, body, undefined, undefined, undefined, undefined, {
       headers: { 'Content-Type': 'application/strategic-merge-patch+json' },
     });
   }
 
-  public read(name: string): Promise<ClusterBaseResponse<T>> {
+  public read(name: string): Promise<ClusterBaseResponse<TBody>> {
     const method = `read${this.singular}`;
     return this.api[method](name);
   }
 
-  public async replace(name: string, body: T): Promise<ClusterBaseResponse<T>> {
+  public async replace(name: string, body: TBody): Promise<ClusterBaseResponse<TBody>> {
     const response = await this.read(name);
 
     const arrayMerge = (destination, source) => source;

@@ -1,9 +1,9 @@
-import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
+import { IOptions } from '@tenlastic/mongoose-permissions';
 
-import { AuthorizationRole, LoginDocument, LoginModel } from '../models';
+import { AuthorizationRole, LoginDocument } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
-export const LoginPermissions = new MongoosePermissions<LoginDocument>(LoginModel, {
+export const LoginPermissionOptions: IOptions<LoginDocument> = {
   find: {
     default: { userId: { $ref: 'user._id' } },
     'user-read': {},
@@ -16,4 +16,4 @@ export const LoginPermissions = new MongoosePermissions<LoginDocument>(LoginMode
     owner: { 'record.userId': { $ref: 'user._id' } },
     'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([AuthorizationRole.LoginsRead]),
   },
-});
+};

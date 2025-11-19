@@ -1,26 +1,12 @@
-import { EntityState, QueryEntity, StoreConfig } from '@datorama/akita';
+import { GameServerTemplateModel } from '../models';
+import { GameServerTemplateService } from '../services';
+import { BaseState } from './base';
 
-import { GameServerTemplateModel } from '../models/game-server-template';
-import { BaseStore } from './base';
-
-export interface GameServerTemplateState extends EntityState<GameServerTemplateModel> {}
-
-@StoreConfig({
-  idKey: '_id',
-  deepFreezeFn: (o) => o,
-  name: 'game-server-templates',
-  resettable: true,
-})
-export class GameServerTemplateStore extends BaseStore<
-  GameServerTemplateState,
-  GameServerTemplateModel
-> {}
-
-export class GameServerTemplateQuery extends QueryEntity<
-  GameServerTemplateState,
-  GameServerTemplateModel
+export class GameServerTemplateState extends BaseState<
+  GameServerTemplateModel,
+  GameServerTemplateService
 > {
-  constructor(protected store: GameServerTemplateStore) {
-    super(store);
+  constructor(service: GameServerTemplateService) {
+    super('_id', service);
   }
 }

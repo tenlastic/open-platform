@@ -1,0 +1,9 @@
+:host {
+  align-items: end;
+  column-gap: 8px;
+  display: flex;
+
+  app-form-field {
+    flex: 0 0 200px;
+  }
+}

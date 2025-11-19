@@ -1,11 +1,3 @@
-import {
-  DocumentType,
-  getModelForClass,
-  modelOptions,
-  prop,
-  PropType,
-  Severity,
-} from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
 import { parseMapValues, stringifyMapValues } from '../../../transforms';
@@ -14,62 +6,70 @@ import { alphabeticalKeysValidator, excludeKeysValidator } from '../../../valida
 const keys = ['default', 'namespace-read', 'namespace-write', 'user-read', 'user-write'];
 const validate = [alphabeticalKeysValidator, excludeKeysValidator(keys)];
 
-@modelOptions({
-  options: { allowMixed: Severity.ALLOW },
-  schemaOptions: {
-    _id: false,
-    minimize: false,
-    toJSON: { flattenMaps: true, getters: true },
-    toObject: { flattenMaps: true, getters: true },
-  },
-})
-export class CollectionPermissionsSchema {
-  @prop({ type: [String], validate }, PropType.MAP)
-  public create: Map<string, string[]>;
+export interface CollectionPermissions {
+  create?: Map<string, string[]>;
+  delete?: Map<string, boolean>;
+  find?: Map<string, unknown>;
+  read?: Map<string, string[]>;
+  roles?: Map<string, unknown>;
+  update?: Map<string, string[]>;
+}
 
-  @prop({ type: Boolean, validate }, PropType.MAP)
-  public delete: Map<string, boolean>;
+export type CollectionPermissionsDocument = mongoose.Document<mongoose.Types.ObjectId> &
+  CollectionPermissions;
 
-  @prop(
-    {
-      get: (value) => parseMapValues(value),
-      set: (value) => stringifyMapValues(value),
-      type: mongoose.Schema.Types.Mixed,
-      validate,
-    },
-    PropType.MAP,
-  )
-  public find: Map<string, any>;
-
-  @prop({ type: [String], validate }, PropType.MAP)
-  public read: Map<string, string[]>;
-
-  @prop(
-    {
-      get: (value) => parseMapValues(value),
-      set: (value) => stringifyMapValues(value),
-      type: mongoose.Schema.Types.Mixed,
-      validate,
-    },
-    PropType.MAP,
-  )
-  public roles: Map<string, any>;
-
-  @prop({ type: [String], validate }, PropType.MAP)
-  public update: Map<string, string[]>;
-
+export interface CollectionPermissionsModelType
+  extends mongoose.Model<CollectionPermissionsDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(
-    this: typeof CollectionPermissionsModel,
-    values: Partial<CollectionPermissionsSchema> = {},
-  ) {
-    const defaults = {};
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(
+    this: CollectionPermissionsModelType,
+    values?: Partial<CollectionPermissions>,
+  ): CollectionPermissionsDocument;
 }
 
-export type CollectionPermissionsDocument = DocumentType<CollectionPermissionsSchema>;
-export const CollectionPermissionsModel = getModelForClass(CollectionPermissionsSchema);
+const CollectionPermissionsSchema = new mongoose.Schema<
+  CollectionPermissionsDocument,
+  CollectionPermissionsModelType
+>(
+  {
+    create: { type: Map, of: [String], validate },
+    delete: { type: Map, of: Boolean, validate },
+    find: {
+      get: parseMapValues,
+      of: mongoose.Schema.Types.Mixed,
+      set: stringifyMapValues,
+      type: Map,
+      validate,
+    },
+    read: { type: Map, of: [String], validate },
+    roles: {
+      get: parseMapValues,
+      of: mongoose.Schema.Types.Mixed,
+      set: stringifyMapValues,
+      type: Map,
+      validate,
+    },
+    update: { type: Map, of: [String], validate },
+  },
+  {
+    _id: false,
+    minimize: false,
+  },
+);
+
+CollectionPermissionsSchema.statics.mock = function (values: Partial<CollectionPermissions> = {}) {
+  const defaults: Partial<CollectionPermissions> = {};
+
+  return new this({ ...defaults, ...values });
+};
+
+export const CollectionPermissionsModel = mongoose.model<
+  CollectionPermissionsDocument,
+  CollectionPermissionsModelType
+>('CollectionPermissionsSchema', CollectionPermissionsSchema);
+
+export { CollectionPermissionsSchema };
+
+export default CollectionPermissionsModel;

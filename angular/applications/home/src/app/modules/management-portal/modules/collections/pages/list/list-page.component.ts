@@ -1,107 +1,138 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
-import { ActivatedRoute, Params } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import {
-  AuthorizationQuery,
+  AuthorizationState,
   CollectionModel,
-  CollectionQuery,
   CollectionService,
+  CollectionState,
   IAuthorization,
+  WebSocketService,
 } from '@tenlastic/http';
-import { Observable, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { v4 as uuid } from 'uuid';
 
-import { IdentityService } from '../../../../../../core/services';
-import { PromptComponent } from '../../../../../../shared/components';
+import { formatDate } from '@angular/common';
+import { IdentityService, OverlayService } from '@home/app/core/services';
+import {
+  DeletionOverlayComponent,
+  DeletionOverlayComponentData,
+  ListTableColumn,
+  ListTableSubscription,
+} from '@home/app/shared/components';
+import { environment } from '@home/environments/environment';
 
 @Component({
-  templateUrl: 'list-page.component.html',
+  standalone: false,
   styleUrls: ['./list-page.component.scss'],
+  templateUrl: 'list-page.component.html',
 })
-export class CollectionsListPageComponent implements OnDestroy, OnInit {
-  @ViewChild(MatPaginator) set paginator(paginator: MatPaginator) {
-    this.dataSource.paginator = paginator;
-  }
-  @ViewChild(MatSort) set sort(sort: MatSort) {
-    this.dataSource.sort = sort;
+export class CollectionsListPageComponent implements OnInit {
+  public $filter = new BehaviorSubject<string>(null);
+  public $records: Observable<CollectionModel[]>;
+  public $refresh = new Subject<void>();
+  public columns: ListTableColumn<CollectionModel>[] = [
+    { header: 'Name', text: (v) => v.name },
+    { header: 'Properties', text: (v) => `${Object.keys(v.jsonSchema?.properties || {}).length}` },
+    { header: 'Roles', text: (v) => `${Object.keys(v.permissions.roles || {}).length}` },
+    { header: 'Created At', text: (v) => formatDate(v.createdAt, "MMM d, y 'at' h:mm a", 'en-US') },
+    { header: 'Updated At', text: (v) => formatDate(v.updatedAt, "MMM d, y 'at' h:mm a", 'en-US') },
+  ];
+  public hasWriteAuthorization = false;
+  public subscriptions: ListTableSubscription[] = [
+    {
+      Model: CollectionModel,
+      request: { _id: uuid(), path: `/subscriptions/collections` },
+      service: this.collectionService,
+    },
+  ];
+  public get webSocket() {
+    return this.webSocketService.webSockets.find(
+      (ws) => `${environment.wssUrl}/namespaces/${this.namespaceId}` === ws.url,
+    );
   }
 
-  public dataSource = new MatTableDataSource<CollectionModel>();
-  public displayedColumns = ['name', 'properties', 'roles', 'createdAt', 'updatedAt', 'actions'];
-  public hasWriteAuthorization: boolean;
-  public message: string;
+  private namespaceId: string;
+  private get where() {
+    const where: any = { namespaceId: this.namespaceId };
 
-  private $collections: Observable<CollectionModel[]>;
-  private updateDataSource$ = new Subscription();
+    if (this.$filter.value) {
+      where.name = { $regex: this.$filter.value, $options: 'i' };
+    }
+
+    return where;
+  }
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private authorizationQuery: AuthorizationQuery,
-    private collectionQuery: CollectionQuery,
+    private authorizationState: AuthorizationState,
+    private collectionState: CollectionState,
     private collectionService: CollectionService,
     private identityService: IdentityService,
-    private matDialog: MatDialog,
-    private matSnackBar: MatSnackBar,
+    private overlayService: OverlayService,
+    private webSocketService: WebSocketService,
   ) {}
 
   public async ngOnInit() {
+    this.$records = this.collectionState.selectMany();
+
     this.activatedRoute.params.subscribe(async (params) => {
-      this.message = 'Loading...';
+      this.namespaceId = params.namespaceId;
 
       const roles = [IAuthorization.Role.CollectionsWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
-        this.authorizationQuery.hasRoles(null, roles, userId) ||
-        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
+        this.authorizationState.hasRoles(null, roles, userId) ||
+        this.authorizationState.hasRoles(this.namespaceId, roles, userId);
 
-      await this.fetchCollections(params);
-
-      this.message = null;
+      this.$refresh.next();
     });
   }
 
-  public ngOnDestroy() {
-    this.updateDataSource$.unsubscribe();
+  public count = () => {
+    return this.collectionService.count(this.namespaceId, { where: this.where });
+  };
+
+  public filter = (record: CollectionModel) => {
+    if (this.namespaceId !== record.namespaceId) {
+      return false;
+    }
+
+    if (!this.$filter.value) {
+      return true;
+    }
+
+    const regex = new RegExp(this.$filter.value, 'i');
+    return regex.test(record.name);
+  };
+
+  public find = async (page: number, pageSize: number) => {
+    const records = await this.collectionService.find(this.namespaceId, {
+      limit: pageSize,
+      skip: page * pageSize,
+      sort: 'name',
+      where: this.where,
+    });
+
+    const _ids = records.map((r) => r._id);
+    this.subscriptions[0].request.body = { where: { _id: { $in: _ids } } };
+
+    return records;
+  };
+
+  public navigate = (record: CollectionModel) => {
+    return [record._id];
+  };
+
+  public setFilter(value: string) {
+    this.$filter.next(value);
+    this.$refresh.next();
   }
 
   public showDeletePrompt($event: Event, record: CollectionModel) {
     $event.stopPropagation();
-
-    const dialogRef = this.matDialog.open(PromptComponent, {
-      data: {
-        buttons: [
-          { color: 'primary', label: 'No' },
-          { color: 'accent', label: 'Yes' },
-        ],
-        message: `Are you sure you want to delete this Collection?`,
-      },
+    this.overlayService.open<DeletionOverlayComponentData>(DeletionOverlayComponent, {
+      delete: () => this.collectionService.delete(record.namespaceId, record._id),
+      name: 'Collection',
     });
-
-    dialogRef.afterClosed().subscribe(async (result) => {
-      if (result === 'Yes') {
-        await this.collectionService.delete(record.namespaceId, record._id);
-        this.matSnackBar.open('Collection deleted successfully.');
-      }
-    });
-  }
-
-  private async fetchCollections(params: Params) {
-    this.$collections = this.collectionQuery.selectAll({
-      filterBy: (gs) => gs.namespaceId === params.namespaceId,
-    });
-
-    await this.collectionService.find(params.namespaceId, { sort: 'name' });
-
-    this.updateDataSource$ = this.$collections.subscribe(
-      (collections) => (this.dataSource.data = collections),
-    );
-
-    this.dataSource.filterPredicate = (data: CollectionModel, filter: string) => {
-      const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
-      return regex.test(data.name);
-    };
   }
 }

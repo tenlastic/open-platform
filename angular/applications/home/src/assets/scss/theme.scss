@@ -1,6 +1,11 @@
 @use '@angular/material' as mat;
-@import '@angular/material/theming';
 
+$background: (
+  background: transparent,
+  card: transparent,
+  dialog: transparent,
+  tooltip: transparent,
+);
 $grey: (
   50: rgb(33, 33, 33),
   100: rgb(33, 33, 33),
@@ -66,21 +71,20 @@ $red: (
   ),
 );
 
-$theme-accent: mat.define-palette($grey);
-$theme-primary: mat.define-palette($red, 700, 300, 900);
-$theme-warn: mat.define-palette($red);
-$theme: mat.define-light-theme($theme-primary, $theme-accent, $theme-warn);
+$theme: mat.m2-define-light-theme(
+  (
+    color: (
+      accent: mat.m2-define-palette($grey),
+      background: $background,
+      primary: mat.m2-define-palette($red, 700, 300, 900),
+      warn: mat.m2-define-palette($red),
+    ),
+    density: 0,
+    typography:
+      mat.m2-define-typography-config(
+        $font-size: 16px,
+      ),
+  )
+);
 
-$accent: mat.get-color-from-palette($theme-accent);
-$accent-highlight: lighten($accent, 5%);
-$foreground: map-get($theme, foreground);
-$primary: mat.get-color-from-palette($theme-primary);
-$primary-highlight: lighten($primary, 5%);
-
-$box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.75);
-$box-shadow-bottom: 0px 1px 1px rgba(0, 0, 0, 0.75);
-$box-shadow-left: -1px 0px 1px rgba(0, 0, 0, 0.75);
-$box-shadow-right: 1px 0px 1px rgba(0, 0, 0, 0.75);
-$box-shadow-top: 0px -1px 1px rgba(0, 0, 0, 0.75);
-$drop-shadow: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.75));
-$text-shadow: 2px 2px 1px rgba(0, 0, 0, 0.75);
+@include mat.all-component-themes($theme);

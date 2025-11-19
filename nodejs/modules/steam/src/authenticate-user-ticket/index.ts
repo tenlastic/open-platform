@@ -6,6 +6,12 @@ export interface AuthenticateUserTicketOptions {
   ticket: string;
 }
 
+export interface AuthenticateUserTicketRequest {
+  appid: number;
+  key: string;
+  ticket: string;
+}
+
 export interface AuthenticateUserTicketResponse {
   response: {
     error: {
@@ -24,8 +30,16 @@ export interface AuthenticateUserTicketResponse {
 
 export async function authenticateUserTicket(options: AuthenticateUserTicketOptions) {
   const method = 'get';
-  const params = { appid: options.appId, key: options.key, ticket: options.ticket };
+  const params: AuthenticateUserTicketRequest = {
+    appid: options.appId,
+    key: options.key,
+    ticket: options.ticket,
+  };
   const url = `https://partner.steam-api.com/ISteamUserAuth/AuthenticateUserTicket/v1`;
 
-  return request<AuthenticateUserTicketResponse>({ method, params, url });
+  return request<AuthenticateUserTicketRequest, AuthenticateUserTicketResponse>({
+    method,
+    params,
+    url,
+  });
 }

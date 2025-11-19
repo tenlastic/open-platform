@@ -1,8 +1,8 @@
 import * as winston from 'winston';
 
-const format = winston.format((info: any) => {
+const format = winston.format((info) => {
   // Hide empty messages.
-  if (!info.message) {
+  if (typeof info.message !== 'string' || !info.message) {
     return false;
   }
 
@@ -29,8 +29,8 @@ const logger = winston.createLogger({
   transports: [transport],
 });
 
-console.log = (...args: any[]) => logger.info.call(logger, ...args);
-console.info = (...args: any[]) => logger.info.call(logger, ...args);
-console.warn = (...args: any[]) => logger.warn.call(logger, ...args);
-console.error = (...args: any[]) => logger.error.call(logger, ...args);
-console.debug = (...args: any[]) => logger.debug.call(logger, ...args);
+console.log = (...args: unknown[]) => logger.info.call(logger, ...args);
+console.info = (...args: unknown[]) => logger.info.call(logger, ...args);
+console.warn = (...args: unknown[]) => logger.warn.call(logger, ...args);
+console.error = (...args: unknown[]) => logger.error.call(logger, ...args);
+console.debug = (...args: unknown[]) => logger.debug.call(logger, ...args);

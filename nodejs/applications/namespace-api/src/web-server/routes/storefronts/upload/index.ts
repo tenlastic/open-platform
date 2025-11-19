@@ -1,18 +1,25 @@
 import * as minio from '@tenlastic/minio';
 import {
-  NamespaceModel,
   NamespaceLimitError,
+  NamespaceModel,
+  StorefrontDocument,
   StorefrontModel,
-  StorefrontPermissions,
+  StorefrontPermissionOptions,
 } from '@tenlastic/mongoose';
 import { NamespaceStorageLimitEvent } from '@tenlastic/mongoose-nats';
-import { PermissionError } from '@tenlastic/mongoose-permissions';
-import { Context, RecordNotFoundError } from '@tenlastic/web-server';
+import * as permissions from '@tenlastic/mongoose-permissions';
+import { Context, RecordNotFoundError, RecordResponse } from '@tenlastic/web-server';
 import * as Busboy from 'busboy';
 
 import { MinioStorefront } from '../../../../minio';
 
-export async function handler(ctx: Context) {
+export type UploadStorefrontContext = Context<
+  { _id?: string; field?: string; namespaceId?: string; storefrontId?: string },
+  void,
+  RecordResponse<StorefrontDocument>
+>;
+
+export async function handler(ctx: UploadStorefrontContext) {
   const { _id, field, namespaceId } = ctx.params;
 
   const namespace = await NamespaceModel.findOne({ _id: namespaceId });
@@ -22,27 +29,27 @@ export async function handler(ctx: Context) {
     namespace.limits.storage - namespace.status.limits.storage,
   );
 
-  const credentials = { ...ctx.state };
-  const storefront = await StorefrontPermissions.findOne(credentials, { where: { _id } }, {});
+  const context = {
+    credentials: { ...ctx.state },
+    Model: StorefrontModel,
+    options: StorefrontPermissionOptions,
+  };
+  const storefront = await permissions.findOne(context, {}, { where: { _id } });
   if (!storefront) {
     throw new RecordNotFoundError('Storefront');
   }
 
   // Get permissions for the Storefront
-  const permissions = await StorefrontPermissions.getFieldPermissions(
-    credentials,
-    'update',
-    storefront,
-  );
-  if (!permissions.includes(field)) {
-    throw new PermissionError();
+  const fieldPermissions = await permissions.getFieldPermissions(context, 'update', storefront);
+  if (!fieldPermissions.includes(field)) {
+    throw new permissions.PermissionError();
   }
 
   // Parse files from request body.
   const objectNames: string[] = [];
   await new Promise((resolve, reject) => {
     const busboy = Busboy({ headers: ctx.request.headers, limits: { files: 1, fileSize: limit } });
-    let promise = Promise.resolve('');
+    let promise = Promise.resolve<string>(null);
 
     busboy.on('error', reject);
     busboy.on('file', (name, stream, info) => {
@@ -101,7 +108,7 @@ export async function handler(ctx: Context) {
     ['images', 'videos'].includes(field) ? { $addToSet: { [field]: urls } } : { [field]: urls[0] },
     { new: true },
   );
-  const record = await StorefrontPermissions.read(credentials, result);
+  const record = await permissions.read(context, result);
 
   ctx.response.body = { record };
 }

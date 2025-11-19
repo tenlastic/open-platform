@@ -34,14 +34,12 @@
       <td mat-cell
           *matCellDef="let element">
         <app-button *ngIf="$getIndividualQueueMember(element._id) | async as queueMember"
-                    mat-button
                     color="accent"
                     (OnClick)="leaveQueue(queueMember)">
           <div>Leave Individual Queue</div>
         </app-button>
 
         <app-button *ngIf="$getGroupQueueMember(element._id) | async as queueMember"
-                    mat-button
                     color="accent"
                     (OnClick)="leaveQueue(queueMember)">
           <div>Leave Group Queue</div>
@@ -51,14 +49,12 @@
                       ($getGroupQueueMember(element._id) | async) === undefined &&
                       ($getIndividualQueueMember(element._id) | async) === undefined
                     "
-                    mat-button
                     [color]="($getGroup(element) | async) ? 'accent' : 'primary'"
                     (OnClick)="join(null, element)">
           <div>Join as Individual</div>
         </app-button>
 
         <app-button *ngIf="$getGroup(element) | async as group"
-                    mat-button
                     color="primary"
                     (OnClick)="join(group, element)">
           <div>Join as Group</div>

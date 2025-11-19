@@ -1,15 +1,27 @@
 import { expect } from 'chai';
+import * as mongoose from 'mongoose';
+import * as sinon from 'sinon';
 
-import { ContextMock } from '../../context';
-import { count } from './';
+import { ContextMock } from '../../mocks';
+import { count, CountContext, dependencies } from './';
+
+const Schema = new mongoose.Schema({ name: String });
+type Document = mongoose.Document & mongoose.InferSchemaType<typeof Schema>;
+const Model = mongoose.model<Document>('handlers/count', Schema);
+const Permissions = {};
 
 describe('handlers/count', function () {
-  it('returns the number of matching records', async function () {
-    const ctx = new ContextMock();
-    const Permissions = { count: () => Promise.resolve(1) };
+  afterEach(function () {
+    sinon.restore();
+  });
 
-    const handler = count(Permissions as any);
-    await handler(ctx as any);
+  it('returns the number of matching records', async function () {
+    const ctx = ContextMock<CountContext<Document>>();
+
+    sinon.stub(dependencies, 'count').resolves(1);
+
+    const handler = count(Model, Permissions);
+    await handler(ctx);
 
     expect(ctx.response.body.count).to.eql(1);
   });

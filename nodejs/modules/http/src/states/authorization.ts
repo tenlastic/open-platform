@@ -1,23 +1,18 @@
-import { EntityState, QueryEntity, StoreConfig } from '@datorama/akita';
-import { map } from 'rxjs/operators';
+import { map } from 'rxjs';
 
-import { AuthorizationModel, IAuthorization } from '../models/authorization';
-import { BaseStore } from './base';
+import { AuthorizationModel, IAuthorization } from '../models';
+import { AuthorizationService } from '../services';
+import { BaseState } from './base';
 
-export interface AuthorizationState extends EntityState<AuthorizationModel> {}
-
-@StoreConfig({ idKey: '_id', deepFreezeFn: (o) => o, name: 'authorizations', resettable: true })
-export class AuthorizationStore extends BaseStore<AuthorizationState, AuthorizationModel> {}
-
-export class AuthorizationQuery extends QueryEntity<AuthorizationState, AuthorizationModel> {
-  constructor(protected store: AuthorizationStore) {
-    super(store);
+export class AuthorizationState extends BaseState<AuthorizationModel, AuthorizationService> {
+  constructor(service: AuthorizationService) {
+    super('_id', service);
   }
 
   public hasRoles(namespaceId: string, roles: IAuthorization.Role[], userId: string) {
-    const authorizations = this.getAll({
-      filterBy: (a) => this.filterUserAuthorizations(a, namespaceId, userId),
-    });
+    const authorizations = this.getMany().filter((a) =>
+      this.filterUserAuthorizations(a, namespaceId, userId),
+    );
 
     if (authorizations.some((a) => a.bannedAt)) {
       return false;
@@ -29,9 +24,8 @@ export class AuthorizationQuery extends QueryEntity<AuthorizationState, Authoriz
   }
 
   public selectHasRoles(namespaceId: string, roles: IAuthorization.Role[], userId: string) {
-    return this.selectAll({
-      filterBy: (a) => this.filterUserAuthorizations(a, namespaceId, userId),
-    }).pipe(
+    return this.selectMany().pipe(
+      map((as) => as.filter((a) => this.filterUserAuthorizations(a, namespaceId, userId))),
       map((as) => (as.some((a) => a.bannedAt) ? [] : as)),
       map((as) => as.reduce((previous, current) => previous.concat(current.roles), [])),
       map((r) => r.some((ro) => roles.includes(ro))),

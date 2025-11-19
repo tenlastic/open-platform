@@ -1,135 +1,160 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
+import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import {
-  AuthorizationQuery,
   AuthorizationRequestModel,
-  AuthorizationRequestQuery,
   AuthorizationRequestService,
+  AuthorizationRequestState,
+  AuthorizationState,
   IAuthorization,
-  UserQuery,
+  UserState,
+  WebSocketService,
 } from '@tenlastic/http';
-import { Observable, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { v4 as uuid } from 'uuid';
 
-import { IdentityService } from '../../../../../../core/services';
-import { PromptComponent } from '../../../../../../shared/components';
+import { formatDate } from '@angular/common';
+import { IdentityService, OverlayService } from '@home/app/core/services';
+import {
+  DeletionOverlayComponent,
+  DeletionOverlayComponentData,
+  ListTableColumn,
+  ListTableSubscription,
+} from '@home/app/shared/components';
+import { environment } from '@home/environments/environment';
 
 @Component({
-  templateUrl: 'list-page.component.html',
+  standalone: false,
   styleUrls: ['./list-page.component.scss'],
+  templateUrl: 'list-page.component.html',
 })
-export class AuthorizationRequestsListPageComponent implements OnDestroy, OnInit {
-  @ViewChild(MatPaginator) set paginator(paginator: MatPaginator) {
-    this.dataSource.paginator = paginator;
-  }
-  @ViewChild(MatSort) set sort(sort: MatSort) {
-    this.dataSource.sort = sort;
+export class AuthorizationRequestsListPageComponent implements OnInit {
+  public $filter = new BehaviorSubject<string>(null);
+  public $records: Observable<AuthorizationRequestModel[]>;
+  public $refresh = new Subject<void>();
+  public columns: ListTableColumn<AuthorizationRequestModel>[] = [
+    { header: 'User', text: (v) => this.getUser(v.userId)?.displayName },
+    { header: 'Roles', text: (v) => `${v.roles.length}` },
+    { header: 'Created At', text: (v) => formatDate(v.createdAt, "MMM d, y 'at' h:mm a", 'en-US') },
+    {
+      header: 'Denied At',
+      text: (v) => (v.deniedAt ? formatDate(v.deniedAt, "MMM d, y 'at' h:mm a", 'en-US') : ''),
+    },
+    {
+      header: 'Granted At',
+      text: (v) => (v.grantedAt ? formatDate(v.grantedAt, "MMM d, y 'at' h:mm a", 'en-US') : ''),
+    },
+  ];
+  public hasWriteAuthorization = false;
+  public subscriptions: ListTableSubscription[] = [
+    {
+      Model: AuthorizationRequestModel,
+      request: { _id: uuid(), path: `/subscriptions/authorization-requests` },
+      service: this.authorizationRequestService,
+    },
+  ];
+  public get webSocket() {
+    return this.webSocketService.webSockets.find(
+      (ws) => `${environment.wssUrl}/namespaces/${this.namespaceId}` === ws.url,
+    );
   }
 
-  public dataSource = new MatTableDataSource<AuthorizationRequestModel>();
-  public displayedColumns = ['roles', 'user', 'createdAt', 'deniedAt', 'grantedAt', 'actions'];
-  public hasWriteAuthorization: boolean;
-  public message: string;
+  private namespaceId: string;
+  private get where() {
+    const where: any = { namespaceId: this.namespaceId };
 
-  private $authorizationRequests: Observable<AuthorizationRequestModel[]>;
-  private updateDataSource$ = new Subscription();
+    if (this.$filter.value?.match(/^[0-9A-Fa-f]{24}$/)) {
+      where.userId = this.$filter.value;
+    }
+
+    return where;
+  }
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private authorizationQuery: AuthorizationQuery,
-    private authorizationRequestQuery: AuthorizationRequestQuery,
+    private authorizationState: AuthorizationState,
+    private authorizationRequestState: AuthorizationRequestState,
     private authorizationRequestService: AuthorizationRequestService,
     private identityService: IdentityService,
-    private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
-    private userQuery: UserQuery,
+    private overlayService: OverlayService,
+    private userState: UserState,
+    private webSocketService: WebSocketService,
   ) {}
 
   public ngOnInit() {
+    const roles = [IAuthorization.Role.AuthorizationsWrite];
+    const userId = this.identityService.user?._id;
+    this.hasWriteAuthorization = this.authorizationState.hasRoles(null, roles, userId);
+
+    this.$records = this.authorizationRequestState.selectMany();
+
     this.activatedRoute.params.subscribe(async (params) => {
-      this.message = 'Loading...';
-
-      const roles = [IAuthorization.Role.AuthorizationsWrite];
-      const userId = this.identityService.user?._id;
-      this.hasWriteAuthorization = this.authorizationQuery.hasRoles(null, roles, userId);
-
-      await this.fetchAuthorizations(params);
-
-      this.message = null;
+      this.namespaceId = params?.namespaceId;
+      this.$refresh.next();
     });
   }
 
-  public ngOnDestroy() {
-    this.updateDataSource$.unsubscribe();
-  }
+  public count = () => {
+    return this.authorizationRequestService.count(this.namespaceId, { where: this.where });
+  };
 
   public async deny($event: Event, record: AuthorizationRequestModel) {
     $event.stopPropagation();
-
     await this.authorizationRequestService.deny(record.namespaceId, record._id);
     this.matSnackBar.open(`Authorization Request denied successfully.`);
   }
 
+  public filter = (record: AuthorizationRequestModel) => {
+    if (this.namespaceId !== record.namespaceId) {
+      return false;
+    }
+
+    if (!this.$filter.value || !this.$filter.value?.match(/^[0-9A-Fa-f]{24}$/)) {
+      return true;
+    }
+
+    return this.$filter.value === record.userId;
+  };
+
+  public find = async (page: number, pageSize: number) => {
+    const records = await this.authorizationRequestService.find(this.namespaceId, {
+      limit: pageSize,
+      skip: page * pageSize,
+      sort: '-createdAt',
+      where: this.where,
+    });
+
+    const _ids = records.map((r) => r._id);
+    this.subscriptions[0].request.body = { where: { _id: { $in: _ids } } };
+
+    return records;
+  };
+
   public getUser(_id: string) {
-    return this.userQuery.getEntity(_id);
+    return this.userState.getOne(_id);
   }
 
   public async grant($event: Event, record: AuthorizationRequestModel) {
     $event.stopPropagation();
-
     await this.authorizationRequestService.grant(record.namespaceId, record._id);
     this.matSnackBar.open(`Authorization Request granted successfully.`);
   }
 
-  public showDeletePrompt($event: Event, record: AuthorizationRequestModel) {
-    $event.stopPropagation();
+  public navigate = (record: AuthorizationRequestModel) => {
+    return [record._id];
+  };
 
-    const dialogRef = this.matDialog.open(PromptComponent, {
-      data: {
-        buttons: [
-          { color: 'primary', label: 'No' },
-          { color: 'accent', label: 'Yes' },
-        ],
-        message: `Are you sure you want to delete this Authorization Request?`,
-      },
-    });
-
-    dialogRef.afterClosed().subscribe(async (result) => {
-      if (result === 'Yes') {
-        await this.authorizationRequestService.delete(record.namespaceId, record._id);
-        this.matSnackBar.open('Authorization Request deleted successfully.');
-      }
-    });
+  public setFilter(value: string) {
+    this.$filter.next(value);
+    this.$refresh.next();
   }
 
-  private async fetchAuthorizations(params: Params) {
-    this.$authorizationRequests = this.authorizationRequestQuery.selectAll({
-      filterBy: (a) => {
-        if (params.namespaceId) {
-          return a.namespaceId === params.namespaceId;
-        } else {
-          return !a.namespaceId;
-        }
-      },
+  public showDeletePrompt($event: Event, record: AuthorizationRequestModel) {
+    $event.stopPropagation();
+    this.overlayService.open<DeletionOverlayComponentData>(DeletionOverlayComponent, {
+      delete: () => this.authorizationRequestService.delete(record.namespaceId, record._id),
+      name: 'Authorization Request',
     });
-
-    await this.authorizationRequestService.find(params.namespaceId, {
-      sort: '-createdAt',
-      where: params,
-    });
-
-    this.updateDataSource$ = this.$authorizationRequests.subscribe(
-      (authorizationRequests) => (this.dataSource.data = authorizationRequests),
-    );
-
-    this.dataSource.filterPredicate = (data: AuthorizationRequestModel, filter: string) => {
-      const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
-      const user = this.getUser(data.userId);
-      return regex.test(user.username);
-    };
   }
 }

@@ -1,6 +1,9 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 
+import { AuthorizationState, IAuthorization, StorefrontState } from '@tenlastic/http';
+import { Observable, combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
 import {
   ExecutableService,
   IdentityService,
@@ -9,12 +12,10 @@ import {
   UpdateServiceStatus,
 } from '../../../../../../core/services';
 import { FilesizePipe } from '../../../../../../shared/pipes';
-import { AuthorizationQuery, IAuthorization, StorefrontQuery } from '@tenlastic/http';
-import { Observable, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-status',
+  standalone: false,
   styleUrls: ['./status.component.scss'],
   templateUrl: './status.component.html',
 })
@@ -177,16 +178,16 @@ export class StatusComponent implements OnDestroy, OnInit {
   private get isRunning() {
     return this.executableService.isRunning(this.namespaceId);
   }
-  private interval: NodeJS.Timer;
+  private interval: NodeJS.Timeout;
   private params: Params;
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private authorizationQuery: AuthorizationQuery,
+    private authorizationState: AuthorizationState,
     private changeDetectorRef: ChangeDetectorRef,
     private executableService: ExecutableService,
     private identityService: IdentityService,
-    private storefrontQuery: StorefrontQuery,
+    private storefrontState: StorefrontState,
     private updateService: UpdateService,
   ) {}
 
@@ -197,7 +198,7 @@ export class StatusComponent implements OnDestroy, OnInit {
       this.status = this.updateService.getStatus(this.namespaceId);
       this.updateService.checkForUpdates(this.namespaceId, true, false, true);
 
-      const $storefront = this.storefrontQuery.selectEntity(this.namespaceId);
+      const $storefront = this.storefrontState.selectOne(this.namespaceId);
       this.$showGameServers = $storefront.pipe(map((s) => s?.showGameServers));
       this.$showQueues = $storefront.pipe(map((s) => s?.showQueues));
     });
@@ -214,8 +215,8 @@ export class StatusComponent implements OnDestroy, OnInit {
     const userId = this.identityService.user?._id;
 
     return combineLatest([
-      this.authorizationQuery.selectHasRoles(null, roles, userId),
-      this.authorizationQuery.selectHasRoles(this.namespaceId, roles, userId),
+      this.authorizationState.selectHasRoles(null, roles, userId),
+      this.authorizationState.selectHasRoles(this.namespaceId, roles, userId),
     ]).pipe(map(([a, b]) => a || b));
   }
 

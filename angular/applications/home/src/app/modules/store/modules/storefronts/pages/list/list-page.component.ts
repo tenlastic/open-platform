@@ -2,12 +2,13 @@ import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { StorefrontModel, StorefrontQuery, StorefrontService } from '@tenlastic/http';
-import { Observable, Subscription } from 'rxjs';
+import { StorefrontModel, StorefrontService, StorefrontState } from '@tenlastic/http';
+import { map, Observable, Subscription } from 'rxjs';
 
 @Component({
-  templateUrl: 'list-page.component.html',
+  standalone: false,
   styleUrls: ['./list-page.component.scss'],
+  templateUrl: 'list-page.component.html',
 })
 export class ListPageComponent implements OnDestroy, OnInit {
   @ViewChild(MatPaginator) set paginator(paginator: MatPaginator) {
@@ -24,7 +25,7 @@ export class ListPageComponent implements OnDestroy, OnInit {
   private updateDataSource$ = new Subscription();
 
   constructor(
-    private storefrontQuery: StorefrontQuery,
+    private storefrontState: StorefrontState,
     private storefrontService: StorefrontService,
   ) {}
 
@@ -37,7 +38,9 @@ export class ListPageComponent implements OnDestroy, OnInit {
   }
 
   private async fetchStorefronts() {
-    this.$storefronts = this.storefrontQuery.selectAll({ sortBy: 'title' });
+    this.$storefronts = this.storefrontState
+      .selectMany()
+      .pipe(map((ss) => ss.sort((a, b) => a.title.localeCompare(b.title))));
     await this.storefrontService.find(null, { sort: 'title' });
 
     this.updateDataSource$ = this.$storefronts.subscribe((g) => (this.dataSource.data = g));

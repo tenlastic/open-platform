@@ -1,4 +1,4 @@
-import { UserPermissions } from '@tenlastic/mongoose';
+import { UserModel, UserPermissionOptions } from '@tenlastic/mongoose';
 import { count } from '@tenlastic/web-server';
 
-export const handler = count(UserPermissions);
+export const handler = count(UserModel, UserPermissionOptions);

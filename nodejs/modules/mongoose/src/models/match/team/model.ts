@@ -1,4 +1,3 @@
-import { DocumentType, getModelForClass, modelOptions, prop, PropType } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
 import {
@@ -7,44 +6,54 @@ import {
   duplicateValidator,
 } from '../../../validators';
 
-@modelOptions({ schemaOptions: { _id: false } })
-export class MatchTeamSchema {
-  @prop({ type: Number })
-  public index: number;
+export interface MatchTeam {
+  index?: number;
+  rating?: number;
+  teamId?: mongoose.Types.ObjectId;
+  userIds: mongoose.Types.ObjectId[];
+}
 
-  @prop({ type: Number })
-  public rating: number;
+export type MatchTeamDocument = mongoose.Document<mongoose.Types.ObjectId> & MatchTeam;
 
-  @prop({ ref: 'QueueSchema', type: mongoose.Schema.Types.ObjectId })
-  public teamId: mongoose.Types.ObjectId;
+export interface MatchTeamModelType extends mongoose.Model<MatchTeamDocument> {
+  /**
+   * Creates a record with randomized required parameters if not specified.
+   */
+  mock(this: MatchTeamModelType, values?: Partial<MatchTeam>): MatchTeamDocument;
+}
 
-  @prop(
-    {
-      ref: 'UserSchema',
+const MatchTeamSchema = new mongoose.Schema<MatchTeamDocument, MatchTeamModelType>(
+  {
+    index: { type: Number },
+    rating: { type: Number },
+    teamId: { ref: 'QueueSchema', type: mongoose.Schema.Types.ObjectId },
+    userIds: {
       required: true,
-      type: mongoose.Schema.Types.ObjectId,
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'UserSchema' }],
       validate: [
         arrayLengthValidator(Infinity, 1),
         arrayNullUndefinedValidator,
         duplicateValidator,
       ],
     },
-    PropType.ARRAY,
-  )
-  public userIds: mongoose.Types.ObjectId[];
+  },
+  { _id: false },
+);
 
-  /**
-   * Creates a record with randomized required parameters if not specified.
-   */
-  public static mock(this: typeof MatchTeamModel, values: Partial<MatchTeamSchema> = {}) {
-    const defaults = {
-      teamId: new mongoose.Types.ObjectId(),
-      userIds: [new mongoose.Types.ObjectId()],
-    };
+MatchTeamSchema.statics.mock = function (values: Partial<MatchTeam> = {}) {
+  const defaults: Partial<MatchTeam> = {
+    teamId: new mongoose.Types.ObjectId(),
+    userIds: [new mongoose.Types.ObjectId()],
+  };
 
-    return new this({ ...defaults, ...values });
-  }
-}
+  return new this({ ...defaults, ...values });
+};
 
-export type MatchTeamDocument = DocumentType<MatchTeamSchema>;
-export const MatchTeamModel = getModelForClass(MatchTeamSchema);
+export const MatchTeamModel = mongoose.model<MatchTeamDocument, MatchTeamModelType>(
+  'MatchTeamSchema',
+  MatchTeamSchema,
+);
+
+export { MatchTeamSchema };
+
+export default MatchTeamModel;

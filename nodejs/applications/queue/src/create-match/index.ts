@@ -9,10 +9,11 @@ import { getTeams } from '../get-teams';
  * Creates a Match if enough Queue Members exist.
  */
 export async function createMatch(queue: QueueModel): Promise<MatchModel> {
-  const queueMembers = dependencies.queueMemberQuery.getAll({
-    filterBy: (qm) => !qm.matchedAt,
-    sortBy: 'createdAt',
-  });
+  const queueMembers = dependencies.queueMemberState
+    .getMany()
+    .filter((qm) => !qm.matchedAt)
+    .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+
   let teams: IMatch.Team[];
 
   for (let i = 0; i < queueMembers.length; i++) {
@@ -66,7 +67,7 @@ export async function createMatch(queue: QueueModel): Promise<MatchModel> {
   // Set MatchedAt on Queue Members.
   for (const matchedQueueMember of matchedQueueMembers) {
     matchedQueueMember.matchedAt = new Date();
-    dependencies.queueMemberStore.upsertMany([matchedQueueMember]);
+    dependencies.queueMemberState.upsertMany([matchedQueueMember]);
   }
 
   // Return the Match.

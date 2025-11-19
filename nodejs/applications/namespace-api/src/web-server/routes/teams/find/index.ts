@@ -1,4 +1,4 @@
-import { TeamPermissions } from '@tenlastic/mongoose';
+import { TeamModel, TeamPermissionOptions } from '@tenlastic/mongoose';
 import { find } from '@tenlastic/web-server';
 
-export const handler = find(TeamPermissions);
+export const handler = find(TeamModel, TeamPermissionOptions);

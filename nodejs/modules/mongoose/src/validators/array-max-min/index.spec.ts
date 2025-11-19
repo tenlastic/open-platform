@@ -3,23 +3,23 @@ import { expect } from 'chai';
 import { arrayMaxMinValidator } from './';
 
 describe('validators/array-max-min', function () {
-  describe('msg', function () {
+  describe('message', function () {
     it('shows the min message', function () {
-      const { msg } = arrayMaxMinValidator(0, 5);
+      const { message } = arrayMaxMinValidator(0, 5);
 
-      expect(msg).to.eql('Values cannot be less than 5.');
+      expect(message).to.eql('Values cannot be less than 5.');
     });
 
     it('shows the max messages', function () {
-      const { msg } = arrayMaxMinValidator(10);
+      const { message } = arrayMaxMinValidator(10);
 
-      expect(msg).to.eql('Values cannot be more than 10.');
+      expect(message).to.eql('Values cannot be more than 10.');
     });
 
     it('shows the min and max messages', function () {
-      const { msg } = arrayMaxMinValidator(10, 5);
+      const { message } = arrayMaxMinValidator(10, 5);
 
-      expect(msg).to.eql('Values cannot be less than 5 and more than 10.');
+      expect(message).to.eql('Values cannot be less than 5 and more than 10.');
     });
   });
 

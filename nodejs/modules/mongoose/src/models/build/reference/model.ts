@@ -1,23 +1,38 @@
-import { DocumentType, getModelForClass, modelOptions, prop, PropType } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
-@modelOptions({ schemaOptions: { _id: false } })
-export class BuildReferenceSchema {
-  @prop({ ref: 'BuildSchema', required: true, type: mongoose.Schema.Types.ObjectId })
-  public _id: mongoose.Types.ObjectId;
+export interface BuildReference {
+  _id: mongoose.Types.ObjectId;
+  files?: string[];
+}
 
-  @prop({ maxlength: 256, trim: true, type: String }, PropType.ARRAY)
-  public files: string[];
+export type BuildReferenceDocument = mongoose.Document<mongoose.Types.ObjectId> & BuildReference;
 
+export interface BuildReferenceModelType extends mongoose.Model<BuildReferenceDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: typeof BuildReferenceModel, values: Partial<BuildReferenceSchema> = {}) {
-    const defaults = { _id: new mongoose.Types.ObjectId() };
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(this: BuildReferenceModelType, values?: Partial<BuildReference>): BuildReferenceDocument;
 }
 
-export type BuildReferenceDocument = DocumentType<BuildReferenceSchema>;
-export const BuildReferenceModel = getModelForClass(BuildReferenceSchema);
+const BuildReferenceSchema = new mongoose.Schema<BuildReferenceDocument, BuildReferenceModelType>(
+  {
+    _id: { ref: 'BuildSchema', required: true, type: mongoose.Schema.Types.ObjectId },
+    files: { maxlength: 256, trim: true, type: [String] },
+  },
+  { _id: false },
+);
+
+BuildReferenceSchema.statics.mock = function (values: Partial<BuildReference> = {}) {
+  const defaults: Partial<BuildReference> = { _id: new mongoose.Types.ObjectId() };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const BuildReferenceModel = mongoose.model<BuildReferenceDocument, BuildReferenceModelType>(
+  'BuildReferenceSchema',
+  BuildReferenceSchema,
+);
+
+export { BuildReferenceSchema };
+
+export default BuildReferenceModel;

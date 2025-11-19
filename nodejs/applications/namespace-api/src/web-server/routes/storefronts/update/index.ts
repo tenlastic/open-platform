@@ -1,4 +1,4 @@
-import { StorefrontPermissions } from '@tenlastic/mongoose';
+import { StorefrontModel, StorefrontPermissionOptions } from '@tenlastic/mongoose';
 import { updateOne } from '@tenlastic/web-server';
 
-export const handler = updateOne(StorefrontPermissions);
+export const handler = updateOne(StorefrontModel, StorefrontPermissionOptions);

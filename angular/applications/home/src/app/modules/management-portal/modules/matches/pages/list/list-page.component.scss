@@ -1,4 +1,6 @@
-@import 'src/assets/scss/page.scss';
+@use 'src/assets/scss/page.scss' as page;
+
+@include page.styles;
 
 div.offset-sm-6 app-button {
   margin-top: 0px;

@@ -1,110 +1,140 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
-import { ActivatedRoute, Params } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import {
-  AuthorizationQuery,
+  AuthorizationState,
   IAuthorization,
+  WebSocketService,
   WorkflowModel,
-  WorkflowQuery,
   WorkflowService,
+  WorkflowState,
 } from '@tenlastic/http';
-import { Observable, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { v4 as uuid } from 'uuid';
 
-import { IdentityService } from '../../../../../../core/services';
-import { PromptComponent } from '../../../../../../shared/components';
+import { formatDate } from '@angular/common';
+import { IdentityService, OverlayService } from '@home/app/core/services';
+import {
+  DeletionOverlayComponent,
+  DeletionOverlayComponentData as DeletionOverlayData,
+  ListTableColumn,
+  ListTableSubscription,
+} from '@home/app/shared/components';
+import { environment } from '@home/environments/environment';
 
 @Component({
-  templateUrl: 'list-page.component.html',
+  standalone: false,
   styleUrls: ['./list-page.component.scss'],
+  templateUrl: 'list-page.component.html',
 })
-export class WorkflowsListPageComponent implements OnDestroy, OnInit {
-  @ViewChild(MatPaginator) set paginator(paginator: MatPaginator) {
-    this.dataSource.paginator = paginator;
-  }
-  @ViewChild(MatSort) set sort(sort: MatSort) {
-    this.dataSource.sort = sort;
+export class WorkflowsListPageComponent implements OnInit {
+  public $filter = new BehaviorSubject<string>(null);
+  public $records: Observable<WorkflowModel[]>;
+  public $refresh = new Subject<void>();
+  public columns: ListTableColumn<WorkflowModel>[] = [
+    { header: 'Name', text: (v) => v.name },
+    { header: 'Status', text: (v) => (v.status ? v.status.phase : 'Pending') },
+    { header: 'Created At', text: (v) => formatDate(v.createdAt, "MMM d, y 'at' h:mm a", 'en-US') },
+    { header: 'Updated At', text: (v) => formatDate(v.updatedAt, "MMM d, y 'at' h:mm a", 'en-US') },
+  ];
+  public hasWriteAuthorization = false;
+  public subscriptions: ListTableSubscription[] = [
+    {
+      Model: WorkflowModel,
+      request: { _id: uuid(), path: `/subscriptions/workflows` },
+      service: this.workflowService,
+    },
+  ];
+  public get webSocket() {
+    return this.webSocketService.webSockets.find(
+      (ws) => `${environment.wssUrl}/namespaces/${this.namespaceId}` === ws.url,
+    );
   }
 
-  public dataSource = new MatTableDataSource<WorkflowModel>();
-  public displayedColumns = ['name', 'status', 'createdAt', 'updatedAt', 'actions'];
-  public hasWriteAuthorization: boolean;
-  public message: string;
+  private namespaceId: string;
+  private get where() {
+    const where: any = { namespaceId: this.namespaceId };
 
-  private $workflows: Observable<WorkflowModel[]>;
-  private updateDataSource$ = new Subscription();
+    if (this.$filter.value) {
+      where.$or = [
+        { name: { $regex: this.$filter.value, $options: 'i' } },
+        { 'status.phase': { $regex: this.$filter.value, $options: 'i' } },
+      ];
+    }
+
+    return where;
+  }
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private authorizationQuery: AuthorizationQuery,
+    private authorizationState: AuthorizationState,
     private identityService: IdentityService,
-    private matDialog: MatDialog,
-    private matSnackBar: MatSnackBar,
-    private workflowQuery: WorkflowQuery,
+    private overlayService: OverlayService,
+    private webSocketService: WebSocketService,
+    private workflowState: WorkflowState,
     private workflowService: WorkflowService,
   ) {}
 
   public async ngOnInit() {
-    this.activatedRoute.params.subscribe(async (params) => {
-      this.message = 'Loading...';
+    this.$records = this.workflowState.selectMany();
 
-      const roles = [IAuthorization.Role.CollectionsWrite];
+    this.activatedRoute.params.subscribe(async (params) => {
+      this.namespaceId = params.namespaceId;
+
+      const roles = [IAuthorization.Role.WorkflowsWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
-        this.authorizationQuery.hasRoles(null, roles, userId) ||
-        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
+        this.authorizationState.hasRoles(null, roles, userId) ||
+        this.authorizationState.hasRoles(this.namespaceId, roles, userId);
 
-      await this.fetchWorkflows(params);
-
-      this.message = null;
+      this.$refresh.next();
     });
   }
 
-  public ngOnDestroy() {
-    this.updateDataSource$.unsubscribe();
-  }
+  public count = () => {
+    return this.workflowService.count(this.namespaceId, { where: this.where });
+  };
 
-  public getTooltip(record: WorkflowModel) {
-    if (!record.status.nodes.length) {
-      return null;
+  public filter = (record: WorkflowModel) => {
+    if (this.namespaceId !== record.namespaceId) {
+      return false;
     }
 
-    return record.status.nodes[record.status.nodes.length - 1].message;
+    if (!this.$filter.value) {
+      return true;
+    }
+
+    const regex = new RegExp(this.$filter.value, 'i');
+    return regex.test(record.name) || regex.test(record.status.phase);
+  };
+
+  public find = async (page: number, pageSize: number) => {
+    const records = await this.workflowService.find(this.namespaceId, {
+      limit: pageSize,
+      skip: page * pageSize,
+      sort: '-createdAt',
+      where: this.where,
+    });
+
+    const _ids = records.map((r) => r._id);
+    this.subscriptions[0].request.body = { where: { _id: { $in: _ids } } };
+
+    return records;
+  };
+
+  public navigate = (record: WorkflowModel) => {
+    return [record._id];
+  };
+
+  public setFilter(value: string) {
+    this.$filter.next(value);
+    this.$refresh.next();
   }
 
   public showDeletePrompt($event: Event, record: WorkflowModel) {
     $event.stopPropagation();
-
-    const dialogRef = this.matDialog.open(PromptComponent, {
-      data: {
-        buttons: [
-          { color: 'primary', label: 'No' },
-          { color: 'accent', label: 'Yes' },
-        ],
-        message: `Are you sure you want to delete this Workflow ?`,
-      },
+    this.overlayService.open<DeletionOverlayData>(DeletionOverlayComponent, {
+      delete: () => this.workflowService.delete(record.namespaceId, record._id),
+      name: 'Authorization Request',
     });
-
-    dialogRef.afterClosed().subscribe(async (result) => {
-      if (result === 'Yes') {
-        await this.workflowService.delete(record.namespaceId, record._id);
-        this.matSnackBar.open('Workflow  deleted successfully.');
-      }
-    });
-  }
-
-  private async fetchWorkflows(params: Params) {
-    this.$workflows = this.workflowQuery.selectAll({
-      filterBy: (gs) => gs.namespaceId === params.namespaceId,
-    });
-
-    await this.workflowService.find(params.namespaceId, {});
-
-    this.updateDataSource$ = this.$workflows.subscribe(
-      (workflows) => (this.dataSource.data = workflows),
-    );
   }
 }

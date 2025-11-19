@@ -6,7 +6,6 @@ import {
   SteamIntegrationModel,
   UserModel,
 } from '@tenlastic/mongoose';
-import steam from '@tenlastic/steam';
 import {
   ContextMock,
   RecordNotFoundError,
@@ -14,29 +13,23 @@ import {
   UnauthorizedError,
 } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-import * as Chance from 'chance';
+import chaiAsPromised from 'chai-as-promised';
+import { Chance } from 'chance';
 import * as sinon from 'sinon';
 
-import { handler } from '.';
+import { CreateLoginWithSteamIntegrationContext, dependencies, handler } from '.';
 
 const chance = new Chance();
 use(chaiAsPromised);
 
 describe('web-server/steam-integrations/logins', function () {
-  let sandbox: sinon.SinonSandbox;
-
   afterEach(function () {
-    sandbox.restore();
-  });
-
-  beforeEach(async function () {
-    sandbox = sinon.createSandbox();
+    sinon.restore();
   });
 
   context('when ticket is not provided', function () {
     it('throws an error', async function () {
-      const ctx: any = new ContextMock();
+      const ctx = ContextMock<CreateLoginWithSteamIntegrationContext>();
 
       const promise = handler(ctx);
 
@@ -51,7 +44,9 @@ describe('web-server/steam-integrations/logins', function () {
     context('when the Steam Integration is not found', function () {
       it('throws an error', async function () {
         const ticket = chance.hash();
-        const ctx: any = new ContextMock({ request: { body: { ticket } } });
+        const ctx = ContextMock<CreateLoginWithSteamIntegrationContext>({
+          request: { body: { ticket } },
+        });
 
         const promise = handler(ctx);
 
@@ -73,12 +68,12 @@ describe('web-server/steam-integrations/logins', function () {
       context('when ticket is invalid', function () {
         it('throws an error', async function () {
           const ticket = chance.hash();
-          const ctx: any = new ContextMock({
+          const ctx = ContextMock<CreateLoginWithSteamIntegrationContext>({
             params: { _id: steamIntegration._id, namespaceId: steamIntegration.namespaceId },
             request: { body: { ticket } },
           });
 
-          sandbox.stub(steam, 'authenticateUserTicket').resolves({
+          sinon.stub(dependencies, 'authenticateUserTicket').resolves({
             data: { response: { error: { errorcode: chance.integer() } } },
             status: 200,
           });
@@ -93,16 +88,16 @@ describe('web-server/steam-integrations/logins', function () {
         context('when the User does not own the Application', function () {
           it('throws an error', async function () {
             const ticket = chance.hash();
-            const ctx: any = new ContextMock({
+            const ctx = ContextMock<CreateLoginWithSteamIntegrationContext>({
               params: { _id: steamIntegration._id, namespaceId: steamIntegration.namespaceId },
               request: { body: { ticket } },
             });
 
-            sandbox.stub(steam, 'authenticateUserTicket').resolves({
+            sinon.stub(dependencies, 'authenticateUserTicket').resolves({
               data: { response: { error: { errorcode: chance.integer() } } },
               status: 200,
             });
-            sandbox.stub(steam, 'checkAppOwnership').resolves({
+            sinon.stub(dependencies, 'checkAppOwnership').resolves({
               data: { appownership: { ownsapp: false } },
               status: 200,
             });
@@ -117,20 +112,20 @@ describe('web-server/steam-integrations/logins', function () {
           it('upserts the Steam Integration roles', async function () {
             const ticket = chance.hash();
             const user = await UserModel.mock({ steamId: chance.hash() }).save();
-            const ctx: any = new ContextMock({
+            const ctx = ContextMock<CreateLoginWithSteamIntegrationContext>({
               params: { _id: steamIntegration._id, namespaceId: steamIntegration.namespaceId },
               request: { body: { ticket } },
             });
 
-            sandbox.stub(steam, 'authenticateUserTicket').resolves({
+            sinon.stub(dependencies, 'authenticateUserTicket').resolves({
               data: { response: { params: { steamid: user.steamId } } },
               status: 200,
             });
-            sandbox.stub(steam, 'checkAppOwnership').resolves({
+            sinon.stub(dependencies, 'checkAppOwnership').resolves({
               data: { appownership: { ownsapp: true } },
               status: 200,
             });
-            sandbox.stub(steam, 'getPlayerSummaries').resolves({
+            sinon.stub(dependencies, 'getPlayerSummaries').resolves({
               data: { response: { players: [{ personaname: chance.hash() }] } },
               status: 200,
             });
@@ -148,20 +143,20 @@ describe('web-server/steam-integrations/logins', function () {
           it('returns accessToken and refreshToken', async function () {
             const ticket = chance.hash();
             const user = await UserModel.mock({ steamId: chance.hash() }).save();
-            const ctx: any = new ContextMock({
+            const ctx = ContextMock<CreateLoginWithSteamIntegrationContext>({
               params: { _id: steamIntegration._id, namespaceId: steamIntegration.namespaceId },
               request: { body: { ticket } },
             });
 
-            sandbox.stub(steam, 'authenticateUserTicket').resolves({
+            sinon.stub(dependencies, 'authenticateUserTicket').resolves({
               data: { response: { params: { steamid: user.steamId } } },
               status: 200,
             });
-            sandbox.stub(steam, 'checkAppOwnership').resolves({
+            sinon.stub(dependencies, 'checkAppOwnership').resolves({
               data: { appownership: { ownsapp: true } },
               status: 200,
             });
-            sandbox.stub(steam, 'getPlayerSummaries').resolves({
+            sinon.stub(dependencies, 'getPlayerSummaries').resolves({
               data: { response: { players: [{ personaname: chance.hash() }] } },
               status: 200,
             });

@@ -1,4 +1,4 @@
-import { QueueMemberPermissions } from '@tenlastic/mongoose';
+import { QueueMemberModel, QueueMemberPermissionOptions } from '@tenlastic/mongoose';
 import { findOne } from '@tenlastic/web-server';
 
-export const handler = findOne(QueueMemberPermissions);
+export const handler = findOne(QueueMemberModel, QueueMemberPermissionOptions);

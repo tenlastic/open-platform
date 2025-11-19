@@ -1,6 +1,6 @@
 export const alphabeticalKeysValidator = {
-  msg: 'Keys can contain only letters.',
-  validator: (value: any) => {
+  message: 'Keys can contain only letters.',
+  validator: (value: unknown) => {
     const regex = /^[A-Za-z]+$/;
 
     if (value instanceof Map) {

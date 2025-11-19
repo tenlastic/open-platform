@@ -2,7 +2,7 @@ import { TextEncoder } from 'util';
 
 import { getJetStream } from './jet-stream';
 
-export async function publish(subject: string, message: any) {
+export async function publish(subject: string, message: unknown) {
   const json = JSON.stringify(message);
   const encoding = new TextEncoder().encode(json);
 

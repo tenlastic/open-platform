@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 
 import { SharedModule } from '../../shared/shared.module';
 import { LayoutComponent } from './components';
@@ -26,13 +26,6 @@ export const ROUTES: Routes = [
         path: 'namespaces',
         loadChildren: () =>
           import('./modules/namespaces/namespaces.module').then((m) => m.NamespaceModule),
-      },
-      {
-        path: 'refresh-tokens',
-        loadChildren: () =>
-          import('./modules/refresh-tokens/refresh-tokens.module').then(
-            (m) => m.RefreshTokenModule,
-          ),
       },
       {
         path: 'users',

@@ -7,6 +7,7 @@ import { UserModel, UserService } from '@tenlastic/http';
 import { FormService, IdentityService } from '../../../../core/services';
 
 @Component({
+  standalone: false,
   styleUrls: ['./information-page.component.scss'],
   templateUrl: 'information-page.component.html',
 })

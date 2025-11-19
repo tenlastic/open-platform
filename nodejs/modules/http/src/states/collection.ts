@@ -1,15 +1,9 @@
-import { EntityState, QueryEntity, StoreConfig } from '@datorama/akita';
+import { CollectionModel } from '../models';
+import { CollectionService } from '../services';
+import { BaseState } from './base';
 
-import { CollectionModel } from '../models/collection';
-import { BaseStore } from './base';
-
-export interface CollectionState extends EntityState<CollectionModel> {}
-
-@StoreConfig({ idKey: '_id', deepFreezeFn: (o) => o, name: 'collections', resettable: true })
-export class CollectionStore extends BaseStore<CollectionState, CollectionModel> {}
-
-export class CollectionQuery extends QueryEntity<CollectionState, CollectionModel> {
-  constructor(protected store: CollectionStore) {
-    super(store);
+export class CollectionState extends BaseState<CollectionModel, CollectionService> {
+  constructor(service: CollectionService) {
+    super('_id', service);
   }
 }

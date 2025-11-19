@@ -1,14 +1,15 @@
 import {
   AuthorizationModel,
   AuthorizationRole,
+  GroupDocument,
   NamespaceDocument,
   NamespaceModel,
   UserDocument,
   UserModel,
 } from '@tenlastic/mongoose';
-import { ContextMock } from '@tenlastic/web-server';
+import { ContextMock, CreateContext } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
+import chaiAsPromised from 'chai-as-promised';
 
 import { handler } from './';
 
@@ -22,7 +23,7 @@ describe('web-server/groups/create', function () {
   });
 
   context('when permission is granted', function () {
-    let ctx: ContextMock;
+    let ctx: CreateContext<GroupDocument>;
     let namespace: NamespaceDocument;
 
     beforeEach(async function () {
@@ -33,11 +34,14 @@ describe('web-server/groups/create', function () {
         userId: user._id,
       }).save();
 
-      ctx = new ContextMock({ params: { namespaceId: namespace._id }, state: { user } } as any);
+      ctx = ContextMock({
+        params: { namespaceId: namespace._id },
+        state: { user: { _id: user._id.toHexString() } },
+      });
     });
 
     it('creates a Group', async function () {
-      await handler(ctx as any);
+      await handler(ctx);
 
       expect(ctx.response.body.record).to.exist;
     });

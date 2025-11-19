@@ -1,7 +1,7 @@
 import { RefreshTokenDocument, RefreshTokenModel, UserModel } from '@tenlastic/mongoose';
 import { Context, ContextMock } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
+import chaiAsPromised from 'chai-as-promised';
 
 import { handler } from '.';
 
@@ -15,13 +15,13 @@ describe('web-server/logins/delete', function () {
     refreshToken = await RefreshTokenModel.mock().save();
     await UserModel.mock({ password: 'password' }).save();
 
-    ctx = new ContextMock({
+    ctx = ContextMock({
       state: {
         jwt: {
           jti: refreshToken._id.toString(),
         },
       },
-    }) as any;
+    });
 
     await handler(ctx);
   });

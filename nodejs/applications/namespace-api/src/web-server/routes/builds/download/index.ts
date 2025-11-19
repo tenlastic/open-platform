@@ -1,24 +1,35 @@
 import * as minio from '@tenlastic/minio';
-import { BuildPermissions } from '@tenlastic/mongoose';
-import { PermissionError } from '@tenlastic/mongoose-permissions';
+import { BuildModel, BuildPermissionOptions } from '@tenlastic/mongoose';
+import * as permissions from '@tenlastic/mongoose-permissions';
 import { Context, RecordNotFoundError } from '@tenlastic/web-server';
 import * as JSZip from 'jszip';
+import { Readable } from 'stream';
 
 import { MinioBuild } from '../../../../minio';
 
-export async function handler(ctx: Context) {
-  const credentials = { ...ctx.state };
-  const build = await BuildPermissions.findOne(credentials, { where: { _id: ctx.params._id } }, {});
+export type DownloadBuildContext = Context<
+  { _id?: string },
+  { compression?: number },
+  NodeJS.ReadableStream
+>;
+
+export async function handler(ctx: DownloadBuildContext) {
+  const context = {
+    credentials: { ...ctx.state },
+    Model: BuildModel,
+    options: BuildPermissionOptions,
+  };
+  const build = await permissions.findOne(context, {}, { where: { _id: ctx.params._id } });
   if (!build) {
     throw new RecordNotFoundError('Build');
   }
 
-  const permissions = await BuildPermissions.getFieldPermissions(credentials, 'read', build);
-  if (!permissions.includes('files.*')) {
-    throw new PermissionError();
+  const fieldPermissions = await permissions.getFieldPermissions(context, 'read', build);
+  if (!fieldPermissions.includes('files.*')) {
+    throw new permissions.PermissionError();
   }
 
-  const compression = ctx.query.compression || 3;
+  const compression = ctx.request.query.compression || 3;
   const files = ctx.request.rawQuery?.files
     ? build.files.filter((f, i) => ctx.request.rawQuery.files[i] === '1')
     : build.files;
@@ -29,7 +40,7 @@ export async function handler(ctx: Context) {
       process.env.MINIO_BUCKET,
       MinioBuild.getFileObjectName(build, file.path),
     );
-    zip.file(file.path, stream as NodeJS.ReadableStream);
+    zip.file(file.path, stream as Readable);
   }
 
   ctx.response.body = zip.generateNodeStream({

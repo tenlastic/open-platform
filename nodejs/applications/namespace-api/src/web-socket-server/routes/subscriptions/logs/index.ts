@@ -1,23 +1,31 @@
 import {
-  BuildPermissions,
-  GameServerPermissions,
-  QueuePermissions,
-  WorkflowPermissions,
+  BuildDocument,
+  BuildModel,
+  BuildPermissionOptions,
+  GameServerDocument,
+  GameServerModel,
+  GameServerPermissionOptions,
+  QueueDocument,
+  QueueModel,
+  QueuePermissionOptions,
+  WorkflowDocument,
+  WorkflowModel,
+  WorkflowPermissionOptions,
 } from '@tenlastic/mongoose';
-import { Context, logs, LogsOptions } from '@tenlastic/web-socket-server';
+import { logs, LogsContext } from '@tenlastic/web-socket-server';
 
-export async function handler(ctx: Context<LogsOptions>) {
+export async function handler(ctx: LogsContext) {
   switch (ctx.params.collection) {
     case 'builds':
-      return logs(ctx, BuildPermissions);
+      return logs<BuildDocument>(ctx, BuildModel, BuildPermissionOptions);
 
     case 'game-servers':
-      return logs(ctx, GameServerPermissions);
+      return logs<GameServerDocument>(ctx, GameServerModel, GameServerPermissionOptions);
 
     case 'queues':
-      return logs(ctx, QueuePermissions);
+      return logs<QueueDocument>(ctx, QueueModel, QueuePermissionOptions);
 
     case 'workflows':
-      return logs(ctx, WorkflowPermissions);
+      return logs<WorkflowDocument>(ctx, WorkflowModel, WorkflowPermissionOptions);
   }
 }

@@ -1,8 +1,8 @@
 import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-import * as Chance from 'chance';
+import chaiAsPromised from 'chai-as-promised';
+import { Chance } from 'chance';
 
-import { ContextMock } from '../../context';
+import { ContextMock } from '../../mocks';
 import { apiKeyMiddleware } from './';
 
 const chance = new Chance();
@@ -12,7 +12,7 @@ use(chaiAsPromised);
 
 describe('middleware/api-key', function () {
   it(`sets the API Key state object`, async function () {
-    const ctx = new ContextMock({
+    const ctx = ContextMock({
       request: {
         headers: {
           'x-api-key': chance.hash(),
@@ -20,7 +20,7 @@ describe('middleware/api-key', function () {
       },
     });
 
-    await apiKeyMiddleware(ctx as any, noop);
+    await apiKeyMiddleware(ctx, noop);
 
     expect(ctx.state.apiKey).to.eql(ctx.request.headers['x-api-key']);
   });

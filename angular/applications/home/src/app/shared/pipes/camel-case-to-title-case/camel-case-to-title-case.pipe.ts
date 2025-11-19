@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
-@Pipe({ name: 'camelCaseToTitleCase' })
+@Pipe({ name: 'camelCaseToTitleCase', standalone: false })
 export class CamelCaseToTitleCasePipe implements PipeTransform {
   transform(value: string) {
     const result = value.replace(/([A-Z])/g, ' $1');

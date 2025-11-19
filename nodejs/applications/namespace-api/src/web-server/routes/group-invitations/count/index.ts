@@ -1,4 +1,4 @@
-import { GroupInvitationPermissions } from '@tenlastic/mongoose';
+import { GroupInvitationModel, GroupInvitationPermissionOptions } from '@tenlastic/mongoose';
 import { count } from '@tenlastic/web-server';
 
-export const handler = count(GroupInvitationPermissions);
+export const handler = count(GroupInvitationModel, GroupInvitationPermissionOptions);

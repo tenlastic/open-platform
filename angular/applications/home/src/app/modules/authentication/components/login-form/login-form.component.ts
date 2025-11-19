@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 export interface ILogIn {
@@ -7,6 +7,7 @@ export interface ILogIn {
 }
 
 @Component({
+  standalone: false,
   selector: 'app-login-form',
   templateUrl: 'login-form.component.html',
 })

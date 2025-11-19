@@ -3,23 +3,23 @@ import { expect } from 'chai';
 import { arrayLengthValidator } from './';
 
 describe('validators/array-length', function () {
-  describe('msg', function () {
+  describe('message', function () {
     it('shows the min message', function () {
-      const { msg } = arrayLengthValidator(0, 5);
+      const { message } = arrayLengthValidator(0, 5);
 
-      expect(msg).to.eql('Value cannot contain less than 5 items.');
+      expect(message).to.eql('Value cannot contain less than 5 items.');
     });
 
     it('shows the max messages', function () {
-      const { msg } = arrayLengthValidator(10);
+      const { message } = arrayLengthValidator(10);
 
-      expect(msg).to.eql('Value cannot contain more than 10 items.');
+      expect(message).to.eql('Value cannot contain more than 10 items.');
     });
 
     it('shows the min and max messages', function () {
-      const { msg } = arrayLengthValidator(10, 5);
+      const { message } = arrayLengthValidator(10, 5);
 
-      expect(msg).to.eql('Value cannot contain less than 5 and more than 10 items.');
+      expect(message).to.eql('Value cannot contain less than 5 and more than 10 items.');
     });
   });
 

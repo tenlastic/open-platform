@@ -13,7 +13,7 @@
     "electron:start": "npm-run-all -p start electron:serve",
     "electron:tsc": "tsc -p tsconfig.electron.json",
     "lint": "ng lint home",
-    "start": "ng serve --configuration development --disable-host-check --host 0.0.0.0 --poll 1000 --port 3000 home",
+    "start": "ng serve --configuration development --host 0.0.0.0 --poll 1000 --port 3000 home",
     "test": "ng test --code-coverage --watch false home",
     "test:watch": "ng test --poll 5000 home",
     "version": "../../scripts/version.sh deployments home-ui"
@@ -21,20 +21,20 @@
   "dependencies": {
     "@electron/remote": "2.0.8",
     "@tenlastic/http": "^0.0.320",
-    "axios": "0.27.2",
+    "axios": "1.12.2",
     "electron-log": "4.0.2",
     "electron-updater": "4.2.0",
     "glob": "7.1.6",
     "request": "2.88.0",
-    "swagger-ui-dist": "3.37.2",
+    "swagger-ui-dist": "5.29.5",
     "unzipper": "0.10.14"
   },
   "devDependencies": {
-    "@angular/cli": "^14.1.2",
+    "@angular/cli": "^20.3.7",
     "electron": "21.3.1",
     "electron-builder": "21.2.0",
     "npm-run-all": "4.1.5",
-    "typescript": "4.6.4",
+    "typescript": "5.8.3",
     "wait-on": "3.3.0"
   }
 }

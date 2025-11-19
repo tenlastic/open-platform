@@ -1,6 +1,6 @@
-import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
+import { IOptions } from '@tenlastic/mongoose-permissions';
 
-import { AuthorizationDocument, AuthorizationModel, AuthorizationRole } from '../models';
+import { AuthorizationDocument, AuthorizationRole } from '../models';
 
 export const AuthorizationPermissionsHelpers = {
   getFindQuery(roles: AuthorizationRole[], selector = 'namespaceId') {
@@ -102,63 +102,60 @@ export const AuthorizationPermissionsHelpers = {
   },
 };
 
-export const AuthorizationPermissions = new MongoosePermissions<AuthorizationDocument>(
-  AuthorizationModel,
-  {
-    create: {
-      'namespace-write': ['apiKey', 'bannedAt', 'name', 'namespaceId', 'roles', 'userId'],
-      'user-write': ['apiKey', 'bannedAt', 'name', 'namespaceId', 'roles', 'userId'],
-    },
-    delete: {
-      'namespace-write': true,
-      'user-write': true,
-    },
-    find: {
-      default: {
-        $or: [
-          AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.AuthorizationsRead]),
-          {
-            apiKey: { $exists: false },
-            namespaceId: { $exists: true },
-            userId: { $exists: false },
-          },
-          { userId: { $ref: 'user._id' } },
-        ],
-        system: { $exists: false },
-      },
-      'user-read': { system: { $exists: false } },
-    },
-    populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
-    read: {
-      default: [
-        '_id',
-        'bannedAt',
-        'createdAt',
-        'name',
-        'namespaceId',
-        'roles',
-        'updatedAt',
-        'userId',
-      ],
-    },
-    roles: {
-      default: {},
-      'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-        AuthorizationRole.AuthorizationsRead,
-      ]),
-      'namespace-write': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
-        AuthorizationRole.AuthorizationsWrite,
-      ]),
-      'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([
-        AuthorizationRole.AuthorizationsRead,
-      ]),
-      'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([
-        AuthorizationRole.AuthorizationsWrite,
-      ]),
-    },
-    update: {
-      'namespace-write': ['bannedAt', 'name', 'roles'],
-      'user-write': ['bannedAt', 'name', 'roles'],
-    },
+export const AuthorizationPermissionOptions: IOptions<AuthorizationDocument> = {
+  create: {
+    'namespace-write': ['apiKey', 'bannedAt', 'name', 'namespaceId', 'roles', 'userId'],
+    'user-write': ['apiKey', 'bannedAt', 'name', 'namespaceId', 'roles', 'userId'],
   },
-);
+  delete: {
+    'namespace-write': true,
+    'user-write': true,
+  },
+  find: {
+    default: {
+      $or: [
+        AuthorizationPermissionsHelpers.getFindQuery([AuthorizationRole.AuthorizationsRead]),
+        {
+          apiKey: { $exists: false },
+          namespaceId: { $exists: true },
+          userId: { $exists: false },
+        },
+        { userId: { $ref: 'user._id' } },
+      ],
+      system: { $exists: false },
+    },
+    'user-read': { system: { $exists: false } },
+  },
+  populate: [AuthorizationPermissionsHelpers.getPopulateQuery()],
+  read: {
+    default: [
+      '_id',
+      'bannedAt',
+      'createdAt',
+      'name',
+      'namespaceId',
+      'roles',
+      'updatedAt',
+      'userId',
+    ],
+  },
+  roles: {
+    default: {},
+    'namespace-read': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+      AuthorizationRole.AuthorizationsRead,
+    ]),
+    'namespace-write': AuthorizationPermissionsHelpers.getNamespaceRoleQuery([
+      AuthorizationRole.AuthorizationsWrite,
+    ]),
+    'user-read': AuthorizationPermissionsHelpers.getUserRoleQuery([
+      AuthorizationRole.AuthorizationsRead,
+    ]),
+    'user-write': AuthorizationPermissionsHelpers.getUserRoleQuery([
+      AuthorizationRole.AuthorizationsWrite,
+    ]),
+  },
+  update: {
+    'namespace-write': ['bannedAt', 'name', 'roles'],
+    'user-write': ['bannedAt', 'name', 'roles'],
+  },
+};

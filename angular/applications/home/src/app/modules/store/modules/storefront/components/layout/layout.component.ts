@@ -1,50 +1,44 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
-import { Order } from '@datorama/akita';
 import {
   ArticleModel,
-  ArticleQuery,
   ArticleService,
-  ArticleStore,
-  AuthorizationQuery,
+  ArticleState,
   AuthorizationService,
+  AuthorizationState,
   BaseModel,
   BuildModel,
   BuildService,
-  BuildStore,
   GameServerModel,
   GameServerService,
-  GameServerStore,
   IArticle,
   IAuthorization,
   QueueMemberModel,
   QueueMemberService,
-  QueueMemberStore,
   QueueModel,
   QueueService,
-  QueueStore,
   StorefrontModel,
-  StorefrontQuery,
   StorefrontService,
+  StorefrontState,
   SubscriptionService,
-  WebSocketRequest,
   WebSocketService,
 } from '@tenlastic/http';
 import { combineLatest, Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { v4 as uuid } from 'uuid';
 
+import { environment } from '../../../../../../../environments/environment';
 import {
   BackgroundService,
   ElectronService,
   IdentityService,
   UpdateService,
 } from '../../../../../../core/services';
-import { environment } from '../../../../../../../environments/environment';
 
 @Component({
-  templateUrl: './layout.component.html',
+  standalone: false,
   styleUrls: ['./layout.component.scss'],
+  templateUrl: './layout.component.html',
 })
 export class LayoutComponent implements OnDestroy, OnInit {
   public IAuthorization = IAuthorization;
@@ -71,33 +65,28 @@ export class LayoutComponent implements OnDestroy, OnInit {
   private subscriptions = [
     {
       Model: ArticleModel,
-      request: { _id: uuid(), path: '/subscriptions/articles' } as WebSocketRequest,
+      request: { _id: uuid(), path: '/subscriptions/articles' },
       service: this.articleService,
-      store: this.articleStore,
     },
     {
       Model: BuildModel,
-      request: { _id: uuid(), path: '/subscriptions/builds' } as WebSocketRequest,
+      request: { _id: uuid(), path: '/subscriptions/builds' },
       service: this.buildService,
-      store: this.buildStore,
     },
     {
       Model: GameServerModel,
-      request: { _id: uuid(), path: '/subscriptions/game-servers' } as WebSocketRequest,
+      request: { _id: uuid(), path: '/subscriptions/game-servers' },
       service: this.gameServerService,
-      store: this.gameServerStore,
     },
     {
       Model: QueueMemberModel,
-      request: { _id: uuid(), path: '/subscriptions/queue-members' } as WebSocketRequest,
+      request: { _id: uuid(), path: '/subscriptions/queue-members' },
       service: this.queueMemberService,
-      store: this.queueMemberStore,
     },
     {
       Model: QueueModel,
-      request: { _id: uuid(), path: '/subscriptions/queues' } as WebSocketRequest,
+      request: { _id: uuid(), path: '/subscriptions/queues' },
       service: this.queueService,
-      store: this.queueStore,
     },
   ];
   private get webSocket() {
@@ -109,23 +98,18 @@ export class LayoutComponent implements OnDestroy, OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private articleQuery: ArticleQuery,
+    private articleState: ArticleState,
     private articleService: ArticleService,
-    private articleStore: ArticleStore,
-    private authorizationQuery: AuthorizationQuery,
+    private authorizationState: AuthorizationState,
     private authorizationService: AuthorizationService,
     private backgroundService: BackgroundService,
     private buildService: BuildService,
-    private buildStore: BuildStore,
     private electronService: ElectronService,
     private gameServerService: GameServerService,
-    private gameServerStore: GameServerStore,
     private identityService: IdentityService,
     private queueMemberService: QueueMemberService,
-    private queueMemberStore: QueueMemberStore,
     private queueService: QueueService,
-    private queueStore: QueueStore,
-    private storefrontQuery: StorefrontQuery,
+    private storefrontState: StorefrontState,
     private storefrontService: StorefrontService,
     private subscriptionService: SubscriptionService,
     private updateService: UpdateService,
@@ -155,33 +139,49 @@ export class LayoutComponent implements OnDestroy, OnInit {
       this.backgroundService.set(storefront.background);
 
       // Update the Articles.
-      this.$guide = this.articleQuery
-        .selectAll({
-          filterBy: (a) =>
-            a.namespaceId === this.namespaceId && a.publishedAt && a.type === IArticle.Type.Guide,
-          sortBy: 'publishedAt',
-          sortByOrder: Order.DESC,
-        })
-        .pipe(map((a) => a[0]));
-      this.$news = this.articleQuery
-        .selectAll({
-          filterBy: (a) =>
-            a.namespaceId === this.namespaceId && a.publishedAt && a.type === IArticle.Type.News,
-          sortBy: 'publishedAt',
-          sortByOrder: Order.DESC,
-        })
-        .pipe(map((a) => a[0]));
-      this.$patchNotes = this.articleQuery
-        .selectAll({
-          filterBy: (a) =>
-            a.namespaceId === this.namespaceId &&
-            a.publishedAt &&
-            a.type === IArticle.Type.PatchNotes,
-          sortBy: 'publishedAt',
-          sortByOrder: Order.DESC,
-        })
-        .pipe(map((a) => a[0]));
-      this.$storefront = this.storefrontQuery.selectEntity(params.namespaceId);
+      this.$guide = this.articleState
+        .selectMany()
+        .pipe(
+          map((as) =>
+            as.filter(
+              (a) =>
+                a.namespaceId === this.namespaceId &&
+                a.publishedAt &&
+                a.type === IArticle.Type.Guide,
+            ),
+          ),
+        )
+        .pipe(map((as) => as.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime())))
+        .pipe(map((as) => as[0]));
+      this.$news = this.articleState
+        .selectMany()
+        .pipe(
+          map((as) =>
+            as.filter(
+              (a) =>
+                a.namespaceId === this.namespaceId &&
+                a.publishedAt &&
+                a.type === IArticle.Type.News,
+            ),
+          ),
+        )
+        .pipe(map((as) => as.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime())))
+        .pipe(map((as) => as[0]));
+      this.$patchNotes = this.articleState
+        .selectMany()
+        .pipe(
+          map((as) =>
+            as.filter(
+              (a) =>
+                a.namespaceId === this.namespaceId &&
+                a.publishedAt &&
+                a.type === IArticle.Type.PatchNotes,
+            ),
+          ),
+        )
+        .pipe(map((as) => as.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime())))
+        .pipe(map((as) => as[0]));
+      this.$storefront = this.storefrontState.selectOne(params.namespaceId);
 
       // Subscribe to the Namespace.
       await Promise.all([this.webSocketService.connect(this.webSocketUrl), this.subscribe()]);
@@ -199,8 +199,8 @@ export class LayoutComponent implements OnDestroy, OnInit {
     const userId = this.identityService.user?._id;
 
     return combineLatest([
-      this.authorizationQuery.selectHasRoles(null, roles, userId),
-      this.authorizationQuery.selectHasRoles(this.namespaceId, roles, userId),
+      this.authorizationState.selectHasRoles(null, roles, userId),
+      this.authorizationState.selectHasRoles(this.namespaceId, roles, userId),
     ]).pipe(map(([a, b]) => a || b));
   }
 
@@ -232,7 +232,6 @@ export class LayoutComponent implements OnDestroy, OnInit {
         s.Model,
         { ...s.request },
         s.service,
-        s.store,
         this.webSocket,
         { acks: true },
       ),

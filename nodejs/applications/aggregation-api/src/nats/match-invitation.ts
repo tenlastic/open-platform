@@ -6,8 +6,7 @@ MatchInvitationEvent.sync(log);
 
 // Delete Match Invitations if associated Namespace is deleted.
 NamespaceEvent.async(async (payload) => {
-  switch (payload.operationType) {
-    case 'delete':
-      return MatchInvitationModel.deleteMany({ namespaceId: payload.fullDocument._id });
+  if (payload.operationType === 'delete') {
+    await MatchInvitationModel.deleteMany({ namespaceId: payload.fullDocument._id });
   }
 });

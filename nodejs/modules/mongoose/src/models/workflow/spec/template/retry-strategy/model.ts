@@ -1,38 +1,58 @@
-import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
 import { Chance } from 'chance';
+import * as mongoose from 'mongoose';
 
 export enum WorkflowSpecTemplateRetryStrategyRetryPolicy {
   OnError = 'OnError',
   OnFailure = 'OnFailure',
 }
 
-@modelOptions({ schemaOptions: { _id: false } })
-export class WorkflowSpecTemplateRetryStrategySchema {
-  @prop({ required: true, type: Number })
-  public limit: number;
+export interface WorkflowSpecTemplateRetryStrategy {
+  limit: number;
+  retryPolicy: WorkflowSpecTemplateRetryStrategyRetryPolicy;
+}
 
-  @prop({ enum: WorkflowSpecTemplateRetryStrategyRetryPolicy, required: true, type: String })
-  public retryPolicy: string;
+export interface WorkflowSpecTemplateRetryStrategyDocument
+  extends mongoose.Document<mongoose.Types.ObjectId>,
+    WorkflowSpecTemplateRetryStrategy {}
 
+export interface WorkflowSpecTemplateRetryStrategyModelType
+  extends mongoose.Model<WorkflowSpecTemplateRetryStrategyDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(
-    this: typeof WorkflowSpecTemplateRetryStrategyModel,
-    values: Partial<WorkflowSpecTemplateRetryStrategySchema> = {},
-  ) {
-    const chance = new Chance();
-    const defaults = {
-      limit: chance.integer({ max: 10, min: 1 }),
-      retryPolicy: WorkflowSpecTemplateRetryStrategyRetryPolicy.OnError,
-    };
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(
+    this: WorkflowSpecTemplateRetryStrategyModelType,
+    values?: Partial<WorkflowSpecTemplateRetryStrategy>,
+  ): WorkflowSpecTemplateRetryStrategyDocument;
 }
 
-export type WorkflowSpecTemplateRetryStrategyDocument =
-  DocumentType<WorkflowSpecTemplateRetryStrategySchema>;
-export const WorkflowSpecTemplateRetryStrategyModel = getModelForClass(
-  WorkflowSpecTemplateRetryStrategySchema,
-);
+export const WorkflowSpecTemplateRetryStrategySchema =
+  new mongoose.Schema<WorkflowSpecTemplateRetryStrategyDocument>(
+    {
+      limit: { type: Number, required: true },
+      retryPolicy: {
+        type: String,
+        enum: Object.values(WorkflowSpecTemplateRetryStrategyRetryPolicy),
+        required: true,
+      },
+    },
+    { _id: false },
+  );
+
+WorkflowSpecTemplateRetryStrategySchema.statics.mock = function (
+  this: WorkflowSpecTemplateRetryStrategyModelType,
+  values: Partial<WorkflowSpecTemplateRetryStrategy> = {},
+) {
+  const chance = new Chance();
+  const defaults = {
+    limit: chance.integer({ max: 10, min: 1 }),
+    retryPolicy: WorkflowSpecTemplateRetryStrategyRetryPolicy.OnError,
+  };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const WorkflowSpecTemplateRetryStrategyModel = mongoose.model<
+  WorkflowSpecTemplateRetryStrategyDocument,
+  WorkflowSpecTemplateRetryStrategyModelType
+>('WorkflowSpecTemplateRetryStrategy', WorkflowSpecTemplateRetryStrategySchema);

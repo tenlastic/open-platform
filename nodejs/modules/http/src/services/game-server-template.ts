@@ -1,7 +1,6 @@
 import { GameServerTemplateModel } from '../models/game-server-template';
-import { GameServerTemplateStore } from '../states/game-server-template';
 import { ApiService } from './api';
-import { BaseService, BaseServiceFindQuery } from './base';
+import { BaseService, BaseServiceCountQuery, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 
 export class GameServerTemplateService {
@@ -11,22 +10,17 @@ export class GameServerTemplateService {
 
   private baseService: BaseService<GameServerTemplateModel>;
 
-  constructor(
-    private apiService: ApiService,
-    private environmentService: EnvironmentService,
-    private gameServerStore: GameServerTemplateStore,
-  ) {
+  constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
     this.baseService = new BaseService<GameServerTemplateModel>(
       this.apiService,
       GameServerTemplateModel,
-      this.gameServerStore,
     );
   }
 
   /**
    * Returns the number of Records satisfying the query.
    */
-  public async count(namespaceId: string, query: any) {
+  public async count(namespaceId: string, query: BaseServiceCountQuery) {
     const url = this.getUrl(namespaceId);
     return this.baseService.count(query, url);
   }

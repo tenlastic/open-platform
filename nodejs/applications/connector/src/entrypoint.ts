@@ -1,9 +1,8 @@
-import 'source-map-support/register';
 import '@tenlastic/logging';
+import 'source-map-support/register';
 
 import * as mongoose from '@tenlastic/mongoose';
 import * as nats from '@tenlastic/nats';
-import { getModelForClass } from '@typegoose/typegoose';
 
 import { replicateFromMongo } from './replicate-from-mongo';
 import { replicateFromNats } from './replicate-from-nats';
@@ -35,9 +34,7 @@ const where = process.env.WHERE ? JSON.parse(process.env.WHERE) : {};
     await nats.connect({ connectionString: natsConnectionString });
 
     // Sync schemas from MongoDB and NATS.
-    const SchemaModel = getModelForClass(mongoose.SchemaSchema, {
-      existingConnection: fromConnection,
-    });
+    const SchemaModel = mongoose.getSchemaModel(fromConnection);
     const start = new Date();
     console.log(`Fetching schemas from MongoDB (${mongoFromDatabaseName}.schemas)...`);
     await fetchSchemasFromMongo(SchemaModel, toConnection);

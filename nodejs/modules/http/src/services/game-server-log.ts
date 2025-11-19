@@ -2,9 +2,8 @@ import { EventEmitter } from 'events';
 import TypedEmitter from 'typed-emitter';
 
 import { GameServerLogModel } from '../models/game-server-log';
-import { GameServerLogStore } from '../states/game-server-log';
 import { ApiService } from './api';
-import { ServiceEvents } from './base';
+import { BaseServiceRecordsResponse, ServiceEvents } from './base';
 import { EnvironmentService } from './environment';
 
 export interface GameServerLogsQuery {
@@ -15,11 +14,7 @@ export interface GameServerLogsQuery {
 export class GameServerLogService {
   public emitter = new EventEmitter() as TypedEmitter<ServiceEvents<GameServerLogModel>>;
 
-  constructor(
-    private apiService: ApiService,
-    private environmentService: EnvironmentService,
-    private gameServerLogStore: GameServerLogStore,
-  ) {}
+  constructor(private apiService: ApiService, private environmentService: EnvironmentService) {}
 
   /**
    * Returns an array of Records satisfying the query.
@@ -32,7 +27,7 @@ export class GameServerLogService {
     query: GameServerLogsQuery,
   ) {
     const url = this.getUrl(namespaceId, gameServerId);
-    const response = await this.apiService.request({
+    const response = await this.apiService.request<BaseServiceRecordsResponse<GameServerLogModel>>({
       method: 'get',
       params: query,
       url: `${url}/${pod}/${container}`,
@@ -41,7 +36,7 @@ export class GameServerLogService {
     const records = response.data.records.map(
       (record) => new GameServerLogModel({ ...record, container, gameServerId, pod }),
     );
-    this.gameServerLogStore.upsertMany(records);
+    this.emitter.emit('find', records);
 
     return records;
   }

@@ -53,7 +53,7 @@ GameServerEvent.async(async (payload) => {
   const node = payload.fullDocument.status.nodes.find((n) => n.component === component);
 
   if (node?.phase === 'Failed' || node?.phase === 'Succeeded') {
-    return GameServerModel.deleteOne({ _id: payload.fullDocument._id });
+    await GameServerModel.deleteOne({ _id: payload.fullDocument._id });
   }
 });
 
@@ -111,16 +111,14 @@ MatchEvent.async(async (payload) => {
 NamespaceEvent.async(async (payload) => {
   switch (payload.operationType) {
     case 'delete':
-      return GameServerModel.deleteMany({ namespaceId: payload.fullDocument._id });
+      await GameServerModel.deleteMany({ namespaceId: payload.fullDocument._id });
+      break;
   }
 });
 
 // Delete Game Servers if associated Queue is deleted.
 QueueEvent.async(async (payload) => {
-  switch (payload.operationType) {
-    case 'delete':
-      return GameServerModel.deleteMany({
-        queueId: { $eq: payload.fullDocument._id, $exists: true },
-      });
+  if (payload.operationType === 'delete') {
+    await GameServerModel.deleteMany({ queueId: { $eq: payload.fullDocument._id, $exists: true } });
   }
 });

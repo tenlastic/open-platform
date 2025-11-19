@@ -3,16 +3,20 @@ export const arrayMaxMinValidator = (max: number, min?: number) => {
   const minMsg = min ? ` less than ${min}` : '';
   const andMsg = maxMsg && minMsg ? ' and' : '';
 
-  const msg = `Values cannot be${minMsg}${andMsg}${maxMsg}.`;
+  const message = `Values cannot be${minMsg}${andMsg}${maxMsg}.`;
 
   return {
-    msg,
-    validator: (values: any) => {
+    message,
+    validator: (values: unknown) => {
       return Array.isArray(values) ? values.every((v) => isValid(max, min, v)) : true;
     },
   };
 };
 
-function isValid(max: number, min: number, value: any) {
-  return typeof value === 'number' ? (!max || value <= max) && (!min || value >= min) : false;
+function isValid(max: number, min: number, value: unknown) {
+  if (typeof value !== 'number') {
+    return false;
+  }
+
+  return (!max || value <= max) && (!min || value >= min);
 }

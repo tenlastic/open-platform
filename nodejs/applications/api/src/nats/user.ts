@@ -6,8 +6,8 @@ import mailgun from '../mailgun';
 UserEvent.sync(log);
 
 // Send a Password Reset Confirmation to the User's email address.
-UserEvent.async((payload) => {
+UserEvent.async(async (payload) => {
   if (payload.operationType === 'update' && payload.updateDescription.updatedFields.password) {
-    return mailgun.sendPasswordResetConfirmation({ email: payload.fullDocument.email });
+    await mailgun.sendPasswordResetConfirmation({ email: payload.fullDocument.email });
   }
 });

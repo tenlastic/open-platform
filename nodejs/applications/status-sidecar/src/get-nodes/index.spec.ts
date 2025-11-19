@@ -14,14 +14,28 @@ describe('get-nodes', function () {
         metadata: { labels: { 'tenlastic.com/role': role }, name: chance.hash() },
         status: {
           containerStatuses: [
-            { name: 'first', ready: true, state: { running: true } },
-            { name: 'second', ready: false, state: { running: true } },
+            {
+              image: null,
+              imageID: null,
+              name: 'first',
+              ready: true,
+              restartCount: null,
+              state: { running: { startedAt: new Date() } },
+            },
+            {
+              image: null,
+              imageID: null,
+              name: 'second',
+              ready: false,
+              restartCount: null,
+              state: { running: { startedAt: new Date() } },
+            },
           ],
         },
       },
     ];
 
-    const result = getNodes(pods as any);
+    const result = getNodes(pods);
 
     expect(result[0].component).to.eql(role);
     expect(result[0].container).to.eql('first');

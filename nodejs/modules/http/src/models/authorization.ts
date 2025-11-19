@@ -51,6 +51,12 @@ export namespace IAuthorization {
     WorkflowsWrite = 'Workflows:Write',
   }
 
+  export enum Type {
+    ApiKey = 'API Key',
+    Default = 'Default',
+    User = 'User',
+  }
+
   export const articleRoles = [Role.ArticlesPlay, Role.ArticlesRead, Role.ArticlesWrite];
   export const authorizationRoles = [Role.AuthorizationsRead, Role.AuthorizationsWrite];
   export const buildRoles = [Role.BuildsPlay, Role.BuildsRead, Role.BuildsWrite];
@@ -80,6 +86,15 @@ export class AuthorizationModel extends BaseModel {
   public name: string;
   public namespaceId: string;
   public roles: IAuthorization.Role[];
+  public get type() {
+    if (this.name && !this.userId) {
+      return IAuthorization.Type.ApiKey;
+    } else if (!this.name && !this.userId) {
+      return IAuthorization.Type.Default;
+    }
+
+    return IAuthorization.Type.User;
+  }
   public userId: string;
 
   constructor(parameters?: Partial<AuthorizationModel>) {

@@ -1,4 +1,4 @@
-import { WebSocketPermissions } from '@tenlastic/mongoose';
+import { WebSocketModel, WebSocketPermissionOptions } from '@tenlastic/mongoose';
 import { find } from '@tenlastic/web-server';
 
-export const handler = find(WebSocketPermissions);
+export const handler = find(WebSocketModel, WebSocketPermissionOptions);

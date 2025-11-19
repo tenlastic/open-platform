@@ -1,7 +1,14 @@
-import { GameServerTemplateModel, MatchPermissions, NamespaceModel } from '@tenlastic/mongoose';
-import { Context, RecordNotFoundError, RequiredFieldError } from '@tenlastic/web-server';
+import {
+  GameServerTemplateModel,
+  MatchDocument,
+  MatchModel,
+  MatchPermissionOptions,
+  NamespaceModel,
+} from '@tenlastic/mongoose';
+import * as permissions from '@tenlastic/mongoose-permissions';
+import { CreateContext, RecordNotFoundError, RequiredFieldError } from '@tenlastic/web-server';
 
-export async function handler(ctx: Context) {
+export async function handler(ctx: CreateContext<MatchDocument>) {
   const { gameServerTemplateId } = ctx.request.body;
   if (!gameServerTemplateId) {
     throw new RequiredFieldError(['gameServerTemplateId']);
@@ -17,9 +24,13 @@ export async function handler(ctx: Context) {
   namespace.checkMemoryLimit(gameServerTemplate.memory);
   namespace.checkNonPreemptibleLimit(gameServerTemplate.preemptible);
 
-  const credentials = { ...ctx.state };
-  const result = await MatchPermissions.create(credentials, ctx.params, ctx.request.body);
-  const record = await MatchPermissions.read(credentials, result);
+  const context = {
+    credentials: { ...ctx.state },
+    Model: MatchModel,
+    options: MatchPermissionOptions,
+  };
+  const result = await permissions.create(context, ctx.request.body, ctx.params);
+  const record = await permissions.read(context, result);
 
   ctx.response.body = { record };
 }

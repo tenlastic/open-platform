@@ -1,6 +1,6 @@
-import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
+import { IOptions } from '@tenlastic/mongoose-permissions';
 
-import { AuthorizationRole, MatchDocument, MatchModel } from '../models';
+import { AuthorizationRole, MatchDocument } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
 const administrator = {
@@ -23,7 +23,7 @@ const administrator = {
   update: ['finishedAt', 'teams.*'],
 };
 
-export const MatchPermissions = new MongoosePermissions<MatchDocument>(MatchModel, {
+export const MatchPermissionOptions: IOptions<MatchDocument> = {
   create: {
     'namespace-write': administrator.create,
     'system-write': [...administrator.create, 'queueId'],
@@ -92,4 +92,4 @@ export const MatchPermissions = new MongoosePermissions<MatchDocument>(MatchMode
     'system-write': administrator.update,
     'user-write': administrator.update,
   },
-});
+};

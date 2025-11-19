@@ -1,7 +1,11 @@
 import { AuthorizationRequestModel } from '../models/authorization-request';
-import { AuthorizationRequestStore } from '../states/authorization-request';
 import { ApiService } from './api';
-import { BaseService, BaseServiceFindQuery } from './base';
+import {
+  BaseService,
+  BaseServiceCountQuery,
+  BaseServiceFindQuery,
+  BaseServiceRecordResponse,
+} from './base';
 import { EnvironmentService } from './environment';
 
 export class AuthorizationRequestService {
@@ -11,22 +15,17 @@ export class AuthorizationRequestService {
 
   private baseService: BaseService<AuthorizationRequestModel>;
 
-  constructor(
-    private apiService: ApiService,
-    private authorizationRequestStore: AuthorizationRequestStore,
-    private environmentService: EnvironmentService,
-  ) {
+  constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
     this.baseService = new BaseService<AuthorizationRequestModel>(
       this.apiService,
       AuthorizationRequestModel,
-      this.authorizationRequestStore,
     );
   }
 
   /**
    * Returns the number of Records satisfying the query.
    */
-  public async count(namespaceId: string, query: any) {
+  public async count(namespaceId: string, query: BaseServiceCountQuery) {
     const url = this.getUrl(namespaceId);
     return this.baseService.count(query, url);
   }
@@ -52,14 +51,15 @@ export class AuthorizationRequestService {
    */
   public async deny(namespaceId: string, _id: string) {
     const url = this.getUrl(namespaceId);
-    const response = await this.apiService.request({
+    const response = await this.apiService.request<
+      BaseServiceRecordResponse<AuthorizationRequestModel>
+    >({
       method: 'patch',
       url: `${url}/${_id}/denied-at`,
     });
 
     const record = new AuthorizationRequestModel(response.data.record);
     this.emitter.emit('update', record);
-    this.authorizationRequestStore.upsertMany([record]);
 
     return record;
   }
@@ -85,14 +85,15 @@ export class AuthorizationRequestService {
    */
   public async grant(namespaceId: string, _id: string) {
     const url = this.getUrl(namespaceId);
-    const response = await this.apiService.request({
+    const response = await this.apiService.request<
+      BaseServiceRecordResponse<AuthorizationRequestModel>
+    >({
       method: 'patch',
       url: `${url}/${_id}/granted-at`,
     });
 
     const record = new AuthorizationRequestModel(response.data.record);
     this.emitter.emit('update', record);
-    this.authorizationRequestStore.upsertMany([record]);
 
     return record;
   }

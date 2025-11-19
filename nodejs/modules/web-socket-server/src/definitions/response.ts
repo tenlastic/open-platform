@@ -49,7 +49,6 @@ export enum StatusCode {
   ExpectationFailed = 417,
   ImATeapot = 418,
   MethodFailure = 420,
-  EnhanceYourCalm = 420,
   MisdirectedRequest = 421,
   UnprocessableEntity = 422,
   Locked = 423,
@@ -63,14 +62,11 @@ export enum StatusCode {
   RetryWith = 449,
   BlockedByWindowsParentalControls = 450,
   UnavailableForLegalReasons = 451,
-  Redirect = 451,
   SSLCertificateError = 495,
   SSLCertificateRequired = 496,
   HttpRequestSentToHttpsPort = 497,
-  ClientClosedRequest = 499,
   InvalidToken = 498,
-  TokenRequired = 499,
-  RequestWasForbiddenByAntivirus = 499,
+  ClientClosedRequest = 499,
 
   // 5XX Server Error
   InternalServerError = 500,
@@ -95,8 +91,8 @@ export enum StatusCode {
   SiteIsFrozen = 530,
 }
 
-export interface Response {
+export interface Response<T = unknown> {
   _id?: string;
-  body?: { [key: string]: any };
+  body?: T;
   status?: StatusCode;
 }

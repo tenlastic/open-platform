@@ -1,11 +1,4 @@
-import {
-  DocumentType,
-  getModelForClass,
-  modelOptions,
-  pre,
-  prop,
-  PropType,
-} from '@typegoose/typegoose';
+import * as mongoose from 'mongoose';
 
 import {
   NamespaceStatusComponentDocument,
@@ -18,67 +11,49 @@ import {
   NamespaceStatusLimitsSchema,
 } from './limits';
 import { NamespaceStatusNodeDocument, NamespaceStatusNodeSchema } from './node';
+import { NamespaceStatusComponentName, NamespaceStatusPhase } from './types';
 
-export enum NamespaceStatusComponentName {
-  API = 'API',
-  CDC = 'CDC',
-  Connector = 'Connector',
-  Metrics = 'Metrics',
-  Migrations = 'Migrations',
-  Sidecar = 'Sidecar',
+export interface NamespaceStatus {
+  components: NamespaceStatusComponentDocument[];
+  limits: NamespaceStatusLimitsDocument;
+  nodes: NamespaceStatusNodeDocument[];
+  phase: NamespaceStatusPhase;
+  version?: string;
 }
 
-export enum NamespaceStatusPhase {
-  Error = 'Error',
-  Failed = 'Failed',
-  Pending = 'Pending',
-  Running = 'Running',
-  Succeeded = 'Succeeded',
-}
+export type NamespaceStatusDocument = mongoose.Document<mongoose.Types.ObjectId> & NamespaceStatus;
 
-@modelOptions({ schemaOptions: { _id: false } })
-@pre('save', function (this: NamespaceStatusDocument) {
-  if (this.isModified('components') || this.isNew) {
-    this.setComponents();
-    this.setPhase();
-  }
-})
-export class NamespaceStatusSchema {
-  @prop({ type: NamespaceStatusComponentSchema, unset: false }, PropType.ARRAY)
-  public components: NamespaceStatusComponentDocument[];
-
-  @prop({
-    default: () => new NamespaceStatusLimitsModel(),
-    type: NamespaceStatusLimitsSchema,
-    unset: false,
-  })
-  public limits: NamespaceStatusLimitsDocument;
-
-  @prop({ type: NamespaceStatusNodeSchema }, PropType.ARRAY)
-  public nodes: NamespaceStatusNodeDocument[];
-
-  @prop({ default: () => NamespaceStatusPhase.Pending, enum: NamespaceStatusPhase, type: String })
-  public phase: NamespaceStatusPhase;
-
-  @prop({ type: String })
-  public version: string;
-
+export interface NamespaceStatusModelType extends mongoose.Model<NamespaceStatusDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(
-    this: typeof NamespaceStatusModel,
-    values: Partial<NamespaceStatusSchema> = {},
-  ) {
-    const defaults = { phase: NamespaceStatusPhase.Running };
+  mock(this: NamespaceStatusModelType, values?: Partial<NamespaceStatus>): NamespaceStatusDocument;
+}
 
-    return new this({ ...defaults, ...values });
-  }
+const NamespaceStatusSchema = new mongoose.Schema<
+  NamespaceStatusDocument,
+  NamespaceStatusModelType
+>(
+  {
+    components: { type: [NamespaceStatusComponentSchema], unset: false },
+    limits: {
+      default: () => new NamespaceStatusLimitsModel(),
+      type: NamespaceStatusLimitsSchema,
+      unset: false,
+    },
+    nodes: { type: [NamespaceStatusNodeSchema] },
+    phase: {
+      default: () => NamespaceStatusPhase.Pending,
+      enum: Object.values(NamespaceStatusPhase),
+      type: String,
+    },
+    version: { type: String },
+  },
+  { _id: false },
+);
 
-  /**
-   * Sets components, filling in default values if missing.
-   */
-  private setComponents(this: NamespaceStatusDocument) {
+NamespaceStatusSchema.pre('save', async function (this: NamespaceStatusDocument) {
+  if (this.isModified('components') || this.isNew) {
     const components: NamespaceStatusComponentDocument[] = [
       new NamespaceStatusComponentModel({
         current: 0,
@@ -124,12 +99,7 @@ export class NamespaceStatusSchema {
     }
 
     this.components = components;
-  }
 
-  /**
-   * Sets the phase.
-   */
-  private setPhase(this: NamespaceStatusDocument) {
     let phase = NamespaceStatusPhase.Pending;
     const statuses = [NamespaceStatusPhase.Running, NamespaceStatusPhase.Succeeded];
 
@@ -141,7 +111,19 @@ export class NamespaceStatusSchema {
 
     this.phase = phase;
   }
-}
+});
 
-export type NamespaceStatusDocument = DocumentType<NamespaceStatusSchema>;
-export const NamespaceStatusModel = getModelForClass(NamespaceStatusSchema);
+NamespaceStatusSchema.statics.mock = function (values: Partial<NamespaceStatus> = {}) {
+  const defaults: Partial<NamespaceStatus> = { phase: NamespaceStatusPhase.Running };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const NamespaceStatusModel = mongoose.model<
+  NamespaceStatusDocument,
+  NamespaceStatusModelType
+>('NamespaceStatusSchema', NamespaceStatusSchema);
+
+export { NamespaceStatusSchema };
+
+export default NamespaceStatusModel;

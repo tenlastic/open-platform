@@ -2,9 +2,8 @@ import { EventEmitter } from 'events';
 import TypedEmitter from 'typed-emitter';
 
 import { QueueLogModel } from '../models/queue-log';
-import { QueueLogStore } from '../states/queue-log';
 import { ApiService } from './api';
-import { ServiceEvents } from './base';
+import { BaseServiceRecordsResponse, ServiceEvents } from './base';
 import { EnvironmentService } from './environment';
 
 export interface QueueLogsQuery {
@@ -15,11 +14,7 @@ export interface QueueLogsQuery {
 export class QueueLogService {
   public emitter = new EventEmitter() as TypedEmitter<ServiceEvents<QueueLogModel>>;
 
-  constructor(
-    private apiService: ApiService,
-    private environmentService: EnvironmentService,
-    private queueLogStore: QueueLogStore,
-  ) {}
+  constructor(private apiService: ApiService, private environmentService: EnvironmentService) {}
 
   /**
    * Returns an array of Records satisfying the query.
@@ -32,7 +27,7 @@ export class QueueLogService {
     query: QueueLogsQuery,
   ) {
     const url = this.getUrl(namespaceId, queueId);
-    const response = await this.apiService.request({
+    const response = await this.apiService.request<BaseServiceRecordsResponse<QueueLogModel>>({
       method: 'get',
       params: query,
       url: `${url}/${pod}/${container}`,
@@ -41,7 +36,7 @@ export class QueueLogService {
     const records = response.data.records.map(
       (record) => new QueueLogModel({ ...record, container, queueId, pod }),
     );
-    this.queueLogStore.upsertMany(records);
+    this.emitter.emit('find', records);
 
     return records;
   }

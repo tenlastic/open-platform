@@ -1,5 +1,5 @@
 import wait from '@tenlastic/wait';
-import * as Chance from 'chance';
+import { Chance } from 'chance';
 import { Page } from 'puppeteer';
 
 import * as helpers from '../helpers';
@@ -71,15 +71,13 @@ describe('/angular/namespace/workflows', () => {
     await helpers.waitForXPath(
       page,
       `//app-workflow-status-node[contains(div, 'Workflow') and contains(div, 'Succeeded')]`,
-      { timeout: 60 * 1000 },
+      60 * 1000,
     );
 
     // Check for Workflow Logs.
     const logsButton = await helpers.getButtonByText(page, 'Logs');
     await helpers.click(logsButton, page);
 
-    await helpers.waitForXPath(page, `//app-logs-dialog//div[contains(., 'Hello World!')]`, {
-      timeout: 2500,
-    });
+    await helpers.waitForXPath(page, `//app-logs-dialog//div[contains(., 'Hello World!')]`, 2500);
   });
 });

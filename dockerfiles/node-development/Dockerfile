@@ -1,4 +1,4 @@
-FROM node:16
+FROM node:24
 
 # Install Google Chrome.
 RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
@@ -7,7 +7,7 @@ RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key
   apt-get install -qy google-chrome-stable
 
 # Install Lerna.
-RUN npm install -g lerna
+RUN npm install -g lerna@5.1.4
 
 # Install mc (minio client).
 RUN wget https://dl.min.io/client/mc/release/linux-amd64/mc -O mc && \
@@ -16,5 +16,5 @@ RUN wget https://dl.min.io/client/mc/release/linux-amd64/mc -O mc && \
 
 # Install TCP Dump.
 RUN apt-get update && \
-  apt-get install -qy tcpdump && \
-  setcap cap_net_raw+ep /usr/sbin/tcpdump
+  apt-get install -qy libcap2-bin tcpdump && \
+  setcap cap_net_raw+ep /usr/bin/tcpdump

@@ -1,4 +1,4 @@
-import { GameServerTemplatePermissions } from '@tenlastic/mongoose';
+import { GameServerTemplateModel, GameServerTemplatePermissionOptions } from '@tenlastic/mongoose';
 import { count } from '@tenlastic/web-server';
 
-export const handler = count(GameServerTemplatePermissions);
+export const handler = count(GameServerTemplateModel, GameServerTemplatePermissionOptions);

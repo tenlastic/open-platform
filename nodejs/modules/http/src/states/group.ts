@@ -1,15 +1,9 @@
-import { EntityState, QueryEntity, StoreConfig } from '@datorama/akita';
+import { GroupModel } from '../models';
+import { GroupService } from '../services';
+import { BaseState } from './base';
 
-import { GroupModel } from '../models/group';
-import { BaseStore } from './base';
-
-export interface GroupState extends EntityState<GroupModel> {}
-
-@StoreConfig({ idKey: '_id', deepFreezeFn: (o) => o, name: 'groups', resettable: true })
-export class GroupStore extends BaseStore<GroupState, GroupModel> {}
-
-export class GroupQuery extends QueryEntity<GroupState, GroupModel> {
-  constructor(protected store: GroupStore) {
-    super(store);
+export class GroupState extends BaseState<GroupModel, GroupService> {
+  constructor(service: GroupService) {
+    super('_id', service);
   }
 }

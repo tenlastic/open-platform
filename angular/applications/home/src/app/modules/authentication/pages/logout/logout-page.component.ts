@@ -1,11 +1,10 @@
-import { DOCUMENT } from '@angular/common';
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, DOCUMENT, Inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LoginService } from '@tenlastic/http';
 
 @Component({
+  standalone: false,
   templateUrl: 'logout-page.component.html',
-  styleUrls: ['./logout-page.component.scss'],
 })
 export class LogoutPageComponent implements OnInit {
   constructor(

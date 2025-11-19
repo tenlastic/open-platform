@@ -1,55 +1,21 @@
-@import './theme.scss';
+@use 'src/assets/scss/responsive.scss' as responsive;
 
-div {
-  color: white;
-}
-
-div.page {
-  height: 100%;
-  overflow-x: hidden;
-  overflow-y: auto;
-  padding: 16px;
-  position: relative;
-}
-
-div.row {
-  &:first-of-type {
-    align-items: baseline;
+@mixin styles {
+  div {
+    color: white;
   }
-}
 
-h2,
-h3,
-h4 {
-  margin: 0px 0px 16px;
-}
+  div.page {
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 16px;
+    position: relative;
+  }
 
-table {
-  width: 100%;
-
-  .mat-column-actions {
-    text-align: right;
-    white-space: nowrap;
-
-    app-button {
-      margin-left: 8px;
+  @include responsive.mobile {
+    div.page {
+      padding-bottom: 24px;
     }
-  }
-}
-
-.offset-sm-3, .offset-sm-6, .offset-sm-9 {
-  text-align: right;
-
-  app-button {
-    margin-top: 14px;
-  }
-}
-
-.row {
-  margin: 0px;
-
-  .col-sm-3, .col-sm-6, .col-sm-9, .col-sm-12 {
-    padding-left: 0px;
-    padding-right: 0px;
   }
 }

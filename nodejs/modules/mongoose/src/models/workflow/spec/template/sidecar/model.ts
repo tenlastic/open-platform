@@ -1,38 +1,53 @@
-import { DocumentType, getModelForClass, modelOptions, prop, PropType } from '@typegoose/typegoose';
 import { Chance } from 'chance';
+import * as mongoose from 'mongoose';
 
 import { WorkflowSpecEnvDocument, WorkflowSpecEnvSchema } from '../../env';
 
-@modelOptions({ schemaOptions: { _id: false } })
-export class WorkflowSpecTemplateSidecarSchema {
-  @prop({ default: undefined, type: String }, PropType.ARRAY)
-  public args: string[];
+export interface WorkflowSpecTemplateSidecar {
+  args?: string[];
+  command?: string[];
+  env?: WorkflowSpecEnvDocument[];
+  image: string;
+  name: string;
+}
 
-  @prop({ default: undefined, type: String }, PropType.ARRAY)
-  public command: string[];
+export type WorkflowSpecTemplateSidecarDocument = mongoose.Document<mongoose.Types.ObjectId> &
+  WorkflowSpecTemplateSidecar;
 
-  @prop({ default: undefined, type: WorkflowSpecEnvSchema }, PropType.ARRAY)
-  public env: WorkflowSpecEnvDocument[];
-
-  @prop({ required: true, type: String })
-  public image: string;
-
-  @prop({ required: true, type: String })
-  public name: string;
-
+export interface WorkflowSpecTemplateSidecarModelType
+  extends mongoose.Model<WorkflowSpecTemplateSidecarDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(
-    this: typeof WorkflowSpecTemplateSidecarModel,
-    values: Partial<WorkflowSpecTemplateSidecarSchema> = {},
-  ) {
-    const chance = new Chance();
-    const defaults = { image: chance.hash(), name: chance.hash() };
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(
+    this: WorkflowSpecTemplateSidecarModelType,
+    values?: Partial<WorkflowSpecTemplateSidecar>,
+  ): WorkflowSpecTemplateSidecarDocument;
 }
 
-export type WorkflowSpecTemplateSidecarDocument = DocumentType<WorkflowSpecTemplateSidecarSchema>;
-export const WorkflowSpecTemplateSidecarModel = getModelForClass(WorkflowSpecTemplateSidecarSchema);
+export const WorkflowSpecTemplateSidecarSchema =
+  new mongoose.Schema<WorkflowSpecTemplateSidecarDocument>(
+    {
+      args: { type: [String], default: undefined },
+      command: { type: [String], default: undefined },
+      env: { type: [WorkflowSpecEnvSchema], default: undefined },
+      image: { type: String, required: true },
+      name: { type: String, required: true },
+    },
+    { _id: false },
+  );
+
+WorkflowSpecTemplateSidecarSchema.statics.mock = function (
+  this: WorkflowSpecTemplateSidecarModelType,
+  values: Partial<WorkflowSpecTemplateSidecar> = {},
+) {
+  const chance = new Chance();
+  const defaults = { image: chance.hash(), name: chance.hash() };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const WorkflowSpecTemplateSidecarModel = mongoose.model<
+  WorkflowSpecTemplateSidecarDocument,
+  WorkflowSpecTemplateSidecarModelType
+>('WorkflowSpecTemplateSidecar', WorkflowSpecTemplateSidecarSchema);

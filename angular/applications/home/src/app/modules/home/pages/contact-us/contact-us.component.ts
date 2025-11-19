@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
+  standalone: false,
   styleUrls: ['./contact-us.component.scss'],
   templateUrl: 'contact-us.component.html',
 })

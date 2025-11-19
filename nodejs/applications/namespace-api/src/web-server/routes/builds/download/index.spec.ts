@@ -3,32 +3,32 @@ import {
   AuthorizationModel,
   AuthorizationRole,
   BuildDocument,
-  BuildModel,
   BuildFileModel,
+  BuildModel,
   NamespaceModel,
   UserDocument,
   UserModel,
 } from '@tenlastic/mongoose';
 import { ContextMock, RecordNotFoundError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
+import chaiAsPromised from 'chai-as-promised';
 import * as fs from 'fs';
 import * as unzipper from 'unzipper';
 
 import { MinioBuild } from '../../../../minio';
-import { handler } from './';
+import { DownloadBuildContext, handler } from './';
 
 use(chaiAsPromised);
 
-describe('web-server/files/download', function () {
+describe('web-server/builds/download', function () {
   let user: UserDocument;
 
   beforeEach(async function () {
-    user = await UserModel.mock();
+    user = UserModel.mock();
   });
 
   context('when permission is granted', async function () {
-    let ctx: ContextMock;
+    let ctx: DownloadBuildContext;
     let build: BuildDocument;
 
     beforeEach(async function () {
@@ -60,21 +60,21 @@ describe('web-server/files/download', function () {
         fs.createReadStream(__filename),
       );
 
-      ctx = new ContextMock({
+      ctx = ContextMock({
         params: {
-          _id: build._id,
+          _id: build._id.toHexString(),
         },
         request: {
           rawQuery: {
             files: '10',
           },
         },
-        state: { user },
-      } as any);
+        state: { user: { _id: user._id.toHexString() } },
+      });
     });
 
     it('returns a stream with the zipped files', async function () {
-      await handler(ctx as any);
+      await handler(ctx);
 
       const results = await new Promise<string[]>((resolve, reject) => {
         const entries = [];
@@ -103,19 +103,19 @@ describe('web-server/files/download', function () {
       const namespace = await NamespaceModel.mock().save();
       const build = await BuildModel.mock({ namespaceId: namespace._id }).save();
 
-      const ctx = new ContextMock({
+      const ctx = ContextMock<DownloadBuildContext>({
         params: {
-          _id: build._id,
+          _id: build._id.toHexString(),
         },
         request: {
           rawQuery: {
             files: '10',
           },
         },
-        state: { user },
-      } as any);
+        state: { user: { _id: user._id.toHexString() } },
+      });
 
-      const promise = handler(ctx as any);
+      const promise = handler(ctx);
 
       return expect(promise).to.be.rejectedWith(RecordNotFoundError);
     });

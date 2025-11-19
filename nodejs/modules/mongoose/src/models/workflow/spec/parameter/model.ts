@@ -1,27 +1,45 @@
-import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
 import { Chance } from 'chance';
+import * as mongoose from 'mongoose';
 
-@modelOptions({ schemaOptions: { _id: false } })
-export class WorkflowSpecParameterSchema {
-  @prop({ required: true, type: String })
-  public name: string;
+export interface WorkflowSpecParameter {
+  name: string;
+  value: string;
+}
 
-  @prop({ required: true, type: String })
-  public value: string;
+export interface WorkflowSpecParameterDocument
+  extends mongoose.Document<mongoose.Types.ObjectId>,
+    WorkflowSpecParameter {}
 
+export interface WorkflowSpecParameterModelType
+  extends mongoose.Model<WorkflowSpecParameterDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(
-    this: typeof WorkflowSpecParameterModel,
-    values: Partial<WorkflowSpecParameterSchema> = {},
-  ) {
-    const chance = new Chance();
-    const defaults = { name: chance.hash(), value: chance.hash() };
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(
+    this: WorkflowSpecParameterModelType,
+    values?: Partial<WorkflowSpecParameter>,
+  ): WorkflowSpecParameterDocument;
 }
 
-export type WorkflowSpecParameterDocument = DocumentType<WorkflowSpecParameterSchema>;
-export const WorkflowSpecParameterModel = getModelForClass(WorkflowSpecParameterSchema);
+export const WorkflowSpecParameterSchema = new mongoose.Schema<WorkflowSpecParameterDocument>(
+  {
+    name: { type: String, required: true },
+    value: { type: String, required: true },
+  },
+  { _id: false },
+);
+
+WorkflowSpecParameterSchema.statics.mock = function (
+  this: WorkflowSpecParameterModelType,
+  values: Partial<WorkflowSpecParameter> = {},
+) {
+  const chance = new Chance();
+  const defaults = { name: chance.hash(), value: chance.hash() };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const WorkflowSpecParameterModel = mongoose.model<
+  WorkflowSpecParameterDocument,
+  WorkflowSpecParameterModelType
+>('WorkflowSpecParameter', WorkflowSpecParameterSchema);

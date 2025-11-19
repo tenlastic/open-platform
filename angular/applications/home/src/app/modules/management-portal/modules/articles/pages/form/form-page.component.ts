@@ -1,20 +1,21 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Data, Params, Router } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
   ArticleModel,
   ArticleService,
-  AuthorizationQuery,
+  AuthorizationState,
   IArticle,
   IAuthorization,
 } from '@tenlastic/http';
 
-import { FormService, IdentityService } from '../../../../../../core/services';
+import { FormService, IdentityService } from '@home/app/core/services';
 
 @Component({
-  templateUrl: 'form-page.component.html',
+  standalone: false,
   styleUrls: ['./form-page.component.scss'],
+  templateUrl: 'form-page.component.html',
 })
 export class ArticlesFormPageComponent implements OnInit {
   public data: ArticleModel;
@@ -46,7 +47,7 @@ export class ArticlesFormPageComponent implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private articleService: ArticleService,
-    private authorizationQuery: AuthorizationQuery,
+    private authorizationState: AuthorizationState,
     private formBuilder: FormBuilder,
     private formService: FormService,
     private identityService: IdentityService,
@@ -62,8 +63,8 @@ export class ArticlesFormPageComponent implements OnInit {
       const roles = [IAuthorization.Role.ArticlesWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
-        this.authorizationQuery.hasRoles(null, roles, userId) ||
-        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
+        this.authorizationState.hasRoles(null, roles, userId) ||
+        this.authorizationState.hasRoles(params.namespaceId, roles, userId);
 
       if (params.articleId !== 'new') {
         this.data = await this.articleService.findOne(params.namespaceId, params.articleId);

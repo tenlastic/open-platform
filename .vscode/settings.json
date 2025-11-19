@@ -3,5 +3,10 @@
     "source.organizeImports": "always"
   },
   "editor.tabSize": 2,
+  "eslint.useFlatConfig": true,
+  "eslint.workingDirectories": [
+    { "directory": "nodejs/", "changeProcessCWD": true },
+    { "directory": "nodejs/applications/e2e/", "changeProcessCWD": true }
+  ],
   "html.format.wrapAttributes": "force-aligned",
 }

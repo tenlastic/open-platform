@@ -1,7 +1,11 @@
 import { MatchModel } from '../models/match';
-import { MatchStore } from '../states/match';
 import { ApiService } from './api';
-import { BaseService, BaseServiceFindQuery } from './base';
+import {
+  BaseService,
+  BaseServiceCountQuery,
+  BaseServiceFindQuery,
+  BaseServiceRecordResponse,
+} from './base';
 import { EnvironmentService } from './environment';
 
 export class MatchService {
@@ -11,18 +15,14 @@ export class MatchService {
 
   private baseService: BaseService<MatchModel>;
 
-  constructor(
-    private apiService: ApiService,
-    private environmentService: EnvironmentService,
-    private matchStore: MatchStore,
-  ) {
-    this.baseService = new BaseService<MatchModel>(this.apiService, MatchModel, this.matchStore);
+  constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
+    this.baseService = new BaseService<MatchModel>(this.apiService, MatchModel);
   }
 
   /**
    * Returns the number of Records satisfying the query.
    */
-  public async count(namespaceId: string, query: any) {
+  public async count(namespaceId: string, query: BaseServiceCountQuery) {
     const url = this.getUrl(namespaceId);
     return this.baseService.count(query, url);
   }
@@ -64,14 +64,13 @@ export class MatchService {
    */
   public async finish(namespaceId: string, _id: string) {
     const url = this.getUrl(namespaceId);
-    const response = await this.apiService.request({
+    const response = await this.apiService.request<BaseServiceRecordResponse<MatchModel>>({
       method: 'patch',
       url: `${url}/${_id}/finished-at`,
     });
 
     const record = new MatchModel(response.data.record);
     this.emitter.emit('update', record);
-    this.matchStore.upsertMany([record]);
 
     return record;
   }

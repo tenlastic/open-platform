@@ -1,15 +1,16 @@
 import {
   CollectionDocument,
-  CollectionJsonSchemaType,
   CollectionModel,
   CollectionPermissionsModel,
+  getRecordModel,
+  JsonSchemaType,
   NamespaceDocument,
   NamespaceModel,
-  RecordSchema,
+  RecordDocument,
   UserDocument,
   UserModel,
 } from '@tenlastic/mongoose';
-import { ContextMock } from '@tenlastic/web-server';
+import { ContextMock, FindContext } from '@tenlastic/web-server';
 import { expect } from 'chai';
 
 import { handler } from './';
@@ -25,9 +26,9 @@ describe('web-server/records/find', function () {
     collection = await CollectionModel.mock({
       jsonSchema: {
         properties: {
-          insertedAt: { format: 'date-time', type: CollectionJsonSchemaType.String },
+          insertedAt: { format: 'date-time', type: JsonSchemaType.String },
         },
-        type: CollectionJsonSchemaType.Object,
+        type: JsonSchemaType.Object,
       },
       namespaceId: namespace._id,
       permissions: CollectionPermissionsModel.mock({
@@ -40,26 +41,26 @@ describe('web-server/records/find', function () {
   });
 
   it('returns the matching records', async function () {
-    const Model = RecordSchema.getModel(collection);
+    const Model = getRecordModel(collection);
     await Model.create({
       collectionId: collection._id,
       namespaceId: namespace._id,
       userId: user._id,
     });
 
-    const ctx = new ContextMock({
+    const ctx = ContextMock<FindContext<RecordDocument>>({
       params: { collectionId: collection._id },
-      state: { user },
+      state: { user: { _id: user._id.toHexString() } },
     });
 
-    await handler(ctx as any);
+    await handler(ctx);
 
     expect(ctx.response.body.records).to.exist;
     expect(ctx.response.body.records.length).to.eql(1);
   });
 
   it('properly handles Dates', async function () {
-    const Model = RecordSchema.getModel(collection);
+    const Model = getRecordModel(collection);
     await Model.create({
       collectionId: collection._id,
       namespaceId: namespace._id,
@@ -68,7 +69,7 @@ describe('web-server/records/find', function () {
     });
 
     const ONE_HOUR = 60 * 60 * 1000;
-    const ctx = new ContextMock({
+    const ctx = ContextMock<FindContext<RecordDocument>>({
       params: {
         collectionId: collection._id,
       },
@@ -81,10 +82,10 @@ describe('web-server/records/find', function () {
           },
         },
       },
-      state: { user },
+      state: { user: { _id: user._id.toHexString() } },
     });
 
-    await handler(ctx as any);
+    await handler(ctx);
 
     expect(ctx.response.body.records).to.exist;
     expect(ctx.response.body.records.length).to.eql(1);

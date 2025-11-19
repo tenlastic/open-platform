@@ -4,13 +4,13 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params } from '@angular/router';
 import {
   GroupModel,
-  GroupQuery,
-  QueueModel,
+  GroupState,
   QueueMemberModel,
-  QueueMemberQuery,
   QueueMemberService,
-  QueueQuery,
+  QueueMemberState,
+  QueueModel,
   QueueService,
+  QueueState,
   WebSocketService,
 } from '@tenlastic/http';
 import { Observable, Subscription, combineLatest } from 'rxjs';
@@ -20,6 +20,7 @@ import { environment } from '../../../../../../../environments/environment';
 import { IdentityService } from '../../../../../../core/services';
 
 @Component({
+  standalone: false,
   styleUrls: ['./queues-page.component.scss'],
   templateUrl: 'queues-page.component.html',
 })
@@ -40,12 +41,12 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private groupQuery: GroupQuery,
+    private groupState: GroupState,
     private identityService: IdentityService,
     private matSnackBar: MatSnackBar,
-    private queueMemberQuery: QueueMemberQuery,
+    private queueMemberState: QueueMemberState,
     private queueMemberService: QueueMemberService,
-    private queueQuery: QueueQuery,
+    private queueState: QueueState,
     private queueService: QueueService,
     private webSocketService: WebSocketService,
   ) {}
@@ -54,18 +55,27 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
     this.activatedRoute.params.subscribe(async (params) => {
       this.params = params;
 
-      this.$group = this.groupQuery
-        .selectAll({
-          filterBy: (g) => g.userIds?.some((ui) => this.identityService.user._id === ui),
-        })
+      this.$group = this.groupState
+        .selectMany()
+        .pipe(
+          map((gs) =>
+            gs.filter((g) => g.userIds?.some((ui) => this.identityService.user._id === ui)),
+          ),
+        )
         .pipe(map((groups) => groups[0]));
-      this.$queueMembers = this.queueMemberQuery.selectAll({
-        filterBy: (qm) => qm.userId === this.identityService.user._id,
-      });
-      this.$queues = this.queueQuery.selectAll({
-        filterBy: (q) =>
-          q.namespaceId === params.namespaceId && q.status && q.status.phase === 'Running',
-      });
+      this.$queueMembers = this.queueMemberState
+        .selectMany()
+        .pipe(map((qms) => qms.filter((qm) => qm.userId === this.identityService.user._id)));
+      this.$queues = this.queueState
+        .selectMany()
+        .pipe(
+          map((qs) =>
+            qs.filter(
+              (q) =>
+                q.namespaceId === params.namespaceId && q.status && q.status.phase === 'Running',
+            ),
+          ),
+        );
 
       await this.queueService.find(params.namespaceId, {});
 
@@ -74,10 +84,17 @@ export class QueuesPageComponent implements OnDestroy, OnInit {
           return;
         }
 
-        this.$queueMembers = this.queueMemberQuery.selectAll({
-          filterBy: (qm) =>
-            (group && qm.groupId === group._id) || qm.userId === this.identityService.user._id,
-        });
+        this.$queueMembers = this.queueMemberState
+          .selectMany()
+          .pipe(
+            map((qms) =>
+              qms.filter(
+                (qm) =>
+                  (group && qm.groupId === group._id) ||
+                  qm.userId === this.identityService.user._id,
+              ),
+            ),
+          );
 
         return this.queueMemberService.find(params.namespaceId, {
           where: {

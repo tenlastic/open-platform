@@ -28,21 +28,20 @@ BuildEvent.async(async (payload) => {
 // Delete zip file from Minio if associated Build is finished.
 BuildEvent.async(async (payload) => {
   if (payload.operationType === 'delete') {
-    return MinioBuild.removeObjects(payload.fullDocument);
+    await MinioBuild.removeObjects(payload.fullDocument);
   } else if (
     payload.operationType === 'update' &&
     payload.updateDescription?.updatedFields?.status?.finishedAt
   ) {
     const objectName = MinioBuild.getZipObjectName(payload.fullDocument);
-    return minio.removeObject(process.env.MINIO_BUCKET, objectName);
+    await minio.removeObject(process.env.MINIO_BUCKET, objectName);
   }
 });
 
 // Delete Builds if associated Namespace is deleted.
 NamespaceEvent.async(async (payload) => {
-  switch (payload.operationType) {
-    case 'delete':
-      return BuildModel.deleteMany({ namespaceId: payload.fullDocument._id });
+  if (payload.operationType === 'delete') {
+    await BuildModel.deleteMany({ namespaceId: payload.fullDocument._id });
   }
 });
 
@@ -53,5 +52,5 @@ NamespaceStorageLimitEvent.async(async (namespace) => {
     'status.finishedAt': { $exists: false },
   });
   const promises = builds.map((b) => KubernetesBuild.terminate(b));
-  return Promise.all(promises);
+  await Promise.all(promises);
 });

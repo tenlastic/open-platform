@@ -3,9 +3,9 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
-  AuthorizationQuery,
   AuthorizationRequestModel,
   AuthorizationRequestService,
+  AuthorizationState,
   IAuthorization,
   UserModel,
   UserService,
@@ -14,6 +14,7 @@ import {
 import { FormService, IdentityService } from '../../../../../../core/services';
 
 @Component({
+  standalone: false,
   styleUrls: ['./form-page.component.scss'],
   templateUrl: 'form-page.component.html',
 })
@@ -29,7 +30,7 @@ export class AuthorizationRequestsFormPageComponent implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private authorizationQuery: AuthorizationQuery,
+    private authorizationState: AuthorizationState,
     private authorizationRequestService: AuthorizationRequestService,
     private formBuilder: FormBuilder,
     private formService: FormService,
@@ -45,7 +46,7 @@ export class AuthorizationRequestsFormPageComponent implements OnInit {
 
       const roles = [IAuthorization.Role.AuthorizationsWrite];
       const userId = this.identityService.user?._id;
-      this.hasWriteAuthorization = this.authorizationQuery.hasRoles(null, roles, userId);
+      this.hasWriteAuthorization = this.authorizationState.hasRoles(null, roles, userId);
 
       if (params.authorizationRequestId !== 'new') {
         this.data = await this.authorizationRequestService.findOne(

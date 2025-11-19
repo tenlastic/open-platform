@@ -17,6 +17,7 @@ before(async function () {
 
   // MongoDB.
   await mongoose.connect({
+    autoCreate: true,
     connectionString: process.env.MONGO_CONNECTION_STRING,
     databaseName: `namespace-api-test`,
   });

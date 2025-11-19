@@ -1,4 +1,4 @@
-import { DocumentType, getModelForClass, modelOptions, prop, PropType } from '@typegoose/typegoose';
+import * as mongoose from 'mongoose';
 
 import {
   WorkflowSpecTemplateDagTaskDocument,
@@ -6,23 +6,42 @@ import {
   WorkflowSpecTemplateDagTaskSchema,
 } from './task';
 
-@modelOptions({ schemaOptions: { _id: false } })
-export class WorkflowSpecTemplateDagSchema {
-  @prop({ required: true, type: WorkflowSpecTemplateDagTaskSchema }, PropType.ARRAY)
-  public tasks: WorkflowSpecTemplateDagTaskDocument[];
+export interface WorkflowSpecTemplateDag {
+  tasks: WorkflowSpecTemplateDagTaskDocument[];
+}
 
+export interface WorkflowSpecTemplateDagDocument
+  extends mongoose.Document<mongoose.Types.ObjectId>,
+    WorkflowSpecTemplateDag {}
+
+export interface WorkflowSpecTemplateDagModelType
+  extends mongoose.Model<WorkflowSpecTemplateDagDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(
-    this: typeof WorkflowSpecTemplateDagModel,
-    values: Partial<WorkflowSpecTemplateDagSchema> = {},
-  ) {
-    const defaults = { tasks: [WorkflowSpecTemplateDagTaskModel.mock()] };
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(
+    this: WorkflowSpecTemplateDagModelType,
+    values?: Partial<WorkflowSpecTemplateDag>,
+  ): WorkflowSpecTemplateDagDocument;
 }
 
-export type WorkflowSpecTemplateDagDocument = DocumentType<WorkflowSpecTemplateDagSchema>;
-export const WorkflowSpecTemplateDagModel = getModelForClass(WorkflowSpecTemplateDagSchema);
+export const WorkflowSpecTemplateDagSchema = new mongoose.Schema<WorkflowSpecTemplateDagDocument>(
+  {
+    tasks: { type: [WorkflowSpecTemplateDagTaskSchema], required: true },
+  },
+  { _id: false },
+);
+
+WorkflowSpecTemplateDagSchema.statics.mock = function (
+  this: WorkflowSpecTemplateDagModelType,
+  values: Partial<WorkflowSpecTemplateDag> = {},
+) {
+  const defaults = { tasks: [WorkflowSpecTemplateDagTaskModel.mock()] };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const WorkflowSpecTemplateDagModel = mongoose.model<
+  WorkflowSpecTemplateDagDocument,
+  WorkflowSpecTemplateDagModelType
+>('WorkflowSpecTemplateDag', WorkflowSpecTemplateDagSchema);

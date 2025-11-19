@@ -1,3 +1,5 @@
+@use 'src/assets/scss/responsive.scss' as responsive;
+
 :host {
   display: flex;
   flex-direction: column;
@@ -6,16 +8,17 @@
   width: 100vw;
 }
 
-div.content {
+.content {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
+  height: 100%;
   overflow: auto;
   position: relative;
 }
 
-app-header-toolbar::ng-deep {
-  mat-toolbar {
-    padding: 0px 8px;
-  }
+.row {
+  display: flex;
+  flex-direction: row;
+  height: calc(100vh - 80px);
 }

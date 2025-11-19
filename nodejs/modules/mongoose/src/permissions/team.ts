@@ -1,9 +1,9 @@
-import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
+import { IOptions } from '@tenlastic/mongoose-permissions';
 
-import { AuthorizationRole, TeamDocument, TeamModel } from '../models';
+import { AuthorizationRole, TeamDocument } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
-export const TeamPermissions = new MongoosePermissions<TeamDocument>(TeamModel, {
+export const TeamPermissionOptions: IOptions<TeamDocument> = {
   delete: {
     'namespace-write': true,
     'user-write': true,
@@ -46,4 +46,4 @@ export const TeamPermissions = new MongoosePermissions<TeamDocument>(TeamModel, 
     'namespace-write': ['metadata.*', 'rating'],
     'user-write': ['metadata.*', 'rating'],
   },
-});
+};

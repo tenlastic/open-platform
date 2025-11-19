@@ -1,8 +1,8 @@
-<app-sidenav>
+<router-outlet></router-outlet>
+
+<ng-template #sideMenu>
   <ng-container *ngIf="$namespace | async as namespace">
-    <div *ngIf="$collection | async as collection"
-         appNav
-         class="nav">
+    <ng-container *ngIf="$collection | async as collection">
       <app-button color="accent"
                   [disabled]="namespace.status.phase !== 'Running'"
                   layout="vertical"
@@ -31,8 +31,6 @@
         <mat-icon>description</mat-icon>
         <div>Records</div>
       </app-button>
-    </div>
-
-    <router-outlet></router-outlet>
+    </ng-container>
   </ng-container>
-</app-sidenav>
+</ng-template>

@@ -1,7 +1,4 @@
-import { IOptions, MongoosePermissions } from '@tenlastic/mongoose-permissions';
-import { ReturnModelType } from '@typegoose/typegoose';
-
-import { AuthorizationRole, CollectionDocument, RecordDocument, RecordSchema } from '../models';
+import { AuthorizationRole, CollectionDocument } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
 const administrator = {
@@ -10,11 +7,8 @@ const administrator = {
   update: ['properties.*', 'userId'],
 };
 
-export function RecordPermissions(
-  collection: CollectionDocument,
-  Model: ReturnModelType<typeof RecordSchema>,
-) {
-  const permissions: IOptions = {
+export function getRecordPermissionOptions(collection: CollectionDocument) {
+  return {
     create: {
       ...Object.fromEntries(collection.permissions?.create || []),
       'namespace-write': administrator.create,
@@ -58,6 +52,4 @@ export function RecordPermissions(
       'user-write': administrator.update,
     },
   };
-
-  return new MongoosePermissions<RecordDocument>(Model, permissions);
 }

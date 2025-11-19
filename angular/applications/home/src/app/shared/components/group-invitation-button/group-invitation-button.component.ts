@@ -3,12 +3,13 @@ import {
   GroupInvitationModel,
   GroupInvitationService,
   GroupService,
-  UserQuery,
   UserService,
+  UserState,
 } from '@tenlastic/http';
 
 @Component({
   selector: 'app-group-invitation-button',
+  standalone: false,
   styleUrls: ['./group-invitation-button.component.scss'],
   templateUrl: './group-invitation-button.component.html',
 })
@@ -18,12 +19,12 @@ export class GroupInvitationButtonComponent implements OnInit {
   constructor(
     private groupInvitationService: GroupInvitationService,
     private groupService: GroupService,
-    private userQuery: UserQuery,
+    private userState: UserState,
     private userService: UserService,
   ) {}
 
   public async ngOnInit() {
-    if (!this.userQuery.hasEntity(this.groupInvitation.fromUserId)) {
+    if (!this.userState.hasOne(this.groupInvitation.fromUserId)) {
       await this.userService.find({ where: { _id: this.groupInvitation.fromUserId } });
     }
   }
@@ -40,6 +41,6 @@ export class GroupInvitationButtonComponent implements OnInit {
   }
 
   public getUser(_id: string) {
-    return this.userQuery.getEntity(_id);
+    return this.userState.getOne(_id);
   }
 }

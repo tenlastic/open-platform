@@ -1,4 +1,4 @@
-import { GameServerTemplatePermissions } from '@tenlastic/mongoose';
+import { GameServerTemplateModel, GameServerTemplatePermissionOptions } from '@tenlastic/mongoose';
 import { deleteOne } from '@tenlastic/web-server';
 
-export const handler = deleteOne(GameServerTemplatePermissions);
+export const handler = deleteOne(GameServerTemplateModel, GameServerTemplatePermissionOptions);

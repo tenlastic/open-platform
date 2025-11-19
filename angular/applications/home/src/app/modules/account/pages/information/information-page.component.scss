@@ -1,5 +1,3 @@
-@import 'src/assets/scss/form.scss';
+@use 'src/assets/scss/form.scss' as form;
 
-mat-form-field.mat-form-field {
-  margin-right: 16px;
-}
+@include form.styles;

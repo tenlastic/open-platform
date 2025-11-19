@@ -6,14 +6,18 @@ export function setPlugin(schema: Schema) {
       return;
     }
 
-    type.set(function (value: any) {
+    type.set(function (value) {
       const json = value.toJSON ? value.toJSON() : value;
       const subdocument = type.cast(json, this, true) as Document;
 
       for (const [k, v] of Object.entries(json)) {
-        const property = subdocument.schema.path(k) as any;
+        const property = subdocument.schema.path(k);
         const set = property?.options?.set?.bind(subdocument);
-        const setters = property?.setters || [];
+
+        let setters = [];
+        if (property && 'setters' in property && Array.isArray(property.setters)) {
+          setters = property.setters;
+        }
 
         subdocument.set(k, set && !setters.includes(set) ? set(v) : v);
       }

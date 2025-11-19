@@ -1,9 +1,9 @@
-import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
+import { IOptions } from '@tenlastic/mongoose-permissions';
 
-import { AuthorizationRole, WebSocketDocument, WebSocketModel } from '../models';
+import { AuthorizationRole, WebSocketDocument } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
-export const WebSocketPermissions = new MongoosePermissions<WebSocketDocument>(WebSocketModel, {
+export const WebSocketPermissionOptions: IOptions<WebSocketDocument> = {
   find: {
     default: {},
     'user-read': {},
@@ -21,4 +21,4 @@ export const WebSocketPermissions = new MongoosePermissions<WebSocketDocument>(W
       AuthorizationRole.WebSocketsRead,
     ]),
   },
-});
+};

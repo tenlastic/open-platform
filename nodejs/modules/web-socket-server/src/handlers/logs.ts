@@ -1,27 +1,61 @@
 import { podApiV1 } from '@tenlastic/kubernetes';
-import {
-  ICredentials,
-  MongoosePermissions,
-  PermissionError,
-} from '@tenlastic/mongoose-permissions';
+import { DatabaseOperationType } from '@tenlastic/mongoose-nats';
+import * as permissions from '@tenlastic/mongoose-permissions';
 import { RecordNotFoundError } from '@tenlastic/web-server';
+import * as mongoose from 'mongoose';
 
 import { Context, StatusCode } from '../definitions';
 import { deleteUnsubscribeCallback, setUnsubscribeCallback } from './unsubscribe';
 
-export interface LogsOptions {
+export interface Log {
+  body: string;
+  level: string;
+  unix: number;
+}
+
+export interface LogError {
+  message: string;
+  name: string;
+}
+
+export type LogsContext = Context<LogsRequest, LogsResponse>;
+
+export interface LogsRequest {
   resumeToken?: string;
 }
 
-export async function logs(ctx: Context, Permissions: MongoosePermissions<any>) {
+export interface LogsResponse {
+  errors?: LogError[];
+  fullDocument?: Log;
+  operationType?: DatabaseOperationType;
+  resumeToken?: number;
+}
+
+interface Node {
+  container?: string;
+  pod?: string;
+}
+
+interface Record {
+  status?: Status;
+}
+
+interface Status {
+  nodes?: Node[];
+}
+
+export async function logs<TDocument extends mongoose.Document & Record>(
+  ctx: LogsContext,
+  Model: mongoose.Model<TDocument>,
+  options: permissions.IOptions<TDocument>,
+) {
   const { _id } = ctx.request;
   const { container, pod } = ctx.params;
-  const credentials: ICredentials = { ...ctx.state };
-  const options: LogsOptions = { ...ctx.request.body };
+  const context = { credentials: { ...ctx.state }, Model, options };
 
   // Fetch record to check permissions.
-  const override = { where: { _id: ctx.params._id } };
-  const record = await Permissions.findOne(credentials, override, {});
+  const overlayParameters = { where: { _id: ctx.params._id } };
+  const record = await permissions.findOne(context, {}, overlayParameters);
   if (!record) {
     throw new RecordNotFoundError('Record');
   }
@@ -33,9 +67,9 @@ export async function logs(ctx: Context, Permissions: MongoosePermissions<any>) 
   }
 
   // Check if the user can access the record's logs.
-  const permissions = await Permissions.getFieldPermissions(credentials, 'read', record);
-  if (!permissions.includes('logs')) {
-    throw new PermissionError();
+  const fieldPermissions = await permissions.getFieldPermissions(context, 'read', record);
+  if (!fieldPermissions.includes('logs')) {
+    throw new permissions.PermissionError();
   }
 
   // Start streaming the logs.
@@ -43,11 +77,11 @@ export async function logs(ctx: Context, Permissions: MongoosePermissions<any>) 
     node.pod,
     'dynamic',
     container || node.container,
-    { since: options.resumeToken },
+    { since: ctx.request.body.resumeToken },
   );
   emitter.on('close', async () => ctx.ws.send({ _id, status: StatusCode.OK }));
   emitter.on('data', (log) => {
-    let fullDocument: any;
+    let fullDocument: Log;
 
     try {
       const json = JSON.parse(log.body);

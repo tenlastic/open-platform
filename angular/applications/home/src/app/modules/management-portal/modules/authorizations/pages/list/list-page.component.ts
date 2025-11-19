@@ -1,209 +1,212 @@
-import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatTableDataSource } from '@angular/material/table';
-import { ActivatedRoute, Params } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import {
   AuthorizationModel,
-  AuthorizationQuery,
   AuthorizationService,
+  AuthorizationState,
   IAuthorization,
-  UserQuery,
+  UserState,
+  WebSocketService,
 } from '@tenlastic/http';
-import { Subject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { v4 as uuid } from 'uuid';
 
-import { IdentityService } from '../../../../../../core/services';
-import { PromptComponent } from '../../../../../../shared/components';
-import { debounceTime } from 'rxjs/operators';
+import { formatDate } from '@angular/common';
+import { IdentityService, OverlayService } from '@home/app/core/services';
+import {
+  DeletionOverlayComponent,
+  DeletionOverlayComponentData,
+  ListTableColumn,
+  ListTableSubscription,
+} from '@home/app/shared/components';
+import { environment } from '@home/environments/environment';
 
 @Component({
-  templateUrl: 'list-page.component.html',
+  standalone: false,
   styleUrls: ['./list-page.component.scss'],
+  templateUrl: 'list-page.component.html',
 })
-export class AuthorizationsListPageComponent implements AfterViewInit, OnDestroy, OnInit {
-  @ViewChild(MatPaginator) private paginator: MatPaginator;
-
-  public dataSource = new MatTableDataSource<AuthorizationModel>();
-  public displayedColumns = ['name', 'user', 'roles', 'createdAt', 'actions'];
-  public filter: string;
-  public hasWriteAuthorization: boolean;
-  public message: string;
-  public get pageIndex() {
-    return this.paginator?.pageIndex || 0;
-  }
-  public get pageSize() {
-    return this.paginator?.pageSize || 10;
-  }
-
-  private filter$ = new Subject();
-  private count = 0;
-  private date = new Date(0);
-  private params: Params;
-  private timeout: NodeJS.Timeout;
-
-  constructor(
-    private activatedRoute: ActivatedRoute,
-    private authorizationQuery: AuthorizationQuery,
-    private authorizationService: AuthorizationService,
-    private identityService: IdentityService,
-    private matDialog: MatDialog,
-    private matSnackBar: MatSnackBar,
-    private userQuery: UserQuery,
-  ) {}
-
-  public ngOnInit() {
-    this.filter$.pipe(debounceTime(300)).subscribe(() => this.fetchAuthorizations());
-
-    this.activatedRoute.params.subscribe(async (params) => {
-      this.message = 'Loading...';
-      this.params = params;
-
-      if (params.namespaceId) {
-        this.displayedColumns = ['name', 'roles', 'user', 'createdAt', 'actions'];
-      } else {
-        this.displayedColumns = ['roles', 'user', 'createdAt', 'actions'];
-      }
-
-      const roles = [IAuthorization.Role.AuthorizationsWrite];
-      const userId = this.identityService.user?._id;
-      this.hasWriteAuthorization = this.authorizationQuery.hasRoles(null, roles, userId);
-
-      await this.fetchAuthorizations();
-
-      this.message = null;
-    });
-
-    this.authorizationService.emitter.on('create', (a) => {
-      if (!this.match(a)) {
-        return;
-      }
-
-      if (this.dataSource.data[0]?.createdAt >= a.createdAt) {
-        return;
-      }
-
-      if (this.dataSource.data[this.dataSource.data.length]?.createdAt <= a.createdAt) {
-        return;
-      }
-
-      this.fetchAuthorizations(true);
-    });
-
-    this.authorizationService.emitter.on('delete', (a) => {
-      const index = this.dataSource.data.findIndex((d) => d._id === a._id);
-
-      if (index < 0 || index > this.dataSource.data.length) {
-        return;
-      }
-
-      this.fetchAuthorizations(true);
-    });
-
-    this.authorizationService.emitter.on('update', (a) => {
-      const index = this.dataSource.data.findIndex((d) => d._id === a._id);
-
-      if (index < 0 || index > this.dataSource.data.length) {
-        return;
-      }
-
-      if (this.match(a)) {
-        this.dataSource.data[index] = a;
-        this.dataSource.data = [...this.dataSource.data];
-      } else {
-        this.fetchAuthorizations(true);
-      }
-    });
+export class AuthorizationsListPageComponent implements OnInit {
+  public $filter = new BehaviorSubject<string>(null);
+  public $records: Observable<AuthorizationModel[]>;
+  public columns: ListTableColumn<AuthorizationModel>[] = [
+    { header: 'User', text: (v) => this.getUser(v.userId)?.displayName },
+    { header: 'Roles', text: (v) => `${v.roles?.length || 0}` },
+    { header: 'Created At', text: (v) => formatDate(v.createdAt, "MMM d, y 'at' h:mm a", 'en-US') },
+    { header: 'Updated At', text: (v) => formatDate(v.updatedAt, "MMM d, y 'at' h:mm a", 'en-US') },
+  ];
+  public hasWriteAuthorization = false;
+  public subscriptions: ListTableSubscription[] = [
+    {
+      Model: AuthorizationModel,
+      request: { _id: uuid(), path: '/subscriptions/authorizations' },
+      service: this.authorizationService,
+    },
+  ];
+  public type: IAuthorization.Type;
+  public get webSocket() {
+    return this.webSocketService.webSockets.find((ws) => environment.wssUrl === ws.url);
   }
 
-  public ngAfterViewInit() {
-    this.paginator.length = this.count;
-  }
-
-  public ngOnDestroy() {
-    clearTimeout(this.timeout);
-  }
-
-  public async fetchAuthorizations(throttle = false) {
-    const date = new Date();
-    const threshold = this.date.getTime() + 5 * 1000;
-
-    if (date.getTime() < threshold && throttle) {
-      this.timeout = setTimeout(() => this.fetchAuthorizations(), threshold - date.getTime());
-      return;
-    }
-
-    this.date = date;
-
+  private namespaceId: string;
+  private get where() {
     let where: any = {};
-    if (this.filter) {
-      where.userId = this.filter;
-    }
-    if (this.params.namespaceId) {
-      where.namespaceId = this.params.namespaceId;
+
+    if (this.namespaceId) {
+      where.namespaceId = this.namespaceId;
     } else {
       where.namespaceId = null;
     }
 
-    this.dataSource.data = await this.authorizationService.find(this.params.namespaceId, {
-      limit: this.pageSize,
-      skip: this.pageIndex * this.pageSize,
-      sort: `-createdAt`,
-      where,
-    });
-
-    this.count = await this.authorizationService.count(this.params.namespaceId, {
-      where,
-    });
-
-    if (this.paginator) {
-      this.paginator.length = this.count;
-
-      if (this.paginator.length < this.pageIndex * this.pageSize) {
-        this.paginator.firstPage();
+    if (this.type) {
+      if (this.type === IAuthorization.Type.ApiKey) {
+        where.apiKey = { $exists: true };
+        where.userId = null;
+      } else if (this.type === IAuthorization.Type.Default) {
+        where.apiKey = null;
+        where.userId = null;
+      } else if (this.type === IAuthorization.Type.User) {
+        where.apiKey = null;
+        where.userId = { $exists: true };
       }
     }
+
+    if (this.$filter.value?.match(/^[0-9A-Fa-f]{24}$/)) {
+      where.userId = this.$filter.value;
+    }
+
+    return where;
   }
+
+  constructor(
+    private activatedRoute: ActivatedRoute,
+    private authorizationState: AuthorizationState,
+    private authorizationService: AuthorizationService,
+    private identityService: IdentityService,
+    private overlayService: OverlayService,
+    private userState: UserState,
+    private webSocketService: WebSocketService,
+  ) {}
+
+  public ngOnInit() {
+    const roles = [IAuthorization.Role.AuthorizationsWrite];
+    const userId = this.identityService.user?._id;
+    this.hasWriteAuthorization = this.authorizationState.hasRoles(null, roles, userId);
+
+    this.$records = this.authorizationState.selectMany();
+
+    this.activatedRoute.data.subscribe((data) => {
+      this.type = data?.type;
+
+      if (this.type === IAuthorization.Type.ApiKey) {
+        this.columns = [
+          { header: 'Name', text: (v) => v.name },
+          { header: 'Roles', text: (v) => `${v.roles?.length || 0}` },
+          {
+            header: 'Created At',
+            text: (v) => formatDate(v.createdAt, "MMM d, y 'at' h:mm a", 'en-US'),
+          },
+          {
+            header: 'Updated At',
+            text: (v) => formatDate(v.updatedAt, "MMM d, y 'at' h:mm a", 'en-US'),
+          },
+        ];
+      } else if (this.type === IAuthorization.Type.Default) {
+        this.columns = [
+          { header: 'Roles', text: (v) => `${v.roles?.length || 0}` },
+          {
+            header: 'Created At',
+            text: (v) => formatDate(v.createdAt, "MMM d, y 'at' h:mm a", 'en-US'),
+          },
+          {
+            header: 'Updated At',
+            text: (v) => formatDate(v.updatedAt, "MMM d, y 'at' h:mm a", 'en-US'),
+          },
+        ];
+      } else {
+        this.columns = [
+          { header: 'User', text: (v) => this.getUser(v.userId)?.displayName },
+          { header: 'Roles', text: (v) => `${v.roles?.length || 0}` },
+          {
+            header: 'Created At',
+            text: (v) => formatDate(v.createdAt, "MMM d, y 'at' h:mm a", 'en-US'),
+          },
+          {
+            header: 'Updated At',
+            text: (v) => formatDate(v.updatedAt, "MMM d, y 'at' h:mm a", 'en-US'),
+          },
+        ];
+      }
+    });
+
+    this.activatedRoute.params.subscribe(async (params) => {
+      this.namespaceId = params?.namespaceId;
+    });
+  }
+
+  public count = () => {
+    return this.authorizationService.count(this.namespaceId, {
+      where: this.where,
+    });
+  };
+
+  public filter = (record: AuthorizationModel) => {
+    if (this.$filter.value?.match(/^[0-9A-Fa-f]{24}$/) && this.$filter.value !== record.userId) {
+      return false;
+    }
+
+    if (this.namespaceId !== record.namespaceId) {
+      return false;
+    }
+
+    if (this.type) {
+      if (this.type === IAuthorization.Type.ApiKey && (!record.name || record.userId)) {
+        return false;
+      }
+
+      if (this.type === IAuthorization.Type.Default && (record.name || record.userId)) {
+        return false;
+      }
+
+      if (this.type === IAuthorization.Type.User && (record.name || !record.userId)) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  public find = async (page: number, pageSize: number) => {
+    const records = await this.authorizationService.find(this.namespaceId, {
+      limit: pageSize,
+      skip: page * pageSize,
+      sort: `-createdAt`,
+      where: this.where,
+    });
+
+    const _ids = records.map((r) => r._id);
+    this.subscriptions[0].request.body = { where: { _id: { $in: _ids } } };
+
+    return records;
+  };
 
   public getUser(_id: string) {
-    return this.userQuery.getEntity(_id);
+    return this.userState.getOne(_id);
   }
 
+  public navigate = (record: AuthorizationModel) => {
+    return [record._id];
+  };
+
   public setFilter(value: string) {
-    this.filter = value;
-    this.filter$.next();
+    this.$filter.next(value);
   }
 
   public showDeletePrompt($event: Event, record: AuthorizationModel) {
     $event.stopPropagation();
-
-    const dialogRef = this.matDialog.open(PromptComponent, {
-      data: {
-        buttons: [
-          { color: 'primary', label: 'No' },
-          { color: 'accent', label: 'Yes' },
-        ],
-        message: `Are you sure you want to delete this Authorization?`,
-      },
+    this.overlayService.open<DeletionOverlayComponentData>(DeletionOverlayComponent, {
+      delete: () => this.authorizationService.delete(record.namespaceId, record._id),
+      name: this.type ? `${this.type} Authorization` : 'Authorization',
     });
-
-    dialogRef.afterClosed().subscribe(async (result) => {
-      if (result === 'Yes') {
-        await this.authorizationService.delete(record.namespaceId, record._id);
-        this.matSnackBar.open('Authorization deleted successfully.');
-      }
-    });
-  }
-
-  private match(authorization: AuthorizationModel) {
-    if (this.filter && this.filter !== authorization.userId) {
-      return false;
-    }
-
-    if (this.params.namespaceId !== authorization.namespaceId) {
-      return false;
-    }
-
-    return true;
   }
 }

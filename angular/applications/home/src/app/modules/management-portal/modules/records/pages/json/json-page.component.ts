@@ -8,8 +8,9 @@ import { FormService, TextareaService } from '../../../../../../core/services';
 import { jsonValidator } from '../../../../../../shared/validators';
 
 @Component({
-  templateUrl: 'json-page.component.html',
+  standalone: false,
   styleUrls: ['./json-page.component.scss'],
+  templateUrl: 'json-page.component.html',
 })
 export class RecordsJsonPageComponent implements OnInit {
   public data: RecordModel;

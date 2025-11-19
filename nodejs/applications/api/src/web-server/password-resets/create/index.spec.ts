@@ -1,10 +1,10 @@
 import { PasswordResetModel, UserDocument, UserModel } from '@tenlastic/mongoose';
-import { Context, ContextMock, RequiredFieldError } from '@tenlastic/web-server';
+import { ContextMock, RequiredFieldError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-import * as Chance from 'chance';
+import chaiAsPromised from 'chai-as-promised';
+import { Chance } from 'chance';
 
-import { handler } from '.';
+import { CreatePasswordResetContext, handler } from '.';
 
 const chance = new Chance();
 use(chaiAsPromised);
@@ -18,13 +18,9 @@ describe('web-server/password-resets/create', function () {
 
   context('when email is not provided', function () {
     it('throws an error', async function () {
-      const ctx = new ContextMock({
-        request: {
-          body: {},
-        },
-      });
+      const ctx = ContextMock<CreatePasswordResetContext>();
 
-      const promise = handler(ctx as any);
+      const promise = handler(ctx);
 
       return expect(promise).to.be.rejectedWith(
         RequiredFieldError,
@@ -35,16 +31,16 @@ describe('web-server/password-resets/create', function () {
 
   context('when email is provided', function () {
     context('when User exists', function () {
-      let ctx: Context;
+      let ctx: CreatePasswordResetContext;
 
       beforeEach(async function () {
-        ctx = new ContextMock({
+        ctx = ContextMock<CreatePasswordResetContext>({
           request: {
             body: {
               email: user.email,
             },
           },
-        }) as any;
+        });
 
         await handler(ctx);
       });
@@ -61,7 +57,7 @@ describe('web-server/password-resets/create', function () {
 
     context('when User does not exist', function () {
       it('returns a 200 status', async function () {
-        const ctx = new ContextMock({
+        const ctx = ContextMock<CreatePasswordResetContext>({
           request: {
             body: {
               email: chance.email(),
@@ -69,7 +65,7 @@ describe('web-server/password-resets/create', function () {
           },
         });
 
-        await handler(ctx as any);
+        await handler(ctx);
 
         expect(ctx.response.status).to.eql(200);
       });

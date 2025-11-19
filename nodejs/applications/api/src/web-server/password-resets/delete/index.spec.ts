@@ -5,12 +5,12 @@ import {
   UserDocument,
   UserModel,
 } from '@tenlastic/mongoose';
-import { Context, ContextMock, RequiredFieldError } from '@tenlastic/web-server';
+import { ContextMock, RequiredFieldError } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-import * as Chance from 'chance';
+import chaiAsPromised from 'chai-as-promised';
+import { Chance } from 'chance';
 
-import { handler } from '.';
+import { DeletePasswordResetContext, handler } from '.';
 
 const chance = new Chance();
 use(chaiAsPromised);
@@ -26,13 +26,13 @@ describe('web-server/password-resets/delete', function () {
 
   context('when password is not provided', function () {
     it('throws an error', async function () {
-      const ctx = new ContextMock({
+      const ctx = ContextMock<DeletePasswordResetContext>({
         params: {
           hash: record.hash,
         },
       });
 
-      const promise = handler(ctx as any);
+      const promise = handler(ctx);
 
       return expect(promise).to.be.rejectedWith(
         RequiredFieldError,
@@ -44,7 +44,7 @@ describe('web-server/password-resets/delete', function () {
   context('when password is provided', function () {
     context('when hash is invalid', function () {
       it('returns a 200 status code', async function () {
-        const ctx = new ContextMock({
+        const ctx = ContextMock<DeletePasswordResetContext>({
           params: {
             hash: chance.hash({ length: 128 }),
           },
@@ -55,18 +55,18 @@ describe('web-server/password-resets/delete', function () {
           },
         });
 
-        await handler(ctx as any);
+        await handler(ctx);
 
         expect(ctx.response.status).eql(200);
       });
     });
 
     context('when hash is valid', function () {
-      let ctx: Context;
+      let ctx: DeletePasswordResetContext;
       let previousPassword: string;
 
       beforeEach(async function () {
-        ctx = new ContextMock({
+        ctx = ContextMock({
           params: {
             hash: record.hash,
           },
@@ -75,10 +75,8 @@ describe('web-server/password-resets/delete', function () {
               password: chance.hash(),
             },
           },
-          state: {
-            user,
-          },
-        }) as any;
+          state: { user: { _id: user._id.toHexString() } },
+        });
         previousPassword = user.password;
 
         await RefreshTokenModel.mock({ userId: user._id }).save();

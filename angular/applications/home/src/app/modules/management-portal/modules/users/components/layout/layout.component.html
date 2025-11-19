@@ -1,7 +1,7 @@
-<app-sidenav>
-  <div *ngIf="$user | async as user"
-       appNav
-       class="nav">
+<router-outlet></router-outlet>
+
+<ng-template #sideMenu>
+  <ng-container *ngIf="$user | async as user">
     <app-button color="accent"
                 layout="vertical"
                 [ngClass]="{ active: isActive }"
@@ -24,7 +24,5 @@
       <mat-icon>hub</mat-icon>
       <div>Web Sockets</div>
     </app-button>
-  </div>
-
-  <router-outlet></router-outlet>
-</app-sidenav>
+  </ng-container>
+</ng-template>

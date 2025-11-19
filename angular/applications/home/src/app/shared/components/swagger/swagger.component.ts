@@ -1,16 +1,18 @@
 import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular/core';
-import { SwaggerUIBundle, SwaggerUIStandalonePreset } from 'swagger-ui-dist';
 
 import { environment } from '../../../../environments/environment';
 
+declare const SwaggerUIBundle: any;
+
 @Component({
   selector: 'app-swagger',
+  standalone: false,
   styleUrls: ['swagger.component.scss'],
   templateUrl: 'swagger.component.html',
 })
 export class SwaggerComponent implements AfterViewInit {
   @Input() public url: string;
-  @ViewChild('swagger') swagger: ElementRef<HTMLDivElement>;
+  @ViewChild('swagger') public swagger: ElementRef<HTMLDivElement>;
 
   public ngAfterViewInit() {
     SwaggerUIBundle({
@@ -19,9 +21,8 @@ export class SwaggerComponent implements AfterViewInit {
       domNode: this.swagger.nativeElement,
       layout: 'BaseLayout',
       plugins: [SwaggerUIBundle.plugins.DownloadUrl],
-      presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+      presets: [SwaggerUIBundle.presets.apis, SwaggerUIBundle.SwaggerUIStandalonePreset],
       tagsSorter: 'alpha',
-      tryItOutEnabled: true,
       url: `${environment.swaggerUrl}${this.url}`,
     });
   }

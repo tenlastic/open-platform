@@ -1,13 +1,3 @@
-import {
-  DocumentType,
-  getModelForClass,
-  index,
-  modelOptions,
-  plugin,
-  pre,
-  prop,
-  PropType,
-} from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
 import {
@@ -18,16 +8,70 @@ import {
 } from '../../plugins';
 import { AuthorizationDocument, AuthorizationRole } from '../authorization';
 
-@index(
+export interface AuthorizationRequest {
+  _id: mongoose.Types.ObjectId;
+  authorizationDocuments?: AuthorizationDocument[];
+  createdAt?: Date;
+  deniedAt?: Date;
+  grantedAt?: Date;
+  namespaceId?: mongoose.Types.ObjectId;
+  roles?: AuthorizationRole[];
+  updatedAt?: Date;
+  userId: mongoose.Types.ObjectId;
+  wasNew?: boolean;
+}
+
+export type AuthorizationRequestDocument = mongoose.Document<mongoose.Types.ObjectId> &
+  AuthorizationRequest &
+  ModifiedPlugin;
+
+export interface AuthorizationRequestModelType
+  extends mongoose.Model<AuthorizationRequestDocument> {
+  /**
+   * Creates a record with randomized required parameters if not specified.
+   */
+  mock(
+    this: AuthorizationRequestModelType,
+    values?: Partial<AuthorizationRequest>,
+  ): AuthorizationRequestDocument;
+}
+
+const AuthorizationRequestSchema = new mongoose.Schema<
+  AuthorizationRequestDocument,
+  AuthorizationRequestModelType
+>(
+  {
+    deniedAt: { filter: { create: true, update: true }, type: Date },
+    grantedAt: { filter: { create: true, update: true }, type: Date },
+    namespaceId: { ref: 'NamespaceSchema', type: mongoose.Schema.Types.ObjectId },
+    roles: { enum: Object.values(AuthorizationRole), type: [String] },
+    userId: { ref: 'UserSchema', required: true, type: mongoose.Schema.Types.ObjectId },
+  },
+  {
+    collection: 'authorization-requests',
+    timestamps: true,
+  },
+);
+
+AuthorizationRequestSchema.index(
   { namespaceId: 1, userId: 1 },
   { partialFilterExpression: { deniedAt: null, grantedAt: null }, unique: true },
-)
-@index({ roles: 1 })
-@modelOptions({ schemaOptions: { collection: 'authorization-requests', timestamps: true } })
-@plugin(duplicateKeyErrorPlugin)
-@plugin(modifiedPlugin)
-@plugin(unsetPlugin)
-@pre('validate', function (this: AuthorizationRequestDocument) {
+);
+
+AuthorizationRequestSchema.index({ roles: 1 });
+
+AuthorizationRequestSchema.plugin(duplicateKeyErrorPlugin);
+AuthorizationRequestSchema.plugin(modifiedPlugin);
+AuthorizationRequestSchema.plugin(unsetPlugin);
+
+AuthorizationRequestSchema.virtual('authorizationDocuments', {
+  foreignField: 'namespaceId',
+  justOne: false,
+  localField: 'namespaceId',
+  ref: 'AuthorizationSchema',
+});
+
+AuthorizationRequestSchema.pre('validate', function (this: AuthorizationRequestDocument) {
   const deniedAtIsModified = this.isModified('deniedAt');
   const grantedAtIsModified = this.isModified('grantedAt');
 
@@ -54,51 +98,32 @@ import { AuthorizationDocument, AuthorizationRole } from '../authorization';
     this.invalidate('deniedAt', new Error(message), this.deniedAt);
     this.invalidate('grantedAt', new Error(message), this.grantedAt);
   }
-})
-export class AuthorizationRequestSchema implements ModifiedPlugin {
-  public _id: mongoose.Types.ObjectId;
+});
 
-  public createdAt: Date;
+AuthorizationRequestSchema.statics.mock = function (values: Partial<AuthorizationRequest> = {}) {
+  const defaults: Partial<AuthorizationRequest> = { userId: new mongoose.Types.ObjectId() };
 
-  @prop({ filter: { create: true, update: true }, type: Date })
-  public deniedAt: Date;
+  return new this({ ...defaults, ...values });
+};
 
-  @prop({ filter: { create: true, update: true }, type: Date })
-  public grantedAt: Date;
-
-  @prop({ ref: 'NamespaceSchema', type: mongoose.Schema.Types.ObjectId })
-  public namespaceId: mongoose.Types.ObjectId;
-
-  @prop({ enum: AuthorizationRole, type: String }, PropType.ARRAY)
-  public roles: AuthorizationRole[];
-
-  public updatedAt: Date;
-
-  @prop({ ref: 'UserSchema', required: true, type: mongoose.Schema.Types.ObjectId })
-  public userId: mongoose.Types.ObjectId;
-
-  public wasNew: boolean;
-
-  @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
-  public authorizationDocuments: AuthorizationDocument[];
-
-  /**
-   * Creates a record with randomized required parameters if not specified.
-   */
-  public static mock(
-    this: typeof AuthorizationRequestModel,
-    values: Partial<AuthorizationRequestSchema> = {},
-  ) {
-    const defaults = { userId: new mongoose.Types.ObjectId() };
-
-    return new this({ ...defaults, ...values });
+AuthorizationRequestSchema.methods.wasModified = function (
+  this: AuthorizationRequestDocument,
+  path?: string | string[],
+) {
+  if (typeof path === 'undefined') {
+    return this.isModified();
   }
 
-  /**
-   * Returns true if any of the path or paths were modified.
-   */
-  public wasModified: (path?: string | string[]) => boolean;
-}
+  if (Array.isArray(path)) {
+    return this.isModified(path as string[]);
+  }
 
-export type AuthorizationRequestDocument = DocumentType<AuthorizationRequestSchema>;
-export const AuthorizationRequestModel = getModelForClass(AuthorizationRequestSchema);
+  return this.isModified(path as string);
+};
+
+export const AuthorizationRequestModel = mongoose.model<
+  AuthorizationRequestDocument,
+  AuthorizationRequestModelType
+>('AuthorizationRequestSchema', AuthorizationRequestSchema, 'authorization-requests');
+
+export default AuthorizationRequestModel;

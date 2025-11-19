@@ -1,21 +1,18 @@
-<mat-form-field floatLabel="always">
-  <mat-label>Username</mat-label>
+<app-form-field>
+  <label>Username</label>
 
-  <input matInput
-         [formControl]="control"
+  <input [formControl]="control"
          [matAutocomplete]="autocomplete"
          (focusout)="onFocusOut()"
          (keyup)="onUsernameChanged($event.target.value)" />
   <app-button *ngIf="removeButton"
               color="accent"
-              mat-icon-button
-              matSuffix
               [matTooltip]="removeButtonTooltip"
               (OnClick)="OnRemove.emit()">
     <mat-icon>remove</mat-icon>
   </app-button>
 
-  <mat-error>Select a valid User.</mat-error>
+  <app-error>Select a valid User.</app-error>
 
   <mat-autocomplete #autocomplete="matAutocomplete"
                     [displayWith]="displayWith">
@@ -32,4 +29,4 @@
       </mat-option>
     </ng-container>
   </mat-autocomplete>
-</mat-form-field>
+</app-form-field>

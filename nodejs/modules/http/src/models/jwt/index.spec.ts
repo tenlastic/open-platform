@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import * as Chance from 'chance';
+import { Chance } from 'chance';
 import * as jsonwebtoken from 'jsonwebtoken';
 
 import { UserModel } from '../user';

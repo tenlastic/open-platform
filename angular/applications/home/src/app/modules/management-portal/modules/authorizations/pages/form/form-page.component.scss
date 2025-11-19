@@ -1,31 +1,5 @@
-@import 'src/assets/scss/form.scss';
+@use 'src/assets/scss/form.scss' as form;
+@use 'src/assets/scss/page.scss' as page;
 
-div.col-sm-6 {
-  margin: 0px;
-  padding: 0px;
-
-  &:first-of-type {
-    padding-right: 8px;
-  }
-
-  &:nth-of-type(2) {
-    padding-left: 8px;
-  }
-
-  mat-form-field.mat-form-field {
-    display: block;
-  }
-
-  & > mat-label {
-    font-size: 12px;
-  }
-}
-
-mat-form-field.mat-form-field {
-  display: inline-block;
-  margin-right: 16px;
-
-  input[disabled] {
-    text-overflow: ellipsis;
-  }
-}
+@include form.styles;
+@include page.styles;

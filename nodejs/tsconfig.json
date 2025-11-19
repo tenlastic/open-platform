@@ -16,7 +16,6 @@
       "@tenlastic/mailgun": ["./modules/mailgun/src"],
       "@tenlastic/minio": ["./modules/minio/src"],
       "@tenlastic/mongoose": ["./modules/mongoose/src"],
-      "@tenlastic/mongoose-migrations": ["./modules/mongoose-migrations/src"],
       "@tenlastic/mongoose-nats": ["./modules/mongoose-nats/src"],
       "@tenlastic/mongoose-permissions": ["./modules/mongoose-permissions/src"],
       "@tenlastic/namespace-api": ["./applications/namespace-api/src"],
@@ -32,5 +31,8 @@
     "target": "es2015",
     "types": ["mocha", "node"]
   },
-  "exclude": ["./node_modules/*"]
+  "exclude": ["./node_modules/*"],
+  "references": [
+    { "path": "./modules/http/tsconfig.app.json" },
+  ]
 }

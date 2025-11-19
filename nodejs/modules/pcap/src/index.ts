@@ -5,12 +5,6 @@ import * as util from 'util';
 const GLOBAL_HEADER_LENGTH = 24;
 const PACKET_HEADER_LENGTH = 16;
 
-export declare interface Parser {
-  on(event: 'end', listener: () => void): this;
-  on(event: 'header', listener: (header: PacketHeader) => void): this;
-  on(event: 'packet', listener: (packet: Packet) => void): this;
-}
-
 export interface Packet {
   data: Buffer;
   header: PacketHeader;
@@ -163,7 +157,7 @@ export class Parser extends EventEmitter {
       this.buffer = data;
     } else {
       const extendedBuffer = Buffer.alloc(this.buffer.length + data.length);
-      this.buffer.copy(extendedBuffer);
+      this.buffer = Buffer.concat([this.buffer, data]);
       data.copy(extendedBuffer, this.buffer.length);
       this.buffer = extendedBuffer;
     }

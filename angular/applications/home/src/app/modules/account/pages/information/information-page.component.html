@@ -1,55 +1,49 @@
 <div *ngIf="form"
-     class="page">
-  <div class="row">
-    <app-title>Account Information</app-title>
-  </div>
+     class="content">
+  <app-title>Account Information</app-title>
 
   <app-loading-message *ngIf="loadingMessage">{{ loadingMessage }}</app-loading-message>
 
   <form autocomplete="off"
         [formGroup]="form"
         id="form"
+        row-gap-16
         (ngSubmit)="save()">
-    <div class="row">
-      <mat-form-field floatLabel="always">
-        <mat-label>Email Address</mat-label>
-        <input matInput
-               type="email"
-               formControlName="email" />
-        <mat-error>Enter a valid email address.</mat-error>
-      </mat-form-field>
+    <div column-gap-16
+         flex-wrap>
+      <app-form-field>
+        <label>Email Address</label>
+        <input formControlName="email"
+               type="email" />
+        <app-error>Enter a valid email address.</app-error>
+      </app-form-field>
 
-      <mat-form-field floatLabel="always">
-        <mat-label>Username</mat-label>
-        <input matInput
-               formControlName="username" />
-        <mat-error>Enter a valid username.</mat-error>
-      </mat-form-field>
+      <app-form-field>
+        <label>Username</label>
+        <input formControlName="username" />
+        <app-error>Enter a valid username.</app-error>
+      </app-form-field>
     </div>
 
     <div *ngIf="form.get('steamId').value || form.get('steamPersonaName').value"
-         class="row">
-      <mat-form-field *ngIf="form.get('steamId').value"
-                      floatLabel="always">
-        <mat-label>Steam ID</mat-label>
-        <input matInput
-               formControlName="steamId" />
-        <mat-error>Enter a valid Steam ID.</mat-error>
-      </mat-form-field>
+         column-gap-16>
+      <app-form-field *ngIf="form.get('steamId').value">
+        <label>Steam ID</label>
+        <input formControlName="steamId" />
+        <app-error>Enter a valid Steam ID.</app-error>
+      </app-form-field>
 
-      <mat-form-field *ngIf="form.get('steamPersonaName').value"
-                      floatLabel="always">
-        <mat-label>Steam Persona name</mat-label>
-        <input matInput
-               formControlName="steamPersonaName" />
-        <mat-error>Enter a valid Steam Persona Name.</mat-error>
-      </mat-form-field>
+      <app-form-field *ngIf="form.get('steamPersonaName').value">
+        <label>Steam Persona name</label>
+        <input formControlName="steamPersonaName" />
+        <app-error>Enter a valid Steam Persona Name.</app-error>
+      </app-form-field>
     </div>
   </form>
 </div>
 
 <div *ngIf="form && !form.disabled"
-     class="page-actions">
+     class="actions">
   <div *ngFor="let error of errors"
        class="form-error">
     {{ error }}

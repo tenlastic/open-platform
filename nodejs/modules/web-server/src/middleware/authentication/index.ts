@@ -1,7 +1,7 @@
 import { Next } from 'koa';
 
-import { Context } from '../../context';
 import { UnauthorizedError } from '../../errors';
+import { Context } from '../../types';
 
 /**
  * Authenticates the user's access token.

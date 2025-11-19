@@ -7,13 +7,13 @@ import {
   CollectionModel,
   GameServerModel,
   GameServerTemplateModel,
-  GroupModel,
   GroupInvitationModel,
+  GroupModel,
   LoginModel,
   NamespaceModel,
   PasswordResetModel,
-  QueueModel,
   QueueMemberModel,
+  QueueModel,
   RefreshTokenModel,
   SteamIntegrationModel,
   StorefrontModel,
@@ -25,9 +25,11 @@ import {
 
 before(async function () {
   await connect({
+    autoCreate: true,
     connectionString: process.env.MONGO_CONNECTION_STRING,
     databaseName: 'mongoose',
   });
+
   await Promise.all([
     ArticleModel.syncIndexes(),
     AuthorizationModel.syncIndexes(),

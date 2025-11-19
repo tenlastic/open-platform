@@ -1,4 +1,3 @@
-import { DocumentType, getModelForClass, modelOptions, prop, Severity } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
 import { parseValue, stringifyValue } from '../../../../transforms';
@@ -7,44 +6,58 @@ import {
   CollectionIndexOptionsCollationSchema,
 } from './collation';
 
-@modelOptions({
-  options: { allowMixed: Severity.ALLOW },
-  schemaOptions: {
-    _id: false,
-    minimize: false,
-    toJSON: { getters: true },
-    toObject: { getters: true },
-  },
-})
-export class CollectionIndexOptionsSchema {
-  @prop({ type: CollectionIndexOptionsCollationSchema })
-  public collation: CollectionIndexOptionsCollationDocument;
+export interface CollectionIndexOptions {
+  collation?: CollectionIndexOptionsCollationDocument;
+  expireAfterSeconds?: number;
+  partialFilterExpression?: mongoose.FilterQuery<mongoose.Document>;
+  unique?: boolean;
+}
 
-  @prop({ type: Number })
-  public expireAfterSeconds: number;
+export type CollectionIndexOptionsDocument = mongoose.Document<mongoose.Types.ObjectId> &
+  CollectionIndexOptions;
 
-  @prop({
-    get: (value) => parseValue(value),
-    set: (value) => stringifyValue(value),
-    type: mongoose.Schema.Types.Mixed,
-  })
-  public partialFilterExpression: any;
-
-  @prop({ type: Boolean })
-  public unique: boolean;
-
+export interface CollectionIndexOptionsModelType
+  extends mongoose.Model<CollectionIndexOptionsDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(
-    this: typeof CollectionIndexOptionsModel,
-    values: Partial<CollectionIndexOptionsSchema> = {},
-  ) {
-    const defaults = {};
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(
+    this: CollectionIndexOptionsModelType,
+    values?: Partial<CollectionIndexOptions>,
+  ): CollectionIndexOptionsDocument;
 }
 
-export type CollectionIndexOptionsDocument = DocumentType<CollectionIndexOptionsSchema>;
-export const CollectionIndexOptionsModel = getModelForClass(CollectionIndexOptionsSchema);
+const CollectionIndexOptionsSchema = new mongoose.Schema<CollectionIndexOptionsDocument>(
+  {
+    collation: { type: CollectionIndexOptionsCollationSchema },
+    expireAfterSeconds: { type: Number },
+    partialFilterExpression: {
+      get: (value: unknown) => parseValue(value),
+      set: (value: unknown) => stringifyValue(value),
+      type: mongoose.Schema.Types.Mixed,
+    },
+    unique: { type: Boolean },
+  },
+  {
+    _id: false,
+    minimize: false,
+  },
+);
+
+CollectionIndexOptionsSchema.statics = CollectionIndexOptionsSchema.statics || {};
+CollectionIndexOptionsSchema.statics.mock = function (
+  values: Partial<CollectionIndexOptions> = {},
+) {
+  const defaults: Partial<CollectionIndexOptions> = {};
+
+  return new this({ ...defaults, ...values });
+};
+
+export const CollectionIndexOptionsModel = mongoose.model<
+  CollectionIndexOptionsDocument,
+  CollectionIndexOptionsModelType
+>('CollectionIndexOptionsSchema', CollectionIndexOptionsSchema);
+
+export { CollectionIndexOptionsSchema };
+
+export default CollectionIndexOptionsModel;

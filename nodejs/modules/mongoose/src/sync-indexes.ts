@@ -1,6 +1,5 @@
-import { ReturnModelType } from '@typegoose/typegoose';
-import mongoose from 'mongoose';
+import * as mongoose from 'mongoose';
 
-export function syncIndexes(Model: mongoose.Model<mongoose.Document> | ReturnModelType<any>) {
+export function syncIndexes<T>(Model: mongoose.Model<T>) {
   return Model.syncIndexes({ background: true });
 }

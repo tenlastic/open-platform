@@ -1,5 +1,5 @@
-import 'source-map-support/register';
 import '@tenlastic/logging';
+import 'source-map-support/register';
 
 import { ApiError, QueueMemberModel, QueueModel } from '@tenlastic/http';
 
@@ -35,7 +35,6 @@ const wssUrl = process.env.WSS_URL;
         QueueModel,
         { body: { resumeToken: podName, where: { _id: queueId } }, path: '/subscriptions/queues' },
         dependencies.queueService,
-        dependencies.queueStore,
         webSocket,
         { acks: true },
       ),
@@ -48,7 +47,6 @@ const wssUrl = process.env.WSS_URL;
           path: '/subscriptions/queue-members',
         },
         dependencies.queueMemberService,
-        dependencies.queueMemberStore,
         webSocket,
         {
           acks: true,
@@ -77,7 +75,7 @@ const wssUrl = process.env.WSS_URL;
 
 async function main() {
   try {
-    const queue = dependencies.queueQuery.getEntity(queueId);
+    const queue = dependencies.queueState.getOne(queueId);
 
     const result = await createMatch(queue);
     console.log(`Match created successfully: ${result._id}.`);

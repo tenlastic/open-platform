@@ -4,11 +4,11 @@ import { NavigationEnd, Router } from '@angular/router';
 import {
   AuthorizationService,
   NamespaceModel,
-  NamespaceQuery,
   NamespaceService,
+  NamespaceState,
   StorefrontModel,
-  StorefrontQuery,
   StorefrontService,
+  StorefrontState,
   TokenService,
   WebSocketService,
 } from '@tenlastic/http';
@@ -19,8 +19,9 @@ import { ElectronService, IdentityService, UpdateStatus } from '../../../core/se
 import { PromptComponent } from '../prompt/prompt.component';
 
 @Component({
-  templateUrl: './layout.component.html',
+  standalone: false,
   styleUrls: ['./layout.component.scss'],
+  templateUrl: './layout.component.html',
 })
 export class LayoutComponent implements OnInit {
   public get $authorization() {
@@ -50,7 +51,6 @@ export class LayoutComponent implements OnInit {
   }
   public view: string;
 
-  private interval: NodeJS.Timeout;
   private previousUrl: string;
   private urls = new Map<string, string>();
 
@@ -60,19 +60,19 @@ export class LayoutComponent implements OnInit {
     private electronService: ElectronService,
     private identityService: IdentityService,
     private matDialog: MatDialog,
-    private namespaceQuery: NamespaceQuery,
+    private namespaceState: NamespaceState,
     private namespaceService: NamespaceService,
     private ngZone: NgZone,
     private router: Router,
-    private storefrontQuery: StorefrontQuery,
+    private storefrontState: StorefrontState,
     private storefrontService: StorefrontService,
     private tokenService: TokenService,
     private webSocketService: WebSocketService,
   ) {}
 
   public async ngOnInit() {
-    this.$namespaces = this.$namespaces || this.namespaceQuery.selectAll();
-    this.$storefronts = this.$storefronts || this.storefrontQuery.selectAll();
+    this.$namespaces = this.$namespaces || this.namespaceState.selectMany();
+    this.$storefronts = this.$storefronts || this.storefrontState.selectMany();
 
     if (this.electronService.isElectron) {
       this.electronService.ipcRenderer.on('redirect', (e, url) => {
@@ -222,6 +222,10 @@ export class LayoutComponent implements OnInit {
 
   private setIsConnected() {
     const webSockets = this.webSocketService.webSockets;
+
+    if (webSockets.length === 0) {
+      return false;
+    }
 
     for (const webSocket of webSockets) {
       if (webSocket.readyState === 0) {

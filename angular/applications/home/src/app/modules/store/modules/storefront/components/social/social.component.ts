@@ -3,14 +3,14 @@ import { Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Params } from '@angular/router';
 import {
-  GroupModel,
   GroupInvitationModel,
-  GroupInvitationQuery,
   GroupInvitationService,
-  GroupQuery,
+  GroupInvitationState,
+  GroupModel,
   GroupService,
-  UserQuery,
+  GroupState,
   UserService,
+  UserState,
 } from '@tenlastic/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -20,6 +20,7 @@ import { InputDialogComponent } from '../../../../../../shared/components/input-
 
 @Component({
   selector: 'app-social',
+  standalone: false,
   styleUrls: ['./social.component.scss'],
   templateUrl: './social.component.html',
 })
@@ -44,13 +45,13 @@ export class SocialComponent implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private electronService: ElectronService,
-    private groupInvitationQuery: GroupInvitationQuery,
+    private groupInvitationState: GroupInvitationState,
     private groupInvitationService: GroupInvitationService,
     private groupService: GroupService,
-    private groupQuery: GroupQuery,
+    private groupState: GroupState,
     private identityService: IdentityService,
     private matDialog: MatDialog,
-    private userQuery: UserQuery,
+    private userState: UserState,
     private userService: UserService,
   ) {}
 
@@ -64,19 +65,29 @@ export class SocialComponent implements OnInit {
 
       const userId = this.identityService.user._id;
 
-      this.$group = this.groupQuery
-        .selectAll({
-          filterBy: (g) =>
-            g.namespaceId === this.namespaceId && g.userIds?.some((ui) => ui === userId),
-        })
-        .pipe(map((groups) => groups[0]));
-      this.$groupInvitations = this.groupInvitationQuery.selectAll({
-        filterBy: (gi) =>
-          gi.expiresAt.getTime() > Date.now() &&
-          gi.namespaceId === this.namespaceId &&
-          gi.toUserId === userId,
-        sortBy: 'createdAt',
-      });
+      this.$group = this.groupState
+        .selectMany()
+        .pipe(
+          map((gs) =>
+            gs.filter(
+              (g) => g.namespaceId === this.namespaceId && g.userIds?.some((ui) => ui === userId),
+            ),
+          ),
+        )
+        .pipe(map((gs) => gs[0]));
+      this.$groupInvitations = this.groupInvitationState
+        .selectMany()
+        .pipe(
+          map((gis) =>
+            gis.filter(
+              (gi) =>
+                gi.expiresAt.getTime() > Date.now() &&
+                gi.namespaceId === this.namespaceId &&
+                gi.toUserId === userId,
+            ),
+          ),
+        )
+        .pipe(map((gis) => gis.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())));
 
       return Promise.all([
         this.groupInvitationService.find(this.namespaceId, { where: { toUserId: userId } }),
@@ -87,7 +98,7 @@ export class SocialComponent implements OnInit {
   }
 
   public getUser(_id: string) {
-    return this.userQuery.getEntity(_id);
+    return this.userState.getOne(_id);
   }
 
   public isLeader(group: GroupModel, userId: string) {

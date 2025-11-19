@@ -2,9 +2,9 @@ import { Schema } from 'mongoose';
 
 export class DuplicateKeyError extends Error {
   public paths: string[];
-  public values: any[];
+  public values: unknown[];
 
-  constructor(value: any) {
+  constructor(value: object) {
     const paths = Object.keys(value);
     const values = Object.values(value);
 
@@ -20,9 +20,9 @@ export class DuplicateKeyError extends Error {
 
 export class DuplicateKeyIndexError extends Error {
   public paths: string[];
-  public values: any[];
+  public values: unknown[];
 
-  constructor(value: any) {
+  constructor(value: object) {
     const paths = Object.keys(value);
     const values = Object.values(value);
 

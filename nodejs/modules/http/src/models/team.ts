@@ -1,7 +1,7 @@
 import { BaseModel } from './base';
 
 export class TeamModel extends BaseModel {
-  public metadata: any;
+  public metadata: unknown;
   public namespaceId: string;
   public queueId: string;
   public rating: number;

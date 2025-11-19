@@ -6,7 +6,7 @@ export function minimizePlugin(schema: Schema) {
     .map(([k]) => k);
 
   schema.set('toJSON', {
-    transform: (document: Document, json: any) => {
+    transform: (document: Document, json: object) => {
       for (const path of paths) {
         const subdocument = document[path];
         json[path] = subdocument?.toJSON ? subdocument.toJSON() : subdocument;
@@ -15,7 +15,7 @@ export function minimizePlugin(schema: Schema) {
   });
 
   schema.set('toObject', {
-    transform: (document: Document, object: any) => {
+    transform: (document: Document, object: object) => {
       for (const path of paths) {
         const subdocument = document[path];
         object[path] = subdocument?.toObject ? subdocument.toObject() : subdocument;

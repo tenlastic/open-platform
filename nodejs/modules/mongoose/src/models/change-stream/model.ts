@@ -1,42 +1,51 @@
-import {
-  DocumentType,
-  getModelForClass,
-  index,
-  modelOptions,
-  plugin,
-  prop,
-} from '@typegoose/typegoose';
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
 import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
 
-@index({ key: 1 }, { unique: true })
-@modelOptions({ schemaOptions: { collection: 'change-streams', timestamps: true } })
-@plugin(duplicateKeyErrorPlugin)
-@plugin(unsetPlugin)
-export class ChangeStreamSchema {
-  public _id: mongoose.Types.ObjectId;
-  public createdAt: Date;
+export interface ChangeStream {
+  _id: mongoose.Types.ObjectId;
+  createdAt?: Date;
+  key: string;
+  resumeToken?: string;
+  updatedAt?: Date;
+}
 
-  @prop({ maxlength: 64, required: true, trim: true, type: String })
-  public key: string;
+export type ChangeStreamDocument = mongoose.Document<mongoose.Types.ObjectId> & ChangeStream;
 
-  @prop({ maxlength: 256, trim: true, type: String })
-  public resumeToken: string;
-
-  public updatedAt: Date;
-
+export interface ChangeStreamModelType extends mongoose.Model<ChangeStreamDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: typeof ChangeStreamModel, values: Partial<ChangeStreamSchema> = {}) {
-    const chance = new Chance();
-    const defaults = { key: chance.hash() };
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(this: ChangeStreamModelType, values?: Partial<ChangeStream>): ChangeStreamDocument;
 }
 
-export type ChangeStreamDocument = DocumentType<ChangeStreamSchema>;
-export const ChangeStreamModel = getModelForClass(ChangeStreamSchema);
+const ChangeStreamSchema = new mongoose.Schema<ChangeStreamDocument, ChangeStreamModelType>(
+  {
+    key: { maxlength: 64, required: true, trim: true, type: String },
+    resumeToken: { maxlength: 256, trim: true, type: String },
+  },
+  {
+    collection: 'change-streams',
+    timestamps: true,
+  },
+);
+
+ChangeStreamSchema.index({ key: 1 }, { unique: true });
+
+ChangeStreamSchema.plugin(duplicateKeyErrorPlugin);
+ChangeStreamSchema.plugin(unsetPlugin);
+
+ChangeStreamSchema.statics.mock = function (values: Partial<ChangeStream> = {}) {
+  const chance = new Chance();
+  const defaults: Partial<ChangeStream> = { key: chance.hash() };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const ChangeStreamModel = mongoose.model<ChangeStreamDocument, ChangeStreamModelType>(
+  'ChangeStreamSchema',
+  ChangeStreamSchema,
+);
+
+export default ChangeStreamModel;

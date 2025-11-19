@@ -10,7 +10,7 @@ describe('middleware', function () {
   let middleware: Middleware;
 
   beforeEach(function () {
-    ctx = new ContextMock();
+    ctx = ContextMock();
     middleware = new Middleware();
   });
 

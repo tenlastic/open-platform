@@ -1,0 +1,47 @@
+@use './shadows.scss' as shadows;
+
+@mixin styles {
+  :host {
+    flex: 1;
+  }
+
+  app-loading-message {
+    justify-content: center;
+    position: relative;
+  }
+
+  div.separator {
+    align-items: center;
+    display: flex;
+    text-align: center;
+
+    &::after,
+    &::before {
+      border-bottom: 1px solid #ffffff;
+      content: '';
+      flex: 1;
+    }
+
+    &:not(:empty)::after {
+      margin-left: 0.25em;
+    }
+
+    &:not(:empty)::before {
+      margin-right: 0.25em;
+    }
+  }
+
+  h2 {
+    align-items: center;
+    color: white;
+    display: flex;
+    font-size: 32px;
+    justify-content: center;
+    margin: 0px;
+
+    mat-icon.mat-icon {
+      color: #ffff55;
+      margin-right: 8px;
+    }
+  }
+}

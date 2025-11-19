@@ -1,0 +1,26 @@
+@use 'src/assets/scss/shadows.scss' as shadows;
+
+:host {
+  background: rgba(0, 0, 0, 0.75);
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
+
+  div.background {
+    height: 100%;
+    width: 100%;
+
+    div.content {
+      background: var(--background-image);
+      background-attachment: fixed;
+      background-position: center;
+      background-size: cover;
+      border-radius: 0px;
+      box-shadow: shadows.$box-shadow;
+      color: white;
+      padding: 16px 24px;
+    }
+  }
+}

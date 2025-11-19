@@ -1,0 +1,13 @@
+<div *ngIf="data.title">{{ data.title }}</div>
+
+<div>
+  <p>{{ data.message }}</p>
+</div>
+
+<div class="actions">
+  <app-button *ngFor="let button of data.buttons"
+              [color]="button.color"
+              (OnClick)="overlay.close(button.label)">
+    <div>{{ button.label }}</div>
+  </app-button>
+</div>

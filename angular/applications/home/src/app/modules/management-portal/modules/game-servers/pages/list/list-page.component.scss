@@ -1,11 +1,3 @@
-@import 'src/assets/scss/page.scss';
+@use 'src/assets/scss/page.scss' as page;
 
-mat-checkbox {
-  margin-right: 24px;
-}
-
-mat-form-field {
-  display: inline-block;
-  margin-right: 24px;
-  width: 250px;
-}
+@include page.styles;

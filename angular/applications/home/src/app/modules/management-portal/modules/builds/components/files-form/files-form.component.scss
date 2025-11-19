@@ -1,13 +1,10 @@
-@import 'src/assets/scss/page.scss';
-@import 'src/assets/scss/theme.scss';
+@use 'src/assets/scss/page.scss' as page;
+
+@include page.styles;
 
 app-button {
   margin-bottom: 8px;
   margin-right: 8px;
-}
-
-button.mat-button[centered] {
-  margin-bottom: 0px;
 }
 
 mat-hint.mat-hint {

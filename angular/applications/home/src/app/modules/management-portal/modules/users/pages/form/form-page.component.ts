@@ -2,13 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AuthorizationQuery, IAuthorization, UserModel, UserService } from '@tenlastic/http';
+import { AuthorizationState, IAuthorization, UserModel, UserService } from '@tenlastic/http';
 
-import { FormService, IdentityService } from '../../../../../../core/services';
+import { FormService, IdentityService } from '@home/app/core/services';
 
 @Component({
-  templateUrl: 'form-page.component.html',
+  standalone: false,
   styleUrls: ['./form-page.component.scss'],
+  templateUrl: 'form-page.component.html',
 })
 export class UsersFormPageComponent implements OnInit {
   public data: UserModel;
@@ -19,7 +20,7 @@ export class UsersFormPageComponent implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private authorizationQuery: AuthorizationQuery,
+    private authorizationState: AuthorizationState,
     private formBuilder: FormBuilder,
     private formService: FormService,
     private identityService: IdentityService,
@@ -33,7 +34,7 @@ export class UsersFormPageComponent implements OnInit {
       const roles = [IAuthorization.Role.UsersWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
-        this.authorizationQuery.hasRoles(null, roles, userId) || params.userId === userId;
+        this.authorizationState.hasRoles(null, roles, userId) || params.userId === userId;
 
       if (params.userId !== 'new') {
         this.data = await this.userService.findOne(params.userId);

@@ -1,7 +1,13 @@
-import { LoginModel, UserModel } from '@tenlastic/mongoose';
+import { LoginDocument, LoginModel, UserModel } from '@tenlastic/mongoose';
 import { Context, RequiredFieldError } from '@tenlastic/web-server';
 
-export async function handler(ctx: Context) {
+export type CreateLoginWithCredentialsContext = Context<
+  unknown,
+  { password?: string; username?: string },
+  { accessToken?: string; record?: LoginDocument; refreshToken?: string }
+>;
+
+export async function handler(ctx: CreateLoginWithCredentialsContext) {
   const { password, username } = ctx.request.body;
   if (!password || !username) {
     throw new RequiredFieldError(['password', 'username']);

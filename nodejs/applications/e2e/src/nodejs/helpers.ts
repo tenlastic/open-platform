@@ -1,7 +1,6 @@
 import { BuildModel, IBuild, UserModel } from '@tenlastic/http';
 import wait from '@tenlastic/wait';
 import { Chance } from 'chance';
-import * as FormData from 'form-data';
 import * as JSZip from 'jszip';
 
 import { administratorAccessToken } from '../';
@@ -29,7 +28,7 @@ export async function createBuild(dockerfile: string, namespaceId: string) {
         platform: IBuild.Platform.Server64,
       } as BuildModel),
     );
-    formData.append('zip', buffer, { contentType: 'application/zip', filename: 'example.zip' });
+    formData.append('zip', buffer, 'example.zip');
     return formData;
   });
 

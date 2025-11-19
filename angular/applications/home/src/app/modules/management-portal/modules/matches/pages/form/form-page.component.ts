@@ -3,26 +3,27 @@ import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
-  AuthorizationQuery,
+  AuthorizationState,
   GameServerTemplateModel,
   GameServerTemplateService,
   IAuthorization,
   IMatch,
   MatchModel,
-  MatchQuery,
   MatchService,
+  MatchState,
   QueueModel,
   QueueService,
-  UserQuery,
   UserService,
+  UserState,
 } from '@tenlastic/http';
-import { Subscription } from 'rxjs';
+import { map, Subscription } from 'rxjs';
 
 import { FormService, IdentityService } from '../../../../../../core/services';
 
 @Component({
-  templateUrl: 'form-page.component.html',
+  standalone: false,
   styleUrls: ['./form-page.component.scss'],
+  templateUrl: 'form-page.component.html',
 })
 export class MatchesFormPageComponent implements OnDestroy, OnInit {
   public data: MatchModel;
@@ -44,17 +45,17 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private authorizationQuery: AuthorizationQuery,
+    private authorizationState: AuthorizationState,
     private formBuilder: FormBuilder,
     private formService: FormService,
     private gameServerTemplateService: GameServerTemplateService,
     private identityService: IdentityService,
-    private matchQuery: MatchQuery,
+    private matchState: MatchState,
     private matchService: MatchService,
     private matSnackBar: MatSnackBar,
     private queueService: QueueService,
     private router: Router,
-    private userQuery: UserQuery,
+    private userState: UserState,
     private userService: UserService,
   ) {}
 
@@ -65,8 +66,8 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
       const roles = [IAuthorization.Role.MatchesWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
-        this.authorizationQuery.hasRoles(null, roles, userId) ||
-        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
+        this.authorizationState.hasRoles(null, roles, userId) ||
+        this.authorizationState.hasRoles(params.namespaceId, roles, userId);
 
       this.gameServerTemplates = await this.gameServerTemplateService.find(params.namespaceId, {});
 
@@ -159,7 +160,7 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
     });
 
     const teamFormGroups = this.data.teams.map((t) => {
-      const users = t.userIds.map((ui) => this.userQuery.getEntity(ui));
+      const users = t.userIds.map((ui) => this.userState.getOne(ui));
       const formControls = users.map((u) => this.formBuilder.control(u, Validators.required));
       const formArray = this.formBuilder.array(formControls);
 
@@ -189,8 +190,9 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
     this.form.valueChanges.subscribe(() => (this.errors = []));
 
     if (this.data._id) {
-      this.updateMatch$ = this.matchQuery
-        .selectAll({ filterBy: (q) => q._id === this.data._id })
+      this.updateMatch$ = this.matchState
+        .selectMany()
+        .pipe(map((ms) => ms.filter((m) => m._id === this.data._id)))
         .subscribe((matches) => (this.data = matches[0]));
     }
   }

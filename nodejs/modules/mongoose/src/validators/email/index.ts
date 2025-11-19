@@ -1,5 +1,5 @@
 export const emailValidator = {
-  msg: 'Value must be a valid email address',
+  message: 'Value must be a valid email address',
   validator: (value: string) => {
     if (!value) {
       return true;

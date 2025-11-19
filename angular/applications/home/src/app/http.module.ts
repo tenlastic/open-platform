@@ -2,94 +2,65 @@ import { NgModule, Provider } from '@angular/core';
 import {
   AccessTokenInterceptor,
   ApiService,
-  ArticleQuery,
   ArticleService,
-  ArticleStore,
-  AuthorizationQuery,
-  AuthorizationRequestQuery,
+  ArticleState,
   AuthorizationRequestService,
-  AuthorizationRequestStore,
+  AuthorizationRequestState,
   AuthorizationService,
-  AuthorizationStore,
-  BuildLogQuery,
+  AuthorizationState,
   BuildLogService,
-  BuildLogStore,
-  BuildQuery,
+  BuildLogState,
   BuildService,
-  BuildStore,
-  CollectionQuery,
+  BuildState,
   CollectionService,
-  CollectionStore,
+  CollectionState,
   EnvironmentService,
-  GameServerLogQuery,
   GameServerLogService,
-  GameServerLogStore,
-  GameServerQuery,
+  GameServerLogState,
   GameServerService,
-  GameServerStore,
-  GameServerTemplateQuery,
+  GameServerState,
   GameServerTemplateService,
-  GameServerTemplateStore,
-  GroupInvitationQuery,
+  GameServerTemplateState,
   GroupInvitationService,
-  GroupInvitationStore,
-  GroupQuery,
+  GroupInvitationState,
   GroupService,
-  GroupStore,
+  GroupState,
   InvalidRefreshTokenInterceptor,
   LoginService,
-  MatchInvitationQuery,
   MatchInvitationService,
-  MatchInvitationStore,
-  MatchQuery,
+  MatchInvitationState,
   MatchService,
-  MatchStore,
-  NamespaceLogQuery,
+  MatchState,
   NamespaceLogService,
-  NamespaceLogStore,
-  NamespaceQuery,
+  NamespaceLogState,
   NamespaceService,
-  NamespaceStore,
+  NamespaceState,
   PasswordResetService,
-  QueueLogQuery,
   QueueLogService,
-  QueueLogStore,
-  QueueMemberQuery,
+  QueueLogState,
   QueueMemberService,
-  QueueMemberStore,
-  QueueQuery,
+  QueueMemberState,
   QueueService,
-  QueueStore,
-  RecordQuery,
+  QueueState,
   RecordService,
-  RecordStore,
-  RefreshTokenQuery,
-  RefreshTokenService,
-  RefreshTokenStore,
+  RecordState,
   RetryInterceptor,
-  SteamIntegrationQuery,
   SteamIntegrationService,
-  SteamIntegrationStore,
-  StorefrontQuery,
+  SteamIntegrationState,
   StorefrontService,
-  StorefrontStore,
+  StorefrontState,
   SubscriptionService,
-  TeamQuery,
   TeamService,
-  TeamStore,
+  TeamState,
   TokenService,
-  UserQuery,
   UserService,
-  UserStore,
-  WebSocketQuery,
+  UserState,
   WebSocketService,
-  WebSocketStore,
-  WorkflowLogQuery,
+  WebSocketState,
   WorkflowLogService,
-  WorkflowLogStore,
-  WorkflowQuery,
+  WorkflowLogState,
   WorkflowService,
-  WorkflowStore,
+  WorkflowState,
 } from '@tenlastic/http';
 import { Axios } from 'axios';
 
@@ -114,144 +85,6 @@ const interceptors: Provider[] = [
     useFactory: (axios: Axios) => new RetryInterceptor(axios),
   },
 ];
-const queries: Provider[] = [
-  {
-    deps: [ArticleStore],
-    provide: ArticleQuery,
-    useFactory: (store: ArticleStore) => new ArticleQuery(store),
-  },
-  {
-    deps: [AuthorizationStore],
-    provide: AuthorizationQuery,
-    useFactory: (store: AuthorizationStore) => new AuthorizationQuery(store),
-  },
-  {
-    deps: [AuthorizationRequestStore],
-    provide: AuthorizationRequestQuery,
-    useFactory: (store: AuthorizationRequestStore) => new AuthorizationRequestQuery(store),
-  },
-  {
-    deps: [BuildLogStore],
-    provide: BuildLogQuery,
-    useFactory: (store: BuildLogStore) => new BuildLogQuery(store),
-  },
-  {
-    deps: [BuildStore],
-    provide: BuildQuery,
-    useFactory: (store: BuildStore) => new BuildQuery(store),
-  },
-  {
-    deps: [CollectionStore],
-    provide: CollectionQuery,
-    useFactory: (store: CollectionStore) => new CollectionQuery(store),
-  },
-  {
-    deps: [GameServerLogStore],
-    provide: GameServerLogQuery,
-    useFactory: (store: GameServerLogStore) => new GameServerLogQuery(store),
-  },
-  {
-    deps: [GameServerStore],
-    provide: GameServerQuery,
-    useFactory: (store: GameServerStore) => new GameServerQuery(store),
-  },
-  {
-    deps: [GameServerTemplateStore],
-    provide: GameServerTemplateQuery,
-    useFactory: (store: GameServerTemplateStore) => new GameServerTemplateQuery(store),
-  },
-  {
-    deps: [GroupInvitationStore],
-    provide: GroupInvitationQuery,
-    useFactory: (store: GroupInvitationStore) => new GroupInvitationQuery(store),
-  },
-  {
-    deps: [GroupStore],
-    provide: GroupQuery,
-    useFactory: (store: GroupStore) => new GroupQuery(store),
-  },
-  {
-    deps: [MatchInvitationStore],
-    provide: MatchInvitationQuery,
-    useFactory: (store: MatchInvitationStore) => new MatchInvitationQuery(store),
-  },
-  {
-    deps: [MatchStore],
-    provide: MatchQuery,
-    useFactory: (store: MatchStore) => new MatchQuery(store),
-  },
-  {
-    deps: [NamespaceLogStore],
-    provide: NamespaceLogQuery,
-    useFactory: (store: NamespaceLogStore) => new NamespaceLogQuery(store),
-  },
-  {
-    deps: [NamespaceStore],
-    provide: NamespaceQuery,
-    useFactory: (store: NamespaceStore) => new NamespaceQuery(store),
-  },
-  {
-    deps: [QueueLogStore],
-    provide: QueueLogQuery,
-    useFactory: (store: QueueLogStore) => new QueueLogQuery(store),
-  },
-  {
-    deps: [QueueMemberStore],
-    provide: QueueMemberQuery,
-    useFactory: (store: QueueMemberStore) => new QueueMemberQuery(store),
-  },
-  {
-    deps: [QueueStore],
-    provide: QueueQuery,
-    useFactory: (store: QueueStore) => new QueueQuery(store),
-  },
-  {
-    deps: [RecordStore],
-    provide: RecordQuery,
-    useFactory: (store: RecordStore) => new RecordQuery(store),
-  },
-  {
-    deps: [RefreshTokenStore],
-    provide: RefreshTokenQuery,
-    useFactory: (store: RefreshTokenStore) => new RefreshTokenQuery(store),
-  },
-  {
-    deps: [SteamIntegrationStore],
-    provide: SteamIntegrationQuery,
-    useFactory: (store: SteamIntegrationStore) => new SteamIntegrationQuery(store),
-  },
-  {
-    deps: [StorefrontStore],
-    provide: StorefrontQuery,
-    useFactory: (store: StorefrontStore) => new StorefrontQuery(store),
-  },
-  {
-    deps: [TeamStore],
-    provide: TeamQuery,
-    useFactory: (store: TeamStore) => new TeamQuery(store),
-  },
-  {
-    deps: [UserStore],
-    provide: UserQuery,
-    useFactory: (store: UserStore) => new UserQuery(store),
-  },
-  {
-    deps: [WebSocketStore, UserQuery],
-    provide: WebSocketQuery,
-    useFactory: (store: WebSocketStore, userQuery: UserQuery) =>
-      new WebSocketQuery(store, userQuery),
-  },
-  {
-    deps: [WorkflowLogStore],
-    provide: WorkflowLogQuery,
-    useFactory: (store: WorkflowLogStore) => new WorkflowLogQuery(store),
-  },
-  {
-    deps: [WorkflowStore],
-    provide: WorkflowQuery,
-    useFactory: (store: WorkflowStore) => new WorkflowQuery(store),
-  },
-];
 const services: Provider[] = [
   {
     deps: [Axios],
@@ -259,107 +92,74 @@ const services: Provider[] = [
     useFactory: (axios: Axios) => new ApiService(axios),
   },
   {
-    deps: [ApiService, ArticleStore, EnvironmentService],
+    deps: [ApiService, EnvironmentService],
     provide: ArticleService,
-    useFactory: (
-      apiService: ApiService,
-      store: ArticleStore,
-      environmentService: EnvironmentService,
-    ) => new ArticleService(apiService, store, environmentService),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new ArticleService(apiService, environmentService),
   },
   {
-    deps: [ApiService, AuthorizationRequestStore, EnvironmentService],
+    deps: [ApiService, EnvironmentService],
     provide: AuthorizationRequestService,
-    useFactory: (
-      apiService: ApiService,
-      store: AuthorizationRequestStore,
-      environmentService: EnvironmentService,
-    ) => new AuthorizationRequestService(apiService, store, environmentService),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new AuthorizationRequestService(apiService, environmentService),
   },
   {
-    deps: [ApiService, AuthorizationStore, EnvironmentService],
+    deps: [ApiService, EnvironmentService],
     provide: AuthorizationService,
-    useFactory: (
-      apiService: ApiService,
-      store: AuthorizationStore,
-      environmentService: EnvironmentService,
-    ) => new AuthorizationService(apiService, store, environmentService),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new AuthorizationService(apiService, environmentService),
   },
   {
-    deps: [ApiService, BuildLogStore, EnvironmentService],
+    deps: [ApiService, EnvironmentService],
     provide: BuildLogService,
-    useFactory: (
-      apiService: ApiService,
-      store: BuildLogStore,
-      environmentService: EnvironmentService,
-    ) => new BuildLogService(apiService, store, environmentService),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new BuildLogService(apiService, environmentService),
   },
   {
-    deps: [ApiService, BuildStore, EnvironmentService],
+    deps: [ApiService, EnvironmentService],
     provide: BuildService,
-    useFactory: (
-      apiService: ApiService,
-      store: BuildStore,
-      environmentService: EnvironmentService,
-    ) => new BuildService(apiService, store, environmentService),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new BuildService(apiService, environmentService),
   },
   {
-    deps: [ApiService, CollectionStore, EnvironmentService],
+    deps: [ApiService, EnvironmentService],
     provide: CollectionService,
-    useFactory: (
-      apiService: ApiService,
-      store: CollectionStore,
-      environmentService: EnvironmentService,
-    ) => new CollectionService(apiService, store, environmentService),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new CollectionService(apiService, environmentService),
   },
   {
     provide: EnvironmentService,
     useValue: new EnvironmentService({ apiUrl: environment.apiUrl }),
   },
   {
-    deps: [ApiService, EnvironmentService, GameServerLogStore],
+    deps: [ApiService, EnvironmentService],
     provide: GameServerLogService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      store: GameServerLogStore,
-    ) => new GameServerLogService(apiService, environmentService, store),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new GameServerLogService(apiService, environmentService),
   },
   {
-    deps: [ApiService, EnvironmentService, GameServerStore],
+    deps: [ApiService, EnvironmentService],
     provide: GameServerService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      store: GameServerStore,
-    ) => new GameServerService(apiService, environmentService, store),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new GameServerService(apiService, environmentService),
   },
   {
-    deps: [ApiService, EnvironmentService, GameServerTemplateStore],
+    deps: [ApiService, EnvironmentService],
     provide: GameServerTemplateService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      store: GameServerTemplateStore,
-    ) => new GameServerTemplateService(apiService, environmentService, store),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new GameServerTemplateService(apiService, environmentService),
   },
   {
-    deps: [ApiService, EnvironmentService, GroupInvitationStore],
+    deps: [ApiService, EnvironmentService],
     provide: GroupInvitationService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      store: GroupInvitationStore,
-    ) => new GroupInvitationService(apiService, environmentService, store),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new GroupInvitationService(apiService, environmentService),
   },
   {
-    deps: [ApiService, EnvironmentService, GroupStore],
+    deps: [ApiService, EnvironmentService],
     provide: GroupService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      store: GroupStore,
-    ) => new GroupService(apiService, environmentService, store),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new GroupService(apiService, environmentService),
   },
   {
     deps: [ApiService, EnvironmentService],
@@ -368,68 +168,49 @@ const services: Provider[] = [
       new LoginService(apiService, environmentService),
   },
   {
-    deps: [ApiService, EnvironmentService, MatchInvitationStore],
+    deps: [ApiService, EnvironmentService],
     provide: MatchInvitationService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      store: MatchInvitationStore,
-    ) => new MatchInvitationService(apiService, environmentService, store),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new MatchInvitationService(apiService, environmentService),
   },
   {
-    deps: [ApiService, EnvironmentService, MatchStore],
+    deps: [ApiService, EnvironmentService],
     provide: MatchService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      store: MatchStore,
-    ) => new MatchService(apiService, environmentService, store),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new MatchService(apiService, environmentService),
   },
   {
-    deps: [ApiService, EnvironmentService, NamespaceLogStore],
+    deps: [ApiService, EnvironmentService],
     provide: NamespaceLogService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      store: NamespaceLogStore,
-    ) => new NamespaceLogService(apiService, environmentService, store),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new NamespaceLogService(apiService, environmentService),
   },
   {
-    deps: [ApiService, EnvironmentService, NamespaceStore],
+    deps: [ApiService, EnvironmentService],
     provide: NamespaceService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      store: NamespaceStore,
-    ) => new NamespaceService(apiService, environmentService, store),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new NamespaceService(apiService, environmentService),
   },
   {
-    deps: [ApiService, EnvironmentService, QueueLogStore],
+    deps: [ApiService, EnvironmentService],
     provide: QueueLogService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      store: QueueLogStore,
-    ) => new QueueLogService(apiService, environmentService, store),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new QueueLogService(apiService, environmentService),
   },
   {
-    deps: [ApiService, EnvironmentService, QueueMemberStore, WebSocketService],
+    deps: [ApiService, EnvironmentService, WebSocketService],
     provide: QueueMemberService,
     useFactory: (
       apiService: ApiService,
       environmentService: EnvironmentService,
-      store: QueueMemberStore,
       webSocketService: WebSocketService,
-    ) => new QueueMemberService(apiService, environmentService, store, webSocketService),
+    ) => new QueueMemberService(apiService, environmentService, webSocketService),
   },
   {
-    deps: [ApiService, EnvironmentService, QueueStore],
+    deps: [ApiService, EnvironmentService],
     provide: QueueService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      store: QueueStore,
-    ) => new QueueService(apiService, environmentService, store),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new QueueService(apiService, environmentService),
   },
   {
     deps: [ApiService, EnvironmentService],
@@ -438,40 +219,22 @@ const services: Provider[] = [
       new PasswordResetService(apiService, environmentService),
   },
   {
-    deps: [ApiService, EnvironmentService, RecordStore],
+    deps: [ApiService, EnvironmentService],
     provide: RecordService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      store: RecordStore,
-    ) => new RecordService(apiService, environmentService, store),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new RecordService(apiService, environmentService),
   },
   {
-    deps: [ApiService, EnvironmentService, RefreshTokenStore],
-    provide: RefreshTokenService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      store: RefreshTokenStore,
-    ) => new RefreshTokenService(apiService, environmentService, store),
-  },
-  {
-    deps: [ApiService, EnvironmentService, SteamIntegrationStore],
+    deps: [ApiService, EnvironmentService],
     provide: SteamIntegrationService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      store: SteamIntegrationStore,
-    ) => new SteamIntegrationService(apiService, environmentService, store),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new SteamIntegrationService(apiService, environmentService),
   },
   {
-    deps: [ApiService, EnvironmentService, StorefrontStore],
+    deps: [ApiService, EnvironmentService],
     provide: StorefrontService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      store: StorefrontStore,
-    ) => new StorefrontService(apiService, environmentService, store),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new StorefrontService(apiService, environmentService),
   },
   {
     deps: [WebSocketService],
@@ -479,13 +242,10 @@ const services: Provider[] = [
     useFactory: (webSocketService: WebSocketService) => new SubscriptionService(webSocketService),
   },
   {
-    deps: [ApiService, EnvironmentService, TeamStore],
+    deps: [ApiService, EnvironmentService],
     provide: TeamService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      store: TeamStore,
-    ) => new TeamService(apiService, environmentService, store),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new TeamService(apiService, environmentService),
   },
   {
     deps: [LoginService],
@@ -493,80 +253,165 @@ const services: Provider[] = [
     useFactory: (loginService: LoginService) => new TokenService(localStorage, loginService),
   },
   {
-    deps: [ApiService, EnvironmentService, UserStore],
+    deps: [ApiService, EnvironmentService],
     provide: UserService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      store: UserStore,
-    ) => new UserService(apiService, environmentService, store),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new UserService(apiService, environmentService),
   },
   {
-    deps: [ApiService, EnvironmentService, WebSocketStore],
+    deps: [ApiService, EnvironmentService],
     provide: WebSocketService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      store: WebSocketStore,
-    ) => new WebSocketService(apiService, environmentService, store),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new WebSocketService(apiService, environmentService),
   },
   {
-    deps: [ApiService, EnvironmentService, WorkflowLogStore],
+    deps: [ApiService, EnvironmentService],
     provide: WorkflowLogService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      store: WorkflowLogStore,
-    ) => new WorkflowLogService(apiService, environmentService, store),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new WorkflowLogService(apiService, environmentService),
   },
   {
-    deps: [ApiService, EnvironmentService, WorkflowStore],
+    deps: [ApiService, EnvironmentService],
     provide: WorkflowService,
-    useFactory: (
-      apiService: ApiService,
-      environmentService: EnvironmentService,
-      store: WorkflowStore,
-    ) => new WorkflowService(apiService, environmentService, store),
+    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
+      new WorkflowService(apiService, environmentService),
   },
 ];
-const stores: Provider[] = [
-  { provide: ArticleStore, useValue: new ArticleStore() },
-  { provide: AuthorizationRequestStore, useValue: new AuthorizationRequestStore() },
-  { provide: AuthorizationStore, useValue: new AuthorizationStore() },
-  { provide: BuildLogStore, useValue: new BuildLogStore() },
-  { provide: BuildStore, useValue: new BuildStore() },
-  { provide: CollectionStore, useValue: new CollectionStore() },
-  { provide: GameServerLogStore, useValue: new GameServerLogStore() },
-  { provide: GameServerStore, useValue: new GameServerStore() },
-  { provide: GameServerTemplateStore, useValue: new GameServerTemplateStore() },
-  { provide: GroupInvitationStore, useValue: new GroupInvitationStore() },
-  { provide: GroupStore, useValue: new GroupStore() },
-  { provide: MatchInvitationStore, useValue: new MatchInvitationStore() },
-  { provide: MatchStore, useValue: new MatchStore() },
-  { provide: NamespaceLogStore, useValue: new NamespaceLogStore() },
-  { provide: NamespaceStore, useValue: new NamespaceStore() },
-  { provide: QueueLogStore, useValue: new QueueLogStore() },
-  { provide: QueueMemberStore, useValue: new QueueMemberStore() },
-  { provide: QueueStore, useValue: new QueueStore() },
-  { provide: RecordStore, useValue: new RecordStore() },
-  { provide: RefreshTokenStore, useValue: new RefreshTokenStore() },
-  { provide: SteamIntegrationStore, useValue: new SteamIntegrationStore() },
-  { provide: StorefrontStore, useValue: new StorefrontStore() },
-  { provide: TeamStore, useValue: new TeamStore() },
-  { provide: UserStore, useValue: new UserStore() },
-  { provide: WebSocketStore, useValue: new WebSocketStore() },
-  { provide: WorkflowLogStore, useValue: new WorkflowLogStore() },
-  { provide: WorkflowStore, useValue: new WorkflowStore() },
+const states: Provider[] = [
+  {
+    deps: [ArticleService],
+    provide: ArticleState,
+    useFactory: (service: ArticleService) => new ArticleState(service),
+  },
+  {
+    deps: [AuthorizationService],
+    provide: AuthorizationState,
+    useFactory: (service: AuthorizationService) => new AuthorizationState(service),
+  },
+  {
+    deps: [AuthorizationRequestService],
+    provide: AuthorizationRequestState,
+    useFactory: (service: AuthorizationRequestService) => new AuthorizationRequestState(service),
+  },
+  {
+    deps: [BuildLogService],
+    provide: BuildLogState,
+    useFactory: (service: BuildLogService) => new BuildLogState(service),
+  },
+  {
+    deps: [BuildService],
+    provide: BuildState,
+    useFactory: (service: BuildService) => new BuildState(service),
+  },
+  {
+    deps: [CollectionService],
+    provide: CollectionState,
+    useFactory: (service: CollectionService) => new CollectionState(service),
+  },
+  {
+    deps: [GameServerLogService],
+    provide: GameServerLogState,
+    useFactory: (service: GameServerLogService) => new GameServerLogState(service),
+  },
+  {
+    deps: [GameServerService],
+    provide: GameServerState,
+    useFactory: (service: GameServerService) => new GameServerState(service),
+  },
+  {
+    deps: [GameServerTemplateService],
+    provide: GameServerTemplateState,
+    useFactory: (service: GameServerTemplateService) => new GameServerTemplateState(service),
+  },
+  {
+    deps: [GroupInvitationService],
+    provide: GroupInvitationState,
+    useFactory: (service: GroupInvitationService) => new GroupInvitationState(service),
+  },
+  {
+    deps: [GroupService],
+    provide: GroupState,
+    useFactory: (service: GroupService) => new GroupState(service),
+  },
+  {
+    deps: [MatchInvitationService],
+    provide: MatchInvitationState,
+    useFactory: (service: MatchInvitationService) => new MatchInvitationState(service),
+  },
+  {
+    deps: [MatchService],
+    provide: MatchState,
+    useFactory: (service: MatchService) => new MatchState(service),
+  },
+  {
+    deps: [NamespaceLogService],
+    provide: NamespaceLogState,
+    useFactory: (service: NamespaceLogService) => new NamespaceLogState(service),
+  },
+  {
+    deps: [NamespaceService],
+    provide: NamespaceState,
+    useFactory: (service: NamespaceService) => new NamespaceState(service),
+  },
+  {
+    deps: [QueueLogService],
+    provide: QueueLogState,
+    useFactory: (service: QueueLogService) => new QueueLogState(service),
+  },
+  {
+    deps: [QueueMemberService],
+    provide: QueueMemberState,
+    useFactory: (service: QueueMemberService) => new QueueMemberState(service),
+  },
+  {
+    deps: [QueueService],
+    provide: QueueState,
+    useFactory: (service: QueueService) => new QueueState(service),
+  },
+  {
+    deps: [RecordService],
+    provide: RecordState,
+    useFactory: (service: RecordService) => new RecordState(service),
+  },
+  {
+    deps: [SteamIntegrationService],
+    provide: SteamIntegrationState,
+    useFactory: (service: SteamIntegrationService) => new SteamIntegrationState(service),
+  },
+  {
+    deps: [StorefrontService],
+    provide: StorefrontState,
+    useFactory: (service: StorefrontService) => new StorefrontState(service),
+  },
+  {
+    deps: [TeamService],
+    provide: TeamState,
+    useFactory: (service: TeamService) => new TeamState(service),
+  },
+  {
+    deps: [UserService],
+    provide: UserState,
+    useFactory: (service: UserService) => new UserState(service),
+  },
+  {
+    deps: [WebSocketService, UserState],
+    provide: WebSocketState,
+    useFactory: (service: WebSocketService, userState: UserState) => new WebSocketState(service),
+  },
+  {
+    deps: [WorkflowLogService],
+    provide: WorkflowLogState,
+    useFactory: (service: WorkflowLogService) => new WorkflowLogState(service),
+  },
+  {
+    deps: [WorkflowService],
+    provide: WorkflowState,
+    useFactory: (service: WorkflowService) => new WorkflowState(service),
+  },
 ];
 
 @NgModule({
-  providers: [
-    { provide: Axios, useValue: new Axios({}) },
-    ...interceptors,
-    ...queries,
-    ...services,
-    ...stores,
-  ],
+  providers: [{ provide: Axios, useValue: new Axios({}) }, ...interceptors, ...states, ...services],
 })
 export class HttpModule {
   constructor(

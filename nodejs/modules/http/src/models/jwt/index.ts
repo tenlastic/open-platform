@@ -29,7 +29,7 @@ export class Jwt {
         jti: decodedValue.jti,
         user: decodedValue.user ? new UserModel(decodedValue.user) : null,
       };
-    } catch (e) {
+    } catch {
       throw new Error('Could not decode JWT payload.');
     }
 

@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ArticleService, IArticle } from '@tenlastic/http';
 
 @Component({
+  standalone: false,
   styleUrls: ['./list-page.component.scss'],
   templateUrl: 'list-page.component.html',
 })

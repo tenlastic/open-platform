@@ -1,26 +1,17 @@
-@import 'src/assets/scss/theme.scss';
+@use 'src/assets/scss/shadows.scss' as shadows;
 
-mat-toolbar {
+div.toolbar {
+  align-items: center;
   background: rgba(0, 0, 0, 0.5);
-  box-shadow: $box-shadow;
+  box-shadow: shadows.$box-shadow;
+  display: flex;
   height: 48px;
   overflow: initial;
+  padding: 0px 4px;
   position: relative;
   z-index: 2;
 
   &::ng-deep {
-    img {
-      filter: $drop-shadow;
-      height: 32px;
-      margin-left: -2px;
-      margin-right: 16px;
-      margin-top: 2px;
-    }
-
-    div.space {
-      flex: 1 1 auto;
-    }
-
     app-button {
       margin-right: 8px;
 
@@ -31,6 +22,16 @@ mat-toolbar {
 
     div.container {
       display: flex;
+    }
+
+    div.space {
+      flex: 1 1 auto;
+    }
+
+    img {
+      filter: shadows.$drop-shadow;
+      height: 32px;
+      margin-right: 16px;
     }
   }
 }

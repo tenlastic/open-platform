@@ -1,16 +1,13 @@
 import { Response, StatusCode } from '../definitions';
 
-export class ResponseMock implements Response {
-  public _id: string;
-  public body: any;
-  public headers: { [s: string]: string };
-  public status: StatusCode;
+export type ResponseMockInput<TRequest> = TRequest extends Response<infer TDocument>
+  ? {
+      _id?: string;
+      body?: Partial<TDocument>;
+      status?: StatusCode;
+    }
+  : never;
 
-  constructor(parameters?: Partial<Response>) {
-    this.body = {};
-    this.headers = {};
-    this.status = StatusCode.OK;
-
-    Object.assign(this, parameters);
-  }
+export function ResponseMock<TResponse extends Response>(input?: ResponseMockInput<TResponse>) {
+  return { _id: input?._id, body: input?.body, status: input?.status } as TResponse;
 }

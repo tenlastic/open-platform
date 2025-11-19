@@ -18,10 +18,19 @@ export interface V1PodLog {
   unix: number;
 }
 
+export interface V1PodLogRequest {
+  container: string;
+  follow?: boolean;
+  limitBytes?: number;
+  sinceTime?: string;
+  tailLines?: number;
+  timestamps?: boolean;
+}
+
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
 
-export class PodApiV1 extends BaseApiV1<k8s.V1Pod> {
+export class PodApiV1 extends BaseApiV1<k8s.CoreV1Api, k8s.V1Pod> {
   protected api = kc.makeApiClient(k8s.CoreV1Api);
   protected singular = 'Pod';
 
@@ -36,7 +45,12 @@ export class PodApiV1 extends BaseApiV1<k8s.V1Pod> {
     const token = fs.readFileSync(kc.getCurrentUser().authProvider.config.tokenFile, 'utf8');
 
     // Construct querystring.
-    const params: any = { container, follow: true, limitBytes: 250000, timestamps: true };
+    const params: V1PodLogRequest = {
+      container,
+      follow: true,
+      limitBytes: 250000,
+      timestamps: true,
+    };
     if (options?.since) {
       params.sinceTime = options.since;
     } else if (options?.tail) {
@@ -47,12 +61,13 @@ export class PodApiV1 extends BaseApiV1<k8s.V1Pod> {
     const emitter = new EventEmitter();
 
     try {
-      const response = await axios(`${server}/api/v1/namespaces/${namespace}/pods/${name}/log`, {
+      const response = await axios.request({
         headers: { Authorization: `Bearer ${token}` },
         httpsAgent: new https.Agent({ ca: certificate }),
         params,
         responseType: 'stream',
         signal: abortController.signal,
+        url: `${server}/api/v1/namespaces/${namespace}/pods/${name}/log`,
       });
 
       const onData = (data) => {
@@ -101,14 +116,14 @@ export class PodApiV1 extends BaseApiV1<k8s.V1Pod> {
     const token = fs.readFileSync(kc.getCurrentUser().authProvider.config.tokenFile, 'utf8');
 
     // Construct querystring.
-    const params: any = { container, limitBytes: 250000, timestamps: true };
+    const params: V1PodLogRequest = { container, limitBytes: 250000, timestamps: true };
     if (options?.since) {
       params.sinceTime = options.since;
     } else if (options?.tail) {
       params.tailLines = options.tail;
     }
 
-    const response = await axios({
+    const response = await axios.request({
       headers: { Authorization: `Bearer ${token}` },
       httpsAgent: new https.Agent({ ca: certificate }),
       method: 'get',

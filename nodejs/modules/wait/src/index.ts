@@ -3,12 +3,12 @@
  * @param interval How long to wait in milliseconds between checks.
  * @param timeout How long to wait in milliseconds in total.
  */
-export default async function wait(
+export default async function wait<T>(
   interval: number,
   timeout: number,
-  criteria: () => any,
+  criteria: () => T | Promise<T>,
   error = new Error('Criteria did not resolve within given timeout.'),
-): Promise<any> {
+): Promise<T> {
   const start = Date.now();
 
   try {

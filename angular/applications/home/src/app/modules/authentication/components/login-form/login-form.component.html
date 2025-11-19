@@ -1,23 +1,21 @@
 <form [formGroup]="form"
       id="form"
+      row-gap-16
       (ngSubmit)="submit()">
-  <mat-form-field floatLabel="always">
-    <mat-label>Username</mat-label>
+  <app-form-field>
+    <label>Username</label>
     <input appAutofocus
            formControlName="username"
-           matInput
            maxlength="24" />
-    <mat-error>Enter a valid username.</mat-error>
-  </mat-form-field>
+    <app-error>Enter a valid username.</app-error>
+  </app-form-field>
 
-  <mat-form-field floatLabel="always"
-                  margin-top>
-    <mat-label>Password</mat-label>
-    <input matInput
-           type="password"
-           formControlName="password" />
-    <mat-error>Enter a password.</mat-error>
-  </mat-form-field>
+  <app-form-field>
+    <label>Password</label>
+    <input formControlName="password"
+           type="password" />
+    <app-error>Enter a password.</app-error>
+  </app-form-field>
 
   <app-form-message *ngIf="error"
                     level="error"

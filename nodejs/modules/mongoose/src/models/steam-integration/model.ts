@@ -1,65 +1,76 @@
-import {
-  DocumentType,
-  PropType,
-  getModelForClass,
-  index,
-  modelOptions,
-  plugin,
-  prop,
-} from '@typegoose/typegoose';
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
 import { duplicateKeyErrorPlugin, unsetPlugin } from '../../plugins';
-import { AuthorizationRole } from '../authorization';
+import { AuthorizationDocument, AuthorizationRole } from '../authorization';
 
-@index({ apiKey: 1, applicationId: 1, namespaceId: 1 }, { unique: true })
-@modelOptions({ schemaOptions: { collection: 'steam-integrations', timestamps: true } })
-@plugin(duplicateKeyErrorPlugin)
-@plugin(unsetPlugin)
-export class SteamIntegrationSchema {
-  public _id: mongoose.Types.ObjectId;
+export interface SteamIntegration {
+  _id: mongoose.Types.ObjectId;
+  authorizationDocuments?: AuthorizationDocument[];
+  apiKey: string;
+  applicationId: number;
+  createdAt?: Date;
+  name: string;
+  namespaceId: mongoose.Types.ObjectId;
+  roles?: AuthorizationRole[];
+  updatedAt?: Date;
+}
 
-  @prop({ maxlength: 64, required: true, trim: true, type: String })
-  public apiKey: string;
+export type SteamIntegrationDocument = mongoose.Document<mongoose.Types.ObjectId> &
+  SteamIntegration;
 
-  @prop({ required: true, type: Number })
-  public applicationId: number;
-
-  public createdAt: Date;
-
-  @prop({ maxlength: 64, required: true, trim: true, type: String })
-  public name: string;
-
-  @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
-  public namespaceId: mongoose.Types.ObjectId;
-
-  @prop({ enum: AuthorizationRole, type: String }, PropType.ARRAY)
-  public roles: AuthorizationRole[];
-
-  public updatedAt: Date;
-
-  @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
-  public authorizationDocuments: SteamIntegrationDocument[];
-
+export interface SteamIntegrationModelType extends mongoose.Model<SteamIntegrationDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(
-    this: typeof SteamIntegrationModel,
-    values: Partial<SteamIntegrationSchema> = {},
-  ) {
-    const chance = new Chance();
-    const defaults = {
-      apiKey: chance.hash({ length: 32 }),
-      applicationId: chance.integer(),
-      name: chance.hash(),
-      namespaceId: new mongoose.Types.ObjectId(),
-    };
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(
+    this: SteamIntegrationModelType,
+    values?: Partial<SteamIntegration>,
+  ): SteamIntegrationDocument;
 }
 
-export type SteamIntegrationDocument = DocumentType<SteamIntegrationSchema>;
-export const SteamIntegrationModel = getModelForClass(SteamIntegrationSchema);
+const SteamIntegrationSchema = new mongoose.Schema<
+  SteamIntegrationDocument,
+  SteamIntegrationModelType
+>(
+  {
+    apiKey: { maxlength: 64, required: true, trim: true, type: String },
+    applicationId: { required: true, type: Number },
+    name: { maxlength: 64, required: true, trim: true, type: String },
+    namespaceId: { ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId },
+    roles: { enum: AuthorizationRole, type: [String] },
+  },
+  { collection: 'steam-integrations', timestamps: true },
+);
+
+SteamIntegrationSchema.index({ apiKey: 1, applicationId: 1, namespaceId: 1 }, { unique: true });
+
+SteamIntegrationSchema.plugin(duplicateKeyErrorPlugin);
+SteamIntegrationSchema.plugin(unsetPlugin);
+
+SteamIntegrationSchema.virtual('authorizationDocuments', {
+  ref: 'AuthorizationSchema',
+  localField: 'namespaceId',
+  foreignField: 'namespaceId',
+});
+
+SteamIntegrationSchema.statics.mock = function (values: Partial<SteamIntegration> = {}) {
+  const chance = new Chance();
+  const defaults: Partial<SteamIntegration> = {
+    apiKey: chance.hash({ length: 32 }),
+    applicationId: chance.integer(),
+    name: chance.hash(),
+    namespaceId: new mongoose.Types.ObjectId(),
+  };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const SteamIntegrationModel = mongoose.model<
+  SteamIntegrationDocument,
+  SteamIntegrationModelType
+>('SteamIntegrationSchema', SteamIntegrationSchema);
+
+export { SteamIntegrationSchema };
+
+export default SteamIntegrationModel;

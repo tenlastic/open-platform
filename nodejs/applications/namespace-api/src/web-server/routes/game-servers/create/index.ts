@@ -1,7 +1,13 @@
-import { GameServerPermissions, NamespaceModel } from '@tenlastic/mongoose';
-import { Context, RequiredFieldError } from '@tenlastic/web-server';
+import {
+  GameServerDocument,
+  GameServerModel,
+  GameServerPermissionOptions,
+  NamespaceModel,
+} from '@tenlastic/mongoose';
+import * as permissions from '@tenlastic/mongoose-permissions';
+import { CreateContext, RequiredFieldError } from '@tenlastic/web-server';
 
-export async function handler(ctx: Context) {
+export async function handler(ctx: CreateContext<GameServerDocument>) {
   const { cpu, memory, preemptible } = ctx.request.body;
   if (!cpu || !memory) {
     throw new RequiredFieldError(['cpu', 'memory']);
@@ -12,9 +18,13 @@ export async function handler(ctx: Context) {
   namespace.checkMemoryLimit(memory);
   namespace.checkNonPreemptibleLimit(preemptible);
 
-  const credentials = { ...ctx.state };
-  const result = await GameServerPermissions.create(credentials, ctx.params, ctx.request.body);
-  const record = await GameServerPermissions.read(credentials, result);
+  const context = {
+    credentials: { ...ctx.state },
+    Model: GameServerModel,
+    options: GameServerPermissionOptions,
+  };
+  const result = await permissions.create(context, ctx.request.body, ctx.params);
+  const record = await permissions.read(context, result);
 
   ctx.response.body = { record };
 }

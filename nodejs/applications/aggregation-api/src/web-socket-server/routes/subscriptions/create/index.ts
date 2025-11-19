@@ -1,62 +1,90 @@
 import {
+  AuthorizationDocument,
   AuthorizationModel,
-  AuthorizationPermissions,
+  AuthorizationPermissionOptions,
+  AuthorizationRequestDocument,
   AuthorizationRequestModel,
-  AuthorizationRequestPermissions,
-  GroupModel,
-  GroupPermissions,
+  AuthorizationRequestPermissionOptions,
+  GroupDocument,
+  GroupInvitationDocument,
   GroupInvitationModel,
-  GroupInvitationPermissions,
+  GroupInvitationPermissionOptions,
+  GroupModel,
+  GroupPermissionOptions,
+  MatchDocument,
+  MatchInvitationDocument,
   MatchInvitationModel,
-  MatchInvitationPermissions,
+  MatchInvitationPermissionOptions,
   MatchModel,
-  MatchPermissions,
+  MatchPermissionOptions,
+  NamespaceDocument,
   NamespaceModel,
-  NamespacePermissions,
+  NamespacePermissionOptions,
+  QueueMemberDocument,
   QueueMemberModel,
-  QueueMemberPermissions,
+  QueueMemberPermissionOptions,
+  StorefrontDocument,
   StorefrontModel,
-  StorefrontPermissions,
+  StorefrontPermissionOptions,
+  UserDocument,
   UserModel,
-  UserPermissions,
+  UserPermissionOptions,
+  WebSocketDocument,
   WebSocketModel,
-  WebSocketPermissions,
+  WebSocketPermissionOptions,
 } from '@tenlastic/mongoose';
 import { Context, subscribe, SubscribeOptions } from '@tenlastic/web-socket-server';
+import * as mongoose from 'mongoose';
 
-export async function handler(ctx: Context<SubscribeOptions>) {
+export async function handler(ctx: Context<SubscribeOptions<mongoose.Document>>) {
   switch (ctx.params.collection) {
     case 'authorization-requests':
-      return subscribe(ctx, AuthorizationRequestModel, AuthorizationRequestPermissions);
+      return subscribe<AuthorizationRequestDocument>(
+        ctx,
+        AuthorizationRequestModel,
+        AuthorizationRequestPermissionOptions,
+      );
 
     case 'authorizations':
-      return subscribe(ctx, AuthorizationModel, AuthorizationPermissions);
+      return subscribe<AuthorizationDocument>(
+        ctx,
+        AuthorizationModel,
+        AuthorizationPermissionOptions,
+      );
 
     case 'group-invitations':
-      return subscribe(ctx, GroupInvitationModel, GroupInvitationPermissions);
+      return subscribe<GroupInvitationDocument>(
+        ctx,
+        GroupInvitationModel,
+        GroupInvitationPermissionOptions,
+      );
 
     case 'groups':
-      return subscribe(ctx, GroupModel, GroupPermissions);
+      return subscribe<GroupDocument>(ctx, GroupModel, GroupPermissionOptions);
 
     case 'match-invitations':
-      return subscribe(ctx, MatchInvitationModel, MatchInvitationPermissions);
+      return subscribe<MatchInvitationDocument>(
+        ctx,
+        MatchInvitationModel,
+        MatchInvitationPermissionOptions,
+      );
 
     case 'matches':
-      return subscribe(ctx, MatchModel, MatchPermissions);
+      return subscribe<MatchDocument>(ctx, MatchModel, MatchPermissionOptions);
 
     case 'namespaces':
-      return subscribe(ctx, NamespaceModel, NamespacePermissions);
+      return subscribe<NamespaceDocument>(ctx, NamespaceModel, NamespacePermissionOptions);
 
     case 'queue-members':
-      return subscribe(ctx, QueueMemberModel, QueueMemberPermissions);
+      return subscribe<QueueMemberDocument>(ctx, QueueMemberModel, QueueMemberPermissionOptions);
 
     case 'storefronts':
-      return subscribe(ctx, StorefrontModel, StorefrontPermissions);
+      return subscribe<StorefrontDocument>(ctx, StorefrontModel, StorefrontPermissionOptions);
 
     case 'users':
-      return subscribe(ctx, UserModel, UserPermissions);
+      return subscribe<UserDocument>(ctx, UserModel, UserPermissionOptions);
 
     case 'web-sockets':
-      return subscribe(ctx, WebSocketModel, WebSocketPermissions);
+      return subscribe<WebSocketDocument>(ctx, WebSocketModel, WebSocketPermissionOptions);
   }
 }

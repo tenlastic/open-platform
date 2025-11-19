@@ -1,0 +1,54 @@
+@use 'src/assets/scss/colors.scss' as colors;
+@use 'src/assets/scss/shadows.scss' as shadows;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  margin-top: -4px;
+
+  &:has(app-error) {
+    padding-bottom: 4px;
+  }
+
+  div {
+    row-gap: 4px;
+
+    &.invalid {
+      ::ng-deep {
+        input {
+          border-bottom: 1px solid colors.$error;
+        }
+      }
+    }
+  }
+
+  span {
+    font-size: 14px;
+  }
+
+  ::ng-deep {
+    input {
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid white;
+      border-radius: 0px;
+      caret-color: white;
+      color: white;
+      font-size: 14px;
+      line-height: 34px;
+      width: 100%;
+
+      &:focus {
+        outline: none;
+      }
+
+      &[disabled] {
+        border-bottom-style: dashed;
+      }
+    }
+
+    label {
+      font-size: 12px;
+    }
+  }
+}

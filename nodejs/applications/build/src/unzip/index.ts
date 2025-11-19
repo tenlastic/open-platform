@@ -1,10 +1,19 @@
-import * as minio from '@tenlastic/minio';
 import { BuildModel, IBuild } from '@tenlastic/http';
+import * as minio from '@tenlastic/minio';
 import * as crypto from 'crypto';
-import { Stream } from 'stream';
+import { Readable, Stream } from 'stream';
 import * as unzipper from 'unzipper';
 
 const minioBucket = process.env.MINIO_BUCKET;
+
+interface Entry extends Readable {
+  path: string;
+  type: 'Directory' | 'File';
+  vars: {
+    compressedSize: number;
+    uncompressedSize: number;
+  };
+}
 
 export async function unzip(build: BuildModel, stream: Stream) {
   const promises = [];
@@ -38,7 +47,7 @@ function getMd5FromStream(stream: Stream): Promise<string> {
   });
 }
 
-async function saveFile(build: BuildModel, entry: any, path: string) {
+async function saveFile(build: BuildModel, entry: Entry, path: string) {
   const hashPromise = getMd5FromStream(entry);
   const minioPromise = minio.putObject(minioBucket, build.getFilePath(path), entry);
 

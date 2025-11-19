@@ -1,24 +1,45 @@
-import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
 import { Chance } from 'chance';
+import * as mongoose from 'mongoose';
 
-@modelOptions({ schemaOptions: { _id: false } })
-export class GameServerProbesProbeTcpSchema {
-  @prop({ max: 65535, min: 1, required: true, type: Number })
-  public port: number;
+export interface GameServerProbesProbeTcp {
+  port: number;
+}
 
+export type GameServerProbesProbeTcpDocument = mongoose.Document<mongoose.Types.ObjectId> &
+  GameServerProbesProbeTcp;
+
+export interface GameServerProbesProbeTcpModelType
+  extends mongoose.Model<GameServerProbesProbeTcpDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(
-    this: typeof GameServerProbesProbeTcpModel,
-    values: Partial<GameServerProbesProbeTcpSchema> = {},
-  ) {
-    const chance = new Chance();
-    const defaults = { port: chance.integer({ max: 65535, min: 1 }) };
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(
+    this: GameServerProbesProbeTcpModelType,
+    values?: Partial<GameServerProbesProbeTcp>,
+  ): GameServerProbesProbeTcpDocument;
 }
 
-export type GameServerProbesProbeTcpDocument = DocumentType<GameServerProbesProbeTcpSchema>;
-export const GameServerProbesProbeTcpModel = getModelForClass(GameServerProbesProbeTcpSchema);
+const GameServerProbesProbeTcpSchema = new mongoose.Schema<GameServerProbesProbeTcpDocument>(
+  { port: { max: 65535, min: 1, required: true, type: Number } },
+  { _id: false },
+);
+
+GameServerProbesProbeTcpSchema.statics.mock = function (
+  values: Partial<GameServerProbesProbeTcp> = {},
+) {
+  const chance = new Chance();
+  const defaults: Partial<GameServerProbesProbeTcp> = {
+    port: chance.integer({ max: 65535, min: 1 }),
+  };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const GameServerProbesProbeTcpModel = mongoose.model<
+  GameServerProbesProbeTcpDocument,
+  GameServerProbesProbeTcpModelType
+>('GameServerProbesProbeTcpSchema', GameServerProbesProbeTcpSchema);
+
+export { GameServerProbesProbeTcpSchema };
+
+export default GameServerProbesProbeTcpModel;

@@ -1,41 +1,56 @@
-import { DocumentType, getModelForClass, modelOptions, prop, PropType } from '@typegoose/typegoose';
 import { Chance } from 'chance';
+import * as mongoose from 'mongoose';
 
 import { WorkflowSpecEnvDocument, WorkflowSpecEnvSchema } from '../../env';
 
-@modelOptions({ schemaOptions: { _id: false } })
-export class WorkflowSpecTemplateScriptSchema {
-  @prop({ default: undefined, type: String }, PropType.ARRAY)
-  public args: string[];
+export interface WorkflowSpecTemplateScript {
+  args?: string[];
+  command?: string[];
+  env?: WorkflowSpecEnvDocument[];
+  image: string;
+  source: string;
+  workingDir?: string;
+}
 
-  @prop({ default: ['sh'], type: String }, PropType.ARRAY)
-  public command: string[];
+export interface WorkflowSpecTemplateScriptDocument
+  extends mongoose.Document<mongoose.Types.ObjectId>,
+    WorkflowSpecTemplateScript {}
 
-  @prop({ default: undefined, type: WorkflowSpecEnvSchema }, PropType.ARRAY)
-  public env: WorkflowSpecEnvDocument[];
-
-  @prop({ required: true, type: String })
-  public image: string;
-
-  @prop({ required: true, type: String })
-  public source: string;
-
-  @prop({ default: '/workspace/', type: String })
-  public workingDir: string;
-
+export interface WorkflowSpecTemplateScriptModelType
+  extends mongoose.Model<WorkflowSpecTemplateScriptDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(
-    this: typeof WorkflowSpecTemplateScriptModel,
-    values: Partial<WorkflowSpecTemplateScriptSchema> = {},
-  ) {
-    const chance = new Chance();
-    const defaults = { image: chance.hash(), source: chance.hash() };
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(
+    this: WorkflowSpecTemplateScriptModelType,
+    values?: Partial<WorkflowSpecTemplateScript>,
+  ): WorkflowSpecTemplateScriptDocument;
 }
 
-export type WorkflowSpecTemplateScriptDocument = DocumentType<WorkflowSpecTemplateScriptSchema>;
-export const WorkflowSpecTemplateScriptModel = getModelForClass(WorkflowSpecTemplateScriptSchema);
+export const WorkflowSpecTemplateScriptSchema =
+  new mongoose.Schema<WorkflowSpecTemplateScriptDocument>(
+    {
+      args: { type: [String], default: undefined },
+      command: { type: [String], default: ['sh'] },
+      env: { type: [WorkflowSpecEnvSchema], default: undefined },
+      image: { type: String, required: true },
+      source: { type: String, required: true },
+      workingDir: { type: String, default: '/workspace/' },
+    },
+    { _id: false },
+  );
+
+WorkflowSpecTemplateScriptSchema.statics.mock = function (
+  this: WorkflowSpecTemplateScriptModelType,
+  values: Partial<WorkflowSpecTemplateScript> = {},
+) {
+  const chance = new Chance();
+  const defaults = { image: chance.hash(), source: chance.hash() };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const WorkflowSpecTemplateScriptModel = mongoose.model<
+  WorkflowSpecTemplateScriptDocument,
+  WorkflowSpecTemplateScriptModelType
+>('WorkflowSpecTemplateScript', WorkflowSpecTemplateScriptSchema);

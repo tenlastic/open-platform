@@ -1,12 +1,12 @@
 import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
+import chaiAsPromised from 'chai-as-promised';
 import * as mongoose from 'mongoose';
 import * as sinon from 'sinon';
-import { CollectionIndexKeyModel } from './index';
 
-import { CollectionIndexModel } from './index';
+import { JsonSchemaType } from '../../json-schema';
+import { CollectionIndexKeyModel, CollectionIndexModel } from './index';
 import { CollectionIndexOptionsModel } from './index/options';
-import { CollectionJsonSchemaType, CollectionModel } from './model';
+import { CollectionModel } from './model';
 
 use(chaiAsPromised);
 
@@ -58,19 +58,20 @@ describe('models/collection', function () {
         properties: {
           number: {
             default: 0,
-            type: CollectionJsonSchemaType.Number,
+            type: JsonSchemaType.Number,
             blah: 'blah',
           },
           string: {
             default: '',
-            type: CollectionJsonSchemaType.String,
+            type: JsonSchemaType.String,
           },
         },
         required: [],
         type: 'object',
       };
 
-      const promise = CollectionModel.mock({ jsonSchema: jsonSchema as any }).save();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const promise = CollectionModel.mock({ jsonSchema } as any).save();
 
       return expect(promise).to.be.rejectedWith(
         '/properties/number must NOT have additional properties',
@@ -83,15 +84,15 @@ describe('models/collection', function () {
           properties: {
             number: {
               default: 0,
-              type: CollectionJsonSchemaType.Number,
+              type: JsonSchemaType.Number,
             },
             string: {
               default: '',
-              type: CollectionJsonSchemaType.String,
+              type: JsonSchemaType.String,
             },
           },
           required: [],
-          type: 'object',
+          type: JsonSchemaType.Object,
         },
       }).save();
 
@@ -104,10 +105,10 @@ describe('models/collection', function () {
       const collection = await CollectionModel.mock({
         jsonSchema: {
           properties: {
-            name: { type: CollectionJsonSchemaType.String },
+            name: { type: JsonSchemaType.String },
           },
           required: ['name'],
-          type: CollectionJsonSchemaType.Object,
+          type: JsonSchemaType.Object,
         },
       }).save();
 

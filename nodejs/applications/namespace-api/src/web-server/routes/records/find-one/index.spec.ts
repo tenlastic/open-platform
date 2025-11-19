@@ -2,13 +2,14 @@ import {
   CollectionDocument,
   CollectionModel,
   CollectionPermissionsModel,
+  getRecordModel,
   NamespaceDocument,
   NamespaceModel,
-  RecordSchema,
+  RecordDocument,
   UserDocument,
   UserModel,
 } from '@tenlastic/mongoose';
-import { ContextMock } from '@tenlastic/web-server';
+import { ContextMock, FindOneContext } from '@tenlastic/web-server';
 import { expect } from 'chai';
 
 import { handler } from './';
@@ -33,19 +34,19 @@ describe('web-server/records/find-one', function () {
   });
 
   it('returns the matching record', async function () {
-    const Model = RecordSchema.getModel(collection);
+    const Model = getRecordModel(collection);
     const record = await Model.create({
       collectionId: collection._id,
       namespaceId: namespace._id,
       userId: user._id,
     });
 
-    const ctx = new ContextMock({
+    const ctx = ContextMock<FindOneContext<RecordDocument>>({
       params: { _id: record._id.toString(), collectionId: collection._id },
-      state: { user },
+      state: { user: { _id: user._id.toHexString() } },
     });
 
-    await handler(ctx as any);
+    await handler(ctx);
 
     expect(ctx.response.body.record).to.exist;
   });

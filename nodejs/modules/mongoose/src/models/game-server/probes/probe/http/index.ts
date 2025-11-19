@@ -1,3 +1,3 @@
-export * from './model';
-
 export * from './header';
+
+export * from './model';

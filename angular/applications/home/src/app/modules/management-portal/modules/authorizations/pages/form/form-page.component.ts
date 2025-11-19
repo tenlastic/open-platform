@@ -1,36 +1,28 @@
 import { Component, OnInit } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
   AuthorizationModel,
-  AuthorizationQuery,
   AuthorizationService,
+  AuthorizationState,
   IAuthorization,
   UserModel,
   UserService,
 } from '@tenlastic/http';
 
-import { FormService, IdentityService } from '../../../../../../core/services';
-import {
-  ApiKeyDialogComponent,
-  ApiKeyDialogComponentData,
-} from '../../../../../../shared/components';
-
-export enum AuthorizationType {
-  ApiKey = 'API Key',
-  Default = 'Default',
-  User = 'User',
-}
+import { FormService, IdentityService } from '@home/app/core/services';
+import { ApiKeyDialogComponent, ApiKeyDialogComponentData } from '@home/app/shared/components';
 
 @Component({
+  standalone: false,
   styleUrls: ['./form-page.component.scss'],
   templateUrl: 'form-page.component.html',
 })
 export class AuthorizationsFormPageComponent implements OnInit {
   public AuthorizationRole = IAuthorization.Role;
-  public AuthorizationType = AuthorizationType;
+  public AuthorizationType = IAuthorization.Type;
   public data: AuthorizationModel;
   public errors: string[] = [];
   public form: FormGroup;
@@ -47,7 +39,7 @@ export class AuthorizationsFormPageComponent implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private authorizationQuery: AuthorizationQuery,
+    private authorizationState: AuthorizationState,
     private authorizationService: AuthorizationService,
     private formBuilder: FormBuilder,
     private formService: FormService,
@@ -64,7 +56,7 @@ export class AuthorizationsFormPageComponent implements OnInit {
 
       const roles = [IAuthorization.Role.AuthorizationsWrite];
       const userId = this.identityService.user?._id;
-      this.hasWriteAuthorization = this.authorizationQuery.hasRoles(null, roles, userId);
+      this.hasWriteAuthorization = this.authorizationState.hasRoles(null, roles, userId);
 
       if (params.authorizationId !== 'new') {
         this.data = await this.authorizationService.findOne(
@@ -105,10 +97,10 @@ export class AuthorizationsFormPageComponent implements OnInit {
       roles,
     };
 
-    if (this.type === AuthorizationType.ApiKey) {
+    if (this.type === IAuthorization.Type.ApiKey) {
       values.apiKey = this.form.get('apiKey').value;
       values.name = this.form.get('name').value;
-    } else if (this.type === AuthorizationType.User) {
+    } else if (this.type === IAuthorization.Type.User) {
       values.bannedAt =
         this.form.get('bannedAt').dirty && this.form.get('bannedAt').value ? new Date() : null;
       values.userId = this.form.get('user').value._id;
@@ -152,11 +144,11 @@ export class AuthorizationsFormPageComponent implements OnInit {
       return previous;
     }, {});
 
-    let type = AuthorizationType.Default;
+    let type = IAuthorization.Type.Default;
     if (this.data.name && this.params.namespaceId) {
-      type = AuthorizationType.ApiKey;
+      type = IAuthorization.Type.ApiKey;
     } else if (this.data.userId || !this.params.namespaceId) {
-      type = AuthorizationType.User;
+      type = IAuthorization.Type.User;
     }
 
     let user: UserModel = null;
@@ -167,20 +159,20 @@ export class AuthorizationsFormPageComponent implements OnInit {
     this.form = this.formBuilder.group({
       apiKey: [this.data._id ? undefined : apiKey],
       bannedAt: [Boolean(this.data.bannedAt)],
-      name: [this.data.name, type === AuthorizationType.ApiKey ? [Validators.required] : []],
+      name: [this.data.name, type === IAuthorization.Type.ApiKey ? [Validators.required] : []],
       roles: this.formBuilder.group(roles),
       type: { disabled: this.data._id || !this.params.namespaceId, value: type },
       user: [
         { disabled: this.data._id, value: user },
-        type === AuthorizationType.User ? [Validators.required] : [],
+        type === IAuthorization.Type.User ? [Validators.required] : [],
       ],
     });
 
     this.form.get('type').valueChanges.subscribe((t) => {
-      if (t === AuthorizationType.ApiKey) {
+      if (t === IAuthorization.Type.ApiKey) {
         this.form.get('name').setValidators([Validators.required]);
         this.form.get('user').setValidators([]);
-      } else if (t === AuthorizationType.User) {
+      } else if (t === IAuthorization.Type.User) {
         this.form.get('name').setValidators([]);
         this.form.get('user').setValidators([Validators.required]);
       }

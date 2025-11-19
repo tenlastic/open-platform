@@ -6,14 +6,15 @@ import {
   GroupModel,
   NamespaceDocument,
   NamespaceModel,
-  QueueModel,
+  QueueMemberDocument,
   QueueMemberModel,
+  QueueModel,
   QueueThresholdModel,
   UserDocument,
   UserModel,
   WebSocketModel,
 } from '@tenlastic/mongoose';
-import { ContextMock } from '@tenlastic/web-server';
+import { ContextMock, CountContext } from '@tenlastic/web-server';
 import { expect } from 'chai';
 
 import { handler } from './';
@@ -73,9 +74,11 @@ describe('web-server/queue-members/count', function () {
         webSocketId: webSockets[1]._id,
       }).save(),
     ]);
-    const ctx = new ContextMock({ state: { user: users[0].toObject() } });
+    const ctx = ContextMock<CountContext<QueueMemberDocument>>({
+      state: { user: { _id: users[0]._id.toHexString() } },
+    });
 
-    await handler(ctx as any);
+    await handler(ctx);
 
     expect(ctx.response.body.count).to.eql(3);
   });

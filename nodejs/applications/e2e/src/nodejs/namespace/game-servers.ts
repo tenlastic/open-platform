@@ -2,7 +2,7 @@ import { IGameServer } from '@tenlastic/http';
 import wait from '@tenlastic/wait';
 import axios from 'axios';
 import { expect } from 'chai';
-import * as Chance from 'chance';
+import { Chance } from 'chance';
 import * as fs from 'fs';
 import { URL } from 'url';
 

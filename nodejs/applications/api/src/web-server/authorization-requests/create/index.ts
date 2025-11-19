@@ -1,4 +1,7 @@
-import { AuthorizationRequestPermissions } from '@tenlastic/mongoose';
+import {
+  AuthorizationRequestModel,
+  AuthorizationRequestPermissionOptions,
+} from '@tenlastic/mongoose';
 import { create } from '@tenlastic/web-server';
 
-export const handler = create(AuthorizationRequestPermissions);
+export const handler = create(AuthorizationRequestModel, AuthorizationRequestPermissionOptions);

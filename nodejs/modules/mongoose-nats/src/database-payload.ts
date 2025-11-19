@@ -1,9 +1,9 @@
 export interface DatabasePayload<T> {
-  documentKey: any;
+  documentKey: unknown;
   fullDocument?: T;
   ns: Namespace;
   operationType: DatabaseOperationType;
-  updateDescription?: UpdateDescription;
+  updateDescription?: UpdateDescription<T>;
 }
 
 export interface Namespace {
@@ -16,10 +16,10 @@ export interface TruncatedArray {
   newSize: number;
 }
 
-export interface UpdateDescription {
+export interface UpdateDescription<T> {
   removedFields: string[];
   truncatedArrays?: TruncatedArray[];
-  updatedFields: { [key: string]: any };
+  updatedFields: Partial<T>;
 }
 
 export type DatabaseOperationType = 'delete' | 'insert' | 'replace' | 'update';

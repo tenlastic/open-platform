@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 
 import { FormResolver } from '../../../../core/resolvers';
 import { SharedModule } from '../../../../shared/shared.module';
-import { LayoutComponent, ThresholdFieldsComponent } from './components';
+import { LayoutComponent, LogsOverlayComponent, ThresholdFieldsComponent } from './components';
 import { QueuesFormPageComponent, QueuesJsonPageComponent, QueuesListPageComponent } from './pages';
 
 export const ROUTES: Routes = [
@@ -49,6 +49,7 @@ export const ROUTES: Routes = [
 @NgModule({
   declarations: [
     LayoutComponent,
+    LogsOverlayComponent,
     ThresholdFieldsComponent,
 
     QueuesFormPageComponent,

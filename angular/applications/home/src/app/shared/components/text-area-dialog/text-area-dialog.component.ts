@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validator } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 export interface TextAreaDialogComponentData {
   error: string;
@@ -19,8 +19,9 @@ export interface TextAreaDialogComponentOption {
 
 @Component({
   selector: 'app-text-area-dialog',
-  templateUrl: 'text-area-dialog.component.html',
+  standalone: false,
   styleUrls: ['./text-area-dialog.component.scss'],
+  templateUrl: 'text-area-dialog.component.html',
 })
 export class TextAreaDialogComponent implements OnInit {
   public form: FormGroup;

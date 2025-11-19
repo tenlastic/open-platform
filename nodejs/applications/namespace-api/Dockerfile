@@ -1,4 +1,4 @@
-FROM node:16-alpine
+FROM node:24-alpine
 
 # Install Tini for signal forwarding.
 RUN apk add --no-cache tini

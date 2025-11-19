@@ -1,6 +1,6 @@
-import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
+import { IOptions } from '@tenlastic/mongoose-permissions';
 
-import { AuthorizationRole, GameServerDocument, GameServerModel } from '../models';
+import { AuthorizationRole, GameServerDocument } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
 const administrator = {
@@ -58,7 +58,7 @@ const administrator = {
   ],
 };
 
-export const GameServerPermissions = new MongoosePermissions<GameServerDocument>(GameServerModel, {
+export const GameServerPermissionOptions: IOptions<GameServerDocument> = {
   create: {
     'namespace-write': administrator.create,
     'system-write': administrator.create,
@@ -141,4 +141,4 @@ export const GameServerPermissions = new MongoosePermissions<GameServerDocument>
     'system-write': [...administrator.update, 'status.*'],
     'user-write': administrator.update,
   },
-});
+};

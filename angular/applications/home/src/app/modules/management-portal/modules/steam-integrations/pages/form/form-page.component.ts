@@ -3,19 +3,20 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
-  AuthorizationQuery,
+  AuthorizationState,
   IAuthorization,
   SteamIntegrationModel,
-  SteamIntegrationQuery,
   SteamIntegrationService,
+  SteamIntegrationState,
 } from '@tenlastic/http';
-import { Subscription } from 'rxjs';
+import { map, Subscription } from 'rxjs';
 
 import { FormService, IdentityService } from '../../../../../../core/services';
 
 @Component({
-  templateUrl: 'form-page.component.html',
+  standalone: false,
   styleUrls: ['./form-page.component.scss'],
+  templateUrl: 'form-page.component.html',
 })
 export class SteamIntegrationsFormPageComponent implements OnDestroy, OnInit {
   public data: SteamIntegrationModel;
@@ -32,13 +33,13 @@ export class SteamIntegrationsFormPageComponent implements OnDestroy, OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private authorizationQuery: AuthorizationQuery,
+    private authorizationState: AuthorizationState,
     private formBuilder: FormBuilder,
     private formService: FormService,
     private identityService: IdentityService,
     private matSnackBar: MatSnackBar,
     private router: Router,
-    private steamIntegrationQuery: SteamIntegrationQuery,
+    private steamIntegrationState: SteamIntegrationState,
     private steamIntegrationService: SteamIntegrationService,
   ) {}
 
@@ -49,8 +50,8 @@ export class SteamIntegrationsFormPageComponent implements OnDestroy, OnInit {
       const roles = [IAuthorization.Role.SteamIntegrationsWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
-        this.authorizationQuery.hasRoles(null, roles, userId) ||
-        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
+        this.authorizationState.hasRoles(null, roles, userId) ||
+        this.authorizationState.hasRoles(params.namespaceId, roles, userId);
 
       if (params.steamIntegrationId !== 'new') {
         this.data = await this.steamIntegrationService.findOne(
@@ -138,8 +139,9 @@ export class SteamIntegrationsFormPageComponent implements OnDestroy, OnInit {
     this.form.valueChanges.subscribe(() => (this.errors = []));
 
     if (this.data._id) {
-      this.updateSteamIntegration$ = this.steamIntegrationQuery
-        .selectAll({ filterBy: (q) => q._id === this.data._id })
+      this.updateSteamIntegration$ = this.steamIntegrationState
+        .selectMany()
+        .pipe(map((sis) => sis.filter((si) => si._id === this.data._id)))
         .subscribe((steamIntegrations) => (this.data = steamIntegrations[0]));
     }
   }

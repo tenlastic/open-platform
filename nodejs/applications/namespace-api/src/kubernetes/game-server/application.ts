@@ -160,20 +160,20 @@ function getProbeManifest(probe: GameServerProbesProbeDocument) {
   };
 
   if (probe.exec) {
-    manifest.exec = probe.exec;
+    manifest.exec = { command: probe.exec.command };
   }
 
   if (probe.http) {
     manifest.httpGet = {
       httpHeaders: probe.http.headers,
       path: probe.http.path,
-      port: probe.http.port as any,
+      port: probe.http.port,
       scheme: probe.http.scheme,
     };
   }
 
   if (probe.tcp) {
-    manifest.tcpSocket = { port: probe.tcp.port as any };
+    manifest.tcpSocket = { port: probe.tcp.port };
   }
 
   return manifest;

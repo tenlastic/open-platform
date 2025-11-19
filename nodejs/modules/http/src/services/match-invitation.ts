@@ -1,7 +1,11 @@
 import { MatchInvitationModel } from '../models/match-invitation';
-import { MatchInvitationStore } from '../states/match-invitation';
 import { ApiService } from './api';
-import { BaseService, BaseServiceFindQuery } from './base';
+import {
+  BaseService,
+  BaseServiceCountQuery,
+  BaseServiceFindQuery,
+  BaseServiceRecordResponse,
+} from './base';
 import { EnvironmentService } from './environment';
 
 export class MatchInvitationService {
@@ -11,16 +15,8 @@ export class MatchInvitationService {
 
   private baseService: BaseService<MatchInvitationModel>;
 
-  constructor(
-    private apiService: ApiService,
-    private environmentService: EnvironmentService,
-    private matchInvitationStore: MatchInvitationStore,
-  ) {
-    this.baseService = new BaseService<MatchInvitationModel>(
-      this.apiService,
-      MatchInvitationModel,
-      this.matchInvitationStore,
-    );
+  constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
+    this.baseService = new BaseService<MatchInvitationModel>(this.apiService, MatchInvitationModel);
   }
 
   /**
@@ -28,14 +24,15 @@ export class MatchInvitationService {
    */
   public async accept(namespaceId: string, _id: string) {
     const url = this.getUrl(namespaceId);
-    const response = await this.apiService.request({
-      method: 'patch',
-      url: `${url}/${_id}/accepted-at`,
-    });
+    const response = await this.apiService.request<BaseServiceRecordResponse<MatchInvitationModel>>(
+      {
+        method: 'patch',
+        url: `${url}/${_id}/accepted-at`,
+      },
+    );
 
     const record = new MatchInvitationModel(response.data.record);
     this.emitter.emit('update', record);
-    this.matchInvitationStore.upsertMany([record]);
 
     return record;
   }
@@ -43,7 +40,7 @@ export class MatchInvitationService {
   /**
    * Returns the number of Records satisfying the query.
    */
-  public async count(namespaceId: string, query: any) {
+  public async count(namespaceId: string, query: BaseServiceCountQuery) {
     const url = this.getUrl(namespaceId);
     return this.baseService.count(query, url);
   }
@@ -53,14 +50,15 @@ export class MatchInvitationService {
    */
   public async decline(namespaceId: string, _id: string) {
     const url = this.getUrl(namespaceId);
-    const response = await this.apiService.request({
-      method: 'patch',
-      url: `${url}/${_id}/declined-at`,
-    });
+    const response = await this.apiService.request<BaseServiceRecordResponse<MatchInvitationModel>>(
+      {
+        method: 'patch',
+        url: `${url}/${_id}/declined-at`,
+      },
+    );
 
     const record = new MatchInvitationModel(response.data.record);
     this.emitter.emit('update', record);
-    this.matchInvitationStore.upsertMany([record]);
 
     return record;
   }

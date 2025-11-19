@@ -1,9 +1,9 @@
-import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
+import { IOptions } from '@tenlastic/mongoose-permissions';
 
-import { AuthorizationRole, UserDocument, UserModel } from '../models';
+import { AuthorizationRole, UserDocument } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
-export const UserPermissions = new MongoosePermissions<UserDocument>(UserModel, {
+export const UserPermissionOptions: IOptions<UserDocument> = {
   create: {
     default: ['email', 'password', 'username'],
     'user-write': ['email', 'password', 'username'],
@@ -38,4 +38,4 @@ export const UserPermissions = new MongoosePermissions<UserDocument>(UserModel, 
     owner: ['email', 'username'],
     'user-write': ['email', 'username'],
   },
-});
+};

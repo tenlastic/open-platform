@@ -8,8 +8,8 @@ import * as WS from 'ws';
 import { Context, Jwt, Request, State, StatusCode, WebSocket } from '../definitions';
 import { Middleware, MiddlewareLayer } from '../middleware';
 
-export type ConnectionCallback = (state: State, ws: WebSocket) => void | Promise<any>;
-export type UpgradeCallback = (state: State) => void | Promise<any>;
+export type ConnectionCallback = (state: State, ws: WebSocket) => void | Promise<void>;
+export type UpgradeCallback = (state: State) => void | Promise<void>;
 export type WebSocketCallback = 'connection' | 'message';
 
 export class WebSocketServer {
@@ -118,7 +118,7 @@ export class WebSocketServer {
       // If the public key is not specified via environment variables, fetch it from the API.
       if (!this.jwtPublicKey) {
         try {
-          const response = await axios({ method: 'get', url: process.env.JWK_URL });
+          const response = await axios.request({ method: 'get', url: process.env.JWK_URL });
           const x5c = response.data.keys[0].x5c[0];
           this.jwtPublicKey = `-----BEGIN PUBLIC KEY-----\n${x5c}\n-----END PUBLIC KEY-----`;
         } catch {

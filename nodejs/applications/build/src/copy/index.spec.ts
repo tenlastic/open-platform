@@ -1,8 +1,8 @@
-import * as minio from '@tenlastic/minio';
 import { BuildModel } from '@tenlastic/http';
+import * as minio from '@tenlastic/minio';
 import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-import * as Chance from 'chance';
+import chaiAsPromised from 'chai-as-promised';
+import { Chance } from 'chance';
 import * as fs from 'fs';
 
 import { copy } from './';

@@ -5,6 +5,11 @@ export interface GetPlayerSummariesOptions {
   steamIds: string[];
 }
 
+export interface GetPlayerSummariesRequest {
+  key: string;
+  steamids: string;
+}
+
 export interface GetPlayerSummariesResponse {
   response: {
     players: [
@@ -33,8 +38,11 @@ export interface GetPlayerSummariesResponse {
 
 export async function getPlayerSummaries(options: GetPlayerSummariesOptions) {
   const method = 'get';
-  const params = { key: options.key, steamids: options.steamIds.join(',') };
+  const params: GetPlayerSummariesRequest = {
+    key: options.key,
+    steamids: options.steamIds.join(','),
+  };
   const url = `http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002`;
 
-  return request<GetPlayerSummariesResponse>({ method, params, url });
+  return request<GetPlayerSummariesRequest, GetPlayerSummariesResponse>({ method, params, url });
 }

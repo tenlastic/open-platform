@@ -1,5 +1,5 @@
-import 'source-map-support/register';
 import '@tenlastic/logging';
+import 'source-map-support/register';
 
 import { V1ResourceQuota } from '@kubernetes/client-node';
 import { resourceQuotaApiV1 } from '@tenlastic/kubernetes';
@@ -38,7 +38,7 @@ const natsConnectionString = process.env.NATS_CONNECTION_STRING;
 const resourceQuotas: { [key: string]: V1ResourceQuota } = {};
 
 let connection: Connection;
-let previousStatus: any;
+let previousStatus: Status;
 let startedUpdatingAt = 0;
 let timeout: NodeJS.Timeout;
 

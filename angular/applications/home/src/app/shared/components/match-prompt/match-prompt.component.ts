@@ -1,18 +1,18 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
   GameServerModel,
-  GameServerQuery,
+  GameServerState,
   MatchInvitationModel,
   MatchInvitationService,
   MatchModel,
-  MatchQuery,
+  MatchState,
   QueueModel,
   QueueService,
   StorefrontModel,
   StorefrontService,
 } from '@tenlastic/http';
-import { Subscription } from 'rxjs';
+import { map, Subscription } from 'rxjs';
 
 import { ExecutableService, IdentityService, UpdateService } from '../../../core/services';
 
@@ -23,6 +23,7 @@ export interface MatchPromptComponentData {
 
 @Component({
   selector: 'app-match-prompt',
+  standalone: false,
   styleUrls: ['./match-prompt.component.scss'],
   templateUrl: 'match-prompt.component.html',
 })
@@ -42,10 +43,10 @@ export class MatchPromptComponent implements OnDestroy, OnInit {
     @Inject(MAT_DIALOG_DATA) public data: MatchPromptComponentData,
     private dialogRef: MatDialogRef<MatchPromptComponent>,
     private executableService: ExecutableService,
-    private gameServerQuery: GameServerQuery,
+    private gameServerState: GameServerState,
     private identityService: IdentityService,
     private matchInvitationService: MatchInvitationService,
-    private matchQuery: MatchQuery,
+    private matchState: MatchState,
     private queueService: QueueService,
     private storefrontService: StorefrontService,
     private updateService: UpdateService,
@@ -92,13 +93,18 @@ export class MatchPromptComponent implements OnDestroy, OnInit {
     this.closeOnTimeout(expiresAt, 5 * 1000);
     this.message = 'Waiting for Match...';
     this.data.match = await new Promise<MatchModel>((resolve) => {
-      this.waitForMatch$ = this.matchQuery
-        .selectAll({
-          filterBy: (m) =>
-            m.namespaceId === namespaceId &&
-            Boolean(m.startedAt) &&
-            m.userIds.includes(this.identityService.user._id),
-        })
+      this.waitForMatch$ = this.matchState
+        .selectMany()
+        .pipe(
+          map((ms) =>
+            ms.filter(
+              (m) =>
+                m.namespaceId === namespaceId &&
+                Boolean(m.startedAt) &&
+                m.userIds.includes(this.identityService.user._id),
+            ),
+          ),
+        )
         .subscribe(([m]) => (m ? resolve(m) : null));
     });
 
@@ -140,13 +146,18 @@ export class MatchPromptComponent implements OnDestroy, OnInit {
     this.message = 'Waiting for Game Server...';
 
     const gameServer = await new Promise<GameServerModel>((resolve) => {
-      this.waitForGameServer$ = this.gameServerQuery
-        .selectAll({
-          filterBy: (gs) =>
-            gs.matchId === matchId &&
-            gs.status.endpoints.length > 0 &&
-            gs.status.phase === 'Running',
-        })
+      this.waitForGameServer$ = this.gameServerState
+        .selectMany()
+        .pipe(
+          map((gss) =>
+            gss.filter(
+              (gs) =>
+                gs.matchId === matchId &&
+                gs.status.endpoints.length > 0 &&
+                gs.status.phase === 'Running',
+            ),
+          ),
+        )
         .subscribe(([gs]) => (gs ? resolve(gs) : null));
     });
 

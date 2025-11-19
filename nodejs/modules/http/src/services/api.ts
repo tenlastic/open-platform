@@ -23,7 +23,7 @@ export class ApiService {
   /**
    * Sends a request to the API, returning the data as a basic object.
    */
-  public async request(config: AxiosRequestConfig) {
+  public async request<T>(config: AxiosRequestConfig) {
     config.headers = config.headers || {};
     config.responseType = config.responseType || 'json';
     config.validateStatus = (status) => status < 400;
@@ -38,7 +38,7 @@ export class ApiService {
     }
 
     if (config.params) {
-      config.params = Object.entries<any>(config.params).reduce((previous, [key, value]) => {
+      config.params = Object.entries(config.params).reduce((previous, [key, value]) => {
         previous[key] = JSON.stringify(value);
         return previous;
       }, {});
@@ -50,7 +50,7 @@ export class ApiService {
       config.headers.Accept = 'application/octet-stream';
     }
 
-    let response: AxiosResponse<any, any>;
+    let response: AxiosResponse<T>;
     try {
       response = await this.axios.request(config);
     } catch (e) {

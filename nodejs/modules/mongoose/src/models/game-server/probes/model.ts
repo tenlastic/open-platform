@@ -1,4 +1,4 @@
-import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
+import * as mongoose from 'mongoose';
 
 import {
   GameServerProbesProbeDocument,
@@ -6,26 +6,46 @@ import {
   GameServerProbesProbeSchema,
 } from './probe';
 
-@modelOptions({ schemaOptions: { _id: false } })
-export class GameServerProbesSchema {
-  @prop({ required: true, type: GameServerProbesProbeSchema })
-  public liveness: GameServerProbesProbeDocument;
+export interface GameServerProbes {
+  liveness: GameServerProbesProbeDocument;
+  readiness?: GameServerProbesProbeDocument;
+}
 
-  @prop({ type: GameServerProbesProbeSchema })
-  public readiness: GameServerProbesProbeDocument;
+export type GameServerProbesDocument = mongoose.Document<mongoose.Types.ObjectId> &
+  GameServerProbes;
 
+export interface GameServerProbesModelType extends mongoose.Model<GameServerProbesDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(
-    this: typeof GameServerProbesModel,
-    values: Partial<GameServerProbesSchema> = {},
-  ) {
-    const defaults = { liveness: GameServerProbesProbeModel.mock() };
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(
+    this: GameServerProbesModelType,
+    values?: Partial<GameServerProbes>,
+  ): GameServerProbesDocument;
 }
 
-export type GameServerProbesDocument = DocumentType<GameServerProbesSchema>;
-export const GameServerProbesModel = getModelForClass(GameServerProbesSchema);
+const GameServerProbesSchema = new mongoose.Schema<
+  GameServerProbesDocument,
+  GameServerProbesModelType
+>(
+  {
+    liveness: { required: true, type: GameServerProbesProbeSchema },
+    readiness: { type: GameServerProbesProbeSchema },
+  },
+  { _id: false },
+);
+
+GameServerProbesSchema.statics.mock = function (values: Partial<GameServerProbes> = {}) {
+  const defaults: Partial<GameServerProbes> = { liveness: GameServerProbesProbeModel.mock() };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const GameServerProbesModel = mongoose.model<
+  GameServerProbesDocument,
+  GameServerProbesModelType
+>('GameServerProbesSchema', GameServerProbesSchema);
+
+export { GameServerProbesSchema };
+
+export default GameServerProbesModel;

@@ -1,9 +1,13 @@
-import { AxiosRequestConfig, AxiosRequestTransformer } from 'axios';
+import { AxiosProgressEvent, AxiosRequestConfig, AxiosRequestTransformer } from 'axios';
 
 import { BuildModel } from '../models/build';
-import { BuildStore } from '../states/build';
 import { ApiService } from './api';
-import { BaseService, BaseServiceFindQuery } from './base';
+import {
+  BaseService,
+  BaseServiceCountQuery,
+  BaseServiceFindQuery,
+  BaseServiceRecordResponse,
+} from './base';
 import { EnvironmentService } from './environment';
 
 type FormDataFunction = (formData?: FormData) => FormData;
@@ -15,18 +19,14 @@ export class BuildService {
 
   private baseService: BaseService<BuildModel>;
 
-  constructor(
-    private apiService: ApiService,
-    private buildStore: BuildStore,
-    private environmentService: EnvironmentService,
-  ) {
-    this.baseService = new BaseService<BuildModel>(this.apiService, BuildModel, this.buildStore);
+  constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
+    this.baseService = new BaseService<BuildModel>(this.apiService, BuildModel);
   }
 
   /**
    * Returns the number of Records satisfying the query.
    */
-  public async count(namespaceId: string, query: any) {
+  public async count(namespaceId: string, query: BaseServiceCountQuery) {
     const url = this.getUrl(namespaceId);
     return this.baseService.count(query, url);
   }
@@ -37,7 +37,7 @@ export class BuildService {
   public async create(
     namespaceId: string,
     formData: FormData | FormDataFunction,
-    options: { onUploadProgress?: (progressEvent: any) => void } = {},
+    options: { onUploadProgress?: (progressEvent: AxiosProgressEvent) => void } = {},
   ) {
     const url = this.getUrl(namespaceId);
     const config: AxiosRequestConfig = {
@@ -52,11 +52,10 @@ export class BuildService {
       config.transformRequest = formData as AxiosRequestTransformer;
     }
 
-    const response = await this.apiService.request(config);
+    const response = await this.apiService.request<BaseServiceRecordResponse<BuildModel>>(config);
 
     const record = new BuildModel(response.data.record);
     this.emitter.emit('create', record);
-    this.buildStore.add(record);
 
     return record;
   }
@@ -72,13 +71,13 @@ export class BuildService {
   /**
    * Downloads a Build as a Blob.
    */
-  public download(
+  public download<T = Blob>(
     namespaceId: string,
     _id: string,
     config: AxiosRequestConfig = { responseType: 'blob' },
   ) {
     const url = this.getUrl(namespaceId);
-    return this.apiService.request({ method: 'get', url: `${url}/${_id}/files`, ...config });
+    return this.apiService.request<T>({ method: 'get', url: `${url}/${_id}/files`, ...config });
   }
 
   /**

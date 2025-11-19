@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
-  AuthorizationQuery,
+  AuthorizationState,
   CollectionModel,
   CollectionService,
   IAuthorization,
@@ -15,8 +15,9 @@ import { FormService, IdentityService } from '../../../../../../core/services';
 import { CamelCaseToTitleCasePipe } from '../../../../../../shared/pipes';
 
 @Component({
-  templateUrl: 'form-page.component.html',
+  standalone: false,
   styleUrls: ['./form-page.component.scss'],
+  templateUrl: 'form-page.component.html',
 })
 export class RecordsFormPageComponent implements OnInit {
   public collection: CollectionModel;
@@ -30,7 +31,7 @@ export class RecordsFormPageComponent implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private authorizationQuery: AuthorizationQuery,
+    private authorizationState: AuthorizationState,
     private collectionService: CollectionService,
     private formBuilder: FormBuilder,
     private formService: FormService,
@@ -47,8 +48,8 @@ export class RecordsFormPageComponent implements OnInit {
       const roles = [IAuthorization.Role.RecordsWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
-        this.authorizationQuery.hasRoles(null, roles, userId) ||
-        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
+        this.authorizationState.hasRoles(null, roles, userId) ||
+        this.authorizationState.hasRoles(params.namespaceId, roles, userId);
 
       this.collection = await this.collectionService.findOne(
         params.namespaceId,

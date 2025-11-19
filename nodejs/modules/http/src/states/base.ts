@@ -1,15 +1,23 @@
-import { EntityState, EntityStore } from '@datorama/akita';
+import TypedEmitter from 'typed-emitter';
 
-export class BaseStore<TState extends EntityState, TModel> extends EntityStore<TState, TModel> {
-  public upsertMany(entities: TModel[]) {
-    const value = this.getValue();
+import { BaseModel } from '../models';
+import { ServiceEvents } from '../services/base';
+import { State } from '../state';
 
-    const newState = entities.reduce((previous, current) => {
-      const id = current[this.idKey];
-      return { ...previous, [id]: current };
-    }, {});
-    const oldState = value.entities;
+export interface BaseStateService<TModel extends BaseModel> {
+  emitter: TypedEmitter<ServiceEvents<TModel>>;
+}
 
-    return this.set({ ...oldState, ...newState });
+export class BaseState<
+  TModel extends BaseModel,
+  TService extends BaseStateService<TModel>,
+> extends State<TModel> {
+  constructor(key: keyof TModel, service: TService) {
+    super(key);
+
+    service.emitter.on('create', (r) => this.upsertMany([r]));
+    service.emitter.on('delete', (r) => this.removeOne(r._id));
+    service.emitter.on('find', (rs) => this.upsertMany(rs));
+    service.emitter.on('update', (r) => this.upsertMany([r]));
   }
 }

@@ -1,31 +1,37 @@
 import * as minio from '@tenlastic/minio';
-import { StorefrontModel, StorefrontPermissions } from '@tenlastic/mongoose';
-import { PermissionError } from '@tenlastic/mongoose-permissions';
-import { Context, RecordNotFoundError } from '@tenlastic/web-server';
+import {
+  StorefrontDocument,
+  StorefrontModel,
+  StorefrontPermissionOptions,
+} from '@tenlastic/mongoose';
+import * as permissions from '@tenlastic/mongoose-permissions';
+import { Context, RecordNotFoundError, RecordResponse } from '@tenlastic/web-server';
 
 import { MinioStorefront } from '../../../../minio';
 
-export async function handler(ctx: Context) {
+export type PullStorefrontContext = Context<
+  { _id?: string; field?: string; storefrontId?: string },
+  void,
+  RecordResponse<StorefrontDocument>
+>;
+
+export async function handler(ctx: PullStorefrontContext) {
   const { _id, field, storefrontId } = ctx.params;
 
-  const credentials = { ...ctx.state };
-  const storefront = await StorefrontPermissions.findOne(
-    credentials,
-    { where: { _id: storefrontId } },
-    {},
-  );
+  const context = {
+    credentials: { ...ctx.state },
+    Model: StorefrontModel,
+    options: StorefrontPermissionOptions,
+  };
+  const storefront = await permissions.findOne(context, {}, { where: { _id: storefrontId } });
   if (!storefront) {
     throw new RecordNotFoundError('Storefront');
   }
 
   // Get permissions for the Storefront
-  const permissions = await StorefrontPermissions.getFieldPermissions(
-    credentials,
-    'update',
-    storefront,
-  );
-  if (!permissions.includes(field)) {
-    throw new PermissionError();
+  const fieldPermissions = await permissions.getFieldPermissions(context, 'update', storefront);
+  if (!fieldPermissions.includes(field)) {
+    throw new permissions.PermissionError();
   }
 
   const objectName = MinioStorefront.getObjectName(
@@ -42,7 +48,7 @@ export async function handler(ctx: Context) {
     _id ? { $pull: { [field]: url } } : { $unset: { [field]: 1 } },
     { new: true },
   );
-  const record = await StorefrontPermissions.read(credentials, result);
+  const record = await permissions.read(context, result);
 
   ctx.response.body = { record };
 }

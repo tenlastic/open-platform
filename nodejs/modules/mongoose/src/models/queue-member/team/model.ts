@@ -1,26 +1,41 @@
-import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 
-@modelOptions({ schemaOptions: { _id: false } })
-export class QueueMemberTeamSchema {
-  @prop({ type: Number })
-  public rating: number;
+export interface QueueMemberTeam {
+  rating?: number;
+  teamId: mongoose.Types.ObjectId;
+}
 
-  @prop({ ref: 'TeamSchema', required: true, type: mongoose.Schema.Types.ObjectId })
-  public teamId: mongoose.Types.ObjectId;
+export type QueueMemberTeamDocument = mongoose.Document<mongoose.Types.ObjectId> & QueueMemberTeam;
 
+export interface QueueMemberTeamModelType extends mongoose.Model<QueueMemberTeamDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(
-    this: typeof QueueMemberTeamModel,
-    values: Partial<QueueMemberTeamSchema> = {},
-  ) {
-    const defaults = { teamId: new mongoose.Types.ObjectId() };
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(this: QueueMemberTeamModelType, values?: Partial<QueueMemberTeam>): QueueMemberTeamDocument;
 }
 
-export type QueueMemberTeamDocument = DocumentType<QueueMemberTeamSchema>;
-export const QueueMemberTeamModel = getModelForClass(QueueMemberTeamSchema);
+const QueueMemberTeamSchema = new mongoose.Schema<
+  QueueMemberTeamDocument,
+  QueueMemberTeamModelType
+>(
+  {
+    rating: { type: Number },
+    teamId: { ref: 'TeamSchema', required: true, type: mongoose.Schema.Types.ObjectId },
+  },
+  { _id: false },
+);
+
+QueueMemberTeamSchema.statics.mock = function (values: Partial<QueueMemberTeam> = {}) {
+  const defaults: Partial<QueueMemberTeam> = { teamId: new mongoose.Types.ObjectId() };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const QueueMemberTeamModel = mongoose.model<
+  QueueMemberTeamDocument,
+  QueueMemberTeamModelType
+>('QueueMemberTeamSchema', QueueMemberTeamSchema);
+
+export { QueueMemberTeamSchema };
+
+export default QueueMemberTeamModel;

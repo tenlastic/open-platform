@@ -4,17 +4,17 @@ import {
   MatchInvitationModel,
   MatchInvitationService,
   MatchModel,
-  MatchQuery,
   MatchService,
+  MatchState,
   QueueMemberModel,
-  QueueMemberQuery,
   QueueMemberService,
-  QueueQuery,
+  QueueMemberState,
   QueueService,
-  StorefrontQuery,
+  QueueState,
   StorefrontService,
+  StorefrontState,
 } from '@tenlastic/http';
-import { Observable, Subscription } from 'rxjs';
+import { map, Observable, Subscription } from 'rxjs';
 
 import { ElectronService, IdentityService } from '../../../core/services';
 import {
@@ -24,6 +24,7 @@ import {
 
 @Component({
   selector: 'app-match',
+  standalone: false,
   styleUrls: ['./match.component.scss'],
   templateUrl: './match.component.html',
 })
@@ -42,32 +43,36 @@ export class MatchComponent implements OnDestroy, OnInit {
     private electronService: ElectronService,
     private identityService: IdentityService,
     private matchInvitationService: MatchInvitationService,
-    private matchQuery: MatchQuery,
+    private matchState: MatchState,
     private matchService: MatchService,
     private matDialog: MatDialog,
-    private queueMemberQuery: QueueMemberQuery,
+    private queueMemberState: QueueMemberState,
     private queueMemberService: QueueMemberService,
-    private queueQuery: QueueQuery,
+    private queueState: QueueState,
     private queueService: QueueService,
-    private storefrontQuery: StorefrontQuery,
+    private storefrontState: StorefrontState,
     private storefrontService: StorefrontService,
   ) {}
 
   public async ngOnInit() {
     const userId = this.identityService.user._id;
 
-    this.$matches = this.matchQuery.selectAll({
-      filterBy: (m) => !m.finishedAt && m.userIds.includes(userId) && Boolean(m.startedAt),
-    });
-    this.$queueMembers = this.queueMemberQuery.selectAll({
-      filterBy: (qm) => qm.userIds.includes(userId),
-    });
+    this.$matches = this.matchState
+      .selectMany()
+      .pipe(
+        map((ms) =>
+          ms.filter((m) => !m.finishedAt && m.userIds.includes(userId) && Boolean(m.startedAt)),
+        ),
+      );
+    this.$queueMembers = this.queueMemberState
+      .selectMany()
+      .pipe(map((qms) => qms.filter((qm) => qm.userIds.includes(userId))));
 
     this.fetchMatchReferences$ = this.$matches.subscribe((ms) => {
       const missingQueueIds = ms
-        .filter((m) => !this.queueQuery.hasEntity(m.queueId))
+        .filter((m) => !this.queueState.hasOne(m.queueId))
         .reduce((p, c) => this.getGroupsByNamespaceId(c, 'queueId', p), {});
-      const missingStorefrontIds = ms.filter((m) => !this.storefrontQuery.hasEntity(m.namespaceId));
+      const missingStorefrontIds = ms.filter((m) => !this.storefrontState.hasOne(m.namespaceId));
 
       const promises = [];
       for (const [key, value] of Object.entries(missingQueueIds)) {
@@ -84,11 +89,9 @@ export class MatchComponent implements OnDestroy, OnInit {
 
     this.fetchQueueMemberReferences$ = this.$queueMembers.subscribe((qms) => {
       const missingQueueIds = qms
-        .filter((qm) => !this.queueQuery.hasEntity(qm.queueId))
+        .filter((qm) => !this.queueState.hasOne(qm.queueId))
         .reduce((p, c) => this.getGroupsByNamespaceId(c, 'queueId', p), {});
-      const missingStorefrontIds = qms.filter(
-        (m) => !this.storefrontQuery.hasEntity(m.namespaceId),
-      );
+      const missingStorefrontIds = qms.filter((m) => !this.storefrontState.hasOne(m.namespaceId));
 
       const promises = [];
       for (const [key, value] of Object.entries(missingQueueIds)) {
@@ -121,11 +124,11 @@ export class MatchComponent implements OnDestroy, OnInit {
   }
 
   public getQueue(_id: string) {
-    return this.queueQuery.getEntity(_id);
+    return this.queueState.getOne(_id);
   }
 
   public getStorefront(namespaceId: string) {
-    return this.storefrontQuery.getEntity(namespaceId);
+    return this.storefrontState.getOne(namespaceId);
   }
 
   public async joinMatch(match: MatchModel) {

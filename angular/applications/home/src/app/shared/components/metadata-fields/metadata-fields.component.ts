@@ -3,6 +3,7 @@ import { FormArray, FormBuilder, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-metadata-fields',
+  standalone: false,
   styleUrls: ['metadata-fields.component.scss'],
   templateUrl: 'metadata-fields.component.html',
 })

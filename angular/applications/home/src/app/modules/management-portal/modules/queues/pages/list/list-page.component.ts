@@ -1,117 +1,143 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
+import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
-import { ActivatedRoute, Params } from '@angular/router';
-import { Order } from '@datorama/akita';
+import { ActivatedRoute } from '@angular/router';
 import {
-  AuthorizationQuery,
-  GameServerTemplateQuery,
+  AuthorizationState,
   GameServerTemplateService,
+  GameServerTemplateState,
   IAuthorization,
-  IQueue,
-  QueueLogModel,
-  QueueLogQuery,
-  QueueLogService,
-  QueueLogStore,
   QueueModel,
-  QueueQuery,
   QueueService,
-  SubscriptionService,
+  QueueState,
   WebSocketService,
 } from '@tenlastic/http';
-import { Observable, Subscription } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 
-import { environment } from '../../../../../../../environments/environment';
-import { IdentityService } from '../../../../../../core/services';
+import { IdentityService, OverlayService } from '@home/app/core/services';
 import {
-  LogsDialogComponent,
-  LogsDialogComponentData,
-  PromptComponent,
-} from '../../../../../../shared/components';
+  DeletionOverlayComponent,
+  DeletionOverlayComponentData,
+  ListTableColumn,
+  ListTableSubscription,
+} from '@home/app/shared/components';
+import { environment } from '@home/environments/environment';
+import { LogsOverlayComponent, LogsOverlayComponentData } from '../../components';
 
 @Component({
-  templateUrl: 'list-page.component.html',
+  standalone: false,
   styleUrls: ['./list-page.component.scss'],
+  templateUrl: 'list-page.component.html',
 })
-export class QueuesListPageComponent implements OnDestroy, OnInit {
-  @ViewChild(MatPaginator) set paginator(paginator: MatPaginator) {
-    this.dataSource.paginator = paginator;
-  }
-  @ViewChild(MatSort) set sort(sort: MatSort) {
-    this.dataSource.sort = sort;
+export class QueuesListPageComponent implements OnInit {
+  public $filter = new BehaviorSubject<string>(null);
+  public $records: Observable<QueueModel[]>;
+  public $refresh = new Subject<void>();
+  public columns: ListTableColumn<QueueModel>[] = [
+    { header: 'Name', text: (v) => v.name },
+    { header: 'Description', text: (v) => v.description },
+    {
+      header: 'Game Server Template',
+      text: (v) => this.getGameServerTemplate(v.gameServerTemplateId)?.name,
+    },
+    { header: 'Status', text: (v) => this.getStatus(v) },
+  ];
+  public hasLogAuthorization = false;
+  public hasWriteAuthorization = false;
+  public queueId: string;
+  public subscriptions: ListTableSubscription[] = [
+    {
+      Model: QueueModel,
+      request: { _id: uuid(), path: `/subscriptions/queues` },
+      service: this.queueService,
+    },
+  ];
+  public get webSocket() {
+    return this.webSocketService.webSockets.find(
+      (ws) => `${environment.wssUrl}/namespaces/${this.namespaceId}` === ws.url,
+    );
   }
 
-  public dataSource = new MatTableDataSource<QueueModel>();
-  public displayedColumns = ['name', 'description', 'gameServerTemplate', 'status', 'actions'];
-  public hasLogAuthorization: boolean;
-  public hasWriteAuthorization: boolean;
-  public message: string;
+  private namespaceId: string;
+  private get where() {
+    const where: any = {};
 
-  private $queues: Observable<QueueModel[]>;
-  private updateDataSource$ = new Subscription();
-  private params: Params;
-  private get webSocket() {
-    const url = `${environment.wssUrl}/namespaces/${this.params.namespaceId}`;
-    return this.webSocketService.webSockets.find((ws) => url === ws.url);
+    if (this.$filter.value) {
+      where.name = { $regex: this.$filter.value, $options: 'i' };
+    }
+
+    return where;
   }
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private authorizationQuery: AuthorizationQuery,
-    private gameServerTemplateQuery: GameServerTemplateQuery,
+    private authorizationState: AuthorizationState,
+    private gameServerTemplateState: GameServerTemplateState,
     private gameServerTemplateService: GameServerTemplateService,
     private identityService: IdentityService,
-    private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
-    private queueLogQuery: QueueLogQuery,
-    private queueLogService: QueueLogService,
-    private queueLogStore: QueueLogStore,
-    private queueQuery: QueueQuery,
+    private overlayService: OverlayService,
+    private queueState: QueueState,
     private queueService: QueueService,
-    private subscriptionService: SubscriptionService,
     private webSocketService: WebSocketService,
   ) {}
 
   public ngOnInit() {
+    this.$records = this.queueState.selectMany();
+
     this.activatedRoute.params.subscribe(async (params) => {
-      this.message = 'Loading...';
-      this.params = params;
+      this.namespaceId = params.namespaceId;
 
       const userId = this.identityService.user?._id;
       const logRoles = [IAuthorization.Role.QueueLogsRead];
       this.hasLogAuthorization =
-        this.authorizationQuery.hasRoles(null, logRoles, userId) ||
-        this.authorizationQuery.hasRoles(params.namespaceId, logRoles, userId);
+        this.authorizationState.hasRoles(null, logRoles, userId) ||
+        this.authorizationState.hasRoles(this.namespaceId, logRoles, userId);
       const writeRoles = [IAuthorization.Role.QueuesWrite];
       this.hasWriteAuthorization =
-        this.authorizationQuery.hasRoles(null, writeRoles, userId) ||
-        this.authorizationQuery.hasRoles(params.namespaceId, writeRoles, userId);
+        this.authorizationState.hasRoles(null, writeRoles, userId) ||
+        this.authorizationState.hasRoles(this.namespaceId, writeRoles, userId);
 
-      await this.fetchQueues(params);
-
-      this.message = null;
+      this.$refresh.next();
     });
   }
 
-  public ngOnDestroy() {
-    this.updateDataSource$.unsubscribe();
-  }
+  public count = () => {
+    return this.queueService.count(this.namespaceId, { where: this.where });
+  };
 
-  public getGameServerTemplate(_id: string) {
-    return this.gameServerTemplateQuery.getEntity(_id);
-  }
+  public filter = (record: QueueModel) => {
+    if (!this.$filter.value) {
+      return true;
+    }
 
-  public getStatus(record: QueueModel) {
-    const current = record.status.components.reduce((a, b) => a + b.current, 0);
-    const total = record.status.components.reduce((a, b) => a + b.total, 0);
+    const regex = new RegExp(this.$filter.value, 'i');
+    return (
+      regex.test(record.description) || regex.test(record.name) || regex.test(record.status?.phase)
+    );
+  };
 
-    return `${record.status.phase} (${current} / ${total})`;
-  }
+  public find = async (page: number, pageSize: number) => {
+    const records = await this.queueService.find(this.namespaceId, {
+      limit: pageSize,
+      skip: page * pageSize,
+      sort: 'name',
+      where: this.where,
+    });
+
+    await this.gameServerTemplateService.find(this.namespaceId, {
+      where: { _id: { $in: records.map((q) => q.gameServerTemplateId) } },
+    });
+
+    const _ids = records.map((r) => r._id);
+    this.subscriptions[0].request.body = { where: { _id: { $in: _ids } } };
+
+    return records;
+  };
+
+  public navigate = (record: QueueModel) => {
+    return [record._id];
+  };
 
   public async restart($event: Event, record: QueueModel) {
     $event.stopPropagation();
@@ -120,100 +146,32 @@ export class QueuesListPageComponent implements OnDestroy, OnInit {
     this.matSnackBar.open('Queue is restarting...');
   }
 
+  public setFilter(value: string) {
+    this.$filter.next(value);
+    this.$refresh.next();
+  }
+
   public showDeletePrompt($event: Event, record: QueueModel) {
     $event.stopPropagation();
-
-    const dialogRef = this.matDialog.open(PromptComponent, {
-      data: {
-        buttons: [
-          { color: 'primary', label: 'No' },
-          { color: 'accent', label: 'Yes' },
-        ],
-        message: `Are you sure you want to delete this Queue?`,
-      },
-    });
-
-    dialogRef.afterClosed().subscribe(async (result) => {
-      if (result === 'Yes') {
-        await this.queueService.delete(record.namespaceId, record._id);
-        this.matSnackBar.open('Queue deleted successfully.');
-      }
+    this.overlayService.open<DeletionOverlayComponentData>(DeletionOverlayComponent, {
+      delete: () => this.queueService.delete(record.namespaceId, record._id),
+      name: 'Queue',
     });
   }
 
-  public showLogsDialog($event: Event, record: QueueModel) {
+  public showLogsOverlay($event: Event, record: QueueModel) {
     $event.stopPropagation();
-
-    const _id = uuid();
-    const data = {
-      $logs: this.queueLogQuery.selectAll({
-        filterBy: (log) => log.queueId === record._id,
-        sortBy: 'unix',
-        sortByOrder: Order.DESC,
-      }),
-      $nodes: this.queueQuery.selectEntity(record._id).pipe(map((queue) => this.getNodes(queue))),
-      find: (container, pod) =>
-        this.queueLogService.find(record.namespaceId, record._id, pod, container, {
-          tail: 500,
-        }),
-      subscribe: (container, pod, unix) => {
-        const resumeToken = unix ? new Date(unix) : new Date();
-
-        return this.subscriptionService.subscribe<QueueLogModel>(
-          QueueLogModel,
-          {
-            _id,
-            body: { resumeToken: resumeToken.toISOString() },
-            path: `/subscriptions/queues/${record._id}/logs/${pod}/${container}`,
-          },
-          this.queueLogService,
-          this.queueLogStore,
-          this.webSocket,
-          {
-            acks: true,
-            callback: (response) => {
-              response.body.fullDocument.container = container;
-              response.body.fullDocument.pod = pod;
-              response.body.fullDocument.queueId = record._id;
-            },
-          },
-        );
-      },
-      unsubscribe: () => this.subscriptionService.unsubscribe(_id, this.webSocket),
-    } as LogsDialogComponentData;
-
-    const dialogRef = this.matDialog.open(LogsDialogComponent, { autoFocus: false, data });
-    dialogRef.afterClosed().subscribe(() => this.queueLogStore.reset());
+    this.overlayService.open<LogsOverlayComponentData>(LogsOverlayComponent, { record });
   }
 
-  private async fetchQueues(params: Params) {
-    this.$queues = this.queueQuery.selectAll({
-      filterBy: (gs) => gs.namespaceId === params.namespaceId,
-    });
-
-    this.updateDataSource$ = this.$queues.subscribe((queues) => (this.dataSource.data = queues));
-
-    this.dataSource.filterPredicate = (data: QueueModel, filter: string) => {
-      const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
-      return regex.test(data.description) || regex.test(data.name) || regex.test(data.status.phase);
-    };
-
-    const queues = await this.queueService.find(params.namespaceId, { sort: 'name' });
-    await this.gameServerTemplateService.find(params.namespaceId, {
-      where: { _id: { $in: queues.map((q) => q.gameServerTemplateId) } },
-    });
+  private getGameServerTemplate(_id: string) {
+    return this.gameServerTemplateState.getOne(_id);
   }
 
-  private getNodes(queue: QueueModel) {
-    return queue.status.nodes
-      .map((n) => {
-        let label = 'Queue';
-        if (n.component === IQueue.StatusComponentName.Sidecar) {
-          label = 'Sidecar';
-        }
+  private getStatus(record: QueueModel) {
+    const current = record.status.components.reduce((a, b) => a + b.current, 0);
+    const total = record.status.components.reduce((a, b) => a + b.total, 0);
 
-        return { container: n.container, label, pod: n.pod };
-      })
-      .sort((a, b) => (a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1));
+    return `${record.status.phase} (${current} / ${total})`;
   }
 }

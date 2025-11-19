@@ -1,89 +1,134 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
+import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import {
-  AuthorizationQuery,
+  AuthorizationState,
   BuildModel,
-  BuildQuery,
   BuildService,
+  BuildState,
   IAuthorization,
   IBuild,
+  WebSocketService,
 } from '@tenlastic/http';
-import { Observable, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { v4 as uuid } from 'uuid';
 
-import { IdentityService } from '../../../../../../core/services';
-import { PromptComponent } from '../../../../../../shared/components';
+import { formatDate } from '@angular/common';
+import { IdentityService, OverlayReference, OverlayService } from '@home/app/core/services';
+import {
+  ListTableColumn,
+  ListTableSubscription,
+  PromptOverlayComponent,
+  PromptOverlayComponentData,
+} from '@home/app/shared/components';
+import { environment } from '@home/environments/environment';
 
 @Component({
-  templateUrl: 'list-page.component.html',
+  standalone: false,
   styleUrls: ['./list-page.component.scss'],
+  templateUrl: 'list-page.component.html',
 })
-export class BuildsListPageComponent implements OnDestroy, OnInit {
-  @ViewChild(MatPaginator) set paginator(paginator: MatPaginator) {
-    this.dataSource.paginator = paginator;
-  }
-  @ViewChild(MatSort) set sort(sort: MatSort) {
-    this.dataSource.sort = sort;
+export class BuildsListPageComponent implements OnInit {
+  public $filter = new BehaviorSubject<string>(null);
+  public $records: Observable<BuildModel[]>;
+  public $refresh = new Subject<void>();
+  public columns: ListTableColumn<BuildModel>[] = [
+    { header: 'Name', text: (v) => v.name },
+    { header: 'Platform', text: (v) => this.getPlatform(v.platform) },
+    { header: 'Status', text: (v) => (v.status ? v.status.phase : 'Pending') },
+    { header: 'Created At', text: (v) => formatDate(v.createdAt, "MMM d, y 'at' h:mm a", 'en-US') },
+    { header: 'Updated At', text: (v) => formatDate(v.updatedAt, "MMM d, y 'at' h:mm a", 'en-US') },
+  ];
+  public hasWriteAuthorization = false;
+  public subscriptions: ListTableSubscription[] = [
+    {
+      Model: BuildModel,
+      request: { _id: uuid(), path: `/subscriptions/builds` },
+      service: this.buildService,
+    },
+  ];
+  public get webSocket() {
+    return this.webSocketService.webSockets.find(
+      (ws) => `${environment.wssUrl}/namespaces/${this.namespaceId}` === ws.url,
+    );
   }
 
-  public dataSource = new MatTableDataSource<BuildModel>();
-  public displayedColumns = ['name', 'platform', 'status', 'createdAt', 'publishedAt', 'actions'];
-  public hasWriteAuthorization: boolean;
-  public message: string;
+  private namespaceId: string;
+  private get where() {
+    const where: any = { namespaceId: this.namespaceId };
 
-  private $builds: Observable<BuildModel[]>;
-  private updateDataSource$ = new Subscription();
+    if (this.$filter.value) {
+      where.$or = [
+        { name: { $regex: this.$filter.value, $options: 'i' } },
+        { 'status.phase': { $regex: this.$filter.value, $options: 'i' } },
+      ];
+    }
+
+    return where;
+  }
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private authorizationQuery: AuthorizationQuery,
-    private buildQuery: BuildQuery,
+    private authorizationState: AuthorizationState,
+    private buildState: BuildState,
     private buildService: BuildService,
     private identityService: IdentityService,
-    private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
+    private overlayService: OverlayService,
+    private webSocketService: WebSocketService,
   ) {}
 
   public ngOnInit() {
+    this.$records = this.buildState.selectMany();
+
     this.activatedRoute.params.subscribe(async (params) => {
-      this.message = 'Loading...';
+      this.namespaceId = params.namespaceId;
 
       const roles = [IAuthorization.Role.BuildsWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
-        this.authorizationQuery.hasRoles(null, roles, userId) ||
-        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
+        this.authorizationState.hasRoles(null, roles, userId) ||
+        this.authorizationState.hasRoles(this.namespaceId, roles, userId);
 
-      await this.fetchBuilds(params);
-
-      this.message = null;
+      this.$refresh.next();
     });
   }
 
-  public ngOnDestroy() {
-    this.updateDataSource$.unsubscribe();
-  }
+  public count = () => {
+    return this.buildService.count(this.namespaceId, { where: this.where });
+  };
 
-  public getPlatform(platform: string) {
-    const map = {
-      [IBuild.Platform.Server64]: 'Linux Server (x64)',
-      [IBuild.Platform.Windows64]: 'Windows Client (x64)',
-    };
-
-    return map[platform];
-  }
-
-  public getTooltip(record: BuildModel) {
-    if (!record.status.nodes.length) {
-      return null;
+  public filter = (record: BuildModel) => {
+    if (this.namespaceId !== record.namespaceId) {
+      return false;
     }
 
-    return record.status.nodes[record.status.nodes.length - 1].message;
-  }
+    if (!this.$filter.value) {
+      return true;
+    }
+
+    const regex = new RegExp(this.$filter.value, 'i');
+    return regex.test(record.name) || regex.test(record.status.phase);
+  };
+
+  public find = async (page: number, pageSize: number) => {
+    const records = await this.buildService.find(this.namespaceId, {
+      limit: pageSize,
+      select: '-files -reference.files',
+      skip: page * pageSize,
+      sort: '-createdAt',
+      where: this.where,
+    });
+
+    const _ids = records.map((r) => r._id);
+    this.subscriptions[0].request.body = { where: { _id: { $in: _ids } } };
+
+    return records;
+  };
+
+  public navigate = (record: BuildModel) => {
+    return [record._id];
+  };
 
   public async publish($event: Event, build: BuildModel) {
     $event.stopPropagation();
@@ -95,8 +140,9 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
         referenceBuild = await this.buildService.findOne(build.namespaceId, build.reference._id);
       } catch {}
 
-      const dialogRef = this.matDialog.open(PromptComponent, {
-        data: {
+      const dialogRef = this.overlayService.open<PromptOverlayComponentData, string>(
+        PromptOverlayComponent,
+        {
           buttons: [
             { color: 'primary', label: 'No' },
             { color: 'accent', label: 'Yes' },
@@ -107,9 +153,9 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
             : `Publishing this Build will restart and update Game Servers that use its Reference Build. ` +
               `Are you sure you want to publish this Build?`,
         },
-      });
+      );
 
-      dialogRef.afterClosed().subscribe(async (result) => {
+      dialogRef.$close.subscribe(async (result) => {
         if (result === 'Yes') {
           await this.buildService.update(build.namespaceId, build._id, { publishedAt: new Date() });
           this.matSnackBar.open('Build published successfully.');
@@ -121,10 +167,15 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
     }
   }
 
+  public setFilter(value: string) {
+    this.$filter.next(value);
+    this.$refresh.next();
+  }
+
   public async showDeletePrompt($event: Event, record: BuildModel) {
     $event.stopPropagation();
 
-    let dialogRef: MatDialogRef<PromptComponent>;
+    let overlay: OverlayReference<string>;
 
     if (record.platform === IBuild.Platform.Server64 && record.reference) {
       let referenceBuild: BuildModel;
@@ -133,8 +184,9 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
         referenceBuild = await this.buildService.findOne(record.namespaceId, record.reference._id);
       } catch {}
 
-      dialogRef = this.matDialog.open(PromptComponent, {
-        data: {
+      overlay = this.overlayService.open<PromptOverlayComponentData, string>(
+        PromptOverlayComponent,
+        {
           buttons: [
             { color: 'primary', label: 'No' },
             { color: 'accent', label: 'Yes' },
@@ -145,20 +197,21 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
             : 'Deleting this Build will restart and rollback Game Servers to use its Reference Build. ' +
               'Are you sure you want to delete this Build?',
         },
-      });
+      );
     } else {
-      dialogRef = this.matDialog.open(PromptComponent, {
-        data: {
+      overlay = this.overlayService.open<PromptOverlayComponentData, string>(
+        PromptOverlayComponent,
+        {
           buttons: [
             { color: 'primary', label: 'No' },
             { color: 'accent', label: 'Yes' },
           ],
           message: 'Are you sure you want to delete this Build?',
         },
-      });
+      );
     }
 
-    dialogRef.afterClosed().subscribe(async (result) => {
+    overlay.$close.subscribe(async (result) => {
       if (result === 'Yes') {
         await this.buildService.delete(record.namespaceId, record._id);
         this.matSnackBar.open('Build deleted successfully.');
@@ -176,8 +229,9 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
         referenceBuild = await this.buildService.findOne(build.namespaceId, build.reference._id);
       } catch {}
 
-      const dialogRef = this.matDialog.open(PromptComponent, {
-        data: {
+      const dialogRef = this.overlayService.open<PromptOverlayComponentData, string>(
+        PromptOverlayComponent,
+        {
           buttons: [
             { color: 'primary', label: 'No' },
             { color: 'accent', label: 'Yes' },
@@ -188,9 +242,9 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
             : `Unpublishing this Build will restart and rollback Game Servers to use its Reference Build. ` +
               `Are you sure you want to unpublish this Build?`,
         },
-      });
+      );
 
-      dialogRef.afterClosed().subscribe(async (result) => {
+      dialogRef.$close.subscribe(async (result) => {
         if (result === 'Yes') {
           await this.buildService.update(build.namespaceId, build._id, { publishedAt: null });
           this.matSnackBar.open('Build unpublished successfully.');
@@ -202,33 +256,12 @@ export class BuildsListPageComponent implements OnDestroy, OnInit {
     }
   }
 
-  private async fetchBuilds(params: Params) {
-    this.$builds = this.buildQuery.selectAll({
-      filterBy: (build) => build.namespaceId === params.namespaceId,
-    });
-
-    await this.buildService.find(params.namespaceId, {
-      select: '-files -reference.files',
-      sort: '-createdAt',
-    });
-
-    this.updateDataSource$ = this.$builds.subscribe((builds) => (this.dataSource.data = builds));
-
-    this.dataSource.filterPredicate = (data: BuildModel, filter: string) => {
-      filter = filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
-
-      const regex = new RegExp(filter, 'i');
-      const exactRegex = new RegExp(`^${filter}$`, 'i');
-
-      const platform = this.getPlatform(data.platform);
-      const published = data.publishedAt ? 'Published' : 'Unpublished';
-
-      return (
-        regex.test(data.name) ||
-        regex.test(data.status.phase) ||
-        regex.test(platform) ||
-        exactRegex.test(published)
-      );
+  private getPlatform(platform: string) {
+    const map = {
+      [IBuild.Platform.Server64]: 'Linux Server (x64)',
+      [IBuild.Platform.Windows64]: 'Windows Client (x64)',
     };
+
+    return map[platform];
   }
 }

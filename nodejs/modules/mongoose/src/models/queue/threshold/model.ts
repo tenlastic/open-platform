@@ -1,38 +1,50 @@
-import { DocumentType, getModelForClass, modelOptions, prop, PropType } from '@typegoose/typegoose';
 import { Chance } from 'chance';
+import * as mongoose from 'mongoose';
 
 import { arrayLengthValidator, arrayMaxMinValidator } from '../../../validators';
 
-@modelOptions({ schemaOptions: { _id: false } })
-export class QueueThresholdSchema {
-  @prop({ type: Number })
-  public rating: number;
+export interface QueueThreshold {
+  rating?: number;
+  seconds?: number;
+  usersPerTeam: number[];
+}
 
-  @prop({ default: 0, type: Number })
-  public seconds: number;
+export type QueueThresholdDocument = mongoose.Document<mongoose.Types.ObjectId> & QueueThreshold;
 
-  @prop(
-    {
-      required: true,
-      type: Number,
-      validate: [arrayLengthValidator(Infinity, 1), arrayMaxMinValidator(Infinity, 1)],
-    },
-    PropType.ARRAY,
-  )
-  public usersPerTeam: number[];
-
+export interface QueueThresholdModelType extends mongoose.Model<QueueThresholdDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: typeof QueueThresholdModel, values: Partial<QueueThresholdSchema> = {}) {
-    const chance = new Chance();
-    const defaults = {
-      usersPerTeam: [chance.integer({ max: 10, min: 1 }), chance.integer({ max: 10, min: 1 })],
-    };
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(this: QueueThresholdModelType, values?: Partial<QueueThreshold>): QueueThresholdDocument;
 }
 
-export type QueueThresholdDocument = DocumentType<QueueThresholdSchema>;
-export const QueueThresholdModel = getModelForClass(QueueThresholdSchema);
+const QueueThresholdSchema = new mongoose.Schema<QueueThresholdDocument, QueueThresholdModelType>(
+  {
+    rating: { type: Number },
+    seconds: { default: 0, type: Number },
+    usersPerTeam: {
+      required: true,
+      type: [Number],
+      validate: [arrayLengthValidator(Infinity, 1), arrayMaxMinValidator(Infinity, 1)],
+    },
+  },
+  { _id: false },
+);
+
+QueueThresholdSchema.statics.mock = function (values: Partial<QueueThreshold> = {}) {
+  const chance = new Chance();
+  const defaults: Partial<QueueThreshold> = {
+    usersPerTeam: [chance.integer({ max: 10, min: 1 }), chance.integer({ max: 10, min: 1 })],
+  };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const QueueThresholdModel = mongoose.model<QueueThresholdDocument, QueueThresholdModelType>(
+  'QueueThresholdSchema',
+  QueueThresholdSchema,
+);
+
+export { QueueThresholdSchema };
+
+export default QueueThresholdModel;

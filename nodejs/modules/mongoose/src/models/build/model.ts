@@ -1,12 +1,3 @@
-import {
-  DocumentType,
-  getModelForClass,
-  index,
-  modelOptions,
-  plugin,
-  prop,
-  PropType,
-} from '@typegoose/typegoose';
 import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
@@ -21,59 +12,76 @@ export enum BuildPlatform {
   Windows64 = 'Windows64',
 }
 
-@index({ name: 1, namespaceId: 1, platform: 1 }, { unique: true })
-@index({ publishedAt: 1 })
-@modelOptions({ schemaOptions: { collection: 'builds', timestamps: true } })
-@plugin(duplicateKeyErrorPlugin)
-@plugin(unsetPlugin)
-export class BuildSchema {
-  public _id: mongoose.Types.ObjectId;
-  public createdAt: Date;
+export interface Build {
+  _id: mongoose.Types.ObjectId;
+  authorizationDocuments?: AuthorizationDocument[];
+  createdAt?: Date;
+  entrypoint: string;
+  files?: BuildFileDocument[];
+  name: string;
+  namespaceId: mongoose.Types.ObjectId;
+  platform: BuildPlatform;
+  publishedAt?: Date;
+  reference?: BuildReferenceDocument;
+  status?: WorkflowStatusDocument;
+  updatedAt?: Date;
+}
 
-  @prop({ maxlength: 256, required: true, trim: true, type: String })
-  public entrypoint: string;
+export type BuildDocument = mongoose.Document<mongoose.Types.ObjectId> & Build;
 
-  @prop({ type: BuildFileSchema }, PropType.ARRAY)
-  public files: BuildFileDocument[];
-
-  @prop({ maxlength: 64, required: true, trim: true, type: String })
-  public name: string;
-
-  @prop({ ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId })
-  public namespaceId: mongoose.Types.ObjectId;
-
-  @prop({ enum: BuildPlatform, required: true, type: String })
-  public platform: BuildPlatform;
-
-  @prop({ type: Date })
-  public publishedAt: Date;
-
-  @prop({ type: BuildReferenceSchema })
-  public reference: BuildReferenceDocument;
-
-  @prop({ default: () => new WorkflowStatusModel(), merge: true, type: WorkflowStatusSchema })
-  public status: WorkflowStatusDocument;
-
-  public updatedAt: Date;
-
-  @prop({ foreignField: 'namespaceId', localField: 'namespaceId', ref: 'AuthorizationSchema' })
-  public authorizationDocuments: AuthorizationDocument[];
-
+export interface BuildModelType extends mongoose.Model<BuildDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: typeof BuildModel, values: Partial<BuildSchema> = {}) {
-    const chance = new Chance();
-    const defaults = {
-      entrypoint: chance.hash(),
-      name: chance.hash(),
-      namespaceId: new mongoose.Types.ObjectId(),
-      platform: chance.pickone(Object.values(BuildPlatform)),
-    };
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(this: BuildModelType, values?: Partial<Build>): BuildDocument;
 }
 
-export type BuildDocument = DocumentType<BuildSchema>;
-export const BuildModel = getModelForClass(BuildSchema);
+const BuildSchema = new mongoose.Schema<BuildDocument, BuildModelType>(
+  {
+    entrypoint: { maxlength: 256, required: true, trim: true, type: String },
+    files: { type: [BuildFileSchema] },
+    name: { maxlength: 64, required: true, trim: true, type: String },
+    namespaceId: { ref: 'NamespaceSchema', required: true, type: mongoose.Schema.Types.ObjectId },
+    platform: { enum: Object.values(BuildPlatform), required: true, type: String },
+    publishedAt: { type: Date },
+    reference: { type: BuildReferenceSchema },
+    status: { default: () => new WorkflowStatusModel(), merge: true, type: WorkflowStatusSchema },
+  },
+  {
+    collection: 'builds',
+    timestamps: true,
+  },
+);
+
+BuildSchema.index({ name: 1, namespaceId: 1, platform: 1 }, { unique: true });
+BuildSchema.index({ publishedAt: 1 });
+
+BuildSchema.plugin(duplicateKeyErrorPlugin);
+BuildSchema.plugin(unsetPlugin);
+
+BuildSchema.virtual('authorizationDocuments', {
+  foreignField: 'namespaceId',
+  justOne: false,
+  localField: 'namespaceId',
+  ref: 'AuthorizationSchema',
+});
+
+BuildSchema.statics.mock = function (values: Partial<Build> = {}) {
+  const chance = new Chance();
+  const defaults: Partial<Build> = {
+    entrypoint: chance.hash(),
+    name: chance.hash(),
+    namespaceId: new mongoose.Types.ObjectId(),
+    platform: chance.pickone(Object.values(BuildPlatform)) as BuildPlatform,
+  };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const BuildModel = mongoose.model<BuildDocument, BuildModelType>(
+  'BuildSchema',
+  BuildSchema,
+  'builds',
+);
+
+export default BuildModel;

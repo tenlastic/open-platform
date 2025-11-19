@@ -1,7 +1,6 @@
 import { ArticleModel } from '../models/article';
-import { ArticleStore } from '../states/article';
 import { ApiService } from './api';
-import { BaseService, BaseServiceFindQuery } from './base';
+import { BaseService, BaseServiceCountQuery, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 
 export class ArticleService {
@@ -11,22 +10,14 @@ export class ArticleService {
 
   private baseService: BaseService<ArticleModel>;
 
-  constructor(
-    private apiService: ApiService,
-    private articleStore: ArticleStore,
-    private environmentService: EnvironmentService,
-  ) {
-    this.baseService = new BaseService<ArticleModel>(
-      this.apiService,
-      ArticleModel,
-      this.articleStore,
-    );
+  constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
+    this.baseService = new BaseService<ArticleModel>(this.apiService, ArticleModel);
   }
 
   /**
    * Returns the number of Records satisfying the query.
    */
-  public async count(namespaceId: string, query: any) {
+  public async count(namespaceId: string, query: BaseServiceCountQuery) {
     const url = this.getUrl(namespaceId);
     return this.baseService.count(query, url);
   }

@@ -1,4 +1,4 @@
-import { BuildPermissions } from '@tenlastic/mongoose';
+import { BuildModel, BuildPermissionOptions } from '@tenlastic/mongoose';
 import { count } from '@tenlastic/web-server';
 
-export const handler = count(BuildPermissions);
+export const handler = count(BuildModel, BuildPermissionOptions);

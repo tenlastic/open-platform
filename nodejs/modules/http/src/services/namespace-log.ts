@@ -2,9 +2,8 @@ import { EventEmitter } from 'events';
 import TypedEmitter from 'typed-emitter';
 
 import { NamespaceLogModel } from '../models/namespace-log';
-import { NamespaceLogStore } from '../states/namespace-log';
 import { ApiService } from './api';
-import { ServiceEvents } from './base';
+import { BaseServiceRecordsResponse, ServiceEvents } from './base';
 import { EnvironmentService } from './environment';
 
 export interface NamespaceLogsQuery {
@@ -15,11 +14,7 @@ export interface NamespaceLogsQuery {
 export class NamespaceLogService {
   public emitter = new EventEmitter() as TypedEmitter<ServiceEvents<NamespaceLogModel>>;
 
-  constructor(
-    private apiService: ApiService,
-    private environmentService: EnvironmentService,
-    private namespaceLogStore: NamespaceLogStore,
-  ) {}
+  constructor(private apiService: ApiService, private environmentService: EnvironmentService) {}
 
   /**
    * Returns an array of Records satisfying the query.
@@ -31,7 +26,7 @@ export class NamespaceLogService {
     query: NamespaceLogsQuery,
   ) {
     const url = this.getUrl(namespaceId);
-    const response = await this.apiService.request({
+    const response = await this.apiService.request<BaseServiceRecordsResponse<NamespaceLogModel>>({
       method: 'get',
       params: query,
       url: `${url}/${pod}/${container}`,
@@ -40,7 +35,7 @@ export class NamespaceLogService {
     const records = response.data.records.map(
       (record) => new NamespaceLogModel({ ...record, container, namespaceId, pod }),
     );
-    this.namespaceLogStore.upsertMany(records);
+    this.emitter.emit('find', records);
 
     return records;
   }

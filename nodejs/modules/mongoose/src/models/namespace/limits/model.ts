@@ -1,37 +1,49 @@
-import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
+import * as mongoose from 'mongoose';
 
-@modelOptions({ schemaOptions: { _id: false } })
-export class NamespaceLimitsSchema {
-  @prop({ default: 0, type: Number })
-  public bandwidth: number;
+export interface NamespaceLimits {
+  bandwidth?: number;
+  cpu?: number;
+  defaultAuthorization?: boolean;
+  memory?: number;
+  nonPreemptible?: boolean;
+  storage?: number;
+}
 
-  @prop({ default: 0, type: Number })
-  public cpu: number;
+export type NamespaceLimitsDocument = mongoose.Document<mongoose.Types.ObjectId> & NamespaceLimits;
 
-  @prop({ default: false, type: Boolean })
-  public defaultAuthorization: boolean;
-
-  @prop({ default: 0, type: Number })
-  public memory: number;
-
-  @prop({ default: false, type: Boolean })
-  public nonPreemptible: boolean;
-
-  @prop({ default: 0, type: Number })
-  public storage: number;
-
+export interface NamespaceLimitsModelType extends mongoose.Model<NamespaceLimitsDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(
-    this: typeof NamespaceLimitsModel,
-    values: Partial<NamespaceLimitsSchema> = {},
-  ) {
-    const defaults = { defaultAuthorization: true, nonPreemptible: true };
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(this: NamespaceLimitsModelType, values?: Partial<NamespaceLimits>): NamespaceLimitsDocument;
 }
 
-export type NamespaceLimitsDocument = DocumentType<NamespaceLimitsSchema>;
-export const NamespaceLimitsModel = getModelForClass(NamespaceLimitsSchema);
+const NamespaceLimitsSchema = new mongoose.Schema<
+  NamespaceLimitsDocument,
+  NamespaceLimitsModelType
+>(
+  {
+    bandwidth: { default: 0, type: Number },
+    cpu: { default: 0, type: Number },
+    defaultAuthorization: { default: false, type: Boolean },
+    memory: { default: 0, type: Number },
+    nonPreemptible: { default: false, type: Boolean },
+    storage: { default: 0, type: Number },
+  },
+  { _id: false },
+);
+
+NamespaceLimitsSchema.statics.mock = function (values: Partial<NamespaceLimits> = {}) {
+  const defaults: Partial<NamespaceLimits> = { defaultAuthorization: true, nonPreemptible: true };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const NamespaceLimitsModel = mongoose.model<
+  NamespaceLimitsDocument,
+  NamespaceLimitsModelType
+>('NamespaceLimitsSchema', NamespaceLimitsSchema);
+
+export { NamespaceLimitsSchema };
+
+export default NamespaceLimitsModel;

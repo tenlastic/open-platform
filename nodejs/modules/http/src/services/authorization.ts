@@ -1,7 +1,11 @@
 import { AuthorizationModel } from '../models/authorization';
-import { AuthorizationStore } from '../states/authorization';
 import { ApiService } from './api';
-import { BaseService, BaseServiceFindQuery } from './base';
+import {
+  BaseService,
+  BaseServiceCountQuery,
+  BaseServiceFindQuery,
+  BaseServiceRecordResponse,
+} from './base';
 import { EnvironmentService } from './environment';
 
 export class AuthorizationService {
@@ -11,16 +15,8 @@ export class AuthorizationService {
 
   private baseService: BaseService<AuthorizationModel>;
 
-  constructor(
-    private apiService: ApiService,
-    private authorizationStore: AuthorizationStore,
-    private environmentService: EnvironmentService,
-  ) {
-    this.baseService = new BaseService<AuthorizationModel>(
-      this.apiService,
-      AuthorizationModel,
-      this.authorizationStore,
-    );
+  constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
+    this.baseService = new BaseService<AuthorizationModel>(this.apiService, AuthorizationModel);
   }
 
   /**
@@ -28,14 +24,13 @@ export class AuthorizationService {
    */
   public async ban(namespaceId: string, _id: string) {
     const url = this.getUrl(namespaceId);
-    const response = await this.apiService.request({
+    const response = await this.apiService.request<BaseServiceRecordResponse<AuthorizationModel>>({
       method: 'patch',
       url: `${url}/${_id}/banned-at`,
     });
 
     const record = new AuthorizationModel(response.data.record);
     this.emitter.emit('update', record);
-    this.authorizationStore.upsertMany([record]);
 
     return record;
   }
@@ -43,7 +38,7 @@ export class AuthorizationService {
   /**
    * Returns the number of Records satisfying the query.
    */
-  public async count(namespaceId: string, query: any) {
+  public async count(namespaceId: string, query: BaseServiceCountQuery) {
     const url = this.getUrl(namespaceId);
     return this.baseService.count(query, url);
   }

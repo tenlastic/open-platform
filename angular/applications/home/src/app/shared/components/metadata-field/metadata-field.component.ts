@@ -3,6 +3,7 @@ import { FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-metadata-field',
+  standalone: false,
   styleUrls: ['./metadata-field.component.scss'],
   templateUrl: 'metadata-field.component.html',
 })

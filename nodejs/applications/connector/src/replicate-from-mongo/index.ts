@@ -3,7 +3,7 @@ import * as mongoose from 'mongoose';
 export async function replicateFromMongo(
   FromModel: mongoose.Model<mongoose.Document>,
   ToModel: mongoose.Model<mongoose.Document>,
-  where: any = {},
+  where: mongoose.FilterQuery<mongoose.Document> = {},
 ) {
   let count = 0;
 

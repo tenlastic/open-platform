@@ -1,11 +1,12 @@
 import { DatabasePayload } from '@tenlastic/mongoose-nats';
 import { expect } from 'chai';
-import * as Chance from 'chance';
+import { Chance } from 'chance';
 import * as mongoose from 'mongoose';
 
 import { eachMessage } from './';
 
-interface Document extends mongoose.Document {
+interface Document {
+  _id?: mongoose.Types.ObjectId;
   createdAt?: Date;
   name?: string;
   updatedAt?: Date;
@@ -13,8 +14,8 @@ interface Document extends mongoose.Document {
 
 const chance = new Chance();
 
-const schema = new mongoose.Schema<Document>({ createdAt: Date, name: String, updatedAt: Date });
-const Model = mongoose.model('example', schema);
+const Schema = new mongoose.Schema<Document>({ createdAt: Date, name: String, updatedAt: Date });
+const Model = mongoose.model('example', Schema);
 
 describe('replicateFromNats()', function () {
   beforeEach(async function () {
@@ -24,7 +25,7 @@ describe('replicateFromNats()', function () {
   context('when the operationType is delete', function () {
     it('deletes the document from MongoDB', async function () {
       const record = await Model.create({ _id: new mongoose.Types.ObjectId() });
-      const payload: DatabasePayload<any> = {
+      const payload: DatabasePayload<Document> = {
         documentKey: { _id: record._id },
         ns: { coll: chance.hash({ length: 16 }), db: chance.hash({ length: 16 }) },
         operationType: 'delete',
@@ -41,7 +42,7 @@ describe('replicateFromNats()', function () {
   context('when the operationType is insert', function () {
     it('inserts the fullDocument into MongoDB', async function () {
       const _id = new mongoose.Types.ObjectId();
-      const payload: DatabasePayload<any> = {
+      const payload: DatabasePayload<mongoose.InferSchemaType<typeof Schema>> = {
         documentKey: { _id },
         fullDocument: { _id, createdAt: new Date(), updatedAt: new Date() },
         ns: { coll: chance.hash({ length: 16 }), db: chance.hash({ length: 16 }) },
@@ -59,7 +60,7 @@ describe('replicateFromNats()', function () {
 
   context('when the operationType is update', function () {
     const _id = new mongoose.Types.ObjectId();
-    const payload: DatabasePayload<any> = {
+    const payload: DatabasePayload<Document> = {
       documentKey: { _id },
       fullDocument: { _id, name: chance.hash(), updatedAt: new Date() },
       ns: { coll: chance.hash({ length: 16 }), db: chance.hash({ length: 16 }) },

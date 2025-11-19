@@ -1,8 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
-@Pipe({ name: 'sum', pure: false })
+@Pipe({ name: 'sum', pure: false, standalone: false })
 export class SumPipe implements PipeTransform {
-
   public transform(items: any[], attr?: string) {
     if (!items) {
       return 0;
@@ -14,5 +13,4 @@ export class SumPipe implements PipeTransform {
       return items.reduce((a, b) => a + b, 0);
     }
   }
-
 }

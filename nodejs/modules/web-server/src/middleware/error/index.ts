@@ -1,6 +1,6 @@
 import { Next } from 'koa';
 
-import { Context } from '../../context';
+import { Context } from '../../types';
 
 /**
  * Catches all errors and returns the message in the body.
@@ -62,32 +62,32 @@ export async function errorMiddleware(ctx: Context, next: Next) {
   }
 }
 
-function getError(err: any) {
+function getError(err) {
   const { message, name } = err;
   return { errors: [{ message, name }] };
 }
 
-function getNamespaceLimitError(err: any) {
+function getNamespaceLimitError(err) {
   const { message, name, path, value } = err;
   return { errors: [{ message, name, path, value }] };
 }
 
-function getQueueMemberAuthorizationError(err: any) {
+function getQueueMemberAuthorizationError(err) {
   const { message, name, userIds } = err;
   return { errors: [{ message, name, userIds }] };
 }
 
-function getQueueMemberDuplicateKeyError(err: any) {
+function getQueueMemberDuplicateKeyError(err) {
   const { message, name, userIds } = err;
   return { errors: [{ message, name, userIds }] };
 }
 
-function getDuplicateKeyError(err: any) {
+function getDuplicateKeyError(err) {
   const { message, name, paths, values } = err;
   return { errors: [{ message, name, paths, values }] };
 }
 
-function getValidationError(err: any) {
+function getValidationError(err) {
   const errors = Object.keys(err.errors)
     .filter((key) => err.errors[key].name !== 'ValidationError')
     .sort()

@@ -1,164 +1,137 @@
-import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatTableDataSource } from '@angular/material/table';
-import { ActivatedRoute, Params } from '@angular/router';
-import { UserQuery, WebSocketModel, WebSocketService } from '@tenlastic/http';
-import { Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { UserState, WebSocketModel, WebSocketService, WebSocketState } from '@tenlastic/http';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { v4 as uuid } from 'uuid';
 
-import { ClipboardService } from '../../../../../../core/services';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { formatDate } from '@angular/common';
+import { ListTableColumn, ListTableSubscription } from '@home/app/shared/components';
+import { environment } from '@home/environments/environment';
 
 @Component({
-  templateUrl: 'list-page.component.html',
+  standalone: false,
   styleUrls: ['./list-page.component.scss'],
+  templateUrl: 'list-page.component.html',
 })
-export class WebSocketsListPageComponent implements AfterViewInit, OnDestroy, OnInit {
-  @ViewChild(MatPaginator) private paginator: MatPaginator;
-
-  public dataSource = new MatTableDataSource<WebSocketModel>();
-  public displayedColumns = ['user', 'createdAt', 'disconnectedAt', 'duration'];
-  public filter: string;
+export class WebSocketsListPageComponent implements OnInit {
+  public $filter = new BehaviorSubject<string>(null);
+  public $records: Observable<WebSocketModel[]>;
+  public $refresh = new Subject<void>();
+  public columns: ListTableColumn<WebSocketModel>[] = [
+    { header: 'User', text: (v) => this.getUser(v.userId)?.displayName },
+    { header: 'Created At', text: (v) => formatDate(v.createdAt, "MMM d, y 'at' h:mm a", 'en-US') },
+    { header: 'Updated At', text: (v) => formatDate(v.updatedAt, "MMM d, y 'at' h:mm a", 'en-US') },
+    { header: 'Duration', text: (v) => this.getDuration(v) },
+  ];
   public includeConnected = true;
   public includeDisconnected = false;
-  public message: string;
-  public get pageIndex() {
-    return this.paginator?.pageIndex || 0;
-  }
-  public get pageSize() {
-    return this.paginator?.pageSize || 10;
-  }
-
-  private filter$ = new Subject();
-  private count = 0;
-  private date = new Date(0);
-  private params: Params;
-  private timeout: NodeJS.Timeout;
-
-  constructor(
-    private activatedRoute: ActivatedRoute,
-    private clipboardService: ClipboardService,
-    private matSnackBar: MatSnackBar,
-    private userQuery: UserQuery,
-    private webSocketService: WebSocketService,
-  ) {}
-
-  public ngOnInit() {
-    this.filter$.pipe(debounceTime(300)).subscribe(() => this.fetchWebSockets());
-
-    this.activatedRoute.params.subscribe(async (params) => {
-      this.params = params;
-
-      this.message = 'Loading...';
-      await this.fetchWebSockets();
-      this.message = null;
-    });
-
-    this.webSocketService.emitter.on('create', (ws) => {
-      if (!this.match(ws)) {
-        return;
-      }
-
-      if (this.dataSource.data[0]?.createdAt >= ws.createdAt) {
-        return;
-      }
-
-      if (this.dataSource.data[this.dataSource.data.length]?.createdAt <= ws.createdAt) {
-        return;
-      }
-
-      this.fetchWebSockets(true);
-    });
-
-    this.webSocketService.emitter.on('delete', (ws) => {
-      const index = this.dataSource.data.findIndex((d) => d._id === ws._id);
-
-      if (index < 0 || index > this.dataSource.data.length) {
-        return;
-      }
-
-      this.fetchWebSockets(true);
-    });
-
-    this.webSocketService.emitter.on('update', (ws) => {
-      const index = this.dataSource.data.findIndex((d) => d._id === ws._id);
-
-      if (index < 0 || index > this.dataSource.data.length) {
-        return;
-      }
-
-      if (this.match(ws)) {
-        this.dataSource.data[index] = ws;
-        this.dataSource.data = [...this.dataSource.data];
-      } else {
-        this.fetchWebSockets(true);
-      }
-    });
+  public subscriptions: ListTableSubscription[] = [
+    {
+      Model: WebSocketModel,
+      request: { _id: uuid(), path: '/subscriptions/web-sockets' },
+      service: this.webSocketService,
+    },
+  ];
+  public get webSocket() {
+    return this.webSocketService.webSockets.find((ws) => environment.wssUrl === ws.url);
   }
 
-  public ngAfterViewInit() {
-    this.paginator.length = this.count;
-  }
-
-  public ngOnDestroy() {
-    clearTimeout(this.timeout);
-  }
-
-  public copyToClipboard(value: string) {
-    this.clipboardService.copy(value);
-    this.matSnackBar.open('User ID copied to clipboard.');
-  }
-
-  public async fetchWebSockets(throttle = false) {
-    const date = new Date();
-    const threshold = this.date.getTime() + 5 * 1000;
-
-    if (date.getTime() < threshold && throttle) {
-      this.timeout = setTimeout(() => this.fetchWebSockets(), threshold - date.getTime());
-      return;
-    }
-
-    this.date = date;
-
-    if (!this.includeConnected && !this.includeDisconnected) {
-      this.dataSource.data = [];
-      this.paginator.firstPage();
-      this.paginator.length = 0;
-      return;
-    }
-
+  private namespaceId: string;
+  private userId: string;
+  private get where() {
     let where: any = {};
-    if (this.filter) {
-      where.userId = this.filter;
+
+    if (this.$filter.value) {
+      where.userId = this.$filter.value;
     }
+
     if (this.includeConnected) {
       where.$or ||= [];
       where.$or.push({ disconnectedAt: null });
     }
+
     if (this.includeDisconnected) {
       where.$or ||= [];
       where.$or.push({ disconnectedAt: { $exists: true } });
     }
 
-    this.dataSource.data = await this.webSocketService.find(this.params.namespaceId, {
-      limit: this.pageSize,
-      skip: this.pageIndex * this.pageSize,
-      sort: `-createdAt`,
-      where,
-    });
-
-    this.count = await this.webSocketService.count(this.params.namespaceId, { where });
-
-    if (this.paginator) {
-      this.paginator.length = this.count;
-
-      if (this.paginator.length < this.pageIndex * this.pageSize) {
-        this.paginator.firstPage();
-      }
+    if (this.userId) {
+      where.userId = this.userId;
     }
+
+    return where;
   }
 
-  public getDuration(webSocket: WebSocketModel) {
+  constructor(
+    private activatedRoute: ActivatedRoute,
+    private userState: UserState,
+    private webSocketService: WebSocketService,
+    private webSocketState: WebSocketState,
+  ) {}
+
+  public ngOnInit() {
+    this.$records = this.webSocketState.selectMany();
+
+    this.activatedRoute.params.subscribe(async (params) => {
+      this.namespaceId = params.namespaceId;
+      this.userId = params.userId;
+
+      this.$refresh.next();
+    });
+  }
+
+  public count = () => {
+    if (!this.includeConnected && !this.includeDisconnected) {
+      return 0;
+    }
+
+    return this.webSocketService.count(this.namespaceId, { where: this.where });
+  };
+
+  public filter = (record: WebSocketModel) => {
+    if (this.$filter.value && this.$filter.value !== record.userId) {
+      return false;
+    }
+
+    if (!this.includeConnected && !record.disconnectedAt) {
+      return false;
+    }
+
+    if (!this.includeDisconnected && record.disconnectedAt) {
+      return false;
+    }
+
+    if (this.namespaceId && this.namespaceId !== record.namespaceId) {
+      return false;
+    }
+
+    if (this.userId && this.userId !== record.userId) {
+      return false;
+    }
+
+    return true;
+  };
+
+  public find = async (page: number, pageSize: number) => {
+    if (!this.includeConnected && !this.includeDisconnected) {
+      this.subscriptions[0].request.body = { where: { _id: { $in: [] } } };
+      return [];
+    }
+
+    const records = await this.webSocketService.find(this.namespaceId, {
+      limit: pageSize,
+      skip: page * pageSize,
+      sort: '-createdAt',
+      where: this.where,
+    });
+
+    const _ids = records.map((r) => r._id);
+    this.subscriptions[0].request.body = { where: { _id: { $in: _ids } } };
+
+    return records;
+  };
+
+  private getDuration(webSocket: WebSocketModel) {
     if (!webSocket.disconnectedAt) {
       return '';
     }
@@ -187,32 +160,7 @@ export class WebSocketsListPageComponent implements AfterViewInit, OnDestroy, On
     return `${seconds} Seconds`;
   }
 
-  public getUser(_id: string) {
-    return this.userQuery.getEntity(_id);
-  }
-
-  public setFilter(value: string) {
-    this.filter = value;
-    this.filter$.next();
-  }
-
-  private match(webSocket: WebSocketModel) {
-    if (this.filter && this.filter !== webSocket.userId) {
-      return false;
-    }
-
-    if (!this.includeConnected && !webSocket.disconnectedAt) {
-      return false;
-    }
-
-    if (!this.includeDisconnected && webSocket.disconnectedAt) {
-      return false;
-    }
-
-    if (this.params.namespaceId !== webSocket.namespaceId) {
-      return false;
-    }
-
-    return true;
+  private getUser(_id: string) {
+    return this.userState.getOne(_id);
   }
 }

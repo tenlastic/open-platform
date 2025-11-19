@@ -57,9 +57,9 @@ const validate = ajv.compile({
 });
 
 export const jsonSchemaValidator = {
-  msg: () => {
+  message: () => {
     const error = validate.errors[0];
     return `${error.instancePath} ${error.message}`;
   },
-  validator: (value: any) => validate(value),
+  validator: (value: unknown) => validate(value),
 };

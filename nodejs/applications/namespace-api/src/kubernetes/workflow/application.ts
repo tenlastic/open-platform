@@ -1,9 +1,5 @@
-import { workflowApiV1 } from '@tenlastic/kubernetes';
-import {
-  WorkflowDocument,
-  WorkflowSpecTemplateModel,
-  WorkflowSpecTemplateSchema,
-} from '@tenlastic/mongoose';
+import { V1WorkflowSpecTemplate, workflowApiV1 } from '@tenlastic/kubernetes';
+import { WorkflowDocument, WorkflowSpecTemplateDocument } from '@tenlastic/mongoose';
 import { DatabaseOperationType } from '@tenlastic/mongoose-nats';
 
 import { KubernetesNamespace } from '../namespace';
@@ -97,8 +93,16 @@ export const KubernetesWorkflowApplication = {
 /**
  * Gets the manifest for a template.
  */
-function getTemplateManifest(template: WorkflowSpecTemplateSchema, workflow: WorkflowDocument) {
-  const t: any = new WorkflowSpecTemplateModel(template).toObject();
+function getTemplateManifest(template: WorkflowSpecTemplateDocument, workflow: WorkflowDocument) {
+  const t: V1WorkflowSpecTemplate = {
+    dag: template.dag,
+    inputs: template.inputs,
+    name: template.name,
+    retryStrategy: template.retryStrategy,
+    script: template.script,
+    sidecars: template.sidecars,
+  };
+
   if (!t.script) {
     return t;
   }

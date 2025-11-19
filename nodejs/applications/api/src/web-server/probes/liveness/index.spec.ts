@@ -5,7 +5,7 @@ import { handler } from '.';
 
 describe('web-server/probes/liveness', function () {
   it('returns a 200 status code', async function () {
-    const ctx: any = new ContextMock();
+    const ctx = ContextMock();
 
     await handler(ctx);
 

@@ -1,40 +1,62 @@
-import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
 import { Chance } from 'chance';
+import * as mongoose from 'mongoose';
 
-import { GameServerStatusComponentName, GameServerStatusPhase } from '../model';
+import { GameServerStatusComponentName, GameServerStatusPhase } from '../types';
 
-@modelOptions({ schemaOptions: { _id: false } })
-export class GameServerStatusComponentSchema {
-  @prop({ type: Number })
-  public current: number;
+export interface GameServerStatusComponent {
+  current?: number;
+  name: GameServerStatusComponentName;
+  phase?: GameServerStatusPhase;
+  total?: number;
+}
 
-  @prop({ enum: GameServerStatusComponentName, required: true, type: String })
-  public name: GameServerStatusComponentName;
+export type GameServerStatusComponentDocument = mongoose.Document<mongoose.Types.ObjectId> &
+  GameServerStatusComponent;
 
-  @prop({ default: () => GameServerStatusPhase.Pending, enum: GameServerStatusPhase, type: String })
-  public phase: GameServerStatusPhase;
-
-  @prop({ type: Number })
-  public total: number;
-
+export interface GameServerStatusComponentModelType
+  extends mongoose.Model<GameServerStatusComponentDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(
-    this: typeof GameServerStatusComponentModel,
-    values: Partial<GameServerStatusComponentSchema> = {},
-  ) {
-    const chance = new Chance();
-    const defaults = {
-      current: chance.integer({ min: 0 }),
-      name: GameServerStatusComponentName.Application,
-      phase: GameServerStatusPhase.Running,
-      total: chance.integer({ min: 0 }),
-    };
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(
+    this: GameServerStatusComponentModelType,
+    values?: Partial<GameServerStatusComponent>,
+  ): GameServerStatusComponentDocument;
 }
 
-export type GameServerStatusComponentDocument = DocumentType<GameServerStatusComponentSchema>;
-export const GameServerStatusComponentModel = getModelForClass(GameServerStatusComponentSchema);
+const GameServerStatusComponentSchema = new mongoose.Schema<GameServerStatusComponentDocument>(
+  {
+    current: { type: Number },
+    name: { enum: Object.values(GameServerStatusComponentName), required: true, type: String },
+    phase: {
+      default: () => GameServerStatusPhase.Pending,
+      enum: Object.values(GameServerStatusPhase),
+      type: String,
+    },
+    total: { type: Number },
+  },
+  { _id: false },
+);
+
+GameServerStatusComponentSchema.statics.mock = function (
+  values: Partial<GameServerStatusComponent> = {},
+) {
+  const chance = new Chance();
+  const defaults: Partial<GameServerStatusComponent> = {
+    current: chance.integer({ min: 0 }),
+    name: GameServerStatusComponentName.Application,
+    phase: GameServerStatusPhase.Running,
+    total: chance.integer({ min: 0 }),
+  };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const GameServerStatusComponentModel = mongoose.model<
+  GameServerStatusComponentDocument,
+  GameServerStatusComponentModelType
+>('GameServerStatusComponentSchema', GameServerStatusComponentSchema);
+
+export { GameServerStatusComponentSchema };
+
+export default GameServerStatusComponentModel;

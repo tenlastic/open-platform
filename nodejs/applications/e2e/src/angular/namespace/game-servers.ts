@@ -1,7 +1,7 @@
 import wait from '@tenlastic/wait';
 import axios from 'axios';
 import { expect } from 'chai';
-import * as Chance from 'chance';
+import { Chance } from 'chance';
 import { Page } from 'puppeteer';
 
 import * as helpers from '../helpers';
@@ -58,7 +58,10 @@ describe('/angular/namespace/game-servers', () => {
 
     // Wait for the Game Server to be Running.
     await wait(100, 60 * 1000, async () => {
-      const [input] = await page.$x(`//mat-form-field[.//mat-label[contains(., 'Phase')]]//input`);
+      const input = await helpers.waitForXPath(
+        page,
+        `//mat-form-field[.//mat-label[contains(., 'Phase')]]//input`,
+      );
       const value = await page.evaluate((i) => i.value, input);
 
       return value === 'Running';
@@ -86,7 +89,6 @@ describe('/angular/namespace/game-servers', () => {
     await helpers.waitForXPath(
       page,
       `//app-logs-dialog//div[contains(., 'Echo server listening on port :7777.')]`,
-      { timeout: 2500 },
     );
   });
 });

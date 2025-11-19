@@ -2,10 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import {
   GameServerModel,
-  GameServerQuery,
   GameServerService,
+  GameServerState,
   GroupModel,
-  GroupQuery,
+  GroupState,
 } from '@tenlastic/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -13,6 +13,7 @@ import { map } from 'rxjs/operators';
 import { ExecutableService, IdentityService, UpdateService } from '../../../../../../core/services';
 
 @Component({
+  standalone: false,
   styleUrls: ['./game-servers-page.component.scss'],
   templateUrl: 'game-servers-page.component.html',
 })
@@ -32,9 +33,9 @@ export class GameServersPageComponent implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private executableService: ExecutableService,
-    private gameServerQuery: GameServerQuery,
+    private gameServerState: GameServerState,
     private gameServerService: GameServerService,
-    private groupQuery: GroupQuery,
+    private groupState: GroupState,
     private identityService: IdentityService,
     private updateService: UpdateService,
   ) {}
@@ -43,19 +44,28 @@ export class GameServersPageComponent implements OnInit {
     this.activatedRoute.params.subscribe(async (params) => {
       this.params = params;
 
-      this.$gameServers = this.gameServerQuery.selectAll({
-        filterBy: (gs) =>
-          !gs.matchId &&
-          gs.namespaceId === params.namespaceId &&
-          !gs.queueId &&
-          gs.status &&
-          gs.status.phase === 'Running',
-      });
-      this.$group = this.groupQuery
-        .selectAll({
-          filterBy: (g) => g.userIds?.some((ui) => this.identityService.user._id === ui),
-        })
-        .pipe(map((groups) => groups[0]));
+      this.$gameServers = this.gameServerState
+        .selectMany()
+        .pipe(
+          map((gss) =>
+            gss.filter(
+              (gs) =>
+                !gs.matchId &&
+                gs.namespaceId === params.namespaceId &&
+                !gs.queueId &&
+                gs.status &&
+                gs.status.phase === 'Running',
+            ),
+          ),
+        );
+      this.$group = this.groupState
+        .selectMany()
+        .pipe(
+          map((gs) =>
+            gs.filter((g) => g.userIds?.some((ui) => this.identityService.user._id === ui)),
+          ),
+        )
+        .pipe(map((gs) => gs[0]));
 
       await this.gameServerService.find(params.namespaceId, {
         where: { 'metadata.matchId': null },

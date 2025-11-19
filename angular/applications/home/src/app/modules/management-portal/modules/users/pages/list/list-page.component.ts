@@ -1,74 +1,103 @@
-import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatTableDataSource } from '@angular/material/table';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
-  AuthorizationQuery,
+  AuthorizationState,
   IAuthorization,
   UserModel,
   UserService,
+  UserState,
   WebSocketModel,
-  WebSocketQuery,
   WebSocketService,
+  WebSocketState,
 } from '@tenlastic/http';
-import { Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
+import { v4 as uuid } from 'uuid';
 
-import { IdentityService } from '../../../../../../core/services';
-import { PromptComponent } from '../../../../../../shared/components';
-import { debounceTime } from 'rxjs/operators';
+import { formatDate } from '@angular/common';
+import { IdentityService, OverlayService } from '@home/app/core/services';
+import {
+  DeletionOverlayComponent,
+  DeletionOverlayComponentData,
+  ListTableColumn,
+  ListTableSubscription,
+} from '@home/app/shared/components';
+import { environment } from '@home/environments/environment';
 
 @Component({
-  templateUrl: 'list-page.component.html',
+  standalone: false,
   styleUrls: ['./list-page.component.scss'],
+  templateUrl: 'list-page.component.html',
 })
-export class UsersListPageComponent implements AfterViewInit, OnDestroy, OnInit {
-  @ViewChild(MatPaginator) private paginator: MatPaginator;
-
-  public dataSource = new MatTableDataSource<UserModel>();
-  public displayedColumns = [
-    'webSocket',
-    'email',
-    'steam',
-    'username',
-    'createdAt',
-    'updatedAt',
-    'actions',
+export class UsersListPageComponent implements OnDestroy, OnInit {
+  public $filter = new BehaviorSubject<string>(null);
+  public $records: Observable<UserModel[]>;
+  public columns: ListTableColumn<UserModel>[] = [
+    { header: 'Name', text: (v) => v.displayName },
+    { header: 'Email Address', text: (v) => v.email },
+    {
+      header: 'Status',
+      icon: (v) => (this.webSockets[v._id] ? 'brightness_1' : 'radio_button_unchecked'),
+      text: (v) => (this.webSockets[v._id] ? 'Online' : 'Offline'),
+    },
+    { header: 'Steam ID', text: (v) => v.steamId },
+    { header: 'Steam Persona Name', text: (v) => v.steamPersonaName },
+    { header: 'Username', text: (v) => v.username },
+    { header: 'Created At', text: (v) => formatDate(v.createdAt, "MMM d, y 'at' h:mm a", 'en-US') },
+    { header: 'Updated At', text: (v) => formatDate(v.updatedAt, "MMM d, y 'at' h:mm a", 'en-US') },
   ];
-  public filter: string;
-  public hasWriteAuthorization: boolean;
-  public message: string;
-  public get pageIndex() {
-    return this.paginator?.pageIndex || 0;
-  }
-  public get pageSize() {
-    return this.paginator?.pageSize || 10;
-  }
+  public hasWriteAuthorization = false;
+  public subscriptions: ListTableSubscription[] = [
+    {
+      Model: UserModel,
+      request: { _id: uuid(), path: '/subscriptions/users' },
+      service: this.userService,
+    },
+    {
+      Model: WebSocketModel,
+      request: { _id: uuid(), path: '/subscriptions/web-sockets' },
+      service: this.webSocketService,
+    },
+  ];
   public get user() {
     return this.identityService.user;
   }
+  public get webSocket() {
+    return this.webSocketService.webSockets.find((ws) => environment.wssUrl === ws.url);
+  }
   public webSockets: { [key: string]: WebSocketModel } = {};
 
-  private filter$ = new Subject();
   private updateWebSockets$ = new Subscription();
-  private count = 0;
-  private date = new Date(0);
-  private timeout: NodeJS.Timeout;
+  private get where() {
+    if (!this.$filter.value) {
+      return null;
+    }
+
+    return {
+      $or: [
+        { email: { $regex: `^${this.$filter.value}`, $options: 'i' } },
+        { steamPersonaName: { $regex: `^${this.$filter.value}`, $options: 'i' } },
+        { username: { $regex: `^${this.$filter.value}`, $options: 'i' } },
+      ],
+    };
+  }
 
   constructor(
-    private authorizationQuery: AuthorizationQuery,
+    private authorizationState: AuthorizationState,
     private identityService: IdentityService,
-    private matDialog: MatDialog,
-    private matSnackBar: MatSnackBar,
+    private overlayService: OverlayService,
     private userService: UserService,
-    private webSocketQuery: WebSocketQuery,
+    private userState: UserState,
+    private webSocketState: WebSocketState,
     private webSocketService: WebSocketService,
   ) {}
 
   public async ngOnInit() {
-    this.filter$.pipe(debounceTime(300)).subscribe(() => this.fetchUsers());
+    const roles = [IAuthorization.Role.UsersWrite];
+    const userId = this.identityService.user?._id;
+    this.hasWriteAuthorization = this.authorizationState.hasRoles(null, roles, userId);
 
-    this.updateWebSockets$ = this.webSocketQuery.selectAll().subscribe((webSockets) => {
+    this.$records = this.userState.selectMany();
+
+    this.updateWebSockets$ = this.webSocketState.selectMany().subscribe((webSockets) => {
       this.webSockets = {};
 
       for (const webSocket of webSockets) {
@@ -79,149 +108,60 @@ export class UsersListPageComponent implements AfterViewInit, OnDestroy, OnInit 
         this.webSockets[webSocket.userId] = webSocket;
       }
     });
-
-    this.message = 'Loading...';
-
-    const roles = [IAuthorization.Role.UsersWrite];
-    const userId = this.identityService.user?._id;
-    this.hasWriteAuthorization = this.authorizationQuery.hasRoles(null, roles, userId);
-
-    await this.fetchUsers();
-
-    this.message = null;
-
-    this.userService.emitter.on('create', (u) => {
-      if (!this.match(u)) {
-        return;
-      }
-
-      if (this.dataSource.data[0]?.username.localeCompare(u.username) > 0) {
-        return;
-      }
-
-      if (
-        this.dataSource.data[this.dataSource.data.length]?.username.localeCompare(u.username) < 0
-      ) {
-        return;
-      }
-
-      this.fetchUsers(true);
-    });
-
-    this.userService.emitter.on('delete', (u) => {
-      const index = this.dataSource.data.findIndex((d) => d._id === u._id);
-
-      if (index < 0 || index > this.dataSource.data.length) {
-        return;
-      }
-
-      this.fetchUsers(true);
-    });
-
-    this.userService.emitter.on('update', (u) => {
-      const index = this.dataSource.data.findIndex((d) => d._id === u._id);
-
-      if (index < 0 || index > this.dataSource.data.length) {
-        return;
-      }
-
-      if (this.match(u)) {
-        this.dataSource.data[index] = u;
-        this.dataSource.data = [...this.dataSource.data];
-      } else {
-        this.fetchUsers(true);
-      }
-    });
-  }
-
-  public ngAfterViewInit() {
-    this.paginator.length = this.count;
   }
 
   public ngOnDestroy() {
-    clearTimeout(this.timeout);
     this.updateWebSockets$.unsubscribe();
   }
 
-  public async fetchUsers(throttle = false) {
-    const date = new Date();
-    const threshold = this.date.getTime() + 5 * 1000;
+  public count = () => {
+    return this.userService.count({ where: this.where });
+  };
 
-    if (date.getTime() < threshold && throttle) {
-      this.timeout = setTimeout(() => this.fetchUsers(), threshold - date.getTime());
-      return;
+  public filter = (record: UserModel) => {
+    if (!this.$filter.value) {
+      return true;
     }
 
-    this.date = date;
-
-    let where: any = {};
-    if (this.filter) {
-      where.$or ||= [];
-      where.$or.push({ email: { $regex: `^${this.filter}`, $options: 'i' } });
-      where.$or.push({ steamPersonaName: { $regex: `^${this.filter}`, $options: 'i' } });
-      where.$or.push({ username: { $regex: `^${this.filter}`, $options: 'i' } });
-    }
-
-    this.dataSource.data = await this.userService.find({
-      limit: this.pageSize,
-      skip: this.pageIndex * this.pageSize,
-      sort: `-username -steamPersonaName`,
-      where,
-    });
-
-    this.count = await this.userService.count({ where });
-
-    if (this.paginator) {
-      this.paginator.length = this.count;
-
-      if (this.paginator.length < this.pageIndex * this.pageSize) {
-        this.paginator.firstPage();
-      }
-    }
-
-    await this.webSocketService.find(null, {
-      where: { userId: { $in: this.dataSource.data.map((u) => u._id) } },
-    });
-  }
-
-  public showDeletePrompt($event: Event, user: UserModel) {
-    $event.stopPropagation();
-
-    const dialogRef = this.matDialog.open(PromptComponent, {
-      data: {
-        buttons: [
-          { color: 'primary', label: 'No' },
-          { color: 'accent', label: 'Yes' },
-        ],
-        message: `Are you sure you want to delete this User?`,
-      },
-    });
-
-    dialogRef.afterClosed().subscribe(async (result) => {
-      if (result === 'Yes') {
-        await this.userService.delete(user._id);
-        this.matSnackBar.open('User deleted successfully.');
-      }
-    });
-  }
-
-  public setFilter(value: string) {
-    this.filter = value;
-    this.filter$.next();
-  }
-
-  private match(user: UserModel) {
-    const regex = new RegExp(`^${this.filter}`, 'i');
-
+    const regex = new RegExp(`${this.$filter.value}`, 'i');
     if (
-      this.filter &&
-      !user.email.match(regex) &&
-      !user.steamPersonaName.match(regex) &&
-      !user.username.match(regex)
+      !record.email.match(regex) &&
+      !record.steamPersonaName.match(regex) &&
+      !record.username.match(regex)
     ) {
       return false;
     }
 
     return true;
+  };
+
+  public find = async (page: number, pageSize: number) => {
+    const records = await this.userService.find({
+      limit: pageSize,
+      skip: page * pageSize,
+      where: this.where,
+    });
+
+    const _ids = records.map((r) => r._id);
+    await this.webSocketService.find(null, {
+      where: { disconnectedAt: null, userId: { $in: _ids } },
+    });
+
+    this.subscriptions[0].request.body = { where: { _id: { $in: _ids } } };
+    this.subscriptions[1].request.body = { where: { userIds: { $in: _ids } } };
+
+    return records;
+  };
+
+  public navigate = (record: UserModel) => {
+    return [record._id];
+  };
+
+  public showDeletePrompt($event: Event, record: UserModel) {
+    $event.stopPropagation();
+    this.overlayService.open<DeletionOverlayComponentData>(DeletionOverlayComponent, {
+      delete: () => this.userService.delete(record._id),
+      name: 'User',
+    });
   }
 }

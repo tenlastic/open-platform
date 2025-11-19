@@ -1,10 +1,11 @@
-import { DocumentType, getModelForClass, modelOptions, prop, PropType } from '@typegoose/typegoose';
 import { Chance } from 'chance';
+import * as mongoose from 'mongoose';
 
 import { arrayLengthValidator } from '../../../../../validators';
 
 import {
   GameServerProbesProbeHttpHeaderDocument,
+  GameServerProbesProbeHttpHeaderModel,
   GameServerProbesProbeHttpHeaderSchema,
 } from './header';
 
@@ -13,44 +14,66 @@ export enum GameServerProbesProbeHttpScheme {
   Https = 'HTTPS',
 }
 
-@modelOptions({ schemaOptions: { _id: false } })
-export class GameServerProbesProbeHttpSchema {
-  @prop(
-    {
-      required: true,
-      type: GameServerProbesProbeHttpHeaderSchema,
-      validate: arrayLengthValidator(10),
-    },
-    PropType.ARRAY,
-  )
-  public headers: GameServerProbesProbeHttpHeaderDocument[];
+export interface GameServerProbesProbeHttp {
+  headers: GameServerProbesProbeHttpHeaderDocument[];
+  path?: string;
+  port: number;
+  scheme?: GameServerProbesProbeHttpScheme;
+}
 
-  @prop({ default: '/', maxlength: 128, trim: true, type: String })
-  public path: string;
+export type GameServerProbesProbeHttpDocument = mongoose.Document<mongoose.Types.ObjectId> &
+  GameServerProbesProbeHttp;
 
-  @prop({ max: 65535, min: 1, required: true, type: Number })
-  public port: number;
-
-  @prop({
-    default: GameServerProbesProbeHttpScheme.Http,
-    enum: GameServerProbesProbeHttpScheme,
-    type: String,
-  })
-  public scheme: GameServerProbesProbeHttpScheme;
-
+export interface GameServerProbesProbeHttpModelType
+  extends mongoose.Model<GameServerProbesProbeHttpDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(
-    this: typeof GameServerProbesProbeHttpModel,
-    values: Partial<GameServerProbesProbeHttpSchema> = {},
-  ) {
-    const chance = new Chance();
-    const defaults = { path: chance.hash(), port: chance.integer({ max: 65535, min: 1 }) };
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(
+    this: GameServerProbesProbeHttpModelType,
+    values?: Partial<GameServerProbesProbeHttp>,
+  ): GameServerProbesProbeHttpDocument;
 }
 
-export type GameServerProbesProbeHttpDocument = DocumentType<GameServerProbesProbeHttpSchema>;
-export const GameServerProbesProbeHttpModel = getModelForClass(GameServerProbesProbeHttpSchema);
+const GameServerProbesProbeHttpSchema = new mongoose.Schema<
+  GameServerProbesProbeHttpDocument,
+  GameServerProbesProbeHttpModelType
+>(
+  {
+    headers: {
+      required: true,
+      type: [GameServerProbesProbeHttpHeaderSchema],
+      validate: arrayLengthValidator(10),
+    },
+    path: { default: '/', maxlength: 128, trim: true, type: String },
+    port: { max: 65535, min: 1, required: true, type: Number },
+    scheme: {
+      default: GameServerProbesProbeHttpScheme.Http,
+      enum: Object.values(GameServerProbesProbeHttpScheme),
+      type: String,
+    },
+  },
+  { _id: false },
+);
+
+GameServerProbesProbeHttpSchema.statics.mock = function (
+  values: Partial<GameServerProbesProbeHttp> = {},
+) {
+  const chance = new Chance();
+  const defaults: Partial<GameServerProbesProbeHttp> = {
+    headers: [GameServerProbesProbeHttpHeaderModel.mock()],
+    path: chance.hash(),
+    port: chance.integer({ max: 65535, min: 1 }),
+  };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const GameServerProbesProbeHttpModel = mongoose.model<
+  GameServerProbesProbeHttpDocument,
+  GameServerProbesProbeHttpModelType
+>('GameServerProbesProbeHttpSchema', GameServerProbesProbeHttpSchema);
+
+export { GameServerProbesProbeHttpSchema };
+
+export default GameServerProbesProbeHttpModel;

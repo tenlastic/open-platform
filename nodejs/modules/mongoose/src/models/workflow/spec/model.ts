@@ -1,5 +1,5 @@
-import { DocumentType, getModelForClass, modelOptions, prop, PropType } from '@typegoose/typegoose';
 import { Chance } from 'chance';
+import * as mongoose from 'mongoose';
 
 import { WorkflowSpecArgumentsDocument, WorkflowSpecArgumentsSchema } from './arguments';
 import {
@@ -8,30 +8,45 @@ import {
   WorkflowSpecTemplateSchema,
 } from './template';
 
-@modelOptions({ schemaOptions: { _id: false } })
-export class WorkflowSpecSchema {
-  @prop({ type: WorkflowSpecArgumentsSchema })
-  public arguments: WorkflowSpecArgumentsDocument;
+export interface WorkflowSpec {
+  arguments?: WorkflowSpecArgumentsDocument;
+  entrypoint: string;
+  parallelism?: number;
+  templates: WorkflowSpecTemplateDocument[];
+}
 
-  @prop({ required: true, type: String })
-  public entrypoint: string;
+export interface WorkflowSpecDocument
+  extends mongoose.Document<mongoose.Types.ObjectId>,
+    WorkflowSpec {}
 
-  @prop({ default: 1, min: 0, type: Number })
-  public parallelism: number;
-
-  @prop({ required: true, type: WorkflowSpecTemplateSchema }, PropType.ARRAY)
-  public templates: WorkflowSpecTemplateDocument[];
-
+export interface WorkflowSpecModelType extends mongoose.Model<WorkflowSpecDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(this: typeof WorkflowSpecModel, values: Partial<WorkflowSpecSchema> = {}) {
-    const chance = new Chance();
-    const defaults = { entrypoint: chance.hash(), templates: [WorkflowSpecTemplateModel.mock()] };
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(this: WorkflowSpecModelType, values?: Partial<WorkflowSpec>): WorkflowSpecDocument;
 }
 
-export type WorkflowSpecDocument = DocumentType<WorkflowSpecSchema>;
-export const WorkflowSpecModel = getModelForClass(WorkflowSpecSchema);
+export const WorkflowSpecSchema = new mongoose.Schema<WorkflowSpecDocument>(
+  {
+    arguments: { type: WorkflowSpecArgumentsSchema, default: undefined },
+    entrypoint: { type: String, required: true },
+    parallelism: { type: Number, default: 1, min: 0 },
+    templates: { type: [WorkflowSpecTemplateSchema], required: true },
+  },
+  { _id: false },
+);
+
+WorkflowSpecSchema.statics.mock = function (
+  this: WorkflowSpecModelType,
+  values: Partial<WorkflowSpec> = {},
+) {
+  const chance = new Chance();
+  const defaults = { entrypoint: chance.hash(), templates: [WorkflowSpecTemplateModel.mock()] };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const WorkflowSpecModel = mongoose.model<WorkflowSpecDocument, WorkflowSpecModelType>(
+  'WorkflowSpec',
+  WorkflowSpecSchema,
+);

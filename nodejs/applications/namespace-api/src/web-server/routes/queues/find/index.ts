@@ -1,4 +1,4 @@
-import { QueuePermissions } from '@tenlastic/mongoose';
+import { QueueModel, QueuePermissionOptions } from '@tenlastic/mongoose';
 import { find } from '@tenlastic/web-server';
 
-export const handler = find(QueuePermissions);
+export const handler = find(QueueModel, QueuePermissionOptions);

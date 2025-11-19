@@ -5,9 +5,8 @@ import { KubernetesWorkflow } from '../kubernetes';
 
 // Delete Workflows if associated Namespace is deleted.
 NamespaceEvent.async(async (payload) => {
-  switch (payload.operationType) {
-    case 'delete':
-      return WorkflowModel.deleteMany({ namespaceId: payload.fullDocument._id });
+  if (payload.operationType === 'delete') {
+    await WorkflowModel.deleteMany({ namespaceId: payload.fullDocument._id });
   }
 });
 

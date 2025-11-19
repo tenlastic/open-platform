@@ -7,7 +7,7 @@ export class StorefrontModel extends BaseModel {
   public icon: string;
   public images: string[];
   public logo: string;
-  public metadata: any;
+  public metadata: unknown;
   public namespaceId: string;
   public roles: IAuthorization.Role[];
   public showGameServers: boolean;

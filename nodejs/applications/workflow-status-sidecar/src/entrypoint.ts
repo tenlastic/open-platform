@@ -1,8 +1,8 @@
-import 'source-map-support/register';
 import '@tenlastic/logging';
+import 'source-map-support/register';
 
 import { V1Pod } from '@kubernetes/client-node';
-import { podApiV1, V1Workflow, workflowApiV1 } from '@tenlastic/kubernetes';
+import { podApiV1, V1Workflow, V1WorkflowStatus, workflowApiV1 } from '@tenlastic/kubernetes';
 import axios from 'axios';
 import { isDeepStrictEqual } from 'util';
 
@@ -14,7 +14,7 @@ const workflowName = process.env.WORKFLOW_NAME;
 
 const pods: { [key: string]: V1Pod } = {};
 
-let previousStatus: any;
+let previousStatus: V1WorkflowStatus;
 let startedUpdatingAt = 0;
 let timeout: NodeJS.Timeout;
 
@@ -41,7 +41,7 @@ async function update(workflow: V1Workflow) {
   startedUpdatingAt = now;
 
   try {
-    const nodes = Object.values(workflow.status.nodes || {}).map((n: any) => {
+    const nodes = Object.values(workflow.status.nodes || {}).map((n) => {
       const annotation = 'workflows.argoproj.io/node-id';
       const message = n.message?.includes('exceeded quota')
         ? 'Namespace Limit reached.'

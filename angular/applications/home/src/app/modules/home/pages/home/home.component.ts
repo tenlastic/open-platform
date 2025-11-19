@@ -4,8 +4,9 @@ import { environment } from '../../../../../environments/environment';
 import { ElectronService } from '../../../../core/services';
 
 @Component({
-  templateUrl: 'home.component.html',
+  standalone: false,
   styleUrls: ['./home.component.scss'],
+  templateUrl: 'home.component.html',
 })
 export class HomeComponent {
   public get isElectron() {

@@ -6,14 +6,18 @@ describe('json-schema/json-to-mongo', function () {
   context('when the schema is invalid', function () {
     it('throws an error', function () {
       const input = { type: 'objectttt' };
-      const func = () => jsonToMongo(input);
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const func = () => jsonToMongo(input as any);
 
       expect(func).to.throw(/Unsupported JSON schema/);
     });
 
     it('throws an error', function () {
       const input = { properties: 'not an object', type: 'object' };
-      const func = () => jsonToMongo(input);
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const func = () => jsonToMongo(input as any);
 
       expect(func).to.throw(/Unsupported JSON schema/);
     });
@@ -23,7 +27,9 @@ describe('json-schema/json-to-mongo', function () {
         properties: { email: { type: 'not a type' } },
         type: 'object',
       };
-      const func = () => jsonToMongo(input);
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const func = () => jsonToMongo(input as any);
 
       expect(func).to.throw(/Unsupported JSON schema/);
     });
@@ -55,7 +61,8 @@ describe('json-schema/json-to-mongo', function () {
         type: 'object',
       };
 
-      const result = jsonToMongo(json);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = jsonToMongo(json as any);
 
       expect(result).to.eql({
         bsonType: ['null', 'object'],

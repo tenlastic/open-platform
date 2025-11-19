@@ -12,8 +12,9 @@ export interface UpdatedFile {
 
 @Component({
   selector: 'app-files-form',
-  templateUrl: 'files-form.component.html',
+  standalone: false,
   styleUrls: ['files-form.component.scss'],
+  templateUrl: 'files-form.component.html',
 })
 export class FilesFormComponent implements OnInit {
   @Input() public build = new BuildModel();

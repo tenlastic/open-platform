@@ -3,11 +3,11 @@ export const entryLengthValidator = (max: number, min?: number) => {
   const minMsg = min ? ` less than ${min}` : '';
   const andMsg = maxMsg && minMsg ? ' and' : '';
 
-  const msg = `Value cannot contain${minMsg}${andMsg}${maxMsg} entries.`;
+  const message = `Value cannot contain${minMsg}${andMsg}${maxMsg} entries.`;
 
   return {
-    msg,
-    validator: (value: any) => {
+    message,
+    validator: (value: unknown) => {
       if (value instanceof Map) {
         return isValid(max, min, Array.from(value.keys()));
       } else if (value && typeof value === 'object' && !Array.isArray(value)) {
@@ -19,6 +19,6 @@ export const entryLengthValidator = (max: number, min?: number) => {
   };
 };
 
-function isValid(max: number, min: number, value: any) {
+function isValid(max: number, min: number, value: unknown[]) {
   return (!max || value.length <= max) && (!min || value.length >= min);
 }

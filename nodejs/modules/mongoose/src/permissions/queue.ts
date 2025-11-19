@@ -1,6 +1,6 @@
-import { MongoosePermissions } from '@tenlastic/mongoose-permissions';
+import { IOptions } from '@tenlastic/mongoose-permissions';
 
-import { AuthorizationRole, QueueDocument, QueueModel } from '../models';
+import { AuthorizationRole, QueueDocument } from '../models';
 import { AuthorizationPermissionsHelpers } from './authorization';
 
 const administrator = {
@@ -66,7 +66,7 @@ const administrator = {
   ],
 };
 
-export const QueuePermissions = new MongoosePermissions<QueueDocument>(QueueModel, {
+export const QueuePermissionOptions: IOptions<QueueDocument> = {
   create: {
     'namespace-write': administrator.create,
     'user-write': administrator.create,
@@ -140,4 +140,4 @@ export const QueuePermissions = new MongoosePermissions<QueueDocument>(QueueMode
     'system-write': [...administrator.update, 'status.*'],
     'user-write': administrator.update,
   },
-});
+};

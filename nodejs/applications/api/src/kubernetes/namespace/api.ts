@@ -57,13 +57,13 @@ function getPodTemplate(namespace: NamespaceDocument): V1Pod {
   ];
   const livenessProbe: V1Probe = {
     failureThreshold: 3,
-    httpGet: { path: `/probes/liveness`, port: 3000 as any },
+    httpGet: { path: `/probes/liveness`, port: 3000 },
     initialDelaySeconds: 10,
     periodSeconds: 10,
   };
   const readinessProbe: V1Probe = {
     failureThreshold: 1,
-    httpGet: { path: `/probes/readiness`, port: 3000 as any },
+    httpGet: { path: `/probes/readiness`, port: 3000 },
     initialDelaySeconds: 5,
     periodSeconds: 5,
   };
@@ -93,9 +93,7 @@ function getPodTemplate(namespace: NamespaceDocument): V1Pod {
           },
         ],
         serviceAccountName: `namespace-api`,
-        volumes: [
-          { hostPath: { path: '/usr/src/open-platform/' }, name: 'workspace' },
-        ],
+        volumes: [{ hostPath: { path: '/usr/src/open-platform/' }, name: 'workspace' }],
       },
     };
   } else {

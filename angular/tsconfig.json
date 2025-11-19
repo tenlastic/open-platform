@@ -1,26 +1,37 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "allowSyntheticDefaultImports": true,
     "baseUrl": "./",
-    "outDir": "./dist/out-tsc",
-    "sourceMap": true,
     "declaration": false,
-    "downlevelIteration": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "importHelpers": true,
-    "lib": ["es2018", "dom"],
+    "lib": [
+      "dom",
+      "es2018"
+    ],
     "module": "es2020",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
+    "outDir": "./dist/out-tsc",
     "paths": {
-      "@tenlastic/http": ["../nodejs/modules/http/src"],
-      "@tenlastic/wait": ["../nodejs/modules/wait/src"],
-      "path": ["./node_modules/path-browserify"]
+      "@home/*": ["./applications/home/src/*"],
+      "@tenlastic/http": [
+        "../nodejs/modules/http/src"
+      ],
+      "@tenlastic/wait": [
+        "../nodejs/modules/wait/src"
+      ],
+      "path": [
+        "./node_modules/path-browserify"
+      ]
     },
     "resolveJsonModule": true,
-    "target": "es2020",
-    "typeRoots": ["./node_modules/@types"]
+    "sourceMap": true,
+    "target": "ES2022",
+    "typeRoots": [
+      "./node_modules/@types"
+    ],
+    "useDefineForClassFields": false
   },
   "angularCompilerOptions": {
     "fullTemplateTypeCheck": true,

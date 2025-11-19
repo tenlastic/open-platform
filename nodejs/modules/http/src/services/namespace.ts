@@ -1,7 +1,11 @@
 import { NamespaceModel } from '../models/namespace';
-import { NamespaceStore } from '../states/namespace';
 import { ApiService } from './api';
-import { BaseService, BaseServiceFindQuery } from './base';
+import {
+  BaseService,
+  BaseServiceCountQuery,
+  BaseServiceFindQuery,
+  BaseServiceRecordResponse,
+} from './base';
 import { EnvironmentService } from './environment';
 
 export class NamespaceService {
@@ -11,22 +15,14 @@ export class NamespaceService {
 
   private baseService: BaseService<NamespaceModel>;
 
-  constructor(
-    private apiService: ApiService,
-    private environmentService: EnvironmentService,
-    private namespaceStore: NamespaceStore,
-  ) {
-    this.baseService = new BaseService<NamespaceModel>(
-      this.apiService,
-      NamespaceModel,
-      this.namespaceStore,
-    );
+  constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
+    this.baseService = new BaseService<NamespaceModel>(this.apiService, NamespaceModel);
   }
 
   /**
    * Returns the number of Records satisfying the query.
    */
-  public async count(query: any) {
+  public async count(query: BaseServiceCountQuery) {
     const url = this.getUrl();
     return this.baseService.count(query, url);
   }
@@ -68,14 +64,13 @@ export class NamespaceService {
    */
   public async restart(_id: string) {
     const url = this.getUrl();
-    const response = await this.apiService.request({
+    const response = await this.apiService.request<BaseServiceRecordResponse<NamespaceModel>>({
       method: 'patch',
       url: `${url}/${_id}/restarted-at`,
     });
 
     const record = new NamespaceModel(response.data.record);
     this.emitter.emit('update', record);
-    this.namespaceStore.upsertMany([record]);
 
     return record;
   }

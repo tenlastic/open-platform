@@ -2,7 +2,7 @@ import * as WS from 'ws';
 
 import { Response } from './response';
 
-export class WebSocket extends WS {
+export class WebSocket<TResponse = unknown> extends WS {
   public isAlive: boolean;
-  public send: (data: Response) => void;
+  public send: (data: Response<TResponse>) => void;
 }

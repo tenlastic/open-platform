@@ -1,32 +1,26 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { Component, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
-  ArticleModel,
-  ArticleService,
-  ArticleStore,
-  AuthorizationQuery,
+  AuthorizationState,
   IAuthorization,
   NamespaceModel,
-  NamespaceQuery,
+  NamespaceState,
   StorefrontModel,
-  StorefrontQuery,
   StorefrontService,
-  SubscriptionService,
-  WebSocketRequest,
-  WebSocketService,
+  StorefrontState,
 } from '@tenlastic/http';
 import { combineLatest, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { v4 as uuid } from 'uuid';
 
-import { environment } from '../../../../../../../environments/environment';
-import { IdentityService } from '../../../../../../core/services';
+import { IdentityService, SideMenuService } from '@home/app/core/services';
 
 @Component({
+  standalone: false,
   templateUrl: './layout.component.html',
-  styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent implements OnDestroy, OnInit {
+  @ViewChild('sideMenu', { static: true }) private sideMenuTemplate: TemplateRef<unknown>;
+
   public $namespace: Observable<NamespaceModel>;
   public $storefront: Observable<StorefrontModel>;
   public IAuthorization = IAuthorization;
@@ -34,80 +28,42 @@ export class LayoutComponent implements OnDestroy, OnInit {
     return this.router.url.endsWith(`/storefront`) || this.router.url.endsWith(`/storefront/json`);
   }
 
-  private params: Params;
-  private subscriptions = [
-    {
-      Model: ArticleModel,
-      request: { _id: uuid(), path: '/subscriptions/articles' } as WebSocketRequest,
-      service: this.articleService,
-      store: this.articleStore,
-    },
-  ];
-  private get webSocket() {
-    const url = `${environment.wssUrl}/namespaces/${this.params.namespaceId}`;
-    return this.webSocketService.webSockets.find((ws) => url === ws.url);
-  }
+  private namespaceId: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private articleService: ArticleService,
-    private articleStore: ArticleStore,
-    private authorizationQuery: AuthorizationQuery,
+    private authorizationState: AuthorizationState,
     private identityService: IdentityService,
-    private namespaceQuery: NamespaceQuery,
+    private namespaceState: NamespaceState,
     private router: Router,
-    private storefrontQuery: StorefrontQuery,
+    private sideMenuService: SideMenuService,
+    private storefrontState: StorefrontState,
     private storefrontService: StorefrontService,
-    private subscriptionService: SubscriptionService,
-    private webSocketService: WebSocketService,
   ) {}
 
   public async ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
-      this.params = params;
+      this.namespaceId = params.namespaceId;
 
-      this.$namespace = this.namespaceQuery.selectEntity(params.namespaceId);
-      this.$storefront = this.storefrontQuery.selectEntity(params.namespaceId);
+      this.$namespace = this.namespaceState.selectOne(this.namespaceId);
+      this.$storefront = this.storefrontState.selectOne(this.namespaceId);
 
-      await this.storefrontService.find(params.namespaceId, { limit: 1 });
+      this.sideMenuService.add(this.sideMenuTemplate);
 
-      return this.subscribe();
+      await this.storefrontService.find(this.namespaceId, { limit: 1 });
     });
   }
 
   public async ngOnDestroy() {
-    await this.unsubscribe();
+    this.sideMenuService.remove(this.sideMenuTemplate);
   }
 
   public $hasPermission(roles: IAuthorization.Role[]) {
     const userId = this.identityService.user?._id;
 
     return combineLatest([
-      this.authorizationQuery.selectHasRoles(null, roles, userId),
-      this.authorizationQuery.selectHasRoles(this.params.namespaceId, roles, userId),
+      this.authorizationState.selectHasRoles(null, roles, userId),
+      this.authorizationState.selectHasRoles(this.namespaceId, roles, userId),
     ]).pipe(map(([a, b]) => a || b));
-  }
-
-  private async subscribe() {
-    const promises = this.subscriptions.map((s) =>
-      this.subscriptionService.subscribe(
-        s.Model,
-        { ...s.request },
-        s.service,
-        s.store,
-        this.webSocket,
-        { acks: true },
-      ),
-    );
-
-    return Promise.all(promises);
-  }
-
-  private unsubscribe() {
-    const promises = this.subscriptions.map((s) =>
-      this.subscriptionService.unsubscribe(s.request._id, this.webSocket),
-    );
-
-    return Promise.all(promises);
   }
 }

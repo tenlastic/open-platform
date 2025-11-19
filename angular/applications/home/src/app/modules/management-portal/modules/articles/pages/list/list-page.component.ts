@@ -1,43 +1,48 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
+import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import {
   ArticleModel,
-  ArticleQuery,
   ArticleService,
-  AuthorizationQuery,
+  ArticleState,
+  AuthorizationState,
   IArticle,
   IAuthorization,
+  WebSocketService,
 } from '@tenlastic/http';
-import { Observable, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { v4 as uuid } from 'uuid';
 
-import { IdentityService } from '../../../../../../core/services';
-import { PromptComponent } from '../../../../../../shared/components';
+import { formatDate } from '@angular/common';
+import { IdentityService, OverlayService } from '@home/app/core/services';
+import {
+  DeletionOverlayComponent,
+  DeletionOverlayComponentData,
+  ListTableColumn,
+  ListTableSubscription,
+} from '@home/app/shared/components';
+import { environment } from '@home/environments/environment';
 
 @Component({
-  templateUrl: 'list-page.component.html',
+  standalone: false,
   styleUrls: ['./list-page.component.scss'],
+  templateUrl: 'list-page.component.html',
 })
-export class ArticlesListPageComponent implements OnDestroy, OnInit {
-  @ViewChild(MatPaginator) set paginator(paginator: MatPaginator) {
-    this.dataSource.paginator = paginator;
-  }
-  @ViewChild(MatSort) set sort(sort: MatSort) {
-    this.dataSource.sort = sort;
-  }
-
-  public dataSource = new MatTableDataSource<ArticleModel>();
-  public get displayedColumns() {
-    return this.type
-      ? ['title', 'publishedAt', 'createdAt', 'actions']
-      : ['type', 'title', 'publishedAt', 'createdAt', 'actions'];
-  }
-  public hasWriteAuthorization: boolean;
-  public message: string;
+export class ArticlesListPageComponent implements OnInit {
+  public $filter = new BehaviorSubject<string>(null);
+  public $records: Observable<ArticleModel[]>;
+  public $refresh = new Subject<void>();
+  public columns: ListTableColumn<ArticleModel>[] = [
+    { header: 'Title', text: (v) => v.title },
+    {
+      header: 'Published At',
+      text: (v) =>
+        v.publishedAt ? formatDate(v.publishedAt, "MMM d, y 'at' h:mm a", 'en-US') : '',
+    },
+    { header: 'Created At', text: (v) => formatDate(v.createdAt, "MMM d, y 'at' h:mm a", 'en-US') },
+    { header: 'Updated At', text: (v) => formatDate(v.updatedAt, "MMM d, y 'at' h:mm a", 'en-US') },
+  ];
+  public hasWriteAuthorization = false;
   public get plural() {
     switch (this.type) {
       case IArticle.Type.Guide:
@@ -62,42 +67,101 @@ export class ArticlesListPageComponent implements OnDestroy, OnInit {
         return 'Article';
     }
   }
+  public subscriptions: ListTableSubscription[] = [
+    {
+      Model: ArticleModel,
+      request: { _id: uuid(), path: `/subscriptions/articles` },
+      service: this.articleService,
+    },
+  ];
+  public get webSocket() {
+    return this.webSocketService.webSockets.find(
+      (ws) => `${environment.wssUrl}/namespaces/${this.namespaceId}` === ws.url,
+    );
+  }
 
-  private $articles: Observable<ArticleModel[]>;
+  private namespaceId: string;
   private type: IArticle.Type;
-  private updateDataSource$ = new Subscription();
+  private get where() {
+    const where: any = {
+      namespaceId: this.namespaceId,
+      type: this.type,
+    };
+
+    if (this.$filter.value) {
+      where.title = { $regex: this.$filter.value, $options: 'i' };
+    }
+
+    return where;
+  }
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private articleQuery: ArticleQuery,
+    private articleState: ArticleState,
     private articleService: ArticleService,
-    private authorizationQuery: AuthorizationQuery,
+    private authorizationState: AuthorizationState,
     private identityService: IdentityService,
-    private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
+    private overlayService: OverlayService,
+    private webSocketService: WebSocketService,
   ) {}
 
   public ngOnInit() {
+    this.$records = this.articleState.selectMany();
+
     this.activatedRoute.data.subscribe((data) => (this.type = data.type));
 
     this.activatedRoute.params.subscribe(async (params) => {
-      this.message = 'Loading...';
+      this.namespaceId = params.namespaceId;
 
       const roles = [IAuthorization.Role.ArticlesWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
-        this.authorizationQuery.hasRoles(null, roles, userId) ||
-        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
+        this.authorizationState.hasRoles(null, roles, userId) ||
+        this.authorizationState.hasRoles(this.namespaceId, roles, userId);
 
-      await this.fetchArticles(params);
-
-      this.message = null;
+      this.$refresh.next();
     });
   }
 
-  public ngOnDestroy() {
-    this.updateDataSource$.unsubscribe();
-  }
+  public count = () => {
+    return this.articleService.count(this.namespaceId, { where: this.where });
+  };
+
+  public filter = (record: ArticleModel) => {
+    if (this.namespaceId !== record.namespaceId) {
+      return false;
+    }
+
+    if (this.type !== record.type) {
+      return false;
+    }
+
+    if (!this.$filter.value) {
+      return true;
+    }
+
+    const regex = new RegExp(this.$filter.value, 'i');
+    return regex.test(record.title) || regex.test(record.type);
+  };
+
+  public find = async (page: number, pageSize: number) => {
+    const records = await this.articleService.find(this.namespaceId, {
+      limit: pageSize,
+      skip: page * pageSize,
+      sort: '-createdAt',
+      where: this.where,
+    });
+
+    const _ids = records.map((r) => r._id);
+    this.subscriptions[0].request.body = { where: { _id: { $in: _ids } } };
+
+    return records;
+  };
+
+  public navigate = (record: ArticleModel) => {
+    return [record._id];
+  };
 
   public async publish($event: Event, article: ArticleModel) {
     $event.stopPropagation();
@@ -110,24 +174,16 @@ export class ArticlesListPageComponent implements OnDestroy, OnInit {
     this.matSnackBar.open('Article published successfully.');
   }
 
+  public setFilter(value: string) {
+    this.$filter.next(value);
+    this.$refresh.next();
+  }
+
   public showDeletePrompt($event: Event, record: ArticleModel) {
     $event.stopPropagation();
-
-    const dialogRef = this.matDialog.open(PromptComponent, {
-      data: {
-        buttons: [
-          { color: 'primary', label: 'No' },
-          { color: 'accent', label: 'Yes' },
-        ],
-        message: `Are you sure you want to delete this Article?`,
-      },
-    });
-
-    dialogRef.afterClosed().subscribe(async (result) => {
-      if (result === 'Yes') {
-        await this.articleService.delete(record.namespaceId, record._id);
-        this.matSnackBar.open('Article deleted successfully.');
-      }
+    this.overlayService.open<DeletionOverlayComponentData>(DeletionOverlayComponent, {
+      delete: () => this.articleService.delete(record.namespaceId, record._id),
+      name: 'Article',
     });
   }
 
@@ -140,32 +196,5 @@ export class ArticlesListPageComponent implements OnDestroy, OnInit {
     });
 
     this.matSnackBar.open('Article unpublished successfully.');
-  }
-
-  private async fetchArticles(params: Params) {
-    this.$articles = this.articleQuery.selectAll({
-      filterBy: (article) =>
-        article.namespaceId === params.namespaceId && article.type === this.type,
-    });
-
-    await this.articleService.find(params.namespaceId, {
-      sort: '-createdAt',
-      where: { namespaceId: params.namespaceId, type: this.type },
-    });
-
-    this.updateDataSource$ = this.$articles.subscribe(
-      (articles) => (this.dataSource.data = articles),
-    );
-
-    this.dataSource.filterPredicate = (data: ArticleModel, filter: string) => {
-      filter = filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
-
-      const regex = new RegExp(filter, 'i');
-      const exactRegex = new RegExp(`^${filter}$`, 'i');
-
-      const published = data.publishedAt ? 'Published' : 'Unpublished';
-
-      return regex.test(data.title) || regex.test(data.type) || exactRegex.test(published);
-    };
   }
 }

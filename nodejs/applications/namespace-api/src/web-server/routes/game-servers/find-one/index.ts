@@ -1,4 +1,4 @@
-import { GameServerPermissions } from '@tenlastic/mongoose';
+import { GameServerModel, GameServerPermissionOptions } from '@tenlastic/mongoose';
 import { findOne } from '@tenlastic/web-server';
 
-export const handler = findOne(GameServerPermissions);
+export const handler = findOne(GameServerModel, GameServerPermissionOptions);

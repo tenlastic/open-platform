@@ -1,9 +1,9 @@
-@import 'src/assets/scss/theme.scss';
+@use 'src/assets/scss/shadows.scss' as shadows;
 
 :host {
   align-items: center;
   background: rgba(0, 0, 0, 0.5);
-  box-shadow: $box-shadow-top;
+  box-shadow: shadows.$box-shadow-top;
   display: flex;
   flex: 0 0 auto;
   padding: 8px 8px;

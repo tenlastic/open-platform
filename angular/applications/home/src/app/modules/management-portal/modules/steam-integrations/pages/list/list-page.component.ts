@@ -1,112 +1,143 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
-import { ActivatedRoute, Params } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import {
-  AuthorizationQuery,
+  AuthorizationState,
   IAuthorization,
   SteamIntegrationModel,
-  SteamIntegrationQuery,
   SteamIntegrationService,
+  SteamIntegrationState,
+  WebSocketService,
 } from '@tenlastic/http';
-import { Observable, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { v4 as uuid } from 'uuid';
 
-import { IdentityService } from '../../../../../../core/services';
-import { PromptComponent } from '../../../../../../shared/components';
+import { formatDate } from '@angular/common';
+import { IdentityService, OverlayService } from '@home/app/core/services';
+import {
+  DeletionOverlayComponent,
+  DeletionOverlayComponentData,
+  ListTableColumn,
+  ListTableSubscription,
+} from '@home/app/shared/components';
+import { environment } from '@home/environments/environment';
 
 @Component({
-  templateUrl: 'list-page.component.html',
+  standalone: false,
   styleUrls: ['./list-page.component.scss'],
+  templateUrl: 'list-page.component.html',
 })
-export class SteamIntegrationsListPageComponent implements OnDestroy, OnInit {
-  @ViewChild(MatPaginator) set paginator(paginator: MatPaginator) {
-    this.dataSource.paginator = paginator;
-  }
-  @ViewChild(MatSort) set sort(sort: MatSort) {
-    this.dataSource.sort = sort;
-  }
-
-  public dataSource = new MatTableDataSource<SteamIntegrationModel>();
-  public get displayedColumns() {
-    return ['name', 'apiKey', 'applicationId', 'roles', 'createdAt', 'updatedAt', 'actions'];
-  }
+export class SteamIntegrationsListPageComponent implements OnInit {
+  public $filter = new BehaviorSubject<string>(null);
+  public $records: Observable<SteamIntegrationModel[]>;
+  public $refresh = new Subject<void>();
+  public columns: ListTableColumn<SteamIntegrationModel>[] = [
+    { header: 'Name', text: (v) => v.name },
+    { header: 'API Key', text: (v) => v.apiKey },
+    { header: 'Application ID', text: (v) => `${v.applicationId}` },
+    { header: 'Roles', text: (v) => `${v.roles?.length || 0}` },
+    { header: 'Created At', text: (v) => formatDate(v.createdAt, "MMM d, y 'at' h:mm a", 'en-US') },
+    { header: 'Updated At', text: (v) => formatDate(v.updatedAt, "MMM d, y 'at' h:mm a", 'en-US') },
+  ];
   public hasWriteAuthorization: boolean;
-  public message: string;
+  public subscriptions: ListTableSubscription[] = [
+    {
+      Model: SteamIntegrationModel,
+      request: { _id: uuid(), path: `/subscriptions/steam-integrations` },
+      service: this.steamIntegrationService,
+    },
+  ];
+  public get webSocket() {
+    return this.webSocketService.webSockets.find(
+      (ws) => `${environment.wssUrl}/namespaces/${this.namespaceId}` === ws.url,
+    );
+  }
 
-  private $steamIntegrations: Observable<SteamIntegrationModel[]>;
-  private updateDataSource$ = new Subscription();
+  private namespaceId: string;
+  private get where() {
+    const where: any = { namespaceId: this.namespaceId };
+
+    if (this.$filter.value) {
+      where.$or = [
+        { apiKey: { $regex: this.$filter.value, $options: 'i' } },
+        { name: { $regex: this.$filter.value, $options: 'i' } },
+      ];
+    }
+
+    return where;
+  }
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private authorizationQuery: AuthorizationQuery,
+    private authorizationState: AuthorizationState,
     private identityService: IdentityService,
-    private matDialog: MatDialog,
-    private matSnackBar: MatSnackBar,
-    private steamIntegrationQuery: SteamIntegrationQuery,
+    private overlayService: OverlayService,
     private steamIntegrationService: SteamIntegrationService,
+    private steamIntegrationState: SteamIntegrationState,
+    private webSocketService: WebSocketService,
   ) {}
 
   public ngOnInit() {
+    this.$records = this.steamIntegrationState.selectMany();
+
     this.activatedRoute.params.subscribe(async (params) => {
-      this.message = 'Loading...';
+      this.namespaceId = params.namespaceId;
 
       const roles = [IAuthorization.Role.SteamIntegrationsWrite];
       const userId = this.identityService.user?._id;
       this.hasWriteAuthorization =
-        this.authorizationQuery.hasRoles(null, roles, userId) ||
-        this.authorizationQuery.hasRoles(params.namespaceId, roles, userId);
+        this.authorizationState.hasRoles(null, roles, userId) ||
+        this.authorizationState.hasRoles(this.namespaceId, roles, userId);
 
-      await this.fetchSteamIntegrations(params);
-
-      this.message = null;
+      this.$refresh.next();
     });
   }
 
-  public ngOnDestroy() {
-    this.updateDataSource$.unsubscribe();
+  public count = () => {
+    return this.steamIntegrationService.count(this.namespaceId, { where: this.where });
+  };
+
+  public filter = (record: SteamIntegrationModel) => {
+    if (this.namespaceId !== record.namespaceId) {
+      return false;
+    }
+
+    if (!this.$filter.value) {
+      return true;
+    }
+
+    const regex = new RegExp(this.$filter.value, 'i');
+
+    return regex.test(record.apiKey) || regex.test(record.name);
+  };
+
+  public find = async (page: number, pageSize: number) => {
+    const records = await this.steamIntegrationService.find(this.namespaceId, {
+      limit: pageSize,
+      skip: page * pageSize,
+      sort: 'name',
+      where: this.where,
+    });
+
+    const _ids = records.map((r) => r._id);
+    this.subscriptions[0].request.body = { where: { _id: { $in: _ids } } };
+
+    return records;
+  };
+
+  public navigate = (record: SteamIntegrationModel) => {
+    return [record._id];
+  };
+
+  public setFilter(value: string) {
+    this.$filter.next(value);
+    this.$refresh.next();
   }
 
   public showDeletePrompt($event: Event, record: SteamIntegrationModel) {
     $event.stopPropagation();
-
-    const dialogRef = this.matDialog.open(PromptComponent, {
-      data: {
-        buttons: [
-          { color: 'primary', label: 'No' },
-          { color: 'accent', label: 'Yes' },
-        ],
-        message: `Are you sure you want to delete this Steam Integration?`,
-      },
+    this.overlayService.open<DeletionOverlayComponentData>(DeletionOverlayComponent, {
+      delete: () => this.steamIntegrationService.delete(record.namespaceId, record._id),
+      name: 'Steam Integration',
     });
-
-    dialogRef.afterClosed().subscribe(async (result) => {
-      if (result === 'Yes') {
-        await this.steamIntegrationService.delete(record.namespaceId, record._id);
-        this.matSnackBar.open('Steam Integration deleted successfully.');
-      }
-    });
-  }
-
-  private async fetchSteamIntegrations(params: Params) {
-    this.$steamIntegrations = this.steamIntegrationQuery.selectAll({
-      filterBy: (m) => m.namespaceId === params.namespaceId,
-    });
-
-    await this.steamIntegrationService.find(params.namespaceId, { sort: 'name' });
-
-    this.updateDataSource$ = this.$steamIntegrations.subscribe(
-      (steamIntegrations) => (this.dataSource.data = steamIntegrations),
-    );
-
-    this.dataSource.filterPredicate = (data: SteamIntegrationModel, filter: string) => {
-      const regex = new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
-
-      return (
-        regex.test(data.apiKey) || regex.test(`${data.applicationId}`) || regex.test(data.name)
-      );
-    };
   }
 }

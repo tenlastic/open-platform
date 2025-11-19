@@ -3,11 +3,11 @@ export const arrayLengthValidator = (max: number, min?: number) => {
   const minMsg = min ? ` less than ${min}` : '';
   const andMsg = maxMsg && minMsg ? ' and' : '';
 
-  const msg = `Value cannot contain${minMsg}${andMsg}${maxMsg} items.`;
+  const message = `Value cannot contain${minMsg}${andMsg}${maxMsg} items.`;
 
   return {
-    msg,
-    validator: (value: any) => {
+    message,
+    validator: (value: unknown) => {
       return Array.isArray(value)
         ? (!max || value.length <= max) && (!min || value.length >= min)
         : true;

@@ -1,4 +1,4 @@
-import { mongoose } from '@typegoose/typegoose';
+import * as mongoose from 'mongoose';
 
 export interface ConnectionOptions {
   autoCreate?: boolean;

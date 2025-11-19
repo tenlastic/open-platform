@@ -1,4 +1,7 @@
-import { AuthorizationRequestPermissions } from '@tenlastic/mongoose';
+import {
+  AuthorizationRequestModel,
+  AuthorizationRequestPermissionOptions,
+} from '@tenlastic/mongoose';
 import { count } from '@tenlastic/web-server';
 
-export const handler = count(AuthorizationRequestPermissions);
+export const handler = count(AuthorizationRequestModel, AuthorizationRequestPermissionOptions);

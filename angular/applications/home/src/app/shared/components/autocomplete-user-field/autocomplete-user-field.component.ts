@@ -1,11 +1,12 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { UserModel, UserQuery, UserService } from '@tenlastic/http';
+import { UserModel, UserService, UserState } from '@tenlastic/http';
 import { Observable, Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-autocomplete-user-field',
+  standalone: false,
   styleUrls: ['autocomplete-user-field.component.scss'],
   templateUrl: 'autocomplete-user-field.component.html',
 })
@@ -20,7 +21,7 @@ export class AutocompleteUserFieldComponent implements OnInit {
 
   private subject = new Subject<string>();
 
-  constructor(private userQuery: UserQuery, private userService: UserService) {}
+  constructor(private userState: UserState, private userService: UserService) {}
 
   public ngOnInit() {
     this.subject.pipe(debounceTime(300)).subscribe((username) => this.findUsers(username));
@@ -47,7 +48,9 @@ export class AutocompleteUserFieldComponent implements OnInit {
     this.isLoading = true;
 
     const regex = new RegExp(`^${username}`, 'i');
-    this.$users = this.userQuery.selectAll({ filterBy: (u) => regex.test(u.username) });
+    this.$users = this.userState
+      .selectMany()
+      .pipe(map((us) => us.filter((u) => regex.test(u.username))));
     await this.userService.find({
       sort: 'username',
       where: { username: { $regex: `^${username}`, $options: 'i' } },

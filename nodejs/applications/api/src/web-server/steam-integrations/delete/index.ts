@@ -1,4 +1,4 @@
-import { SteamIntegrationPermissions } from '@tenlastic/mongoose';
+import { SteamIntegrationModel, SteamIntegrationPermissionOptions } from '@tenlastic/mongoose';
 import { deleteOne } from '@tenlastic/web-server';
 
-export const handler = deleteOne(SteamIntegrationPermissions);
+export const handler = deleteOne(SteamIntegrationModel, SteamIntegrationPermissionOptions);

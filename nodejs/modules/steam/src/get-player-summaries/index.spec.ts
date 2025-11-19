@@ -8,19 +8,13 @@ import { getPlayerSummaries } from './';
 const chance = new Chance();
 
 describe('get-player-summaries', function () {
-  let sandbox: sinon.SinonSandbox;
-
-  beforeEach(function () {
-    sandbox = sinon.createSandbox();
-  });
-
   afterEach(function () {
-    sandbox.restore();
+    sinon.restore();
   });
 
   it('returns Player Summaries from Steam', async function () {
     const player = { personaname: chance.hash(), steamid: chance.hash() };
-    sandbox
+    sinon
       .stub(request, 'request')
       .resolves({ data: { response: { players: [player] } }, status: 200 });
 

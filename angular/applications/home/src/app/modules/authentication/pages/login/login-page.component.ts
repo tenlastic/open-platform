@@ -1,5 +1,4 @@
-import { DOCUMENT } from '@angular/common';
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, DOCUMENT, Inject, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LoginService, TokenService } from '@tenlastic/http';
 
@@ -8,8 +7,9 @@ import { ElectronService } from '../../../../core/services';
 import { ILogIn, LoginFormComponent } from '../../components';
 
 @Component({
-  templateUrl: 'login-page.component.html',
+  standalone: false,
   styleUrls: ['./login-page.component.scss'],
+  templateUrl: 'login-page.component.html',
 })
 export class LoginPageComponent implements OnInit {
   @ViewChild(LoginFormComponent)

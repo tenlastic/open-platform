@@ -1,29 +1,47 @@
-import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
 import { Chance } from 'chance';
+import * as mongoose from 'mongoose';
 
-import { enumValidator } from '../../../../validators';
+export interface CollectionIndexKey {
+  direction?: number;
+  field: string;
+}
 
-@modelOptions({ schemaOptions: { _id: false } })
-export class CollectionIndexKeySchema {
-  @prop({ default: 1, type: Number, validate: enumValidator([-1, 1]) })
-  public direction: number;
+export type CollectionIndexKeyDocument = mongoose.Document<mongoose.Types.ObjectId> &
+  CollectionIndexKey;
 
-  @prop({ match: /^[0-9A-Za-z.]+$/, maxlength: 64, required: true, trim: true, type: String })
-  public field: string;
-
+export interface CollectionIndexKeyModelType extends mongoose.Model<CollectionIndexKeyDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(
-    this: typeof CollectionIndexKeyModel,
-    values: Partial<CollectionIndexKeySchema> = {},
-  ) {
-    const chance = new Chance();
-    const defaults = { field: chance.hash() };
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(
+    this: CollectionIndexKeyModelType,
+    values?: Partial<CollectionIndexKey>,
+  ): CollectionIndexKeyDocument;
 }
 
-export type CollectionIndexKeyDocument = DocumentType<CollectionIndexKeySchema>;
-export const CollectionIndexKeyModel = getModelForClass(CollectionIndexKeySchema);
+const CollectionIndexKeySchema = new mongoose.Schema<
+  CollectionIndexKeyDocument,
+  CollectionIndexKeyModelType
+>(
+  {
+    direction: { default: 1, type: Number },
+    field: { match: /^[0-9A-Za-z.]+$/, maxlength: 64, required: true, trim: true, type: String },
+  },
+  { _id: false },
+);
+
+CollectionIndexKeySchema.statics.mock = function (values: Partial<CollectionIndexKey> = {}) {
+  const chance = new Chance();
+  const defaults: Partial<CollectionIndexKey> = { field: chance.hash() };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const CollectionIndexKeyModel = mongoose.model<
+  CollectionIndexKeyDocument,
+  CollectionIndexKeyModelType
+>('CollectionIndexKeySchema', CollectionIndexKeySchema);
+
+export { CollectionIndexKeySchema };
+
+export default CollectionIndexKeyModel;

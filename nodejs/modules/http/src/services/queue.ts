@@ -1,7 +1,11 @@
 import { QueueModel } from '../models/queue';
-import { QueueStore } from '../states/queue';
 import { ApiService } from './api';
-import { BaseService, BaseServiceFindQuery } from './base';
+import {
+  BaseService,
+  BaseServiceCountQuery,
+  BaseServiceFindQuery,
+  BaseServiceRecordResponse,
+} from './base';
 import { EnvironmentService } from './environment';
 
 export class QueueService {
@@ -11,18 +15,14 @@ export class QueueService {
 
   private baseService: BaseService<QueueModel>;
 
-  constructor(
-    private apiService: ApiService,
-    private environmentService: EnvironmentService,
-    private queueStore: QueueStore,
-  ) {
-    this.baseService = new BaseService<QueueModel>(this.apiService, QueueModel, this.queueStore);
+  constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
+    this.baseService = new BaseService<QueueModel>(this.apiService, QueueModel);
   }
 
   /**
    * Returns the number of Records satisfying the query.
    */
-  public async count(namespaceId: string, query: any) {
+  public async count(namespaceId: string, query: BaseServiceCountQuery) {
     const url = this.getUrl(namespaceId);
     return this.baseService.count(query, url);
   }
@@ -64,14 +64,13 @@ export class QueueService {
    */
   public async restart(namespaceId: string, _id: string) {
     const url = this.getUrl(namespaceId);
-    const response = await this.apiService.request({
+    const response = await this.apiService.request<BaseServiceRecordResponse<QueueModel>>({
       method: 'patch',
       url: `${url}/${_id}/restarted-at`,
     });
 
     const record = new QueueModel(response.data.record);
     this.emitter.emit('update', record);
-    this.queueStore.upsertMany([record]);
 
     return record;
   }

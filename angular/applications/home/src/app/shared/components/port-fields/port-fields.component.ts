@@ -4,6 +4,7 @@ import { IGameServer } from '@tenlastic/http';
 
 @Component({
   selector: 'app-port-fields',
+  standalone: false,
   styleUrls: ['port-fields.component.scss'],
   templateUrl: 'port-fields.component.html',
 })

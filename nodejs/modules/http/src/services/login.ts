@@ -30,9 +30,13 @@ export class LoginService {
   public async createWithCredentials(username: string, password: string) {
     const parameters = { password, username };
     const url = this.getUrl();
-    const response = await this.apiService.request({ data: parameters, method: 'post', url });
+    const response = await this.apiService.request<LoginServiceResponse>({
+      data: parameters,
+      method: 'post',
+      url,
+    });
 
-    const { accessToken, refreshToken } = response.data as LoginServiceResponse;
+    const { accessToken, refreshToken } = response.data;
     this.emitter.emit('login', { accessToken, refreshToken });
 
     return { accessToken, refreshToken };
@@ -44,13 +48,13 @@ export class LoginService {
   public async createWithRefreshToken(token: string) {
     const parameters = { token };
     const url = this.getUrl();
-    const response = await this.apiService.request({
+    const response = await this.apiService.request<LoginServiceResponse>({
       data: parameters,
       method: 'post',
       url: `${url}/refresh-token`,
     });
 
-    const { accessToken, refreshToken } = response.data as LoginServiceResponse;
+    const { accessToken, refreshToken } = response.data;
     this.emitter.emit('refresh', { accessToken, refreshToken });
 
     return { accessToken, refreshToken };
@@ -70,13 +74,13 @@ export class LoginService {
   ) {
     const parameters = { assocHandle, claimedId, identity, responseNonce, returnTo, sig, signed };
     const url = this.getUrl();
-    const response = await this.apiService.request({
+    const response = await this.apiService.request<LoginServiceResponse>({
       data: parameters,
       method: 'post',
       url: `${url}/steam`,
     });
 
-    const { accessToken, refreshToken } = response.data as LoginServiceResponse;
+    const { accessToken, refreshToken } = response.data;
     this.emitter.emit('login', { accessToken, refreshToken });
 
     return { accessToken, refreshToken };

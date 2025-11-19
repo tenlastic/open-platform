@@ -1,4 +1,4 @@
-import { GroupPermissions } from '@tenlastic/mongoose';
+import { GroupModel, GroupPermissionOptions } from '@tenlastic/mongoose';
 import { findOne } from '@tenlastic/web-server';
 
-export const handler = findOne(GroupPermissions);
+export const handler = findOne(GroupModel, GroupPermissionOptions);

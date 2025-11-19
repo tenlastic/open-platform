@@ -1,16 +1,9 @@
-import { EntityState, QueryEntity, StoreConfig } from '@datorama/akita';
+import { WebSocketModel } from '../models';
+import { WebSocketService } from '../services';
+import { BaseState } from './base';
 
-import { WebSocketModel } from '../models/web-socket';
-import { BaseStore } from './base';
-import { UserQuery } from './user';
-
-export interface WebSocketState extends EntityState<WebSocketModel> {}
-
-@StoreConfig({ idKey: '_id', deepFreezeFn: (o) => o, name: 'websockets', resettable: true })
-export class WebSocketStore extends BaseStore<WebSocketState, WebSocketModel> {}
-
-export class WebSocketQuery extends QueryEntity<WebSocketState, WebSocketModel> {
-  constructor(protected store: WebSocketStore, protected userQuery: UserQuery) {
-    super(store);
+export class WebSocketState extends BaseState<WebSocketModel, WebSocketService> {
+  constructor(service: WebSocketService) {
+    super('_id', service);
   }
 }

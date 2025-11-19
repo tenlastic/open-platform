@@ -1,25 +1,51 @@
-import { expect } from 'chai';
+import * as permissions from '@tenlastic/mongoose-permissions';
+import { expect, use } from 'chai';
+import chaiAsPromised from 'chai-as-promised';
 import { Chance } from 'chance';
+import * as mongoose from 'mongoose';
+import * as sinon from 'sinon';
 
-import { ContextMock } from '../../context';
-import { find } from './';
+import { ContextMock } from '../../mocks';
+import { dependencies, find, FindContext } from './';
 
 const chance = new Chance();
+use(chaiAsPromised);
+
+const Schema = new mongoose.Schema({ name: String });
+type Document = mongoose.Document & mongoose.InferSchemaType<typeof Schema>;
+const Model = mongoose.model<Document>('handlers/find', Schema);
+const Permissions = {};
 
 describe('handlers/find', function () {
-  it('returns the matching records', async function () {
-    const name = chance.hash();
+  afterEach(function () {
+    sinon.restore();
+  });
 
-    const ctx = new ContextMock();
-    const Permissions = {
-      find: () => Promise.resolve([{ name }]),
-      read: () => Promise.resolve({ name }),
-    };
+  context('when permission is granted', function () {
+    it('returns the record', async function () {
+      const ctx = ContextMock<FindContext<Document>>();
+      const name = chance.hash();
 
-    const handler = find(Permissions as any);
-    await handler(ctx as any);
+      sinon.stub(dependencies, 'find').resolves([{ name }]);
+      sinon.stub(dependencies, 'read').resolves({ name });
 
-    expect(ctx.response.body.records.length).to.eql(1);
-    expect(ctx.response.body.records[0]).to.eql({ name });
+      const handler = find(Model, Permissions);
+      await handler(ctx);
+
+      expect(ctx.response.body.records).to.eql([{ name }]);
+    });
+  });
+
+  context('when permission is denied', function () {
+    it('throws an error', async function () {
+      const ctx = ContextMock<FindContext<Document>>();
+
+      sinon.stub(dependencies, 'find').rejects(new permissions.PermissionError());
+
+      const handler = find(Model, Permissions);
+      const promise = handler(ctx);
+
+      return expect(promise).to.be.rejectedWith(permissions.PermissionError);
+    });
   });
 });

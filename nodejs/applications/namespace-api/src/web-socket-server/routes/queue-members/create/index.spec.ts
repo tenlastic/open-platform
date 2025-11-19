@@ -10,9 +10,9 @@ import {
 } from '@tenlastic/mongoose';
 import { ContextMock } from '@tenlastic/web-socket-server';
 import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
+import chaiAsPromised from 'chai-as-promised';
 
-import { handler } from './';
+import { CreateQueueMemberContext, handler } from './';
 
 use(chaiAsPromised);
 
@@ -24,7 +24,7 @@ describe('web-socket-server/routes/queue-members/create', function () {
   });
 
   context('when permission is granted', function () {
-    let ctx: ContextMock;
+    let ctx: CreateQueueMemberContext;
     let namespace: NamespaceDocument;
 
     beforeEach(async function () {
@@ -37,14 +37,20 @@ describe('web-socket-server/routes/queue-members/create', function () {
       const queue = await QueueModel.mock({ namespaceId: namespace._id }).save();
       const webSocket = await WebSocketModel.mock({ namespaceId: namespace._id }).save();
 
-      ctx = new ContextMock({
+      ctx = ContextMock<CreateQueueMemberContext>({
         request: { body: { queueId: queue._id } },
-        state: { user, webSocket },
-      } as any);
+        state: {
+          user: { _id: user._id.toHexString() },
+          webSocket: {
+            _id: webSocket._id.toHexString(),
+            namespaceId: webSocket.namespaceId.toHexString(),
+          },
+        },
+      });
     });
 
     it('creates a Queue Member', async function () {
-      await handler(ctx as any);
+      await handler(ctx);
 
       expect(ctx.response.body.record).to.exist;
     });

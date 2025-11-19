@@ -1,6 +1,5 @@
-import { jsonToMongoose, SchemaDocument, SchemaSchema } from '@tenlastic/mongoose';
+import { JsonSchema, jsonToMongoose, SchemaDocument } from '@tenlastic/mongoose';
 import * as nats from '@tenlastic/nats';
-import { ReturnModelType } from '@typegoose/typegoose';
 import * as mongoose from 'mongoose';
 import { AckPolicy, DeliverPolicy } from 'nats';
 import { TextDecoder } from 'util';
@@ -17,7 +16,7 @@ export function getToModel(collection: string) {
 }
 
 export async function fetchSchemasFromMongo(
-  SchemaModel: ReturnModelType<typeof SchemaSchema>,
+  SchemaModel: mongoose.Model<SchemaDocument>,
   toConnection: mongoose.Connection,
 ) {
   const schemas = await SchemaModel.find().lean();
@@ -67,7 +66,7 @@ export async function fetchSchemasFromNats(
 
 function setModel(
   fromConnection: mongoose.Connection,
-  json: mongoose.LeanDocument<SchemaDocument>,
+  json: JsonSchema & mongoose.FlattenMaps<SchemaDocument> & { __v: number },
   toConnection: mongoose.Connection,
 ) {
   const name = `${json.name}.${json.__v}`;

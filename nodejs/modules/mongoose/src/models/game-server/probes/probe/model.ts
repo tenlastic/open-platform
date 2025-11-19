@@ -1,4 +1,4 @@
-import { DocumentType, getModelForClass, modelOptions, pre, prop } from '@typegoose/typegoose';
+import * as mongoose from 'mongoose';
 
 import { GameServerProbesProbeExecDocument, GameServerProbesProbeExecSchema } from './exec';
 import {
@@ -8,76 +8,85 @@ import {
 } from './http';
 import { GameServerProbesProbeTcpDocument, GameServerProbesProbeTcpSchema } from './tcp';
 
-@modelOptions({ schemaOptions: { _id: false } })
-@pre('validate', function (this: GameServerProbesProbeDocument) {
-  if (!this.validateOneExecHttpTcp()) {
+export interface GameServerProbesProbe {
+  exec?: GameServerProbesProbeExecDocument;
+  failureThreshold?: number;
+  http?: GameServerProbesProbeHttpDocument;
+  initialDelaySeconds?: number;
+  periodSeconds?: number;
+  successThreshold?: number;
+  tcp?: GameServerProbesProbeTcpDocument;
+  timeoutSeconds?: number;
+}
+
+export type GameServerProbesProbeDocument = mongoose.Document<mongoose.Types.ObjectId> &
+  GameServerProbesProbe;
+
+export interface GameServerProbesProbeModelType
+  extends mongoose.Model<GameServerProbesProbeDocument> {
+  /**
+   * Creates a record with randomized required parameters if not specified.
+   */
+  mock(
+    this: GameServerProbesProbeModelType,
+    values?: Partial<GameServerProbesProbe>,
+  ): GameServerProbesProbeDocument;
+}
+
+const GameServerProbesProbeSchema = new mongoose.Schema<
+  GameServerProbesProbeDocument,
+  GameServerProbesProbeModelType
+>(
+  {
+    exec: { type: GameServerProbesProbeExecSchema },
+    failureThreshold: { default: 3, type: Number },
+    http: { type: GameServerProbesProbeHttpSchema },
+    initialDelaySeconds: { default: 0, type: Number },
+    periodSeconds: { default: 10, type: Number },
+    successThreshold: { default: 1, type: Number },
+    tcp: { type: GameServerProbesProbeTcpSchema },
+    timeoutSeconds: { default: 1, type: Number },
+  },
+  { _id: false },
+);
+
+GameServerProbesProbeSchema.pre('validate', function (this: GameServerProbesProbeDocument) {
+  const hasOne = !!(this.exec || this.http || this.tcp);
+  if (!hasOne) {
     const message = 'One of the following fields must be provided: exec, http, and tcp.';
 
     this.invalidate('exec', message, this.exec);
     this.invalidate('http', message, this.http);
     this.invalidate('tcp', message, this.tcp);
-  } else if (!this.validateOnlyOneExecHttpTcp()) {
-    const message = 'Only one of the following fields can be provided: exec, http, and tcp.';
-
-    this.invalidate('exec', message, this.exec);
-    this.invalidate('http', message, this.http);
-    this.invalidate('tcp', message, this.tcp);
-  }
-})
-export class GameServerProbesProbeSchema {
-  @prop({ type: GameServerProbesProbeExecSchema })
-  public exec: GameServerProbesProbeExecDocument;
-
-  @prop({ default: 3, type: Number })
-  public failureThreshold: number;
-
-  @prop({ type: GameServerProbesProbeHttpSchema })
-  public http: GameServerProbesProbeHttpDocument;
-
-  @prop({ default: 0, type: Number })
-  public initialDelaySeconds: number;
-
-  @prop({ default: 10, type: Number })
-  public periodSeconds: number;
-
-  @prop({ default: 1, type: Number })
-  public successThreshold: number;
-
-  @prop({ type: GameServerProbesProbeTcpSchema })
-  public tcp: GameServerProbesProbeTcpDocument;
-
-  @prop({ default: 1, type: Number })
-  public timeoutSeconds: number;
-
-  /**
-   * Creates a record with randomized required parameters if not specified.
-   */
-  public static mock(
-    this: typeof GameServerProbesProbeModel,
-    values: Partial<GameServerProbesProbeSchema> = {},
-  ) {
-    const defaults = { http: GameServerProbesProbeHttpModel.mock() };
-
-    return new this({ ...defaults, ...values });
-  }
-
-  /**
-   * Returns true if at least one strategy is provided.
-   */
-  private validateOneExecHttpTcp(this: GameServerProbesProbeDocument) {
-    return this.exec || this.http || this.tcp;
-  }
-
-  /**
-   * Returns true if only one strategy is provided.
-   */
-  private validateOnlyOneExecHttpTcp(this: GameServerProbesProbeDocument) {
+  } else {
     const fields = ['exec', 'http', 'tcp'];
-    const count = fields.reduce((previous, current) => (this[current] ? ++previous : previous), 0);
+    const count = fields.reduce(
+      (previous, current) =>
+        (this as unknown as Record<string, unknown>)[current] !== undefined ? ++previous : previous,
+      0,
+    );
 
-    return count === 1;
+    if (count !== 1) {
+      const message = 'Only one of the following fields can be provided: exec, http, and tcp.';
+
+      this.invalidate('exec', message, this.exec);
+      this.invalidate('http', message, this.http);
+      this.invalidate('tcp', message, this.tcp);
+    }
   }
-}
+});
 
-export type GameServerProbesProbeDocument = DocumentType<GameServerProbesProbeSchema>;
-export const GameServerProbesProbeModel = getModelForClass(GameServerProbesProbeSchema);
+GameServerProbesProbeSchema.statics.mock = function (values: Partial<GameServerProbesProbe> = {}) {
+  const defaults: Partial<GameServerProbesProbe> = { http: GameServerProbesProbeHttpModel.mock() };
+
+  return new this({ ...defaults, ...values });
+};
+
+export const GameServerProbesProbeModel = mongoose.model<
+  GameServerProbesProbeDocument,
+  GameServerProbesProbeModelType
+>('GameServerProbesProbeSchema', GameServerProbesProbeSchema);
+
+export { GameServerProbesProbeSchema };
+
+export default GameServerProbesProbeModel;

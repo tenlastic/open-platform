@@ -2,14 +2,15 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { QueueModel, QueueService, IQueue, IGameServer } from '@tenlastic/http';
+import { IQueue, QueueModel, QueueService } from '@tenlastic/http';
 
 import { FormService, TextareaService } from '../../../../../../core/services';
 import { jsonValidator } from '../../../../../../shared/validators';
 
 @Component({
-  templateUrl: 'json-page.component.html',
+  standalone: false,
   styleUrls: ['./json-page.component.scss'],
+  templateUrl: 'json-page.component.html',
 })
 export class QueuesJsonPageComponent implements OnInit {
   public data: QueueModel;

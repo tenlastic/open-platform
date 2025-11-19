@@ -1,104 +1,117 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
+import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
-import { Order } from '@datorama/akita';
 import {
-  AuthorizationQuery,
+  AuthorizationState,
   IAuthorization,
-  INamespace,
-  NamespaceLogModel,
-  NamespaceLogQuery,
-  NamespaceLogService,
-  NamespaceLogStore,
   NamespaceModel,
-  NamespaceQuery,
   NamespaceService,
-  SubscriptionService,
+  NamespaceState,
   WebSocketService,
 } from '@tenlastic/http';
-import { Observable, Subscription } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 
-import { environment } from '../../../../../../../environments/environment';
-import { IdentityService } from '../../../../../../core/services';
+import { formatDate } from '@angular/common';
+import { IdentityService, OverlayService } from '@home/app/core/services';
 import {
-  LogsDialogComponent,
-  LogsDialogComponentData,
-  PromptComponent,
-} from '../../../../../../shared/components';
+  DeletionOverlayComponent,
+  DeletionOverlayComponentData,
+  ListTableColumn,
+  ListTableSubscription,
+} from '@home/app/shared/components';
+import { environment } from '@home/environments/environment';
+import { LogsOverlayComponent, LogsOverlayComponentData } from '../../components';
 
 @Component({
-  templateUrl: 'list-page.component.html',
+  standalone: false,
   styleUrls: ['./list-page.component.scss'],
+  templateUrl: 'list-page.component.html',
 })
-export class NamespacesListPageComponent implements OnDestroy, OnInit {
-  @ViewChild(MatPaginator) set paginator(paginator: MatPaginator) {
-    this.dataSource.paginator = paginator;
-  }
-  @ViewChild(MatSort) set sort(sort: MatSort) {
-    this.dataSource.sort = sort;
-  }
-
-  public dataSource = new MatTableDataSource<NamespaceModel>();
-  public displayedColumns = ['name', 'status', 'createdAt', 'updatedAt', 'actions'];
-  public hasLogAuthorization: boolean;
-  public hasWriteAuthorization: boolean;
-  public message: string;
-
-  private $namespaces: Observable<NamespaceModel[]>;
-  private updateDataSource$ = new Subscription();
-  private get webSocket() {
+export class NamespacesListPageComponent implements OnInit {
+  public $filter = new BehaviorSubject<string>(null);
+  public $records: Observable<NamespaceModel[]>;
+  public columns: ListTableColumn<NamespaceModel>[] = [
+    { header: 'Name', text: (v) => v.name },
+    { header: 'Status', text: (v) => this.getStatus(v) },
+    { header: 'Created At', text: (v) => formatDate(v.createdAt, "MMM d, y 'at' h:mm a", 'en-US') },
+    { header: 'Updated At', text: (v) => formatDate(v.updatedAt, "MMM d, y 'at' h:mm a", 'en-US') },
+  ];
+  public hasLogAuthorization = false;
+  public hasWriteAuthorization = false;
+  public subscriptions: ListTableSubscription[] = [
+    {
+      Model: NamespaceModel,
+      request: { _id: uuid(), path: '/subscriptions/namespaces' },
+      service: this.namespaceService,
+    },
+  ];
+  public get webSocket() {
     return this.webSocketService.webSockets.find((ws) => environment.wssUrl === ws.url);
   }
 
+  private get where() {
+    if (this.$filter.value) {
+      return { name: { $regex: `${this.$filter.value}`, $options: 'i' } };
+    } else {
+      return {};
+    }
+  }
+
   constructor(
-    private authorizationQuery: AuthorizationQuery,
+    private authorizationState: AuthorizationState,
     private identityService: IdentityService,
-    private matDialog: MatDialog,
+    private overlayService: OverlayService,
     private matSnackBar: MatSnackBar,
-    private namespaceLogQuery: NamespaceLogQuery,
-    private namespaceLogService: NamespaceLogService,
-    private namespaceLogStore: NamespaceLogStore,
-    private namespaceQuery: NamespaceQuery,
+    private namespaceState: NamespaceState,
     private namespaceService: NamespaceService,
-    private subscriptionService: SubscriptionService,
     private webSocketService: WebSocketService,
   ) {}
 
   public async ngOnInit() {
-    this.message = 'Loading...';
-
     const userId = this.identityService.user?._id;
     const logRoles = [IAuthorization.Role.NamespaceLogsRead];
-    this.hasLogAuthorization = this.authorizationQuery.hasRoles(null, logRoles, userId);
+    this.hasLogAuthorization = this.authorizationState.hasRoles(null, logRoles, userId);
     const writeRoles = [IAuthorization.Role.NamespacesWrite];
-    this.hasWriteAuthorization = this.authorizationQuery.hasRoles(null, writeRoles, userId);
+    this.hasWriteAuthorization = this.authorizationState.hasRoles(null, writeRoles, userId);
 
-    await this.fetchNamespaces();
-
-    this.message = null;
+    this.$records = this.namespaceState.selectMany();
   }
 
-  public ngOnDestroy() {
-    this.updateDataSource$.unsubscribe();
-  }
+  public count = () => {
+    return this.namespaceService.count({ where: this.where });
+  };
 
-  public getStatus(record: NamespaceModel) {
-    const current = record.status.components.reduce((a, b) => a + (b.current ?? 0), 0);
-    const total = record.status.components.reduce((a, b) => a + (b.total ?? 0), 0);
+  public filter = (record: NamespaceModel) => {
+    if (!this.$filter.value) {
+      return true;
+    }
 
-    return `${record.status.phase} (${current} / ${total})`;
-  }
+    return new RegExp(this.$filter.value, 'i').test(record.name);
+  };
+
+  public find = async (page: number, pageSize: number) => {
+    const records = await this.namespaceService.find({
+      limit: pageSize,
+      skip: page * pageSize,
+      sort: 'name',
+      where: this.where,
+    });
+
+    const _ids = records.map((r) => r._id);
+    this.subscriptions[0].request.body = { where: { _id: { $in: _ids } } };
+
+    return records;
+  };
 
   public hasWriteAuthorizationForNamespace(namespaceId: string) {
     const roles = [IAuthorization.Role.NamespacesWrite];
     const userId = this.identityService.user?._id;
-    return this.authorizationQuery.hasRoles(namespaceId, roles, userId);
+    return this.authorizationState.hasRoles(namespaceId, roles, userId);
   }
+
+  public navigate = (record: NamespaceModel) => {
+    return [record._id];
+  };
 
   public async restart($event: Event, record: NamespaceModel) {
     $event.stopPropagation();
@@ -109,113 +122,21 @@ export class NamespacesListPageComponent implements OnDestroy, OnInit {
 
   public showDeletePrompt($event: Event, record: NamespaceModel) {
     $event.stopPropagation();
-
-    const dialogRef = this.matDialog.open(PromptComponent, {
-      data: {
-        buttons: [
-          { color: 'primary', label: 'No' },
-          { color: 'accent', label: 'Yes' },
-        ],
-        message: `Are you sure you want to delete this Namespace?`,
-      },
-    });
-
-    dialogRef.afterClosed().subscribe(async (result) => {
-      if (result === 'Yes') {
-        await this.namespaceService.delete(record._id);
-        this.matSnackBar.open('Namespace deleted successfully.');
-      }
+    this.overlayService.open<DeletionOverlayComponentData>(DeletionOverlayComponent, {
+      delete: () => this.namespaceService.delete(record._id),
+      name: 'Namespace',
     });
   }
 
-  public showLogsDialog($event: Event, record: NamespaceModel) {
+  public showLogsOverlay($event: Event, record: NamespaceModel) {
     $event.stopPropagation();
-
-    const _id = uuid();
-    const data = {
-      $logs: this.namespaceLogQuery.selectAll({
-        filterBy: (log) => log.namespaceId === record._id,
-        sortBy: 'unix',
-        sortByOrder: Order.DESC,
-      }),
-      $nodes: this.namespaceQuery
-        .selectEntity(record._id)
-        .pipe(map((namespace) => this.getNodes(namespace))),
-      find: (container, pod) =>
-        this.namespaceLogService.find(record._id, pod, container, { tail: 500 }),
-      subscribe: (container, pod, unix) => {
-        const resumeToken = unix ? new Date(unix) : new Date();
-
-        return this.subscriptionService.subscribe<NamespaceLogModel>(
-          NamespaceLogModel,
-          {
-            _id,
-            body: { resumeToken: resumeToken.toISOString() },
-            path: `/subscriptions/namespaces/${record._id}/logs/${pod}/${container}`,
-          },
-          this.namespaceLogService,
-          this.namespaceLogStore,
-          this.webSocket,
-          {
-            acks: true,
-            callback: (response) => {
-              response.body.fullDocument.container = container;
-              response.body.fullDocument.namespaceId = record._id;
-              response.body.fullDocument.pod = pod;
-            },
-          },
-        );
-      },
-      unsubscribe: () => this.subscriptionService.unsubscribe(_id, this.webSocket),
-    } as LogsDialogComponentData;
-
-    const dialogRef = this.matDialog.open(LogsDialogComponent, { autoFocus: false, data });
-    dialogRef.afterClosed().subscribe(() => this.namespaceLogStore.reset());
+    this.overlayService.open<LogsOverlayComponentData>(LogsOverlayComponent, { record });
   }
 
-  private async fetchNamespaces() {
-    this.$namespaces = this.namespaceQuery.selectAll();
-    await this.namespaceService.find({ sort: 'name' });
+  private getStatus(record: NamespaceModel) {
+    const current = record.status.components.reduce((a, b) => a + (b.current ?? 0), 0);
+    const total = record.status.components.reduce((a, b) => a + (b.total ?? 0), 0);
 
-    this.updateDataSource$ = this.$namespaces.subscribe(
-      (namespaces) => (this.dataSource.data = namespaces),
-    );
-
-    this.dataSource.filterPredicate = (data: NamespaceModel, filter: string) => {
-      return new RegExp(filter.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i').test(data.name);
-    };
-  }
-
-  private getNodes(namespace: NamespaceModel) {
-    return namespace.status.nodes
-      .map((n) => {
-        let label: string = INamespace.StatusComponentName.API;
-
-        if (n.component === INamespace.StatusComponentName.CDC) {
-          label = INamespace.StatusComponentName.CDC;
-        } else if (
-          n.component === INamespace.StatusComponentName.Connector &&
-          n.container === 'aggregation-api'
-        ) {
-          label = `${INamespace.StatusComponentName.Connector} (Aggregation API)`;
-        } else if (
-          n.component === INamespace.StatusComponentName.Connector &&
-          n.container === 'api'
-        ) {
-          label = `${INamespace.StatusComponentName.Connector} (API)`;
-        } else if (n.component === INamespace.StatusComponentName.Metrics) {
-          label = INamespace.StatusComponentName.Metrics;
-        } else if (n.component === INamespace.StatusComponentName.Migrations) {
-          label = INamespace.StatusComponentName.Migrations;
-        } else if (
-          n.component === INamespace.StatusComponentName.Sidecar &&
-          n.container === 'status-sidecar'
-        ) {
-          label = `${INamespace.StatusComponentName.Sidecar} (Status)`;
-        }
-
-        return { container: n.container, label, pod: n.pod };
-      })
-      .sort((a, b) => (a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1));
+    return `${record.status.phase} (${current} / ${total})`;
   }
 }

@@ -1,67 +1,64 @@
-export interface Injection {
+export type Constructor<T = unknown> = new (...args: unknown[]) => T;
+
+export interface Injection<T = unknown> {
   deps?: Constructor[];
-  provide: Constructor;
-  useFactory?: (...args: any[]) => any;
-  useValue?: any;
+  provide: Constructor<T>;
+  useFactory?: (...args: unknown[]) => T;
+  useValue?: T;
 }
 
-export type Constructor<T = any> = new (...args: any[]) => T;
-
-const _cache = new Map<Constructor, any>();
+const _cache = new Map<Constructor, unknown>();
 let _injections: Injection[] = [];
 
 export function get<T>(dep: Constructor<T>, stack: Constructor[] = []): T {
   if (_cache.has(dep)) {
-    return _cache.get(dep);
+    return _cache.get(dep) as T;
   }
 
-  const injection = _injections.find((i) => i.provide === dep);
+  const injection = _injections.find((i) => i.provide === dep) as Injection<T> | undefined;
 
   if (!injection) {
     return null;
   } else if (injection.useFactory) {
     useFactory(injection, stack);
-  } else if (injection.useValue) {
+  } else if (injection.useValue !== undefined) {
     useValue(injection);
   }
 
-  return _cache.get(dep);
+  return _cache.get(dep) as T;
 }
 
 export function inject(injections: Injection[]) {
   _injections = injections;
 
-  const values = injections.filter((i) => 'useValue' in i);
-  for (const injection of values) {
+  for (const injection of injections.filter((i) => 'useValue' in i)) {
     get(injection.provide);
   }
 
-  const factories = injections.filter((i) => 'useFactory' in i);
-  for (const injection of factories) {
+  for (const injection of injections.filter((i) => 'useFactory' in i)) {
     get(injection.provide);
   }
 }
 
-function useFactory(injection: Injection, stack: Constructor[]) {
-  let value: Injection['useFactory'];
+function useFactory<T>(injection: Injection<T>, stack: Constructor[]) {
+  let value: T;
 
   if (injection.deps) {
-    const deps = injection.deps?.map((d) => {
+    const deps = injection.deps.map((d) => {
       if (stack.includes(d)) {
         throw new Error(`Circular dependency between ${d.name} and ${injection.provide.name}.`);
       }
-
-      return get(d, [...stack, injection.provide]);
+      return get(d, [...stack, injection.provide])!;
     });
 
-    value = injection.useFactory(...deps);
+    value = injection.useFactory!(...deps);
   } else {
-    value = injection.useFactory(...[]);
+    value = injection.useFactory!();
   }
 
   _cache.set(injection.provide, value);
 }
 
-function useValue(injection: Injection) {
-  _cache.set(injection.provide, injection.useValue);
+function useValue<T>(injection: Injection<T>) {
+  _cache.set(injection.provide, injection.useValue!);
 }

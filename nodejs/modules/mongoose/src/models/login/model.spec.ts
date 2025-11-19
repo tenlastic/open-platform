@@ -1,11 +1,15 @@
 import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
+import chaiAsPromised from 'chai-as-promised';
 import * as jwt from 'jsonwebtoken';
 import * as mongoose from 'mongoose';
 
 import { RefreshTokenModel } from '../refresh-token';
 import { UserDocument, UserModel } from '../user';
 import { LoginModel } from './model';
+
+interface Jwt {
+  jti?: string;
+}
 
 use(chaiAsPromised);
 
@@ -28,7 +32,7 @@ describe('models/login', function () {
     it('creates and returns a refreshToken', async function () {
       const { refreshToken } = await LoginModel.createAccessAndRefreshTokens(user);
 
-      const { jti } = jwt.decode(refreshToken) as any;
+      const { jti } = jwt.decode(refreshToken) as Jwt;
       const count = await RefreshTokenModel.countDocuments({ _id: jti, userId: user._id });
 
       expect(count).to.eql(1);
@@ -40,7 +44,7 @@ describe('models/login', function () {
         refreshTokenId: existingRefreshToken._id,
       });
 
-      const { jti } = jwt.decode(refreshToken) as any;
+      const { jti } = jwt.decode(refreshToken) as Jwt;
       const count = await RefreshTokenModel.countDocuments({ _id: jti, userId: user._id });
 
       expect(count).to.eql(1);
@@ -50,7 +54,7 @@ describe('models/login', function () {
       const jti = new mongoose.Types.ObjectId();
       const promise = LoginModel.createAccessAndRefreshTokens(user, { refreshTokenId: jti });
 
-      return expect(promise).to.be.rejectedWith(`Cannot read properties of null (reading \'_id\')`);
+      return expect(promise).to.be.rejectedWith(`Cannot read properties of null (reading '_id')`);
     });
   });
 });

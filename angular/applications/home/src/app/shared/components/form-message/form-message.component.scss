@@ -1,13 +1,15 @@
-@use '@angular/material' as mat;
-@import 'src/assets/scss/theme.scss';
+@use 'src/assets/scss/colors.scss' as colors;
 
 :host {
   color: white;
   display: block;
-  font-size: 0.9rem;
-  margin-bottom: 16px;
+  font-size: 14px;
 
   &[level='error'] {
-    color: mat.get-color-from-palette(mat.define-palette(mat.$red-palette));
+    color: colors.$error;
+  }
+
+  &[text='center'] {
+    text-align: center;
   }
 }

@@ -1,17 +1,18 @@
 import {
+  AuthorizationDocument,
   AuthorizationModel,
   AuthorizationRole,
   NamespaceDocument,
-  NamespaceModel,
-  NamespaceLimitsModel,
   NamespaceLimitError,
+  NamespaceLimitsModel,
+  NamespaceModel,
   UserDocument,
   UserModel,
 } from '@tenlastic/mongoose';
 import { PermissionError } from '@tenlastic/mongoose-permissions';
-import { ContextMock } from '@tenlastic/web-server';
+import { ContextMock, CreateContext } from '@tenlastic/web-server';
 import { expect, use } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
+import chaiAsPromised from 'chai-as-promised';
 
 import { handler } from './';
 
@@ -45,13 +46,13 @@ describe('web-server/authorizations/create', function () {
         namespace.limits = NamespaceLimitsModel.mock({ defaultAuthorization: false });
         await namespace.save();
 
-        const ctx = new ContextMock({
+        const ctx = ContextMock<CreateContext<AuthorizationDocument>>({
           params: { namespaceId: namespace._id },
           request: { body: { roles: [] } },
-          state: { user },
-        } as any);
+          state: { user: { _id: user._id.toHexString() } },
+        });
 
-        const promise = handler(ctx as any);
+        const promise = handler(ctx);
 
         return expect(promise).to.be.rejectedWith(NamespaceLimitError);
       });
@@ -59,13 +60,13 @@ describe('web-server/authorizations/create', function () {
 
     context('when a Namespace Limit is not exceeded', function () {
       it('creates an Authorization', async function () {
-        const ctx = new ContextMock({
+        const ctx = ContextMock<CreateContext<AuthorizationDocument>>({
           params: { namespaceId: namespace._id },
           request: { body: { roles: [], userId: otherUser._id } },
-          state: { user },
-        } as any);
+          state: { user: { _id: user._id.toHexString() } },
+        });
 
-        await handler(ctx as any);
+        await handler(ctx);
 
         expect(ctx.response.body.record).to.exist;
       });
@@ -76,13 +77,13 @@ describe('web-server/authorizations/create', function () {
     it('throws an error', async function () {
       const namespace = await NamespaceModel.mock({ limits: NamespaceLimitsModel.mock() }).save();
 
-      const ctx = new ContextMock({
+      const ctx = ContextMock<CreateContext<AuthorizationDocument>>({
         params: { namespaceId: namespace._id },
         request: { body: { roles: [], userId: user._id } },
-        state: { user },
-      } as any);
+        state: { user: { _id: user._id.toHexString() } },
+      });
 
-      const promise = handler(ctx as any);
+      const promise = handler(ctx);
 
       return expect(promise).to.be.rejectedWith(PermissionError);
     });

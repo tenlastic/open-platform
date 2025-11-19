@@ -1,0 +1,60 @@
+<div *ngIf="$nodes | async as nodes"
+     row-gap-16>
+  <app-title>Logs</app-title>
+
+  <div align-items="end"
+       column-gap-16>
+    <app-form-field floatLabel="always">
+      <mat-select placeholder="No Nodes Available"
+                  [disabled]="nodes.length === 0"
+                  (selectionChange)="setNode($event.value)"
+                  [(value)]="value">
+        <mat-option *ngFor="let node of nodes"
+                    [value]="getValueFromNode(node)">{{ node.label }}</mat-option>
+      </mat-select>
+    </app-form-field>
+
+    <div flex-1></div>
+
+    <ng-container *ngIf="node">
+      <app-button *ngIf="$logs | async as logs"
+                  color="accent"
+                  (click)="toggleVisibility(false, logs)">
+        <mat-icon>expand_less</mat-icon>
+        <div>Collapse All</div>
+      </app-button>
+
+      <app-button *ngIf="$logs | async as logs"
+                  color="accent"
+                  (click)="toggleVisibility(true, logs)">
+        <mat-icon>expand_more</mat-icon>
+        <div>Expand All</div>
+      </app-button>
+
+      <app-button color="primary"
+                  (click)="toggleIsLive()">
+        <div>{{ isLive ? 'Stop' : 'Start' }} Live Tail</div>
+      </app-button>
+    </ng-container>
+  </div>
+</div>
+
+<div #container
+     class="logs-container"
+     [ngClass]="{ empty: ($logs | async).length === 0 }">
+  <ng-container *ngIf="($logs | async).length > 0">
+    <div *ngFor="let log of $logs | async"
+         class="log"
+         [ngClass]="visibility[log.unix] ? 'expanded' : 'collapsed'"
+         (click)="visibility[log.unix] = !visibility[log.unix]">
+      <div class="timestamp">[{{ log.unix | date:"M/d/yy - H:mm:ss" }}]</div>
+      <div *ngIf="log.level"
+           class="level">[{{ log.level | uppercase }}]</div>
+      <div>{{ getBody(log, visibility[log.unix] ? 4 : 0) }}</div>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="($logs | async).length === 0">
+    <div class="log">No logs found.</div>
+  </ng-container>
+</div>

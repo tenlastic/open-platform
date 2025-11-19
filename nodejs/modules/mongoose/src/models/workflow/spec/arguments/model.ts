@@ -1,24 +1,43 @@
-import { DocumentType, getModelForClass, modelOptions, prop, PropType } from '@typegoose/typegoose';
+import * as mongoose from 'mongoose';
 
 import { WorkflowSpecParameterDocument, WorkflowSpecParameterSchema } from '../parameter';
 
-@modelOptions({ schemaOptions: { _id: false } })
-export class WorkflowSpecArgumentsSchema {
-  @prop({ type: WorkflowSpecParameterSchema }, PropType.ARRAY)
-  public parameters: WorkflowSpecParameterDocument[];
+export interface WorkflowSpecArguments {
+  parameters?: WorkflowSpecParameterDocument[];
+}
 
+export interface WorkflowSpecArgumentsDocument
+  extends mongoose.Document<mongoose.Types.ObjectId>,
+    WorkflowSpecArguments {}
+
+export interface WorkflowSpecArgumentsModelType
+  extends mongoose.Model<WorkflowSpecArgumentsDocument> {
   /**
    * Creates a record with randomized required parameters if not specified.
    */
-  public static mock(
-    this: typeof WorkflowSpecArgumentsModel,
-    values: Partial<WorkflowSpecArgumentsSchema> = {},
-  ) {
-    const defaults = {};
-
-    return new this({ ...defaults, ...values });
-  }
+  mock(
+    this: WorkflowSpecArgumentsModelType,
+    values?: Partial<WorkflowSpecArguments>,
+  ): WorkflowSpecArgumentsDocument;
 }
 
-export type WorkflowSpecArgumentsDocument = DocumentType<WorkflowSpecArgumentsSchema>;
-export const WorkflowSpecArgumentsModel = getModelForClass(WorkflowSpecArgumentsSchema);
+export const WorkflowSpecArgumentsSchema = new mongoose.Schema<WorkflowSpecArgumentsDocument>(
+  {
+    parameters: { type: [WorkflowSpecParameterSchema], default: undefined },
+  },
+  { _id: false },
+);
+
+WorkflowSpecArgumentsSchema.statics.mock = function (
+  this: WorkflowSpecArgumentsModelType,
+  values: Partial<WorkflowSpecArguments> = {},
+) {
+  const defaults = {};
+
+  return new this({ ...defaults, ...values });
+};
+
+export const WorkflowSpecArgumentsModel = mongoose.model<
+  WorkflowSpecArgumentsDocument,
+  WorkflowSpecArgumentsModelType
+>('WorkflowSpecArguments', WorkflowSpecArgumentsSchema);

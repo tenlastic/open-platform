@@ -1,7 +1,6 @@
 import { GroupInvitationModel } from '../models/group-invitation';
-import { GroupInvitationStore } from '../states/group-invitation';
 import { ApiService } from './api';
-import { BaseService, BaseServiceFindQuery } from './base';
+import { BaseService, BaseServiceCountQuery, BaseServiceFindQuery } from './base';
 import { EnvironmentService } from './environment';
 
 export class GroupInvitationService {
@@ -11,22 +10,14 @@ export class GroupInvitationService {
 
   private baseService: BaseService<GroupInvitationModel>;
 
-  constructor(
-    private apiService: ApiService,
-    private environmentService: EnvironmentService,
-    private groupInvitationStore: GroupInvitationStore,
-  ) {
-    this.baseService = new BaseService<GroupInvitationModel>(
-      this.apiService,
-      GroupInvitationModel,
-      this.groupInvitationStore,
-    );
+  constructor(private apiService: ApiService, private environmentService: EnvironmentService) {
+    this.baseService = new BaseService<GroupInvitationModel>(this.apiService, GroupInvitationModel);
   }
 
   /**
    * Returns the number of Records satisfying the query.
    */
-  public async count(namespaceId: string, query: any) {
+  public async count(namespaceId: string, query: BaseServiceCountQuery) {
     const url = this.getUrl(namespaceId);
     return this.baseService.count(query, url);
   }

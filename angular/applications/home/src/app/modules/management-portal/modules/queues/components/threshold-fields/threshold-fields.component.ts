@@ -1,9 +1,9 @@
 import { Component, Input } from '@angular/core';
 import { FormArray, FormBuilder, Validators } from '@angular/forms';
-import { QueueModel } from '@tenlastic/http';
 
 @Component({
   selector: 'app-threshold-fields',
+  standalone: false,
   styleUrls: ['threshold-fields.component.scss'],
   templateUrl: 'threshold-fields.component.html',
 })

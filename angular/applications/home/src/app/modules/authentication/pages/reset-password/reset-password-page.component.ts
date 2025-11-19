@@ -1,12 +1,13 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { PasswordResetService } from '@tenlastic/http';
 
-import { IPasswordReset, PasswordResetFormComponent } from '../../components';
 import { ActivatedRoute } from '@angular/router';
+import { IPasswordReset, PasswordResetFormComponent } from '../../components';
 
 @Component({
-  templateUrl: 'reset-password-page.component.html',
+  standalone: false,
   styleUrls: ['./reset-password-page.component.scss'],
+  templateUrl: 'reset-password-page.component.html',
 })
 export class ResetPasswordPageComponent implements OnInit {
   @ViewChild(PasswordResetFormComponent)
