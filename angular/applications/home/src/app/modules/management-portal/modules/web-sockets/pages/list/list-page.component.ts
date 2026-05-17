@@ -1,6 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { UserState, WebSocketModel, WebSocketService, WebSocketState } from '@tenlastic/http';
+import {
+  UserService,
+  UserState,
+  WebSocketModel,
+  WebSocketService,
+  WebSocketState,
+} from '@tenlastic/http';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 
@@ -64,6 +70,7 @@ export class WebSocketsListPageComponent implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
+    private userService: UserService,
     private userState: UserState,
     private webSocketService: WebSocketService,
     private webSocketState: WebSocketState,
@@ -123,6 +130,10 @@ export class WebSocketsListPageComponent implements OnInit {
       skip: page * pageSize,
       sort: '-createdAt',
       where: this.where,
+    });
+
+    await this.userService.find({
+      where: { _id: { $in: records.map((r) => r.userId) } },
     });
 
     const _ids = records.map((r) => r._id);

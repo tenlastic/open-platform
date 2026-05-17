@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   AuthorizationState,
   GameServerTemplateModel,
@@ -13,12 +13,25 @@ import {
   MatchState,
   QueueModel,
   QueueService,
+  UserModel,
   UserService,
   UserState,
 } from '@tenlastic/http';
 import { map, Subscription } from 'rxjs';
 
-import { FormService, IdentityService } from '../../../../../../core/services';
+import { FormService, IdentityService } from '@home/app/core/services';
+
+export interface MatchForm {
+  confirmation: FormControl<boolean>;
+  gameServerTemplateId: FormControl<string>;
+  invitationSeconds: FormControl<number>;
+  queueId: FormControl<string>;
+  teams: FormArray<FormGroup<TeamForm>>;
+}
+
+export interface TeamForm {
+  users: FormArray<FormControl<UserModel>>;
+}
 
 @Component({
   standalone: false,
@@ -28,11 +41,11 @@ import { FormService, IdentityService } from '../../../../../../core/services';
 export class MatchesFormPageComponent implements OnDestroy, OnInit {
   public data: MatchModel;
   public errors: string[] = [];
-  public form: FormGroup;
+  public form: FormGroup<MatchForm>;
   public gameServerTemplates: GameServerTemplateModel[];
   public hasWriteAuthorization: boolean;
   public get isNew() {
-    return this.params.matchId === 'new';
+    return this.matchId === 'new';
   }
   public isSaving: boolean;
   public queues: QueueModel[];
@@ -41,7 +54,9 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
   }
 
   private updateMatch$ = new Subscription();
-  private params: Params;
+  private matchId: string;
+  private namespaceId: string;
+  private queueId: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -61,7 +76,9 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
 
   public ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
-      this.params = params;
+      this.matchId = params.matchId;
+      this.namespaceId = params.namespaceId;
+      this.queueId = params.queueId;
 
       const roles = [IAuthorization.Role.MatchesWrite];
       const userId = this.identityService.user?._id;
@@ -135,7 +152,7 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
       gameServerTemplateId: this.form.get('gameServerTemplateId').value,
       invitationSeconds: this.form.get('invitationSeconds').value,
       invitationsExpireAt,
-      namespaceId: this.form.get('namespaceId').value,
+      namespaceId: this.namespaceId,
       queueId: this.form.get('queueId').value,
       teams,
     };
@@ -159,7 +176,7 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
       teams: [{ userIds: [null] }, { userIds: [null] }],
     });
 
-    const teamFormGroups = this.data.teams.map((t) => {
+    const teamFormGroups: FormGroup<TeamForm>[] = this.data.teams.map((t) => {
       const users = t.userIds.map((ui) => this.userState.getOne(ui));
       const formControls = users.map((u) => this.formBuilder.control(u, Validators.required));
       const formArray = this.formBuilder.array(formControls);
@@ -168,18 +185,23 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
     });
 
     this.form = this.formBuilder.group({
-      confirmation: [Boolean(this.data.invitationsExpireAt) || false],
-      gameServerTemplateId: [
+      confirmation: this.formBuilder.control(Boolean(this.data.invitationsExpireAt) || false),
+      gameServerTemplateId: this.formBuilder.control(
         this.data.gameServerTemplateId || this.gameServerTemplates[0]?._id,
         Validators.required,
-      ],
-      invitationSeconds: [this.data.invitationSeconds || 0, Validators.required],
-      namespaceId: [this.params.namespaceId],
-      queueId: [{ disabled: true, value: this.data.queueId || this.params.queueId }],
+      ),
+      invitationSeconds: this.formBuilder.control(
+        this.data.invitationSeconds || 0,
+        Validators.required,
+      ),
+      queueId: this.formBuilder.control({
+        disabled: true,
+        value: this.data.queueId || this.queueId,
+      }),
       teams: this.formBuilder.array(teamFormGroups),
     });
 
-    if (this.params.queueId) {
+    if (this.queueId) {
       this.form.get('queueId').disable({ emitEvent: false });
     }
 
@@ -199,8 +221,8 @@ export class MatchesFormPageComponent implements OnDestroy, OnInit {
 
   private async upsert(values: Partial<MatchModel>) {
     const result = values._id
-      ? await this.matchService.update(this.params.namespaceId, values._id, values)
-      : await this.matchService.create(this.params.namespaceId, values);
+      ? await this.matchService.update(this.namespaceId, values._id, values)
+      : await this.matchService.create(this.namespaceId, values);
 
     this.matSnackBar.open(`Match saved successfully.`);
     this.router.navigate(['../', result._id], { relativeTo: this.activatedRoute });

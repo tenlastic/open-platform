@@ -15,6 +15,7 @@ import { IdentityService, SideMenuService } from '@home/app/core/services';
 
 @Component({
   standalone: false,
+  styleUrls: ['./layout.component.scss'],
   templateUrl: './layout.component.html',
 })
 export class LayoutComponent implements AfterViewInit, OnDestroy, OnInit {

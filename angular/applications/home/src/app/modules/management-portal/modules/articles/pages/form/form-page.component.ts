@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   ArticleModel,
   ArticleService,
@@ -12,6 +12,13 @@ import {
 
 import { FormService, IdentityService } from '@home/app/core/services';
 
+export interface ArticleForm {
+  body: FormControl<string>;
+  subtitle: FormControl<string>;
+  title: FormControl<string>;
+  type: FormControl<IArticle.Type>;
+}
+
 @Component({
   standalone: false,
   styleUrls: ['./form-page.component.scss'],
@@ -20,7 +27,7 @@ import { FormService, IdentityService } from '@home/app/core/services';
 export class ArticlesFormPageComponent implements OnInit {
   public data: ArticleModel;
   public errors: string[] = [];
-  public form: FormGroup;
+  public form: FormGroup<ArticleForm>;
   public hasWriteAuthorization: boolean;
   public isSaving: boolean;
   public get singular() {
@@ -42,7 +49,7 @@ export class ArticlesFormPageComponent implements OnInit {
     { label: 'Patch Notes', value: IArticle.Type.PatchNotes },
   ];
 
-  private params: Params;
+  private namespaceId: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -58,7 +65,7 @@ export class ArticlesFormPageComponent implements OnInit {
   public ngOnInit() {
     this.activatedRoute.data.subscribe((data) => (this.type = data.type));
     this.activatedRoute.params.subscribe(async (params) => {
-      this.params = params;
+      this.namespaceId = params.namespaceId;
 
       const roles = [IAuthorization.Role.ArticlesWrite];
       const userId = this.identityService.user?._id;
@@ -91,7 +98,7 @@ export class ArticlesFormPageComponent implements OnInit {
     const values: Partial<ArticleModel> = {
       _id: this.data._id,
       body: this.form.get('body').value,
-      namespaceId: this.form.get('namespaceId').value,
+      namespaceId: this.namespaceId,
       subtitle: this.form.get('subtitle').value,
       title: this.form.get('title').value,
       type: this.form.get('type').value,
@@ -110,11 +117,10 @@ export class ArticlesFormPageComponent implements OnInit {
     this.data ??= new ArticleModel();
 
     this.form = this.formBuilder.group({
-      body: [this.data.body, Validators.required],
-      namespaceId: [this.params.namespaceId, Validators.required],
-      subtitle: [this.data.subtitle],
-      title: [this.data.title, Validators.required],
-      type: [this.type || this.types[0].value, Validators.required],
+      body: this.formBuilder.control(this.data.body, Validators.required),
+      subtitle: this.formBuilder.control(this.data.subtitle),
+      title: this.formBuilder.control(this.data.title, Validators.required),
+      type: this.formBuilder.control(this.type || this.types[0].value, Validators.required),
     });
 
     if (!this.hasWriteAuthorization) {
@@ -126,8 +132,8 @@ export class ArticlesFormPageComponent implements OnInit {
 
   private async upsert(values: Partial<ArticleModel>) {
     const result = values._id
-      ? await this.articleService.update(this.params.namespaceId, values._id, values)
-      : await this.articleService.create(this.params.namespaceId, values);
+      ? await this.articleService.update(this.namespaceId, values._id, values)
+      : await this.articleService.create(this.namespaceId, values);
 
     this.matSnackBar.open(`Article saved successfully.`);
     this.router.navigate(['../', result._id], { relativeTo: this.activatedRoute });

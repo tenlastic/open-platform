@@ -1,14 +1,12 @@
 <ng-container *ngIf="form">
   <div class="page">
-    <div class="row">
-      <div class="col-sm-6">
-        <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Game Server Template</app-title>
-        <app-title *ngIf="!hasWriteAuthorization">View Game Server Template</app-title>
-      </div>
+    <div class="header">
+      <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Game Server Template</app-title>
+      <app-title *ngIf="!hasWriteAuthorization">View Game Server Template</app-title>
 
-      <div *ngIf="hasWriteAuthorization"
-           class="col-sm-6 align-right">
-        <app-button color="accent"
+      <div class="header-end">
+        <app-button *ngIf="hasWriteAuthorization"
+                    color="accent"
                     (OnClick)="navigateToGameServerForm()">
           <mat-icon>public</mat-icon>
           <div>New Game Server</div>
@@ -22,33 +20,33 @@
       </div>
     </div>
 
+    <hr>
+
     <form autocomplete="off"
           [formGroup]="form"
           id="form"
           (ngSubmit)="save()">
-      <div class="row">
-        <mat-form-field floatLabel="always">
-          <mat-label>Name</mat-label>
+      <div class="form-row">
+        <app-form-field>
+          <label>Name</label>
           <input appAutofocus
                  formControlName="name"
-                 matInput
                  maxlength="64"
                  required />
-          <mat-error>Enter a valid name.</mat-error>
-        </mat-form-field>
+          <app-error>Enter a valid name.</app-error>
+        </app-form-field>
 
-        <mat-form-field floatLabel="always">
-          <mat-label>Description</mat-label>
+        <app-form-field>
+          <label>Description</label>
           <input formControlName="description"
-                 matInput
                  maxlength="128" />
-          <mat-error>Enter a valid description.</mat-error>
-        </mat-form-field>
+          <app-error>Enter a valid description.</app-error>
+        </app-form-field>
       </div>
 
-      <div class="row">
-        <mat-form-field floatLabel="always">
-          <mat-label>Build</mat-label>
+      <div class="form-row">
+        <app-form-field>
+          <label>Build</label>
           <mat-select formControlName="buildId"
                       placeholder="None"
                       required>
@@ -58,70 +56,82 @@
               <ng-container *ngIf="!build.publishedAt">(Unpublished)</ng-container>
             </mat-option>
           </mat-select>
-          <mat-error>Select a valid Build.</mat-error>
-        </mat-form-field>
+          <app-error>Select a valid Build.</app-error>
+        </app-form-field>
       </div>
 
-      <div class="row">
-        <mat-form-field floatLabel="always">
-          <mat-label>CPU</mat-label>
+      <div class="form-row">
+        <app-form-field>
+          <label>CPU</label>
           <mat-select formControlName="cpu">
             <mat-option *ngFor="let cpu of cpus"
                         [value]="cpu.value">{{ cpu.label }}</mat-option>
           </mat-select>
-        </mat-form-field>
+        </app-form-field>
 
-        <mat-form-field floatLabel="always">
-          <mat-label>Memory</mat-label>
+        <app-form-field>
+          <label>Memory</label>
           <mat-select formControlName="memory">
             <mat-option *ngFor="let memory of memories"
                         [value]="memory.value">{{ memory.label }}</mat-option>
           </mat-select>
-        </mat-form-field>
+        </app-form-field>
 
-        <mat-form-field floatLabel="always">
-          <mat-label>Preemptible</mat-label>
+        <app-form-field>
+          <label>Preemptible</label>
           <mat-select formControlName="preemptible">
             <mat-option [value]="true">Yes</mat-option>
             <mat-option [value]="false">No</mat-option>
           </mat-select>
-        </mat-form-field>
+        </app-form-field>
       </div>
 
-      <app-toggle-section *ngIf="!form.get('metadata').disabled || form.get('metadata').value.length"
-                          [isVisible]="false"
-                          title="Metadata">
-        <app-metadata-fields [formArray]="form.get('metadata')"></app-metadata-fields>
-      </app-toggle-section>
+      <ng-container *ngIf="!form.get('metadata').disabled || form.get('metadata').value.length">
+        <hr>
+
+        <app-toggle-section [isVisible]="false"
+                            title="Metadata">
+          <app-metadata-fields [formArray]="form.get('metadata')"></app-metadata-fields>
+        </app-toggle-section>
+      </ng-container>
+
+      <hr>
 
       <app-toggle-section [isVisible]="isNew"
                           title="Ports">
         <app-port-fields [form]="ports"></app-port-fields>
       </app-toggle-section>
 
+      <hr>
+
       <app-toggle-section [isVisible]="false"
                           title="Probes">
-        <h4>Liveness Probe</h4>
-        <div class="row">
-          <app-probe-field [form]="form.get('probes').get('liveness')"></app-probe-field>
-        </div>
+        <div row-gap-8>
+          <div row-gap-4>
+            <h4>Liveness Probe</h4>
+            <app-probe-field [form]="form.get('probes').get('liveness')"></app-probe-field>
+          </div>
 
-        <h4>Readiness Probe</h4>
-        <div class="row">
-          <app-probe-field [form]="form.get('probes').get('readiness')"></app-probe-field>
+          <div row-gap-4>
+            <h4>Readiness Probe</h4>
+            <app-probe-field [form]="form.get('probes').get('readiness')"></app-probe-field>
+          </div>
         </div>
       </app-toggle-section>
 
-      <app-toggle-section *ngIf="!form.get('secrets').disabled || form.get('secrets').value.length"
-                          [isVisible]="false"
-                          title="Secrets">
-        <app-metadata-fields [formArray]="form.get('secrets')"></app-metadata-fields>
-      </app-toggle-section>
+      <ng-container *ngIf="!form.get('secrets').disabled || form.get('secrets').value.length">
+        <hr>
+
+        <app-toggle-section [isVisible]="false"
+                            title="Secrets">
+          <app-metadata-fields [formArray]="form.get('secrets')"></app-metadata-fields>
+        </app-toggle-section>
+      </ng-container>
     </form>
   </div>
 
   <div *ngIf="!form.disabled"
-       class="page-actions">
+       class="actions">
     <div *ngFor="let error of errors"
          class="form-error">
       {{ error }}
@@ -137,7 +147,7 @@
     </app-button>
     <app-button *ngIf="isSaving"
                 color="primary"
-                disabled
+                disabled="true"
                 size="large"
                 width="full">
       <mat-spinner diameter="20"></mat-spinner>

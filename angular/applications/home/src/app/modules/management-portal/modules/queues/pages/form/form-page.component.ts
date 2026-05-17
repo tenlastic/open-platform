@@ -1,8 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   AuthorizationState,
   GameServerTemplateModel,
@@ -14,11 +13,42 @@ import {
   QueueModel,
   QueueService,
   QueueState,
+  SubscriptionService,
+  WebSocketService,
 } from '@tenlastic/http';
 import { map, Subscription } from 'rxjs';
+import { v4 as uuid } from 'uuid';
 
-import { FormService, IdentityService } from '../../../../../../core/services';
-import { PromptComponent } from '../../../../../../shared/components';
+import { FormService, IdentityService, OverlayService } from '@home/app/core/services';
+import {
+  MetadataForm,
+  PromptOverlayComponent,
+  PromptOverlayComponentData,
+} from '@home/app/shared/components';
+import { environment } from '@home/environments/environment';
+
+export interface QueueForm {
+  confirmation: FormControl<boolean>;
+  cpu: FormControl<number>;
+  description: FormControl<string>;
+  gameServerTemplateId: FormControl<string>;
+  groupSizes: FormArray<FormControl<number>>;
+  initialRating: FormControl<number>;
+  invitationSeconds: FormControl<number>;
+  memory: FormControl<number>;
+  metadata: FormArray<FormGroup<MetadataForm>>;
+  name: FormControl<string>;
+  preemptible: FormControl<boolean>;
+  replicas: FormControl<number>;
+  teams: FormControl<boolean>;
+  thresholds: FormArray<FormGroup<ThresholdForm>>;
+}
+
+export interface ThresholdForm {
+  rating: FormControl<number>;
+  seconds: FormControl<number>;
+  usersPerTeam: FormArray<FormControl<number>>;
+}
 
 interface PropertyFormGroup {
   key?: string;
@@ -39,14 +69,14 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
   }
   public data: QueueModel;
   public errors: string[] = [];
-  public form: FormGroup;
+  public form: FormGroup<QueueForm>;
   public gameServerTemplates: GameServerTemplateModel[];
   public get groupSizes() {
     return this.form.get('groupSizes') as FormArray;
   }
   public hasWriteAuthorization: boolean;
   public get isNew() {
-    return this.params.queueId === 'new';
+    return this.queueId === 'new';
   }
   public isSaving: boolean;
   public get memories() {
@@ -60,7 +90,20 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
 
   private updateQueue$ = new Subscription();
   private namespace: NamespaceModel;
-  private params: Params;
+  private namespaceId: string;
+  private queueId: string;
+  private subscriptions = [
+    {
+      Model: QueueModel,
+      request: { _id: uuid(), path: `/subscriptions/queues` },
+      service: this.queueService,
+    },
+  ];
+  private get webSocket() {
+    return this.webSocketService.webSockets.find(
+      (ws) => `${environment.wssUrl}/namespaces/${this.namespaceId}` === ws.url,
+    );
+  }
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -69,17 +112,20 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
     private formService: FormService,
     private gameServerTemplateService: GameServerTemplateService,
     private identityService: IdentityService,
-    private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private namespaceService: NamespaceService,
+    private overlayService: OverlayService,
     private queueState: QueueState,
     private queueService: QueueService,
     private router: Router,
+    private subscriptionService: SubscriptionService,
+    private webSocketService: WebSocketService,
   ) {}
 
   public ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
-      this.params = params;
+      this.namespaceId = params.namespaceId;
+      this.queueId = params.queueId;
 
       const roles = [IAuthorization.Role.QueuesWrite];
       const userId = this.identityService.user?._id;
@@ -95,11 +141,15 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       }
 
       this.setupForm();
+
+      await this.unsubscribe();
+      await this.subscribe();
     });
   }
 
-  public ngOnDestroy() {
+  public async ngOnDestroy() {
     this.updateQueue$.unsubscribe();
+    await this.unsubscribe();
   }
 
   public addGroupSize() {
@@ -145,7 +195,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       memory: this.form.get('memory').value,
       metadata,
       name: this.form.get('name').value,
-      namespaceId: this.form.get('namespaceId').value,
+      namespaceId: this.namespaceId,
       preemptible: this.form.get('preemptible').value,
       replicas: this.form.get('replicas').value,
       teams: this.form.get('teams').value,
@@ -154,17 +204,18 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
 
     const dirtyFields = this.getDirtyFields();
     if (this.data._id && QueueModel.isRestartRequired(dirtyFields)) {
-      const dialogRef = this.matDialog.open(PromptComponent, {
-        data: {
+      const overlay = this.overlayService.open<PromptOverlayComponentData, string>(
+        PromptOverlayComponent,
+        {
           buttons: [
             { color: 'primary', label: 'No' },
             { color: 'accent', label: 'Yes' },
           ],
           message: `These changes require the Queue to be restarted. Is this OK?`,
         },
-      });
+      );
 
-      dialogRef.afterClosed().subscribe(async (result: string) => {
+      overlay.$close.subscribe(async (result: string) => {
         if (result === 'Yes') {
           this.isSaving = true;
 
@@ -213,9 +264,9 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
         this.formBuilder.control(upt, [Validators.min(1), Validators.required]),
       );
 
-      return this.formBuilder.group({
-        rating: [t.rating || 0],
-        seconds: [t.seconds || 0, [Validators.min(0), Validators.required]],
+      return this.formBuilder.group<ThresholdForm>({
+        rating: this.formBuilder.control(t.rating || 0),
+        seconds: this.formBuilder.control(t.seconds || 0, [Validators.min(0), Validators.required]),
         usersPerTeam: this.formBuilder.array(formControls),
       });
     });
@@ -233,7 +284,7 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       (gs) => new FormControl(gs, [Validators.required, Validators.min(1)]),
     );
 
-    const metadataFormGroups = [];
+    const metadataFormGroups: FormGroup<MetadataForm>[] = [];
     if (this.data.metadata) {
       Object.entries(this.data.metadata).forEach(([key, property]) => {
         let type = 'boolean';
@@ -252,29 +303,34 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
       });
     }
 
-    const thresholdFormGroups = [];
+    const thresholdFormGroups: FormGroup<ThresholdForm>[] = [];
     if (this.data?.thresholds?.length > 0) {
       thresholdFormGroups.push(...this.getThresholdFormGroups(this.data.thresholds));
     }
 
     this.form = this.formBuilder.group({
-      confirmation: [this.data.confirmation || false],
-      cpu: [this.data.cpu || this.cpus[0].value, Validators.required],
-      description: [this.data.description],
-      gameServerTemplateId: [
+      confirmation: this.formBuilder.control(this.data.confirmation || false),
+      cpu: this.formBuilder.control(this.data.cpu || this.cpus[0].value, Validators.required),
+      description: this.formBuilder.control(this.data.description),
+      gameServerTemplateId: this.formBuilder.control(
         this.data.gameServerTemplateId || this.gameServerTemplates[0]?._id,
         Validators.required,
-      ],
+      ),
       groupSizes: this.formBuilder.array(groupSizeFormControls || []),
-      initialRating: [this.data.initialRating || 0],
-      invitationSeconds: [this.data.invitationSeconds || 0],
-      memory: [this.data.memory || this.memories[0].value, Validators.required],
+      initialRating: this.formBuilder.control(this.data.initialRating || 0),
+      invitationSeconds: this.formBuilder.control(this.data.invitationSeconds || 0),
+      memory: this.formBuilder.control(
+        this.data.memory || this.memories[0].value,
+        Validators.required,
+      ),
       metadata: this.formBuilder.array(metadataFormGroups),
-      name: [this.data.name, Validators.required],
-      namespaceId: [this.params.namespaceId],
-      preemptible: [this.data.preemptible === false ? false : true],
-      replicas: [this.data.replicas || this.replicas[0].value, Validators.required],
-      teams: [this.data.teams || false],
+      name: this.formBuilder.control(this.data.name, Validators.required),
+      preemptible: this.formBuilder.control(this.data.preemptible === false ? false : true),
+      replicas: this.formBuilder.control(
+        this.data.replicas || this.replicas[0].value,
+        Validators.required,
+      ),
+      teams: this.formBuilder.control(this.data.teams || false),
       thresholds: this.formBuilder.array(thresholdFormGroups),
     });
 
@@ -292,10 +348,34 @@ export class QueuesFormPageComponent implements OnDestroy, OnInit {
     }
   }
 
+  private subscribe() {
+    const promises = this.subscriptions.map((s) => {
+      const options = { acks: true };
+
+      return this.subscriptionService.subscribe(
+        s.Model,
+        { ...s.request },
+        s.service,
+        this.webSocket,
+        options,
+      );
+    });
+
+    return Promise.all(promises);
+  }
+
+  private unsubscribe() {
+    const promises = this.subscriptions.map((s) =>
+      this.subscriptionService.unsubscribe(s.request._id, this.webSocket),
+    );
+
+    return Promise.all(promises);
+  }
+
   private async upsert(values: Partial<QueueModel>) {
     const result = values._id
-      ? await this.queueService.update(this.params.namespaceId, values._id, values)
-      : await this.queueService.create(this.params.namespaceId, values);
+      ? await this.queueService.update(this.namespaceId, values._id, values)
+      : await this.queueService.create(this.namespaceId, values);
 
     this.matSnackBar.open(`Queue saved successfully.`);
     this.router.navigate(['../', result._id], { relativeTo: this.activatedRoute });

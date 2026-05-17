@@ -1,52 +1,36 @@
 @use 'src/assets/scss/form.scss' as form;
 @use 'src/assets/scss/page.scss' as page;
+@use 'src/assets/scss/responsive.scss' as responsive;
 @use 'src/assets/scss/shadows.scss' as shadows;
 
 @include form.styles;
 @include page.styles;
 
-app-toggle-section {
-  ::ng-deep {
-    app-button {
-      margin-right: 8px;
-    }
-
-    mat-spinner.mat-spinner {
-      align-self: center;
-    }
-  }
+div.form-column {
+  width: 100%;
 }
 
-div.form-error {
-  margin-left: 8px;
-}
+div.grid-list {
+  column-gap: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  row-gap: 8px;
 
-div.row > app-button {
-  margin-right: 8px;
-}
-
-mat-grid-list.mat-grid-list {
-  margin-bottom: 16px;
-
-  mat-grid-tile.mat-grid-tile {
+  div.grid-list-item {
+    align-items: center;
+    aspect-ratio: 16/9;
     background-position: center;
     background-size: cover;
+    column-gap: 8px;
+    display: flex;
     filter: shadows.$drop-shadow;
+    justify-content: center;
+    position: relative;
+    width: calc(25% - 6px);
 
-    ::ng-deep {
-      .mat-figure {
-        align-items: flex-end;
-      }
-    }
-
-    app-button {
-      margin-bottom: 8px;
-      margin-left: initial;
-      margin-right: 0px;
-
-      &:first-of-type {
-        margin-right: 8px;
-      }
+    &.icon {
+      background-repeat: no-repeat;
+      background-size: contain;
     }
 
     video {
@@ -55,16 +39,15 @@ mat-grid-list.mat-grid-list {
       object-fit: cover;
       position: absolute;
       width: 100%;
+      z-index: -1;
     }
+  }
+}
 
-    &.icon {
-      background-repeat: no-repeat;
-      background-size: contain;
-    }
-
-    &.pending {
-      background-color: rgba(0, 0, 0, 0.2);
-      box-shadow: shadows.$box-shadow;
+@include responsive.mobile {
+  div.grid-list {
+    div.grid-list-item {
+      width: 100%;
     }
   }
 }

@@ -1,7 +1,7 @@
-<div class="row"
+<div class="form-row"
      [formGroup]="form">
-  <mat-form-field floatLabel="always">
-    <mat-label>Type</mat-label>
+  <app-form-field>
+    <label>Type</label>
     <mat-select formControlName="type"
                 required>
       <mat-option [value]="ProbeType.Exec">Command</mat-option>
@@ -9,42 +9,34 @@
       <mat-option [value]="ProbeType.None">None</mat-option>
       <mat-option [value]="ProbeType.Tcp">TCP</mat-option>
     </mat-select>
-  </mat-form-field>
+  </app-form-field>
 
-  <mat-form-field *ngIf="type === ProbeType.Exec"
-                  floatLabel="always">
-    <mat-label>Command</mat-label>
+  <app-form-field *ngIf="type === ProbeType.Exec">
+    <label>Command</label>
     <input formControlName="command"
-           matInput
            maxlength="256" />
-    <mat-error>Enter a valid command.</mat-error>
-  </mat-form-field>
+    <app-error>Enter a valid command.</app-error>
+  </app-form-field>
 
-  <mat-form-field *ngIf="type !== ProbeType.None"
-                  floatLabel="always">
-    <mat-label>Initial Delay Seconds</mat-label>
+  <app-form-field *ngIf="type !== ProbeType.None">
+    <label>Initial Delay Seconds</label>
     <input formControlName="initialDelaySeconds"
-           matInput
            step="1"
            type="number" />
-    <mat-error>Enter a valid number of seconds.</mat-error>
-  </mat-form-field>
+    <app-error>Enter a valid number of seconds.</app-error>
+  </app-form-field>
 
-  <mat-form-field *ngIf="type === ProbeType.Http"
-                  floatLabel="always">
-    <mat-label>Path</mat-label>
+  <app-form-field *ngIf="type === ProbeType.Http">
+    <label>Path</label>
     <input formControlName="path"
-           matInput
            maxlength="128" />
-    <mat-error>Enter a valid path.</mat-error>
-  </mat-form-field>
+    <app-error>Enter a valid path.</app-error>
+  </app-form-field>
 
-  <mat-form-field *ngIf="type === ProbeType.Http || type === ProbeType.Tcp"
-                  floatLabel="always">
-    <mat-label>Port</mat-label>
+  <app-form-field *ngIf="type === ProbeType.Http || type === ProbeType.Tcp">
+    <label>Port</label>
     <input formControlName="port"
-           matInput
            type="number" />
-    <mat-error>Enter a valid port.</mat-error>
-  </mat-form-field>
+    <app-error>Enter a valid port.</app-error>
+  </app-form-field>
 </div>

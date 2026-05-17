@@ -306,7 +306,7 @@
     }
 
     div.mat-form-field-infix {
-      width: 180px;
+      width: 200px;
 
       &:not(:only-child) {
         width: 148px;
@@ -587,6 +587,8 @@
     --mat-option-label-text-color: white;
     --mat-option-selected-state-layer-color: #{colors.$accent-active};
 
+    --mat-progress-spinner-active-indicator-color: white;
+
     --mat-radio-label-text-line-height: 37px;
     --mat-radio-state-layer-size: 37px;
     --mat-radio-touch-target-size: 37px;
@@ -600,6 +602,13 @@
   // Checkbox.
   mat-checkbox {
     margin-left: -4px;
+
+    &.mat-mdc-checkbox-disabled {
+      div.mdc-checkbox__background {
+        border-color: white !important;
+        border-style: dashed;
+      }
+    }
   }
 
   // Icon.

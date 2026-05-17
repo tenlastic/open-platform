@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatchModel, MatchService } from '@tenlastic/http';
 
 import { FormService, TextareaService } from '../../../../../../core/services';
@@ -18,7 +18,8 @@ export class MatchesJsonPageComponent implements OnInit {
   public form: FormGroup;
   public isSaving: boolean;
 
-  private params: Params;
+  private namespaceId: string;
+  private queueId: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -32,7 +33,8 @@ export class MatchesJsonPageComponent implements OnInit {
 
   public ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
-      this.params = params;
+      this.namespaceId = params.namespaceId;
+      this.queueId = params.queueId;
 
       if (params.matchId !== 'new') {
         this.data = await this.matchService.findOne(params.namespaceId, params.matchId);
@@ -68,8 +70,8 @@ export class MatchesJsonPageComponent implements OnInit {
     const values = JSON.parse(json) as MatchModel;
 
     values._id = this.data._id;
-    values.namespaceId = this.params.namespaceId;
-    values.queueId = this.params.queueId || values.queueId;
+    values.namespaceId = this.namespaceId;
+    values.queueId = this.queueId || values.queueId;
 
     try {
       this.data = await this.upsert(values);
@@ -82,11 +84,11 @@ export class MatchesJsonPageComponent implements OnInit {
 
   private setupForm() {
     this.data ??= new MatchModel({
-      queueId: this.params.queueId ?? null,
+      queueId: this.queueId ?? null,
       teams: [{ userIds: [] }, { userIds: [] }],
     });
 
-    const keys = this.params.queueId ? ['teams'] : ['queueId', 'teams'];
+    const keys = this.queueId ? ['teams'] : ['queueId', 'teams'];
 
     const data = Object.keys(this.data)
       .filter((key) => keys.includes(key))
@@ -102,8 +104,8 @@ export class MatchesJsonPageComponent implements OnInit {
 
   private async upsert(values: Partial<MatchModel>) {
     const result = values._id
-      ? await this.matchService.update(this.params.namespaceId, values._id, values)
-      : await this.matchService.create(this.params.namespaceId, values);
+      ? await this.matchService.update(this.namespaceId, values._id, values)
+      : await this.matchService.create(this.namespaceId, values);
 
     this.matSnackBar.open(`Match saved successfully.`);
     this.router.navigate(['../../', result._id], { relativeTo: this.activatedRoute });

@@ -1,38 +1,45 @@
-<div class="page"
-     row-gap-16>
-  <app-title>Game Servers</app-title>
+<div class="page">
+  <div class="header">
+    <app-title>Game Servers</app-title>
 
-  <div align-items="end"
-       column-gap-16
-       flex-wrap-16>
-    <app-data-source-filter (OnValueSet)="setFilter($event)">
-      Name
-    </app-data-source-filter>
+    <div class="header-end">
+      <app-button *ngIf="hasWriteAuthorization && !queueId"
+                  color="accent"
+                  [routerLink]="['new']">
+        <mat-icon>add</mat-icon>
+        <div>New Game Server</div>
+      </app-button>
 
-    <mat-checkbox *ngIf="!queueId"
-                  (change)="table.refresh()"
-                  [(ngModel)]="queues">Queues</mat-checkbox>
-
-    <div align-items="end"
-         column-gap-8
-         margin-left-auto>
-      <div *ngIf="hasWriteAuthorization && !queueId">
-        <app-button color="accent"
-                    [routerLink]="['new']">
-          <mat-icon>add</mat-icon>
-          <div>New Game Server</div>
-        </app-button>
-      </div>
-
-      <div>
-        <app-button color="accent"
-                    (OnClick)="table.refresh()">
-          <mat-icon>refresh</mat-icon>
-          <div>Refresh</div>
-        </app-button>
-      </div>
+      <app-button color="accent"
+                  (OnClick)="table.refresh()">
+        <mat-icon>refresh</mat-icon>
+        <div>Refresh</div>
+      </app-button>
     </div>
   </div>
+
+  <hr>
+
+  <app-toggle-section [isVisible]="false"
+                      title="Filters">
+    <div align-items="end"
+         column-gap-16
+         flex-wrap-8>
+      <app-data-source-filter (OnValueSet)="setFilter($event)">
+        Name
+      </app-data-source-filter>
+
+      <mat-checkbox *ngIf="!queueId"
+                    (change)="table.refresh()"
+                    [(ngModel)]="matches">Matches</mat-checkbox>
+
+      <mat-checkbox *ngIf="!queueId"
+                    (change)="table.refresh()"
+                    [(ngModel)]="queues">Queues</mat-checkbox>
+    </div>
+  </app-toggle-section>
+
+  <hr>
 
   <ng-template #actions
                let-element>

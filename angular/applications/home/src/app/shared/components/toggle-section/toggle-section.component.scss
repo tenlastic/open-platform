@@ -9,11 +9,16 @@ h3 {
 }
 
 .row {
-  display: block;
+  align-items: center;
+  display: flex;
   margin-left: 0px;
   margin-right: 0px;
 
-  &:first-of-type {
+  &:first-of-type:not(:last-of-type) {
+    padding-bottom: 8px;
+  }
+
+  &:last-of-type:not(:first-of-type) {
     padding-bottom: 8px;
   }
 }

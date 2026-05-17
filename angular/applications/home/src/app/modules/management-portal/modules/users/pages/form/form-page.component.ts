@@ -1,10 +1,17 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthorizationState, IAuthorization, UserModel, UserService } from '@tenlastic/http';
 
 import { FormService, IdentityService } from '@home/app/core/services';
+
+export interface UsersForm {
+  email: FormControl<string>;
+  steamId: FormControl<string>;
+  steamPersonaName: FormControl<string>;
+  username: FormControl<string>;
+}
 
 @Component({
   standalone: false,
@@ -14,7 +21,7 @@ import { FormService, IdentityService } from '@home/app/core/services';
 export class UsersFormPageComponent implements OnInit {
   public data: UserModel;
   public errors: string[] = [];
-  public form: FormGroup;
+  public form: FormGroup<UsersForm>;
   public hasWriteAuthorization: boolean;
   public isSaving: boolean;
 
@@ -80,13 +87,14 @@ export class UsersFormPageComponent implements OnInit {
     this.data ??= new UserModel();
 
     this.form = this.formBuilder.group({
-      email: [this.data.email, Validators.email],
-      steamId: [this.data.steamId],
-      steamPersonaName: [this.data.steamPersonaName],
-      username: [
-        this.data.username,
-        [Validators.required, Validators.pattern(/^[A-Za-z0-9]+$/), Validators.maxLength(20)],
-      ],
+      email: this.formBuilder.control(this.data.email, Validators.email),
+      steamId: this.formBuilder.control(this.data.steamId),
+      steamPersonaName: this.formBuilder.control(this.data.steamPersonaName),
+      username: this.formBuilder.control(this.data.username, [
+        Validators.required,
+        Validators.pattern(/^[A-Za-z0-9]+$/),
+        Validators.maxLength(20),
+      ]),
     });
 
     this.form.get('steamId').disable({ emitEvent: false });

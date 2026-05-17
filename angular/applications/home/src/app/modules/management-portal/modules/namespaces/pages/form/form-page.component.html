@@ -1,15 +1,13 @@
 <ng-container *ngIf="form">
   <div class="page">
-    <div class="row">
-      <div class="col-sm-6">
-        <app-title *ngIf="hasWriteAuthorization || hasWriteAuthorizationForNamespace">
-          {{ data?._id ? 'Edit' : 'Create' }} Namespace
-        </app-title>
-        <app-title *ngIf="!hasWriteAuthorization && !hasWriteAuthorizationForNamespace">View Namespace</app-title>
-      </div>
+    <div class="header">
+      <app-title *ngIf="hasWriteAuthorization || hasWriteAuthorizationForNamespace">
+        {{ data?._id ? 'Edit' : 'Create' }} Namespace
+      </app-title>
+      <app-title *ngIf="!hasWriteAuthorization && !hasWriteAuthorizationForNamespace">View Namespace</app-title>
 
       <div *ngIf="hasWriteAuthorization || hasWriteAuthorizationForNamespace"
-           class="col-sm-6 align-right">
+           class="header-end">
         <app-button color="accent"
                     (OnClick)="navigateToJson()">
           <mat-icon>code</mat-icon>
@@ -18,143 +16,140 @@
       </div>
     </div>
 
+    <hr>
+
     <form autocomplete="off"
           [formGroup]="form"
           id="form"
           (ngSubmit)="save()">
-      <div class="row">
-        <mat-form-field floatLabel="always">
-          <mat-label>Name</mat-label>
+      <div class="form-row">
+        <app-form-field>
+          <label>Name</label>
           <input appAutofocus
                  formControlName="name"
-                 matInput
                  maxlength="64"
                  required />
-          <mat-error>Enter a valid name.</mat-error>
-        </mat-form-field>
+          <app-error>Enter a valid name.</app-error>
+        </app-form-field>
       </div>
 
-      <app-toggle-section title="Limits"
-                          formArrayName="limits">
-        <div class="row">
-          <mat-form-field floatLabel="always">
-            <mat-label>Total Bandwidth (GB) / Month</mat-label>
-            <input matInput
-                   required
+      <hr>
+
+      <app-toggle-section formArrayName="limits"
+                          title="Limits">
+        <div class="form-row">
+          <app-form-field>
+            <label>Total Bandwidth (GB) / Month</label>
+            <input required
                    formControlName="bandwidth"
                    type="number" />
-            <mat-error>Enter a valid value.</mat-error>
-          </mat-form-field>
+            <app-error>Enter a valid value.</app-error>
+          </app-form-field>
 
-          <mat-form-field floatLabel="always">
-            <mat-label>Total CPUs</mat-label>
-            <input matInput
-                   required
+          <app-form-field>
+            <label>Total CPUs</label>
+            <input required
                    formControlName="cpu"
                    type="number" />
-            <mat-error>Enter a valid value.</mat-error>
-          </mat-form-field>
+            <app-error>Enter a valid value.</app-error>
+          </app-form-field>
 
-          <mat-form-field floatLabel="always">
-            <mat-label>Default Authorization</mat-label>
+          <app-form-field>
+            <label>Default Authorization</label>
             <input *ngIf="form.get('limits').get('defaultAuthorization').disabled"
                    disabled
-                   matInput
                    [value]="form.get('limits').get('defaultAuthorization').value ? 'Yes' : 'No'" />
             <mat-select *ngIf="!form.get('limits').get('defaultAuthorization').disabled"
                         formControlName="defaultAuthorization">
               <mat-option [value]="true">Yes</mat-option>
               <mat-option [value]="false">No</mat-option>
             </mat-select>
-          </mat-form-field>
+          </app-form-field>
 
-          <mat-form-field floatLabel="always">
-            <mat-label>Total Memory (GB)</mat-label>
-            <input matInput
-                   required
+          <app-form-field>
+            <label>Total Memory (GB)</label>
+            <input required
                    formControlName="memory"
                    type="number" />
-            <mat-error>Enter a valid value.</mat-error>
-          </mat-form-field>
+            <app-error>Enter a valid value.</app-error>
+          </app-form-field>
 
-          <mat-form-field floatLabel="always">
-            <mat-label>Non-Preemptible Nodes</mat-label>
+          <app-form-field>
+            <label>Non-Preemptible Nodes</label>
             <input *ngIf="form.get('limits').get('nonPreemptible').disabled"
                    disabled
-                   matInput
                    [value]="form.get('limits').get('nonPreemptible').value ? 'Yes' : 'No'" />
             <mat-select *ngIf="!form.get('limits').get('nonPreemptible').disabled"
                         formControlName="nonPreemptible">
               <mat-option [value]="true">Yes</mat-option>
               <mat-option [value]="false">No</mat-option>
             </mat-select>
-          </mat-form-field>
+          </app-form-field>
 
-          <mat-form-field floatLabel="always">
-            <mat-label>Total Storage (GB)</mat-label>
-            <input matInput
-                   required
+          <app-form-field>
+            <label>Total Storage (GB)</label>
+            <input required
                    formControlName="storage"
                    step="1"
                    type="number" />
-            <mat-error>Enter a valid value.</mat-error>
-          </mat-form-field>
+            <app-error>Enter a valid value.</app-error>
+          </app-form-field>
         </div>
       </app-toggle-section>
 
-      <app-toggle-section *ngIf="data.status"
-                          title="Status">
-        <div class="row">
-          <mat-form-field floatLabel="always">
-            <mat-label>Phase</mat-label>
-            <input matInput
-                   disabled
-                   [value]="data.status.phase" />
-          </mat-form-field>
-        </div>
+      <ng-container *ngIf="data.status">
+        <hr>
 
-        <h4>Components</h4>
+        <app-toggle-section title="Status">
+          <div class="form-column">
+            <div class="form-row">
+              <app-form-field>
+                <label>Phase</label>
+                <input disabled
+                       [value]="data.status.phase" />
+              </app-form-field>
+            </div>
 
-        <div class="row">
-          <mat-form-field *ngFor="let component of data.status.components"
-                          floatLabel="always">
-            <mat-label>{{ component.name }}</mat-label>
-            <input disabled
-                   matInput
-                   [value]="getComponentValue(component)" />
-          </mat-form-field>
-        </div>
+            <h4>Components</h4>
 
-        <h4>Limits</h4>
+            <div class="form-row">
+              <app-form-field *ngFor="let component of data.status.components">
+                <label>{{ component.name }}</label>
+                <input disabled
+                       [value]="getComponentValue(component)" />
+              </app-form-field>
+            </div>
 
-        <div class="row">
-          <mat-form-field floatLabel="always">
-            <mat-label>Total CPUs</mat-label>
-            <input matInput
-                   disabled
-                   [value]="data.status.limits.cpu | number:'1.0':'en-US'" />
-          </mat-form-field>
+            <h4>Limits</h4>
 
-          <mat-form-field floatLabel="always">
-            <mat-label>Total Memory</mat-label>
-            <input matInput
-                   disabled
-                   [value]="data.status.limits.memory | filesize" />
-          </mat-form-field>
+            <div class="form-row">
+              <app-form-field>
+                <label>Total CPUs</label>
+                <input disabled
+                       [value]="data.status.limits.cpu | number:'1.0':'en-US'" />
+              </app-form-field>
 
-          <mat-form-field floatLabel="always">
-            <mat-label>Total Storage</mat-label>
-            <input matInput
-                   disabled
-                   [value]="data.status.limits.storage | filesize" />
-          </mat-form-field>
-        </div>
-      </app-toggle-section>
+              <app-form-field>
+                <label>Total Memory</label>
+                <input disabled
+                       [value]="data.status.limits.memory | filesize" />
+              </app-form-field>
+
+              <app-form-field>
+                <label>Total Storage</label>
+                <input disabled
+                       [value]="data.status.limits.storage | filesize" />
+              </app-form-field>
+            </div>
+          </div>
+        </app-toggle-section>
+
+      </ng-container>
     </form>
   </div>
 
   <div *ngIf="!form.disabled"
-       class="page-actions">
+       class="actions">
     <div *ngFor="let error of errors"
          class="form-error">
       {{ error }}
@@ -170,7 +165,7 @@
     </app-button>
     <app-button *ngIf="isSaving"
                 color="primary"
-                disabled
+                disabled="true"
                 size="large"
                 width="full">
       <mat-spinner diameter="20"></mat-spinner>

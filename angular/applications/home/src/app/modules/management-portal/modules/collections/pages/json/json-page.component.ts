@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CollectionModel, CollectionService } from '@tenlastic/http';
 
 import { FormService, TextareaService } from '../../../../../../core/services';
@@ -18,7 +18,7 @@ export class CollectionsJsonPageComponent implements OnInit {
   public form: FormGroup;
   public isSaving: boolean;
 
-  private params: Params;
+  private namespaceId: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -32,7 +32,7 @@ export class CollectionsJsonPageComponent implements OnInit {
 
   public ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
-      this.params = params;
+      this.namespaceId = params.namespaceId;
 
       if (params.collectionId !== 'new') {
         this.data = await this.collectionService.findOne(params.namespaceId, params.collectionId);
@@ -68,7 +68,7 @@ export class CollectionsJsonPageComponent implements OnInit {
     const values = JSON.parse(json) as CollectionModel;
 
     values._id = this.data._id;
-    values.namespaceId = this.params.namespaceId;
+    values.namespaceId = this.namespaceId;
 
     try {
       this.data = await this.upsert(values);
@@ -108,8 +108,8 @@ export class CollectionsJsonPageComponent implements OnInit {
 
   private async upsert(values: Partial<CollectionModel>) {
     const result = values._id
-      ? await this.collectionService.update(this.params.namespaceId, values._id, values)
-      : await this.collectionService.create(this.params.namespaceId, values);
+      ? await this.collectionService.update(this.namespaceId, values._id, values)
+      : await this.collectionService.create(this.namespaceId, values);
 
     this.matSnackBar.open(`Collection saved successfully.`);
     this.router.navigate(['../../', result._id], { relativeTo: this.activatedRoute });

@@ -1,14 +1,12 @@
 <ng-container *ngIf="form">
   <div class="page">
-    <div class="row">
-      <div class="col-sm-6">
-        <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Queue</app-title>
-        <app-title *ngIf="!hasWriteAuthorization">View Queue</app-title>
-      </div>
+    <div class="header">
+      <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Queue</app-title>
+      <app-title *ngIf="!hasWriteAuthorization">View Queue</app-title>
 
-      <div *ngIf="hasWriteAuthorization"
-           class="col-sm-6 align-right">
-        <app-button color="accent"
+      <div class="header-end">
+        <app-button *ngIf="hasWriteAuthorization"
+                    color="accent"
                     (OnClick)="navigateToJson()">
           <mat-icon>code</mat-icon>
           <div>{{ data?._id ? 'Edit' : 'Create' }} as JSON</div>
@@ -16,33 +14,33 @@
       </div>
     </div>
 
+    <hr>
+
     <form autocomplete="off"
           [formGroup]="form"
           id="form"
           (ngSubmit)="save()">
-      <div class="row">
-        <mat-form-field floatLabel="always">
-          <mat-label>Name</mat-label>
+      <div class="form-row">
+        <app-form-field>
+          <label>Name</label>
           <input appAutofocus
                  formControlName="name"
-                 matInput
                  maxlength="64"
                  required />
-          <mat-error>Enter a valid name.</mat-error>
-        </mat-form-field>
+          <app-error>Enter a valid name.</app-error>
+        </app-form-field>
 
-        <mat-form-field floatLabel="always">
-          <mat-label>Description</mat-label>
+        <app-form-field>
+          <label>Description</label>
           <input formControlName="description"
-                 matInput
                  maxlength="128" />
-          <mat-error>Enter a valid description.</mat-error>
-        </mat-form-field>
+          <app-error>Enter a valid description.</app-error>
+        </app-form-field>
       </div>
 
-      <div class="row">
-        <mat-form-field floatLabel="always">
-          <mat-label>Game Server Template</mat-label>
+      <div class="form-row">
+        <app-form-field>
+          <label>Game Server Template</label>
           <mat-select formControlName="gameServerTemplateId"
                       placeholder="None"
                       required>
@@ -51,123 +49,128 @@
               {{ gameServerTemplate.name }}
             </mat-option>
           </mat-select>
-          <mat-error>Select a valid Game Server Template.</mat-error>
-        </mat-form-field>
+          <app-error>Select a valid Game Server Template.</app-error>
+        </app-form-field>
       </div>
 
-      <div class="row">
-        <mat-form-field floatLabel="always">
-          <mat-label>CPU</mat-label>
+      <div class="form-row">
+        <app-form-field>
+          <label>CPU</label>
           <mat-select formControlName="cpu">
             <mat-option *ngFor="let cpu of cpus"
                         [value]="cpu.value">{{ cpu.label }}</mat-option>
           </mat-select>
-        </mat-form-field>
+        </app-form-field>
 
-        <mat-form-field floatLabel="always">
-          <mat-label>Memory</mat-label>
+        <app-form-field>
+          <label>Memory</label>
           <mat-select formControlName="memory">
             <mat-option *ngFor="let memory of memories"
                         [value]="memory.value">{{ memory.label }}</mat-option>
           </mat-select>
-        </mat-form-field>
+        </app-form-field>
 
-        <mat-form-field floatLabel="always">
-          <mat-label>Preemptible</mat-label>
+        <app-form-field>
+          <label>Preemptible</label>
           <mat-select formControlName="preemptible">
             <mat-option [value]="true">Yes</mat-option>
             <mat-option [value]="false">No</mat-option>
           </mat-select>
-        </mat-form-field>
+        </app-form-field>
 
-        <mat-form-field floatLabel="always">
-          <mat-label>Replicas</mat-label>
+        <app-form-field>
+          <label>Replicas</label>
           <mat-select formControlName="replicas">
             <mat-option *ngFor="let replica of replicas"
                         [value]="replica.value">{{ replica.label }}</mat-option>
           </mat-select>
-        </mat-form-field>
+        </app-form-field>
       </div>
 
-      <div class="row">
-        <mat-form-field floatLabel="always">
-          <mat-label>Confirmation</mat-label>
+      <div class="form-row">
+        <app-form-field>
+          <label>Confirmation</label>
           <mat-select formControlName="confirmation">
             <mat-option [value]="true">Yes</mat-option>
             <mat-option [value]="false">No</mat-option>
           </mat-select>
-        </mat-form-field>
+        </app-form-field>
 
-        <mat-form-field *ngIf="form.get('confirmation').value"
-                        floatLabel="always">
-          <mat-label>Invitation Seconds</mat-label>
+        <app-form-field *ngIf="form.get('confirmation').value">
+          <label>Invitation Seconds</label>
           <input formControlName="invitationSeconds"
-                 matInput
                  min="0"
                  type="number" />
-          <mat-error>Enter a valid duration for invitations.</mat-error>
-        </mat-form-field>
+          <app-error>Enter a valid duration for invitations.</app-error>
+        </app-form-field>
       </div>
 
-      <div class="row">
-        <mat-form-field floatLabel="always">
-          <mat-label>Teams</mat-label>
+      <div class="form-row">
+        <app-form-field>
+          <label>Teams</label>
           <mat-select formControlName="teams">
             <mat-option [value]="true">Yes</mat-option>
             <mat-option [value]="false">No</mat-option>
           </mat-select>
-        </mat-form-field>
+        </app-form-field>
 
-        <mat-form-field *ngIf="form.get('teams').value"
-                        floatLabel="always">
-          <mat-label>Initial Rating</mat-label>
+        <app-form-field *ngIf="form.get('teams').value">
+          <label>Initial Rating</label>
           <input formControlName="initialRating"
-                 matInput
                  min="0"
                  type="number" />
-          <mat-error>Enter a valid initial rating.</mat-error>
-        </mat-form-field>
+          <app-error>Enter a valid initial rating.</app-error>
+        </app-form-field>
       </div>
 
-      <app-toggle-section *ngIf="!groupSizes.disabled || groupSizes.value.length"
-                          formArrayName="groupSizes"
-                          title="Group Sizes">
-        <mat-form-field *ngFor="let control of groupSizes.controls; let i = index"
-                        floatLabel="always">
-          <mat-label>Group Size {{ i + 1 }}</mat-label>
+      <ng-container *ngIf="!groupSizes.disabled || groupSizes.value.length">
+        <hr>
 
-          <input autocomplete="off"
-                 [formControlName]="i"
-                 matInput
-                 min="1"
-                 step="1"
-                 type="number" />
-          <app-button *ngIf="groupSizes.length > 1"
-                      color="accent"
-                      mat-icon-button
-                      matSuffix
-                      matTooltip="Remove Group Size"
-                      (OnClick)="groupSizes.removeAt(i)">
-            <mat-icon>remove</mat-icon>
-          </app-button>
+        <app-toggle-section formArrayName="groupSizes"
+                            title="Group Sizes">
+          <div row-gap-8>
+            <div class="form-row">
+              <app-form-field *ngFor="let control of groupSizes.controls; let i = index">
+                <label>Group Size {{ i + 1 }}</label>
 
-          <mat-error>Enter a valid group size.</mat-error>
-        </mat-form-field>
+                <input autocomplete="off"
+                       [formControlName]="i"
+                       min="1"
+                       step="1"
+                       type="number" />
+                <app-button *ngIf="groupSizes.length > 1"
+                            color="accent"
+                            end
+                            matTooltip="Remove Group Size"
+                            (OnClick)="groupSizes.removeAt(i)">
+                  <mat-icon>remove</mat-icon>
+                </app-button>
 
-        <app-button *ngIf="!groupSizes.disabled"
-                    color="accent"
-                    layout="left"
-                    (OnClick)="addGroupSize()">
-          <mat-icon>add</mat-icon>
-          <div>Add Group Size</div>
-        </app-button>
-      </app-toggle-section>
+                <app-error>Enter a valid group size.</app-error>
+              </app-form-field>
+            </div>
 
-      <app-toggle-section *ngIf="!form.get('metadata').disabled || form.get('metadata').value.length"
-                          [isVisible]="false"
-                          title="Metadata">
-        <app-metadata-fields [formArray]="form.get('metadata')"></app-metadata-fields>
-      </app-toggle-section>
+            <app-button *ngIf="!groupSizes.disabled"
+                        color="accent"
+                        layout="left"
+                        (OnClick)="addGroupSize()">
+              <mat-icon>add</mat-icon>
+              <div>Add Group Size</div>
+            </app-button>
+          </div>
+        </app-toggle-section>
+      </ng-container>
+
+      <ng-container *ngIf="!form.get('metadata').disabled || form.get('metadata').value.length">
+        <hr>
+
+        <app-toggle-section [isVisible]="false"
+                            title="Metadata">
+          <app-metadata-fields [formArray]="form.get('metadata')"></app-metadata-fields>
+        </app-toggle-section>
+      </ng-container>
+
+      <hr>
 
       <app-toggle-section [isVisible]="isNew"
                           title="Thresholds">
@@ -175,44 +178,44 @@
                               [teams]="form.get('teams').value"></app-threshold-fields>
       </app-toggle-section>
 
-      <app-toggle-section *ngIf="data.status"
-                          title="Status">
-        <div class="row">
-          <mat-form-field floatLabel="always">
-            <mat-label>Phase</mat-label>
-            <input matInput
-                   disabled
-                   [value]="data.status.phase" />
-          </mat-form-field>
+      <ng-container *ngIf="data.status">
+        <hr>
 
-          <mat-form-field *ngIf="data.status.message"
-                          floatLabel="always"
-                          [matTooltip]="data.status.message.length >= 30 ? data.status.message : null"
-                          matTooltipPosition="right">
-            <mat-label>Message</mat-label>
-            <input matInput
-                   disabled
-                   [value]="data.status.message" />
-          </mat-form-field>
-        </div>
+        <app-toggle-section title="Status">
+          <div class="form-column">
+            <div class="form-row">
+              <app-form-field>
+                <label>Phase</label>
+                <input disabled
+                       [value]="data.status.phase" />
+              </app-form-field>
 
-        <h4>Components</h4>
+              <app-form-field *ngIf="data.status.message"
+                              [matTooltip]="data.status.message.length >= 30 ? data.status.message : null"
+                              matTooltipPosition="right">
+                <label>Message</label>
+                <input disabled
+                       [value]="data.status.message" />
+              </app-form-field>
+            </div>
 
-        <div class="row">
-          <mat-form-field *ngFor="let component of data.status.components"
-                          floatLabel="always">
-            <mat-label>{{ component.name }}</mat-label>
-            <input matInput
-                   disabled
-                   [value]="component.phase + ' (' + component.current + ' / ' + component.total + ')'" />
-          </mat-form-field>
-        </div>
-      </app-toggle-section>
+            <h4>Components</h4>
+
+            <div class="form-row">
+              <app-form-field *ngFor="let component of data.status.components">
+                <label>{{ component.name }}</label>
+                <input disabled
+                       [value]="component.phase + ' (' + component.current + ' / ' + component.total + ')'" />
+              </app-form-field>
+            </div>
+          </div>
+        </app-toggle-section>
+      </ng-container>
     </form>
   </div>
 
   <div *ngIf="!form.disabled"
-       class="page-actions">
+       class="actions">
     <div *ngFor="let error of errors"
          class="form-error">
       {{ error }}
@@ -228,7 +231,7 @@
     </app-button>
     <app-button *ngIf="isSaving"
                 color="primary"
-                disabled
+                disabled="true"
                 size="large"
                 width="full">
       <mat-spinner diameter="20"></mat-spinner>

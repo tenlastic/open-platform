@@ -4,11 +4,7 @@
 :host {
   display: flex;
   flex-direction: column;
-  margin-top: -4px;
-
-  &:has(app-error) {
-    padding-bottom: 4px;
-  }
+  margin-top: -5px;
 
   div {
     row-gap: 4px;
@@ -22,12 +18,32 @@
     }
   }
 
+  div.input {
+    column-gap: 4px;
+    display: flex;
+    flex-wrap: nowrap;
+
+    ::ng-deep {
+      app-button {
+        flex: 0;
+      }
+
+      input,
+      select,
+      mat-select,
+      textarea {
+        flex: 1;
+      }
+    }
+  }
+
   span {
     font-size: 14px;
   }
 
   ::ng-deep {
-    input {
+    input,
+    textarea {
       background: transparent;
       border: none;
       border-bottom: 1px solid white;
@@ -35,7 +51,6 @@
       caret-color: white;
       color: white;
       font-size: 14px;
-      line-height: 34px;
       width: 100%;
 
       &:focus {
@@ -47,8 +62,16 @@
       }
     }
 
+    input {
+      line-height: 34px;
+    }
+
     label {
       font-size: 12px;
+    }
+
+    textarea {
+      line-height: 24px;
     }
   }
 }

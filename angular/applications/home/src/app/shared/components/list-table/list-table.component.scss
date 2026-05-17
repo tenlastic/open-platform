@@ -115,8 +115,8 @@ table.mobile {
     }
   }
 
-  hr {
-    margin: 8px 8px 4px;
+  &:not(:has(*)) {
+    margin: 0px;
   }
 
   tr {
@@ -144,7 +144,39 @@ table.mobile {
       padding: 0px;
       text-wrap: nowrap;
 
-      div {
+      &:not(:has(div.buttons div app-button)) {
+        div.buttons {
+          display: none;
+          padding-bottom: 2px;
+
+          hr {
+            display: none;
+          }
+        }
+
+        div.content:nth-last-of-type(2) {
+          padding-bottom: 8px;
+        }
+      }
+
+      div.buttons {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 8px;
+        row-gap: 8px;
+
+        div {
+          display: flex;
+          justify-content: space-between;
+        }
+
+        hr {
+          margin: 0px;
+        }
+      }
+
+      div.content {
         display: flex;
         justify-content: space-between;
         padding: 4px 8px;
@@ -152,14 +184,6 @@ table.mobile {
         &:first-of-type {
           background: rgba(0, 0, 0, 0.5);
           padding: 8px;
-        }
-
-        &:last-of-type {
-          padding-bottom: 8px;
-
-          &:not(:has(*)) {
-            padding-bottom: 2px;
-          }
         }
 
         &:nth-of-type(2) {

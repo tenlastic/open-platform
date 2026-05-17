@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { IQueue, QueueModel, QueueService } from '@tenlastic/http';
 
 import { FormService, TextareaService } from '../../../../../../core/services';
@@ -18,7 +18,7 @@ export class QueuesJsonPageComponent implements OnInit {
   public form: FormGroup;
   public isSaving: boolean;
 
-  private params: Params;
+  private namespaceId: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -32,7 +32,7 @@ export class QueuesJsonPageComponent implements OnInit {
 
   public ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
-      this.params = params;
+      this.namespaceId = params.namespaceId;
 
       if (params.queueId !== 'new') {
         this.data = await this.queueService.findOne(params.namespaceId, params.queueId);
@@ -68,7 +68,7 @@ export class QueuesJsonPageComponent implements OnInit {
     const values = JSON.parse(json) as QueueModel;
 
     values._id = this.data._id;
-    values.namespaceId = this.params.namespaceId;
+    values.namespaceId = this.namespaceId;
 
     try {
       this.data = await this.upsert(values);
@@ -128,8 +128,8 @@ export class QueuesJsonPageComponent implements OnInit {
 
   private async upsert(values: Partial<QueueModel>) {
     const result = values._id
-      ? await this.queueService.update(this.params.namespaceId, values._id, values)
-      : await this.queueService.create(this.params.namespaceId, values);
+      ? await this.queueService.update(this.namespaceId, values._id, values)
+      : await this.queueService.create(this.namespaceId, values);
 
     this.matSnackBar.open(`Queue saved successfully.`);
     this.router.navigate(['../../', result._id], { relativeTo: this.activatedRoute });

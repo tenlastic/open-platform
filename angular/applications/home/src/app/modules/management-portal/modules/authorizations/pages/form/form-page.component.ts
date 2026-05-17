@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   AuthorizationModel,
   AuthorizationService,
@@ -15,6 +15,15 @@ import {
 import { FormService, IdentityService } from '@home/app/core/services';
 import { ApiKeyDialogComponent, ApiKeyDialogComponentData } from '@home/app/shared/components';
 
+export interface AuthorizationForm {
+  apiKey: FormControl<string>;
+  bannedAt: FormControl<boolean>;
+  name: FormControl<string>;
+  roles: FormGroup<{ [key: string]: FormControl<boolean> }>;
+  type: FormControl<IAuthorization.Type>;
+  user: FormControl<UserModel>;
+}
+
 @Component({
   standalone: false,
   styleUrls: ['./form-page.component.scss'],
@@ -25,17 +34,13 @@ export class AuthorizationsFormPageComponent implements OnInit {
   public AuthorizationType = IAuthorization.Type;
   public data: AuthorizationModel;
   public errors: string[] = [];
-  public form: FormGroup;
+  public form: FormGroup<AuthorizationForm>;
   public hasWriteAuthorization: boolean;
   public isSaving: boolean;
-  public get namespaceId() {
-    return this.params.namespaceId;
-  }
+  public namespaceId: string;
   public get type() {
     return this.form.get('type').value;
   }
-
-  private params: Params;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -52,7 +57,7 @@ export class AuthorizationsFormPageComponent implements OnInit {
 
   public async ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
-      this.params = params;
+      this.namespaceId = params.namespaceId;
 
       const roles = [IAuthorization.Role.AuthorizationsWrite];
       const userId = this.identityService.user?._id;
@@ -93,7 +98,7 @@ export class AuthorizationsFormPageComponent implements OnInit {
 
     const values: Partial<AuthorizationModel> = {
       _id: this.data._id,
-      namespaceId: this.params.namespaceId,
+      namespaceId: this.namespaceId,
       roles,
     };
 
@@ -145,9 +150,9 @@ export class AuthorizationsFormPageComponent implements OnInit {
     }, {});
 
     let type = IAuthorization.Type.Default;
-    if (this.data.name && this.params.namespaceId) {
+    if (this.data.name && this.namespaceId) {
       type = IAuthorization.Type.ApiKey;
-    } else if (this.data.userId || !this.params.namespaceId) {
+    } else if (this.data.userId || !this.namespaceId) {
       type = IAuthorization.Type.User;
     }
 
@@ -157,15 +162,21 @@ export class AuthorizationsFormPageComponent implements OnInit {
     }
 
     this.form = this.formBuilder.group({
-      apiKey: [this.data._id ? undefined : apiKey],
-      bannedAt: [Boolean(this.data.bannedAt)],
-      name: [this.data.name, type === IAuthorization.Type.ApiKey ? [Validators.required] : []],
+      apiKey: this.formBuilder.control(this.data._id ? undefined : apiKey),
+      bannedAt: this.formBuilder.control(Boolean(this.data.bannedAt)),
+      name: this.formBuilder.control(
+        this.data.name,
+        type === IAuthorization.Type.ApiKey ? [Validators.required] : [],
+      ),
       roles: this.formBuilder.group(roles),
-      type: { disabled: this.data._id || !this.params.namespaceId, value: type },
-      user: [
-        { disabled: this.data._id, value: user },
+      type: this.formBuilder.control({
+        disabled: Boolean(this.data._id || !this.namespaceId),
+        value: type,
+      }),
+      user: this.formBuilder.control(
+        { disabled: Boolean(this.data._id), value: user },
         type === IAuthorization.Type.User ? [Validators.required] : [],
-      ],
+      ),
     });
 
     this.form.get('type').valueChanges.subscribe((t) => {
@@ -190,11 +201,11 @@ export class AuthorizationsFormPageComponent implements OnInit {
 
   private async upsert(values: Partial<AuthorizationModel>) {
     const result = values._id
-      ? await this.authorizationService.update(this.params.namespaceId, values._id, values)
-      : await this.authorizationService.create(this.params.namespaceId, values);
+      ? await this.authorizationService.update(this.namespaceId, values._id, values)
+      : await this.authorizationService.create(this.namespaceId, values);
 
     if (this.form.get('bannedAt').dirty && this.form.get('bannedAt').value) {
-      await this.authorizationService.ban(this.params.namespaceId, result._id);
+      await this.authorizationService.ban(this.namespaceId, result._id);
     }
 
     this.matSnackBar.open(`Authorization saved successfully.`);

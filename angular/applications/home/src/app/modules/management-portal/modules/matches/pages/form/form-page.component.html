@@ -1,28 +1,28 @@
 <ng-container *ngIf="form">
   <div class="page">
-    <div class="row">
-      <div class="col-sm-6">
-        <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Match</app-title>
-        <app-title *ngIf="!hasWriteAuthorization">View Match</app-title>
-      </div>
+    <div class="header">
+      <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'View' : 'Create' }} Match</app-title>
+      <app-title *ngIf="!hasWriteAuthorization">View Match</app-title>
 
-      <div *ngIf="hasWriteAuthorization && isNew"
-           class="col-sm-6 align-right">
-        <app-button color="accent"
+      <div class="header-end">
+        <app-button *ngIf="hasWriteAuthorization && isNew"
+                    color="accent"
                     (OnClick)="navigateToJson()">
           <mat-icon>code</mat-icon>
-          <div>{{ data?._id ? 'Edit' : 'Create' }} as JSON</div>
+          <div>Create as JSON</div>
         </app-button>
       </div>
     </div>
+
+    <hr>
 
     <form autocomplete="off"
           [formGroup]="form"
           id="form"
           (ngSubmit)="save()">
-      <div class="row">
-        <mat-form-field floatLabel="always">
-          <mat-label>Game Server Template</mat-label>
+      <div class="form-row">
+        <app-form-field>
+          <label>Game Server Template</label>
           <mat-select formControlName="gameServerTemplateId"
                       placeholder="None"
                       required>
@@ -31,12 +31,11 @@
               {{ gameServerTemplate.name }}
             </mat-option>
           </mat-select>
-          <mat-error>Select a valid Game Server Template.</mat-error>
-        </mat-form-field>
+          <app-error>Select a valid Game Server Template.</app-error>
+        </app-form-field>
 
-        <mat-form-field *ngIf="!isNew"
-                        floatLabel="always">
-          <mat-label>Queue</mat-label>
+        <app-form-field *ngIf="!isNew">
+          <label>Queue</label>
           <mat-select formControlName="queueId"
                       placeholder="None">
             <mat-option>None</mat-option>
@@ -45,73 +44,77 @@
               {{ queue.name }}
             </mat-option>
           </mat-select>
-          <mat-error>Select a valid Queue.</mat-error>
-        </mat-form-field>
+          <app-error>Select a valid Queue.</app-error>
+        </app-form-field>
       </div>
 
-      <div class="row">
-        <mat-form-field floatLabel="always">
-          <mat-label>Confirmation</mat-label>
+      <div class="form-row">
+        <app-form-field>
+          <label>Confirmation</label>
           <mat-select formControlName="confirmation">
             <mat-option [value]="true">Yes</mat-option>
             <mat-option [value]="false">No</mat-option>
           </mat-select>
-        </mat-form-field>
+        </app-form-field>
 
-        <mat-form-field *ngIf="form.get('confirmation').value"
-                        floatLabel="always">
-          <mat-label>Invitation Seconds</mat-label>
+        <app-form-field *ngIf="form.get('confirmation').value">
+          <label>Invitation Seconds</label>
           <input formControlName="invitationSeconds"
                  matInput
                  min="0"
                  type="number" />
-          <mat-error>Enter a valid duration for invitations.</mat-error>
-        </mat-form-field>
+          <app-error>Enter a valid duration for invitations.</app-error>
+        </app-form-field>
       </div>
 
+      <hr>
+
       <app-toggle-section title="Teams">
-        <ng-container *ngFor="let team of teams.controls; let i = index">
-          <h4>Team {{ i + 1}}</h4>
+        <div row-gap-8>
+          <div *ngFor="let team of teams.controls; let i = index"
+               row-gap-4>
+            <h4>Team {{ i + 1}}</h4>
 
-          <div class="row">
-            <ng-container *ngFor="let user of getTeamUsers(i).controls; let j = index">
-              <app-autocomplete-user-field [control]="user"
-                                           [removeButton]="getTeamUsers(i).length > 1"
-                                           removeButtonTooltip="Remove Player"
-                                           (OnRemove)="getTeamUsers(i).removeAt(j)"></app-autocomplete-user-field>
-            </ng-container>
+            <div class="form-row">
+              <ng-container *ngFor="let user of getTeamUsers(i).controls; let j = index">
+                <app-autocomplete-user-field [control]="user"
+                                             [removeButton]="getTeamUsers(i).length > 1"
+                                             removeButtonTooltip="Remove Player"
+                                             (OnRemove)="getTeamUsers(i).removeAt(j)"></app-autocomplete-user-field>
+              </ng-container>
 
-            <app-button *ngIf="!form.disabled"
-                        color="accent"
-                        layout="left"
-                        (OnClick)="pushUserToTeam(getTeamUsers(i))">
-              <mat-icon>add</mat-icon>
-              <div>Add Player</div>
-            </app-button>
+              <app-button *ngIf="!form.disabled"
+                          color="accent"
+                          layout="left"
+                          (OnClick)="pushUserToTeam(getTeamUsers(i))">
+                <mat-icon>add</mat-icon>
+                <div>Add Player</div>
+              </app-button>
 
-            <app-button *ngIf="!form.disabled && teams.length > 1"
-                        color="accent"
-                        layout="left"
-                        (OnClick)="teams.removeAt(i)">
-              <mat-icon>remove</mat-icon>
-              <div>Remove Team</div>
-            </app-button>
+              <app-button *ngIf="!form.disabled && teams.length > 1"
+                          color="accent"
+                          layout="left"
+                          (OnClick)="teams.removeAt(i)">
+                <mat-icon>remove</mat-icon>
+                <div>Remove Team</div>
+              </app-button>
+            </div>
           </div>
-        </ng-container>
 
-        <app-button *ngIf="!form.disabled"
-                    color="accent"
-                    layout="left"
-                    (OnClick)="pushTeam()">
-          <mat-icon>add</mat-icon>
-          <div>Add Team</div>
-        </app-button>
+          <app-button *ngIf="!form.disabled"
+                      color="accent"
+                      layout="left"
+                      (OnClick)="pushTeam()">
+            <mat-icon>add</mat-icon>
+            <div>Add Team</div>
+          </app-button>
+        </div>
       </app-toggle-section>
     </form>
   </div>
 
   <div *ngIf="!form.disabled"
-       class="page-actions">
+       class="actions">
     <div *ngFor="let error of errors"
          class="form-error">
       {{ error }}
@@ -127,7 +130,7 @@
     </app-button>
     <app-button *ngIf="isSaving"
                 color="primary"
-                disabled
+                disabled="true"
                 size="large"
                 width="full">
       <mat-spinner diameter="20"></mat-spinner>

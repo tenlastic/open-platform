@@ -57,10 +57,6 @@ import {
   UserState,
   WebSocketService,
   WebSocketState,
-  WorkflowLogService,
-  WorkflowLogState,
-  WorkflowService,
-  WorkflowState,
 } from '@tenlastic/http';
 import { Axios } from 'axios';
 
@@ -264,18 +260,6 @@ const services: Provider[] = [
     useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
       new WebSocketService(apiService, environmentService),
   },
-  {
-    deps: [ApiService, EnvironmentService],
-    provide: WorkflowLogService,
-    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
-      new WorkflowLogService(apiService, environmentService),
-  },
-  {
-    deps: [ApiService, EnvironmentService],
-    provide: WorkflowService,
-    useFactory: (apiService: ApiService, environmentService: EnvironmentService) =>
-      new WorkflowService(apiService, environmentService),
-  },
 ];
 const states: Provider[] = [
   {
@@ -394,19 +378,9 @@ const states: Provider[] = [
     useFactory: (service: UserService) => new UserState(service),
   },
   {
-    deps: [WebSocketService, UserState],
+    deps: [WebSocketService],
     provide: WebSocketState,
-    useFactory: (service: WebSocketService, userState: UserState) => new WebSocketState(service),
-  },
-  {
-    deps: [WorkflowLogService],
-    provide: WorkflowLogState,
-    useFactory: (service: WorkflowLogService) => new WorkflowLogState(service),
-  },
-  {
-    deps: [WorkflowService],
-    provide: WorkflowState,
-    useFactory: (service: WorkflowService) => new WorkflowState(service),
+    useFactory: (service: WebSocketService) => new WebSocketState(service),
   },
 ];
 

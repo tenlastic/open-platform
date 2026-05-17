@@ -17,7 +17,6 @@ import {
   StorefrontState,
   WebSocketService,
   WebSocketState,
-  WorkflowState,
 } from '@tenlastic/http';
 import { combineLatest, Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -27,6 +26,7 @@ import { environment } from '@home/environments/environment';
 
 @Component({
   standalone: false,
+  styleUrls: ['./layout.component.scss'],
   templateUrl: './layout.component.html',
 })
 export class LayoutComponent implements OnDestroy, OnInit {
@@ -40,7 +40,6 @@ export class LayoutComponent implements OnDestroy, OnInit {
       ...IAuthorization.gameServerRoles,
       ...IAuthorization.queueRoles,
       ...IAuthorization.storefrontRoles,
-      ...IAuthorization.workflowRoles,
     ];
     const userId = this.identityService.user?._id;
 
@@ -90,7 +89,6 @@ export class LayoutComponent implements OnDestroy, OnInit {
     private storefrontService: StorefrontService,
     private webSocketService: WebSocketService,
     private webSocketState: WebSocketState,
-    private workflowState: WorkflowState,
   ) {}
 
   public async ngOnInit() {
@@ -135,7 +133,6 @@ export class LayoutComponent implements OnDestroy, OnInit {
     this.gameServerTemplateState.reset();
     this.queueState.reset();
     this.webSocketState.reset();
-    this.workflowState.reset();
 
     this.fetchStorefront$.unsubscribe();
     this.sideMenuService.remove(this.sideMenuTemplate);

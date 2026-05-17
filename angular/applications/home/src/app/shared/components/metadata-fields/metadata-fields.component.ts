@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { FormArray, FormBuilder, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MetadataForm } from '../metadata-field/metadata-field.component';
 
 @Component({
   selector: 'app-metadata-fields',
@@ -8,7 +9,7 @@ import { FormArray, FormBuilder, Validators } from '@angular/forms';
   templateUrl: 'metadata-fields.component.html',
 })
 export class MetadataFieldsComponent {
-  @Input() public formArray: FormArray;
+  @Input() public formArray: FormArray<FormGroup<MetadataForm>>;
 
   constructor(private formBuilder: FormBuilder) {}
 
@@ -22,10 +23,13 @@ export class MetadataFieldsComponent {
   }
 
   private getDefaultPropertyFormGroup() {
-    return this.formBuilder.group({
-      key: ['', [Validators.required, Validators.pattern(/^[0-9A-Za-z\-]{2,64}$/)]],
-      value: false,
-      type: 'boolean',
+    return this.formBuilder.group<MetadataForm>({
+      key: this.formBuilder.control('', [
+        Validators.required,
+        Validators.pattern(/^[0-9A-Za-z\-]{2,64}$/),
+      ]),
+      type: this.formBuilder.control('boolean'),
+      value: this.formBuilder.control(false),
     });
   }
 }

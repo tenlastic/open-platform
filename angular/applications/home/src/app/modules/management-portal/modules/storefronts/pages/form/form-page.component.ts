@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
+import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   AuthorizationState,
   IAuthorization,
@@ -10,12 +9,18 @@ import {
   StorefrontService,
 } from '@tenlastic/http';
 
-import { FormService, IdentityService } from '../../../../../../core/services';
-import { MediaDialogComponent } from '../../components';
+import { FormService, IdentityService } from '@home/app/core/services';
+import { MetadataForm, RolesForm } from '@home/app/shared/components';
 
-interface Pending {
-  file: Blob;
-  url: string | ArrayBuffer;
+export interface StorefrontForm {
+  description: FormControl<string>;
+  icon: FormControl<string>;
+  metadata: FormArray<FormGroup<MetadataForm>>;
+  roles: FormGroup<RolesForm>;
+  showGameServers: FormControl<boolean>;
+  showQueues: FormControl<boolean>;
+  subtitle: FormControl<string>;
+  title: FormControl<string>;
 }
 
 interface PropertyFormGroup {
@@ -32,11 +37,11 @@ interface PropertyFormGroup {
 export class StorefrontsFormPageComponent implements OnInit {
   public data: StorefrontModel;
   public errors: string[] = [];
-  public form: FormGroup;
+  public form: FormGroup<StorefrontForm>;
   public hasWriteAuthorization: boolean;
   public isSaving: boolean;
 
-  private params: Params;
+  private namespaceId: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -44,7 +49,6 @@ export class StorefrontsFormPageComponent implements OnInit {
     private formBuilder: FormBuilder,
     private formService: FormService,
     private identityService: IdentityService,
-    private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private router: Router,
     private storefrontService: StorefrontService,
@@ -52,7 +56,7 @@ export class StorefrontsFormPageComponent implements OnInit {
 
   public async ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
-      this.params = params;
+      this.namespaceId = params.namespaceId;
 
       const roles = [IAuthorization.Role.StorefrontsWrite];
       const userId = this.identityService.user?._id;
@@ -104,7 +108,7 @@ export class StorefrontsFormPageComponent implements OnInit {
       _id: this.data._id,
       description: this.form.get('description').value,
       metadata,
-      namespaceId: this.params.namespaceId,
+      namespaceId: this.namespaceId,
       roles,
       showGameServers: this.form.get('showGameServers').value,
       showQueues: this.form.get('showQueues').value,
@@ -125,11 +129,7 @@ export class StorefrontsFormPageComponent implements OnInit {
     this.isSaving = false;
   }
 
-  public view(src: string, type: string = 'image') {
-    this.matDialog.open(MediaDialogComponent, { autoFocus: false, data: { src, type } });
-  }
-
-  private getJsonFromProperty(property: PropertyFormGroup): any {
+  private getJsonFromProperty(property: PropertyFormGroup) {
     switch (property.type) {
       case 'boolean':
         return property.value || false;
@@ -145,7 +145,7 @@ export class StorefrontsFormPageComponent implements OnInit {
   private setupForm() {
     this.data ??= new StorefrontModel();
 
-    const metadata = [];
+    const metadata: FormGroup<MetadataForm>[] = [];
     if (this.data.metadata) {
       Object.entries(this.data.metadata).forEach(([key, property]) => {
         let type = 'boolean';
@@ -157,8 +157,8 @@ export class StorefrontsFormPageComponent implements OnInit {
 
         const formGroup = this.formBuilder.group({
           key: [key, [Validators.required, Validators.pattern(/^[0-9A-Za-z\-]{2,64}$/)]],
-          value: [property, Validators.required],
           type,
+          value: [property, Validators.required],
         });
         metadata.push(formGroup);
       });
@@ -170,14 +170,14 @@ export class StorefrontsFormPageComponent implements OnInit {
     }, {});
 
     this.form = this.formBuilder.group({
-      description: [this.data.description],
-      icon: [this.data.icon],
+      description: this.formBuilder.control(this.data.description),
+      icon: this.formBuilder.control(this.data.icon),
       metadata: this.formBuilder.array(metadata),
       roles: this.formBuilder.group(roles),
-      showGameServers: [this.data.showGameServers || false],
-      showQueues: [this.data.showQueues || false],
-      subtitle: [this.data.subtitle],
-      title: [this.data.title, Validators.required],
+      showGameServers: this.formBuilder.control(this.data.showGameServers || false),
+      showQueues: this.formBuilder.control(this.data.showQueues || false),
+      subtitle: this.formBuilder.control(this.data.subtitle),
+      title: this.formBuilder.control(this.data.title, Validators.required),
     });
 
     if (!this.hasWriteAuthorization) {
@@ -189,8 +189,8 @@ export class StorefrontsFormPageComponent implements OnInit {
 
   private async upsert(values: Partial<StorefrontModel>) {
     const result = values._id
-      ? await this.storefrontService.update(this.params.namespaceId, values._id, values)
-      : await this.storefrontService.create(this.params.namespaceId, values);
+      ? await this.storefrontService.update(this.namespaceId, values._id, values)
+      : await this.storefrontService.create(this.namespaceId, values);
 
     this.matSnackBar.open(`Storefront saved successfully.`);
     this.router.navigate(['../', 'storefront'], { relativeTo: this.activatedRoute });

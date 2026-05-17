@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { OVERLAY_DATA, OVERLAY_REFERENCE, OverlayReference } from '@home/app/core/services';
 
 export interface MediaDialogComponentData {
   src: string;
@@ -13,9 +13,9 @@ export interface MediaDialogComponentData {
 })
 export class MediaDialogComponent {
   constructor(
-    public dialogRef: MatDialogRef<MediaDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: MediaDialogComponentData,
+    @Inject(OVERLAY_DATA) public data: MediaDialogComponentData,
+    @Inject(OVERLAY_REFERENCE) public overlay: OverlayReference<string>,
   ) {
-    dialogRef.addPanelClass('media-dialog-component');
+    overlay.reference.addPanelClass('media-dialog-component');
   }
 }

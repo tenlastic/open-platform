@@ -116,10 +116,6 @@ export const ROUTES: Routes = [
           import('../web-sockets/web-sockets.module').then((m) => m.WebSocketModule),
         path: 'web-sockets',
       },
-      {
-        loadChildren: () => import('../workflows/workflows.module').then((m) => m.WorkflowsModule),
-        path: 'workflows',
-      },
     ],
     component: LayoutComponent,
     path: ':namespaceId',

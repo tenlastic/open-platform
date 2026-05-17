@@ -51,16 +51,22 @@
         appHighlight
         [routerLink]="navigate(element)">
       <td>
-        <div *ngFor="let column of columns">
+        <div *ngFor="let column of columns"
+             class="content">
           <span>{{ column.header }}</span>
+
           <span class="content">
             <mat-icon *ngIf="column.icon">{{ column.icon(element) }}</mat-icon>
             <span *ngIf="column.text">{{ column.text(element) }}</span>
           </span>
         </div>
 
-        <div>
-          <ng-container *ngTemplateOutlet="template; context: { $implicit: element }" />
+        <div class="buttons">
+          <hr>
+
+          <div>
+            <ng-container *ngTemplateOutlet="template; context: { $implicit: element }" />
+          </div>
         </div>
       </td>
     </tr>

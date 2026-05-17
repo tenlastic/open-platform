@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { BuildModel, BuildService, IBuild } from '@tenlastic/http';
 
 import { FormService, TextareaService } from '../../../../../../core/services';
@@ -18,7 +18,7 @@ export class BuildsJsonPageComponent implements OnInit {
   public form: FormGroup;
   public isSaving: boolean;
 
-  private params: Params;
+  private namespaceId: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -32,7 +32,7 @@ export class BuildsJsonPageComponent implements OnInit {
 
   public ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
-      this.params = params;
+      this.namespaceId = params.namespaceId;
 
       if (params.buildId !== 'new') {
         this.data = await this.buildService.findOne(params.namespaceId, params.buildId);
@@ -67,7 +67,7 @@ export class BuildsJsonPageComponent implements OnInit {
     const json = this.form.get('json').value;
     const values = JSON.parse(json) as BuildModel;
 
-    values.namespaceId = this.params.namespaceId;
+    values.namespaceId = this.namespaceId;
 
     try {
       await this.upsert(values);
@@ -99,12 +99,12 @@ export class BuildsJsonPageComponent implements OnInit {
 
     if (this.data._id) {
       data._id = this.data._id;
-      result = await this.buildService.update(this.params.namespaceId, this.data._id, data);
+      result = await this.buildService.update(this.namespaceId, this.data._id, data);
     } else {
       const formData = new FormData();
       formData.append('record', JSON.stringify(data));
 
-      result = await this.buildService.create(this.params.namespaceId, formData);
+      result = await this.buildService.create(this.namespaceId, formData);
     }
 
     this.matSnackBar.open('Build saved successfully.');

@@ -1,71 +1,66 @@
-<ng-container [formGroup]="form">
-  <mat-form-field floatLabel="always">
-    <mat-label>Field</mat-label>
+<div class="form-row"
+     [formGroup]="form">
+  <app-form-field>
+    <label>Field</label>
     <mat-select formControlName="field"
                 placeholder="None"
                 required>
       <mat-option *ngFor="let field of fields"
                   [value]="field">{{ field }}</mat-option>
     </mat-select>
-    <mat-error>Enter a valid value.</mat-error>
-  </mat-form-field>
+    <app-error>Enter a valid value.</app-error>
+  </app-form-field>
 
-  <mat-form-field floatLabel="always">
-    <mat-label>Operator</mat-label>
+  <app-form-field>
+    <label>Operator</label>
     <mat-select formControlName="operator">
       <mat-option *ngFor="let operator of operators"
                   [value]="operator.value">
         {{ operator.label }}
       </mat-option>
     </mat-select>
-  </mat-form-field>
+  </app-form-field>
 
-  <mat-form-field floatLabel="always">
-    <mat-label>Type</mat-label>
+  <app-form-field>
+    <label>Type</label>
     <mat-select formControlName="type">
       <mat-option value="reference">Reference</mat-option>
       <mat-option value="value">Value</mat-option>
     </mat-select>
-  </mat-form-field>
+  </app-form-field>
 
-  <mat-form-field *ngIf="type === 'reference'"
-                  floatLabel="always">
-    <mat-label>Reference</mat-label>
+  <app-form-field *ngIf="type === 'reference'">
+    <label>Reference</label>
     <mat-select formControlName="reference"
                 placeholder="None">
       <mat-option *ngFor="let field of referenceFields"
                   [value]="field">{{ field }}</mat-option>
     </mat-select>
-    <mat-error>Enter a valid value.</mat-error>
-  </mat-form-field>
+    <app-error>Enter a valid value.</app-error>
+  </app-form-field>
 
   <ng-container *ngIf="type === 'value'"
                 formGroupName="value">
-    <mat-form-field *ngIf="fieldType === 'boolean'"
-                    floatLabel="always">
-      <mat-label>Type</mat-label>
+    <app-form-field *ngIf="fieldType === 'boolean'">
+      <label>Type</label>
       <mat-select formControlName="boolean">
         <mat-option [value]="true">True</mat-option>
         <mat-option [value]="false">False</mat-option>
       </mat-select>
-    </mat-form-field>
+    </app-form-field>
 
-    <mat-form-field *ngIf="fieldType === 'number'"
-                    floatLabel="always">
-      <mat-label>Value</mat-label>
+    <app-form-field *ngIf="fieldType === 'number'">
+      <label>Value</label>
       <input formControlName="number"
-             matInput
              type="number" />
-      <mat-error>Enter a valid value.</mat-error>
-    </mat-form-field>
+      <app-error>Enter a valid value.</app-error>
+    </app-form-field>
 
-    <mat-form-field *ngIf="fieldType === 'string'"
-                    floatLabel="always">
-      <mat-label>Value</mat-label>
-      <input formControlName="string"
-             matInput />
-      <mat-error>Enter a valid value.</mat-error>
-    </mat-form-field>
+    <app-form-field *ngIf="fieldType === 'string'">
+      <label>Value</label>
+      <input formControlName="string" />
+      <app-error>Enter a valid value.</app-error>
+    </app-form-field>
   </ng-container>
 
   <app-button *ngIf="!form.disabled"
@@ -74,4 +69,4 @@
     <mat-icon>remove</mat-icon>
     <div>Remove Criterion</div>
   </app-button>
-</ng-container>
+</div>

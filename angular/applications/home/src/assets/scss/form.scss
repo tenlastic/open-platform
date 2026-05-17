@@ -9,7 +9,7 @@
 
   app-form-field {
     flex: 0;
-    min-width: 180px;
+    min-width: 200px;
   }
 
   div.actions {
@@ -26,6 +26,43 @@
     overflow-x: hidden;
     overflow-y: auto;
     padding: 16px;
+  }
+
+  div.form-column {
+    display: flex;
+    flex-direction: column;
+    row-gap: 8px;
+  }
+
+  div.form-indent {
+    flex: 0;
+    min-width: 200px;
+  }
+
+  div.form-row {
+    align-items: start;
+    column-gap: 16px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin: 8px 0px;
+    row-gap: 16px;
+  }
+
+  div.markdown-preview {
+    display: flex;
+    flex-direction: column;
+    row-gap: 8px;
+
+    label {
+      font-size: 12px;
+    }
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    row-gap: 8px;
   }
 
   h2,

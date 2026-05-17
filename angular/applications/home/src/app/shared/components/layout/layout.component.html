@@ -39,7 +39,8 @@
                   routerLink="/account"
                   routerLinkActive="active">
         <mat-icon>{{ isConnected ? 'person' : 'person_outline' }}</mat-icon>
-        <div>{{ $displayName | async }}</div>
+        <div *appResponsive="'desktop'">{{ $displayName | async }}</div>
+        <div *appResponsive="'mobile'">Account</div>
       </app-button>
     </ng-container>
 

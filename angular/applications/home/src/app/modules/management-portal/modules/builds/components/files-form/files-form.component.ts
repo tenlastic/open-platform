@@ -1,12 +1,13 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { BuildModel, BuildService, IBuild } from '@tenlastic/http';
+import { BuildForm } from '../../pages';
 
 export interface UpdatedFile {
   arrayBuffer?: ArrayBuffer;
-  md5: string;
-  path: string;
-  status: string;
+  md5?: string;
+  path?: string;
+  status?: 'modified' | 'unmodified';
   uncompressedBytes?: number;
 }
 
@@ -18,10 +19,16 @@ export interface UpdatedFile {
 })
 export class FilesFormComponent implements OnInit {
   @Input() public build = new BuildModel();
-  @Input() public form: FormGroup;
+  @Input() public disabled = false;
+  @Input() public form: FormGroup<BuildForm>;
   @ViewChild('selectFilesInput', { static: true }) public selectFilesInput: ElementRef;
 
   public builds: BuildModel[] = [];
+  public get entrypoint() {
+    return this.form.get('platform').value === IBuild.Platform.Server64
+      ? 'Dockerfile'
+      : 'Entrypoint';
+  }
   public files: UpdatedFile[] = [];
   public get isNew() {
     return !this.build._id;
@@ -30,9 +37,6 @@ export class FilesFormComponent implements OnInit {
     return this.form.get('files').value.filter((f) => f.status === 'modified');
   }
   public referenceBuild: BuildModel;
-  public get referenceFiles() {
-    return this.form.get('reference').get('files').value;
-  }
   public removedFiles: IBuild.File[] = [];
   public status: string;
   public get unmodifiedFiles() {

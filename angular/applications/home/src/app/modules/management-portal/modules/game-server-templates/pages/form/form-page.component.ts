@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   AuthorizationState,
   BuildModel,
@@ -17,8 +17,31 @@ import {
 } from '@tenlastic/http';
 import { map, Subscription } from 'rxjs';
 
-import { FormService, IdentityService } from '../../../../../../core/services';
-import { ProbeFieldComponent } from '../../../../../../shared/components';
+import { FormService, IdentityService } from '@home/app/core/services';
+import {
+  MetadataForm,
+  PortForm,
+  ProbeFieldComponent,
+  ProbeForm,
+} from '@home/app/shared/components';
+
+export interface GameServerTemplateForm {
+  buildId: FormControl<string>;
+  cpu: FormControl<number>;
+  description: FormControl<string>;
+  memory: FormControl<number>;
+  metadata: FormArray<FormGroup<MetadataForm>>;
+  name: FormControl<string>;
+  ports: FormArray<FormGroup<PortForm>>;
+  preemptible: FormControl<boolean>;
+  probes: FormGroup<ProbesForm>;
+  secrets: FormArray<FormGroup<MetadataForm>>;
+}
+
+export interface ProbesForm {
+  liveness: FormGroup<ProbeForm>;
+  readiness: FormGroup<ProbeForm>;
+}
 
 interface PropertyFormGroup {
   key?: string;
@@ -40,10 +63,10 @@ export class GameServerTemplatesFormPageComponent implements OnDestroy, OnInit {
   }
   public data: GameServerTemplateModel;
   public errors: string[] = [];
-  public form: FormGroup;
+  public form: FormGroup<GameServerTemplateForm>;
   public hasWriteAuthorization: boolean;
   public get isNew() {
-    return this.params.gameServerTemplateId === 'new';
+    return this.gameServerTemplateId === 'new';
   }
   public isSaving: boolean;
   public get liveness() {
@@ -62,8 +85,9 @@ export class GameServerTemplatesFormPageComponent implements OnDestroy, OnInit {
   }
 
   private updateGameServerTemplate$ = new Subscription();
+  private gameServerTemplateId: string;
   private namespace: NamespaceModel;
-  private params: Params;
+  private namespaceId: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -81,7 +105,8 @@ export class GameServerTemplatesFormPageComponent implements OnDestroy, OnInit {
 
   public ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
-      this.params = params;
+      this.gameServerTemplateId = params.gameServerTemplateId;
+      this.namespaceId = params.namespaceId;
 
       const roles = [IAuthorization.Role.GameServersWrite];
       const userId = this.identityService.user?._id;
@@ -174,7 +199,7 @@ export class GameServerTemplatesFormPageComponent implements OnDestroy, OnInit {
     this.isSaving = false;
   }
 
-  private getFormGroups(input: any) {
+  private getFormGroups(input: unknown) {
     const formGroups: FormGroup[] = [];
 
     if (input) {
@@ -228,7 +253,6 @@ export class GameServerTemplatesFormPageComponent implements OnDestroy, OnInit {
       memory: [this.data.memory || this.memories[0].value, Validators.required],
       metadata: this.formBuilder.array(metadataFormGroups),
       name: [this.data.name, Validators.required],
-      namespaceId: [this.params.namespaceId, Validators.required],
       ports: this.formBuilder.array(portFormGroups, Validators.required),
       preemptible: [this.data.preemptible === false ? false : true],
       probes: this.formBuilder.group({
@@ -254,8 +278,8 @@ export class GameServerTemplatesFormPageComponent implements OnDestroy, OnInit {
 
   private async upsert(values: Partial<GameServerTemplateModel>) {
     const result = values._id
-      ? await this.gameServerTemplateService.update(this.params.namespaceId, values._id, values)
-      : await this.gameServerTemplateService.create(this.params.namespaceId, values);
+      ? await this.gameServerTemplateService.update(this.namespaceId, values._id, values)
+      : await this.gameServerTemplateService.create(this.namespaceId, values);
 
     this.matSnackBar.open(`Game Server Template saved successfully.`);
     this.router.navigate(['../', result._id], { relativeTo: this.activatedRoute });

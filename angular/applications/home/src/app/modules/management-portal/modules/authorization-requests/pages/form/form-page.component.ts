@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   AuthorizationRequestModel,
   AuthorizationRequestService,
@@ -13,6 +13,11 @@ import {
 
 import { FormService, IdentityService } from '../../../../../../core/services';
 
+export interface AuthorizationRequestForm {
+  roles: FormGroup<{ [key: string]: FormControl<boolean> }>;
+  user: FormControl<UserModel>;
+}
+
 @Component({
   standalone: false,
   styleUrls: ['./form-page.component.scss'],
@@ -22,11 +27,11 @@ export class AuthorizationRequestsFormPageComponent implements OnInit {
   public AuthorizationRole = IAuthorization.Role;
   public data: AuthorizationRequestModel;
   public errors: string[] = [];
-  public form: FormGroup;
+  public form: FormGroup<AuthorizationRequestForm>;
   public hasWriteAuthorization: boolean;
   public isSaving: boolean;
 
-  private params: Params;
+  private namespaceId: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -42,7 +47,7 @@ export class AuthorizationRequestsFormPageComponent implements OnInit {
 
   public async ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
-      this.params = params;
+      this.namespaceId = params.namespaceId;
 
       const roles = [IAuthorization.Role.AuthorizationsWrite];
       const userId = this.identityService.user?._id;
@@ -64,10 +69,7 @@ export class AuthorizationRequestsFormPageComponent implements OnInit {
     this.isSaving = true;
 
     try {
-      this.data = await this.authorizationRequestService.deny(
-        this.params.namespaceId,
-        this.data._id,
-      );
+      this.data = await this.authorizationRequestService.deny(this.namespaceId, this.data._id);
 
       this.matSnackBar.open(`Authorization Request denied successfully.`);
       this.router.navigate(['../', this.data._id], { relativeTo: this.activatedRoute });
@@ -86,10 +88,7 @@ export class AuthorizationRequestsFormPageComponent implements OnInit {
     this.isSaving = true;
 
     try {
-      this.data = await this.authorizationRequestService.grant(
-        this.params.namespaceId,
-        this.data._id,
-      );
+      this.data = await this.authorizationRequestService.grant(this.namespaceId, this.data._id);
 
       this.matSnackBar.open(`Authorization Request granted successfully.`);
       this.router.navigate(['../', this.data._id], { relativeTo: this.activatedRoute });
@@ -108,7 +107,7 @@ export class AuthorizationRequestsFormPageComponent implements OnInit {
     this.form = null;
 
     const roles = Object.values(IAuthorization.Role).reduce((previous, current) => {
-      previous[current] = this.data.roles.includes(current);
+      previous[current] = this.data.roles?.includes(current);
       return previous;
     }, {});
 
@@ -119,7 +118,7 @@ export class AuthorizationRequestsFormPageComponent implements OnInit {
 
     this.form = this.formBuilder.group({
       roles: this.formBuilder.group(roles),
-      user: [user, [Validators.required]],
+      user: this.formBuilder.control(user, [Validators.required]),
     });
 
     this.form.get('roles').disable({ emitEvent: false });

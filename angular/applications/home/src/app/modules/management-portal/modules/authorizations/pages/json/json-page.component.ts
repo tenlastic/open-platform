@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthorizationModel, AuthorizationService } from '@tenlastic/http';
 
 import { FormService, TextareaService } from '@home/app/core/services';
@@ -18,7 +18,7 @@ export class AuthorizationsJsonPageComponent implements OnInit {
   public form: FormGroup;
   public isSaving: boolean;
 
-  private params: Params;
+  private namespaceId: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -32,7 +32,7 @@ export class AuthorizationsJsonPageComponent implements OnInit {
 
   public ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
-      this.params = params;
+      this.namespaceId = params.namespaceId;
 
       if (params.authorizationId !== 'new') {
         this.data = await this.authorizationService.findOne(
@@ -99,8 +99,8 @@ export class AuthorizationsJsonPageComponent implements OnInit {
 
   private async upsert(values: Partial<AuthorizationModel>) {
     const result = values._id
-      ? await this.authorizationService.update(this.params.namespaceId, values._id, values)
-      : await this.authorizationService.create(this.params.namespaceId, values);
+      ? await this.authorizationService.update(this.namespaceId, values._id, values)
+      : await this.authorizationService.create(this.namespaceId, values);
 
     this.matSnackBar.open(`Authorization saved successfully.`);
     this.router.navigate(['../../', result._id], { relativeTo: this.activatedRoute });

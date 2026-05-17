@@ -1,26 +1,26 @@
-<div class="page"
-     row-gap-16>
-  <app-title>Queue Members</app-title>
+<div class="page">
+  <div class="header">
+    <app-title>Queue Members</app-title>
 
-  <div align-items="end"
-       column-gap-16
-       flex-wrap-16>
+    <div class="header-end">
+      <app-button color="accent"
+                  (OnClick)="table.refresh()">
+        <mat-icon>refresh</mat-icon>
+        <div>Refresh</div>
+      </app-button>
+    </div>
+  </div>
+
+  <hr>
+
+  <app-toggle-section [isVisible]="false"
+                      title="Filters">
     <app-data-source-filter (OnValueSet)="setFilter($event)">
       User ID
     </app-data-source-filter>
+  </app-toggle-section>
 
-    <div align-items="end"
-         column-gap-8
-         margin-left-auto>
-      <div>
-        <app-button color="accent"
-                    (OnClick)="table.refresh()">
-          <mat-icon>refresh</mat-icon>
-          <div>Refresh</div>
-        </app-button>
-      </div>
-    </div>
-  </div>
+  <hr>
 
   <ng-template #actions
                let-element>

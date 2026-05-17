@@ -1,5 +1,7 @@
 @use 'src/assets/scss/form.scss' as form;
 @use 'src/assets/scss/json.scss' as json;
+@use 'src/assets/scss/page.scss' as page;
 
 @include form.styles;
 @include json.styles;
+@include page.styles;

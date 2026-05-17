@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { GameServerTemplateModel, GameServerTemplateService, IGameServer } from '@tenlastic/http';
 
 import { FormService, TextareaService } from '../../../../../../core/services';
@@ -18,7 +18,7 @@ export class GameServerTemplatesJsonPageComponent implements OnInit {
   public form: FormGroup;
   public isSaving: boolean;
 
-  private params: Params;
+  private namespaceId: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -32,7 +32,7 @@ export class GameServerTemplatesJsonPageComponent implements OnInit {
 
   public ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
-      this.params = params;
+      this.namespaceId = params.namespaceId;
 
       if (params.gameServerTemplateId !== 'new') {
         this.data = await this.gameServerTemplateService.findOne(
@@ -71,7 +71,7 @@ export class GameServerTemplatesJsonPageComponent implements OnInit {
     const values = JSON.parse(json) as GameServerTemplateModel;
 
     values._id = this.data._id;
-    values.namespaceId = this.params.namespaceId;
+    values.namespaceId = this.namespaceId;
 
     try {
       this.data = await this.upsert(values);
@@ -120,8 +120,8 @@ export class GameServerTemplatesJsonPageComponent implements OnInit {
 
   private async upsert(values: Partial<GameServerTemplateModel>) {
     const result = values._id
-      ? await this.gameServerTemplateService.update(this.params.namespaceId, values._id, values)
-      : await this.gameServerTemplateService.create(this.params.namespaceId, values);
+      ? await this.gameServerTemplateService.update(this.namespaceId, values._id, values)
+      : await this.gameServerTemplateService.create(this.namespaceId, values);
 
     this.matSnackBar.open(`Game Server Template saved successfully.`);
     this.router.navigate(['../../', result._id], { relativeTo: this.activatedRoute });

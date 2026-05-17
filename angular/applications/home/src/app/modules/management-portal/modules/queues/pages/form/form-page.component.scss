@@ -1,42 +1,5 @@
 @use 'src/assets/scss/form.scss' as form;
+@use 'src/assets/scss/page.scss' as page;
 
 @include form.styles;
-
-::ng-deep {
-  app-toggle-section[title='Status'] {
-    div.row:last-child div.row:last-child {
-      mat-form-field.mat-form-field div.mat-form-field-wrapper {
-        margin-bottom: -8px;
-      }
-    }
-  }
-}
-
-div.col-sm-6 {
-  margin: 0px;
-  padding: 0px;
-
-  &:first-of-type {
-    padding-right: 8px;
-  }
-
-  &:nth-of-type(2) {
-    padding-left: 8px;
-  }
-
-  mat-form-field.mat-form-field {
-    display: block;
-  }
-
-  & > mat-label {
-    font-size: 12px;
-  }
-}
-
-div.row {
-  align-items: baseline;
-}
-
-mat-form-field.mat-form-field {
-  margin-right: 16px;
-}
+@include page.styles;

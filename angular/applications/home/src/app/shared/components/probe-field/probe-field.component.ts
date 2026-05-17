@@ -9,6 +9,18 @@ export enum ProbeType {
   Tcp,
 }
 
+export interface ProbeForm {
+  command?: FormControl<string>;
+  failureThreshold?: FormControl<number>;
+  initialDelaySeconds?: FormControl<number>;
+  path?: FormControl<string>;
+  periodSeconds?: FormControl<number>;
+  port?: FormControl<number>;
+  successThreshold?: FormControl<number>;
+  timeoutSeconds?: FormControl<number>;
+  type?: FormControl<ProbeType>;
+}
+
 export interface ProbeFormGroup {
   command?: string;
   failureThreshold?: number;
@@ -28,7 +40,7 @@ export interface ProbeFormGroup {
   templateUrl: 'probe-field.component.html',
 })
 export class ProbeFieldComponent implements OnInit {
-  @Input() public form: FormGroup;
+  @Input() public form: FormGroup<ProbeForm>;
 
   public ProbeType = ProbeType;
   public get type() {
@@ -36,7 +48,7 @@ export class ProbeFieldComponent implements OnInit {
   }
 
   public static getFormGroupFromProbe(probe: IGameServer.Probe) {
-    return new FormGroup({
+    return new FormGroup<ProbeForm>({
       command: new FormControl(probe?.exec?.command.join(' ')),
       failureThreshold: new FormControl(probe?.failureThreshold),
       initialDelaySeconds: new FormControl(probe?.initialDelaySeconds || 0),

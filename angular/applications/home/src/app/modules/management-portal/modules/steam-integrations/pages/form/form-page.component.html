@@ -1,13 +1,11 @@
 <ng-container *ngIf="form">
   <div class="page">
-    <div class="row">
-      <div class="col-sm-6">
-        <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Steam Integration</app-title>
-        <app-title *ngIf="!hasWriteAuthorization">View Steam Integration</app-title>
-      </div>
+    <div class="header">
+      <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Steam Integration</app-title>
+      <app-title *ngIf="!hasWriteAuthorization">View Steam Integration</app-title>
 
       <div *ngIf="hasWriteAuthorization"
-           class="col-sm-6 align-right">
+           class="header-end">
         <app-button color="accent"
                     (OnClick)="navigateToJson()">
           <mat-icon>code</mat-icon>
@@ -16,42 +14,43 @@
       </div>
     </div>
 
+    <hr>
+
     <form autocomplete="off"
           [formGroup]="form"
           id="form"
           (ngSubmit)="save()">
-      <div class="row">
-        <mat-form-field floatLabel="always">
-          <mat-label>Name</mat-label>
+      <div class="form-row">
+        <app-form-field floatLabel="always">
+          <label>Name</label>
           <input appAutofocus
                  formControlName="name"
-                 matInput
                  maxlength="64"
                  required />
-          <mat-error>Enter a valid name.</mat-error>
-        </mat-form-field>
+          <app-error>Enter a valid name.</app-error>
+        </app-form-field>
       </div>
 
-      <div class="row">
-        <mat-form-field floatLabel="always">
-          <mat-label>API Key</mat-label>
+      <div class="form-row">
+        <app-form-field floatLabel="always">
+          <label>API Key</label>
           <input formControlName="apiKey"
-                 matInput
                  maxlength="64"
                  required />
-          <mat-error>Enter a valid API Key.</mat-error>
-        </mat-form-field>
+          <app-error>Enter a valid API Key.</app-error>
+        </app-form-field>
 
-        <mat-form-field floatLabel="always">
-          <mat-label>Application ID</mat-label>
+        <app-form-field floatLabel="always">
+          <label>Application ID</label>
           <input formControlName="applicationId"
-                 matInput
                  min="0"
                  required
                  type="number" />
-          <mat-error>Enter a valid Application ID.</mat-error>
-        </mat-form-field>
+          <app-error>Enter a valid Application ID.</app-error>
+        </app-form-field>
       </div>
+
+      <hr>
 
       <app-toggle-section title="Roles">
         <app-role-fields [form]="form"
@@ -61,7 +60,7 @@
   </div>
 
   <div *ngIf="!form.disabled"
-       class="page-actions">
+       class="actions">
     <div *ngFor="let error of errors"
          class="form-error">
       {{ error }}
@@ -77,7 +76,7 @@
     </app-button>
     <app-button *ngIf="isSaving"
                 color="primary"
-                disabled
+                disabled="true"
                 size="large"
                 width="full">
       <mat-spinner diameter="20"></mat-spinner>

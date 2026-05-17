@@ -7,6 +7,7 @@ import {
   AuthorizationRequestState,
   AuthorizationState,
   IAuthorization,
+  UserService,
   UserState,
   WebSocketService,
 } from '@tenlastic/http';
@@ -78,6 +79,7 @@ export class AuthorizationRequestsListPageComponent implements OnInit {
     private identityService: IdentityService,
     private matSnackBar: MatSnackBar,
     private overlayService: OverlayService,
+    private userService: UserService,
     private userState: UserState,
     private webSocketService: WebSocketService,
   ) {}
@@ -123,6 +125,10 @@ export class AuthorizationRequestsListPageComponent implements OnInit {
       skip: page * pageSize,
       sort: '-createdAt',
       where: this.where,
+    });
+
+    await this.userService.find({
+      where: { _id: { $in: records.map((r) => r.userId) } },
     });
 
     const _ids = records.map((r) => r._id);

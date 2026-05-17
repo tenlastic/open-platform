@@ -1,8 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
+import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   AuthorizationState,
   BuildModel,
@@ -16,11 +15,40 @@ import {
   IGameServer,
   NamespaceModel,
   NamespaceService,
+  SubscriptionService,
+  WebSocketService,
 } from '@tenlastic/http';
 import { map, Subscription } from 'rxjs';
+import { v4 as uuid } from 'uuid';
 
-import { FormService, IdentityService } from '../../../../../../core/services';
-import { ProbeFieldComponent, PromptComponent } from '../../../../../../shared/components';
+import { FormService, IdentityService, OverlayService } from '@home/app/core/services';
+import {
+  MetadataForm,
+  PortForm,
+  ProbeFieldComponent,
+  ProbeForm,
+  PromptOverlayComponent,
+  PromptOverlayComponentData,
+} from '@home/app/shared/components';
+import { environment } from '@home/environments/environment';
+
+export interface GameServerForm {
+  buildId: FormControl<string>;
+  cpu: FormControl<number>;
+  description: FormControl<string>;
+  memory: FormControl<number>;
+  metadata: FormArray<FormGroup<MetadataForm>>;
+  name: FormControl<string>;
+  ports: FormArray<FormGroup<PortForm>>;
+  preemptible: FormControl<boolean>;
+  probes: FormGroup<ProbesForm>;
+  secrets: FormArray<FormGroup<MetadataForm>>;
+}
+
+export interface ProbesForm {
+  liveness: FormGroup<ProbeForm>;
+  readiness: FormGroup<ProbeForm>;
+}
 
 interface PropertyFormGroup {
   key?: string;
@@ -42,14 +70,14 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
   }
   public data: GameServerModel;
   public errors: string[] = [];
-  public form: FormGroup;
+  public form: FormGroup<GameServerForm>;
   public hasWriteAuthorization: boolean;
   public get isNew() {
-    return this.params.gameServerId === 'new';
+    return this.gameServerId === 'new';
   }
   public isSaving: boolean;
   public get liveness() {
-    return this.form.get('probes').get('liveness') as FormGroup;
+    return this.form.get('probes').get('liveness');
   }
   public get memories() {
     return this.namespace.limits.memory
@@ -60,13 +88,26 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
     return this.form.get('ports') as FormArray;
   }
   public get readiness() {
-    return this.form.get('probes').get('readiness') as FormGroup;
+    return this.form.get('probes').get('readiness');
   }
 
   private updateGameServer$ = new Subscription();
+  private gameServerId: string;
   private gameServerTemplate: Partial<GameServerTemplateModel>;
   private namespace: NamespaceModel;
-  private params: Params;
+  private namespaceId: string;
+  private subscriptions = [
+    {
+      Model: GameServerModel,
+      request: { _id: uuid(), path: `/subscriptions/game-servers` },
+      service: this.gameServerService,
+    },
+  ];
+  private get webSocket() {
+    return this.webSocketService.webSockets.find(
+      (ws) => `${environment.wssUrl}/namespaces/${this.namespaceId}` === ws.url,
+    );
+  }
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -77,10 +118,12 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
     private gameServerState: GameServerState,
     private gameServerService: GameServerService,
     private identityService: IdentityService,
-    private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private namespaceService: NamespaceService,
+    private overlayService: OverlayService,
     private router: Router,
+    private subscriptionService: SubscriptionService,
+    private webSocketService: WebSocketService,
   ) {
     const navigation = this.router.currentNavigation();
     this.gameServerTemplate = navigation?.extras?.state?.gameServerTemplate;
@@ -88,7 +131,8 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
 
   public ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
-      this.params = params;
+      this.gameServerId = params.gameServerId;
+      this.namespaceId = params.namespaceId;
 
       const roles = [IAuthorization.Role.GameServersWrite];
       const userId = this.identityService.user?._id;
@@ -108,11 +152,15 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
       }
 
       this.setupForm();
+
+      await this.unsubscribe();
+      await this.subscribe();
     });
   }
 
-  public ngOnDestroy() {
+  public async ngOnDestroy() {
     this.updateGameServer$.unsubscribe();
+    await this.unsubscribe();
   }
 
   public navigateToJson() {
@@ -144,7 +192,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
       memory: this.form.get('memory').value,
       metadata,
       name: this.form.get('name').value,
-      namespaceId: this.form.get('namespaceId').value,
+      namespaceId: this.namespaceId,
       ports: this.form.get('ports').value,
       preemptible: this.form.get('preemptible').value,
       secrets,
@@ -162,17 +210,18 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
 
     const dirtyFields = this.getDirtyFields();
     if (this.data._id && GameServerModel.isRestartRequired(dirtyFields)) {
-      const dialogRef = this.matDialog.open(PromptComponent, {
-        data: {
+      const overlay = this.overlayService.open<PromptOverlayComponentData, string>(
+        PromptOverlayComponent,
+        {
           buttons: [
             { color: 'primary', label: 'No' },
             { color: 'accent', label: 'Yes' },
           ],
           message: `These changes require the Game Server to be restarted. Is this OK?`,
         },
-      });
+      );
 
-      dialogRef.afterClosed().subscribe(async (result: string) => {
+      overlay.$close.subscribe(async (result: string) => {
         if (result === 'Yes') {
           this.isSaving = true;
 
@@ -202,7 +251,7 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
     return Object.keys(this.form.controls).filter((key) => this.form.get(key).dirty);
   }
 
-  private getFormGroups(input: any) {
+  private getFormGroups(input: unknown) {
     const formGroups: FormGroup[] = [];
 
     if (input) {
@@ -246,22 +295,30 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
 
     const ports = this.data.ports || [{ port: 7777, protocol: IGameServer.Protocol.Tcp }];
     const portFormGroups = ports.map((p) =>
-      this.formBuilder.group({ port: [p.port, Validators.required], protocol: p.protocol }),
+      this.formBuilder.group<PortForm>({
+        port: this.formBuilder.control(p.port, Validators.required),
+        protocol: this.formBuilder.control(p.protocol),
+      }),
     );
 
     const secretsFormGroups = this.getFormGroups(this.data.secrets);
 
     this.form = this.formBuilder.group({
-      buildId: [this.data.buildId || (this.builds[0] && this.builds[0]._id), Validators.required],
-      cpu: [this.data.cpu || this.cpus[0].value, Validators.required],
-      description: [this.data.description],
-      memory: [this.data.memory || this.memories[0].value, Validators.required],
+      buildId: this.formBuilder.control(
+        this.data.buildId || this.builds[0]?._id,
+        Validators.required,
+      ),
+      cpu: this.formBuilder.control(this.data.cpu || this.cpus[0].value, Validators.required),
+      description: this.formBuilder.control(this.data.description),
+      memory: this.formBuilder.control(
+        this.data.memory || this.memories[0].value,
+        Validators.required,
+      ),
       metadata: this.formBuilder.array(metadataFormGroups),
-      name: [this.data.name, Validators.required],
-      namespaceId: [this.params.namespaceId, Validators.required],
+      name: this.formBuilder.control(this.data.name, Validators.required),
       ports: this.formBuilder.array(portFormGroups, Validators.required),
-      preemptible: [this.data.preemptible === false ? false : true],
-      probes: this.formBuilder.group({
+      preemptible: this.formBuilder.control(this.data.preemptible === false ? false : true),
+      probes: this.formBuilder.group<ProbesForm>({
         liveness: ProbeFieldComponent.getFormGroupFromProbe(this.data.probes?.liveness),
         readiness: ProbeFieldComponent.getFormGroupFromProbe(this.data.probes?.readiness),
       }),
@@ -282,10 +339,34 @@ export class GameServersFormPageComponent implements OnDestroy, OnInit {
     }
   }
 
+  private subscribe() {
+    const promises = this.subscriptions.map((s) => {
+      const options = { acks: true };
+
+      return this.subscriptionService.subscribe(
+        s.Model,
+        { ...s.request },
+        s.service,
+        this.webSocket,
+        options,
+      );
+    });
+
+    return Promise.all(promises);
+  }
+
+  private unsubscribe() {
+    const promises = this.subscriptions.map((s) =>
+      this.subscriptionService.unsubscribe(s.request._id, this.webSocket),
+    );
+
+    return Promise.all(promises);
+  }
+
   private async upsert(values: Partial<GameServerModel>) {
     const result = values._id
-      ? await this.gameServerService.update(this.params.namespaceId, values._id, values)
-      : await this.gameServerService.create(this.params.namespaceId, values);
+      ? await this.gameServerService.update(this.namespaceId, values._id, values)
+      : await this.gameServerService.create(this.namespaceId, values);
 
     this.matSnackBar.open(`Game Server saved successfully.`);
     this.router.navigate(['../', result._id], { relativeTo: this.activatedRoute });

@@ -1,48 +1,43 @@
-<ng-container [formGroup]="form">
-  <mat-form-field floatLabel="always">
-    <mat-label>Key</mat-label>
+<div class="form-row"
+     [formGroup]="form">
+  <app-form-field>
+    <label>Key</label>
     <input formControlName="key"
-           matInput
            required />
-    <mat-error>Enter a valid key.</mat-error>
-  </mat-form-field>
+    <app-error>Enter a valid key.</app-error>
+  </app-form-field>
 
-  <mat-form-field floatLabel="always">
-    <mat-label>Type</mat-label>
+  <app-form-field>
+    <label>Type</label>
     <mat-select formControlName="type">
       <mat-option value="boolean">Boolean</mat-option>
       <mat-option value="number">Number</mat-option>
       <mat-option value="string">String</mat-option>
     </mat-select>
-  </mat-form-field>
+  </app-form-field>
 
-  <mat-form-field *ngIf="type === 'boolean'"
-                  floatLabel="always">
-    <mat-label>Value</mat-label>
+  <app-form-field *ngIf="type === 'boolean'">
+    <label>Value</label>
     <mat-select formControlName="value">
       <mat-option [value]="true">True</mat-option>
       <mat-option [value]="false">False</mat-option>
     </mat-select>
-  </mat-form-field>
+  </app-form-field>
 
-  <mat-form-field *ngIf="type === 'number'"
-                  floatLabel="always">
-    <mat-label>Value</mat-label>
-    <input matInput
-           required
+  <app-form-field *ngIf="type === 'number'">
+    <label>Value</label>
+    <input required
            type="number"
            formControlName="value" />
-    <mat-error>Enter a valid value.</mat-error>
-  </mat-form-field>
+    <app-error>Enter a valid value.</app-error>
+  </app-form-field>
 
-  <mat-form-field *ngIf="type === 'string'"
-                  floatLabel="always">
-    <mat-label>Value</mat-label>
-    <input matInput
-           required
+  <app-form-field *ngIf="type === 'string'">
+    <label>Value</label>
+    <input required
            formControlName="value" />
-    <mat-error>Enter a valid value.</mat-error>
-  </mat-form-field>
+    <app-error>Enter a valid value.</app-error>
+  </app-form-field>
 
   <app-button *ngIf="!form?.disabled"
               color="accent"
@@ -51,4 +46,4 @@
     <mat-icon>remove</mat-icon>
     <div>Remove</div>
   </app-button>
-</ng-container>
+</div>

@@ -1,42 +1,44 @@
-<ng-container *ngFor="let port of form.controls; let i = index">
-  <h4>Port {{ i + 1 }}</h4>
+<div row-gap-8>
+  <div *ngFor="let port of form.controls; let i = index"
+       row-gap-4>
+    <h4>Port {{ i + 1 }}</h4>
 
-  <div class="row"
-       [formGroup]="form.at(i)">
-    <mat-form-field floatLabel="always">
-      <mat-label>Number</mat-label>
-      <input formControlName="port"
-             matInput
-             max="65535"
-             min="1"
-             type="number" />
-      <mat-error>Enter a valid port.</mat-error>
-    </mat-form-field>
+    <div class="form-row"
+         [formGroup]="form.at(i)">
+      <app-form-field>
+        <label>Number</label>
+        <input formControlName="port"
+               matInput
+               max="65535"
+               min="1"
+               type="number" />
+        <app-error>Enter a valid port.</app-error>
+      </app-form-field>
 
-    <mat-form-field floatLabel="always">
-      <mat-label>Protocol</mat-label>
-      <mat-select formControlName="protocol">
-        <mat-option [value]="Protocol.Tcp">TCP</mat-option>
-        <mat-option [value]="Protocol.Udp">UDP</mat-option>
-      </mat-select>
-    </mat-form-field>
+      <app-form-field>
+        <label>Protocol</label>
+        <mat-select formControlName="protocol">
+          <mat-option [value]="Protocol.Tcp">TCP</mat-option>
+          <mat-option [value]="Protocol.Udp">UDP</mat-option>
+        </mat-select>
+      </app-form-field>
 
-    <app-button *ngIf="!form?.disabled && form.length > 1"
-                color="accent"
+      <app-button *ngIf="!form?.disabled && form.length > 1"
+                  color="accent"
+                  layout="left"
+                  (OnClick)="removeAt(i)">
+        <mat-icon>remove</mat-icon>
+        <div>Remove</div>
+      </app-button>
+    </div>
+  </div>
+
+  <div *ngIf="!form?.disabled">
+    <app-button color="accent"
                 layout="left"
-                (OnClick)="removeAt(i)">
-      <mat-icon>remove</mat-icon>
-      <div>Remove</div>
+                (OnClick)="push()">
+      <mat-icon>add</mat-icon>
+      <div>Add Port</div>
     </app-button>
   </div>
-</ng-container>
-
-<div *ngIf="!form?.disabled"
-     class="row">
-  <app-button color="accent"
-              layout="left"
-              (OnClick)="push()">
-    <mat-icon>add</mat-icon>
-    <div>Add Port</div>
-  </app-button>
 </div>

@@ -1,9 +1,7 @@
-import { NestedTreeControl } from '@angular/cdk/tree';
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatTreeNestedDataSource } from '@angular/material/tree';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   ApiError,
   AuthorizationState,
@@ -12,13 +10,26 @@ import {
   BuildState,
   IAuthorization,
   IBuild,
+  SubscriptionService,
+  WebSocketService,
 } from '@tenlastic/http';
 import JSZip from 'jszip';
-import { Observable } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { v4 as uuid } from 'uuid';
 
+import { environment } from '@home/environments/environment';
 import { FileReaderService, FormService, IdentityService } from '../../../../../../core/services';
-import { UpdatedFile } from '../../components';
+import { StatusNode, UpdatedFile } from '../../components';
+
+export interface BuildForm {
+  entrypoint: FormControl<string>;
+  files: FormControl<UpdatedFile[]>;
+  name: FormControl<string>;
+  namespaceId: FormControl<string>;
+  platform: FormControl<IBuild.Platform>;
+  reference: FormGroup<{ _id: FormControl<string>; files: FormControl<string[]> }>;
+}
 
 enum Status {
   Ready,
@@ -31,29 +42,16 @@ interface Progress {
   total: number;
 }
 
-interface StatusNode {
-  children?: StatusNode[];
-  displayName?: string;
-  finishedAt?: Date;
-  message?: string;
-  name?: string;
-  phase?: string;
-  startedAt?: Date;
-  type?: string;
-}
-
 @Component({
   standalone: false,
   styleUrls: ['./form-page.component.scss'],
   templateUrl: 'form-page.component.html',
 })
-export class BuildsFormPageComponent implements OnInit {
-  public $data: Observable<BuildModel>;
+export class BuildsFormPageComponent implements OnDestroy, OnInit {
   public Status = Status;
   public data: BuildModel;
-  public dataSource = new MatTreeNestedDataSource<StatusNode>();
   public errors: string[] = [];
-  public form: FormGroup;
+  public form: FormGroup<BuildForm>;
   public hasWriteAuthorization: boolean;
   public isSaving: boolean;
   public platforms = [
@@ -62,9 +60,22 @@ export class BuildsFormPageComponent implements OnInit {
   ];
   public progress: Progress;
   public status = Status.Ready;
-  public treeControl = new NestedTreeControl<StatusNode>((node) => node.children);
+  public statusNodes: StatusNode[] = [];
 
-  private params: Params;
+  private updateBuild$ = new Subscription();
+  private namespaceId: string;
+  private subscriptions = [
+    {
+      Model: BuildModel,
+      request: { _id: uuid(), path: `/subscriptions/builds` },
+      service: this.buildService,
+    },
+  ];
+  private get webSocket() {
+    return this.webSocketService.webSockets.find(
+      (ws) => `${environment.wssUrl}/namespaces/${this.namespaceId}` === ws.url,
+    );
+  }
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -78,11 +89,13 @@ export class BuildsFormPageComponent implements OnInit {
     private identityService: IdentityService,
     private matSnackBar: MatSnackBar,
     private router: Router,
+    private subscriptionService: SubscriptionService,
+    private webSocketService: WebSocketService,
   ) {}
 
   public ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
-      this.params = params;
+      this.namespaceId = params.namespaceId;
 
       const roles = [IAuthorization.Role.BuildsWrite];
       const userId = this.identityService.user?._id;
@@ -92,15 +105,19 @@ export class BuildsFormPageComponent implements OnInit {
 
       if (params.buildId !== 'new') {
         this.data = await this.buildService.findOne(params.namespaceId, params.buildId);
-        this.dataSource.data = this.data.getNestedStatusNodes();
+        this.statusNodes = this.data.getNestedStatusNodes();
       }
 
       this.setupForm();
+
+      await this.unsubscribe();
+      await this.subscribe();
     });
   }
 
-  public hasChild(_: number, node: StatusNode) {
-    return !!node.children && node.children.length > 0;
+  public async ngOnDestroy() {
+    this.updateBuild$.unsubscribe();
+    await this.unsubscribe();
   }
 
   public navigateToJson() {
@@ -124,7 +141,7 @@ export class BuildsFormPageComponent implements OnInit {
     const values: Partial<BuildModel> = {
       entrypoint: this.form.get('entrypoint').value,
       name: this.form.get('name').value,
-      namespaceId: this.form.get('namespaceId').value,
+      namespaceId: this.namespaceId,
       platform: this.form.get('platform').value,
       reference: reference._id ? reference : undefined,
     };
@@ -143,14 +160,8 @@ export class BuildsFormPageComponent implements OnInit {
     this.isSaving = false;
   }
 
-  public showStatusNode(node: StatusNode) {
-    return ['Pod', 'Workflow'].includes(node.type);
-  }
-
   private async create(data: Partial<BuildModel>) {
-    this.form.disable({ emitEvent: false });
-
-    const files: UpdatedFile[] = this.form.get('files').value;
+    const files = this.form.get('files').value;
     const modifiedFiles = files.filter((u) => u.status === 'modified');
 
     // Zip files.
@@ -195,11 +206,10 @@ export class BuildsFormPageComponent implements OnInit {
 
     const result = await this.buildService.create(data.namespaceId, formData, {
       onUploadProgress: (progressEvent) => {
-        this.progress = { current: progressEvent.loaded * 100, total: progressEvent.total };
+        this.progress = { current: progressEvent.loaded, total: progressEvent.total };
       },
     });
 
-    this.form.enable({ emitEvent: false });
     this.progress = null;
     this.status = Status.Ready;
 
@@ -230,12 +240,18 @@ export class BuildsFormPageComponent implements OnInit {
     this.data ??= new BuildModel();
 
     this.form = this.formBuilder.group({
-      entrypoint: [this.data.entrypoint, Validators.required],
-      files: [this.data.files || []],
-      name: [this.data.name, Validators.required],
-      namespaceId: [this.params.namespaceId, Validators.required],
-      platform: [this.data.platform || this.platforms[0].value, Validators.required],
-      reference: this.formBuilder.group({ _id: [null], files: [[]] }),
+      entrypoint: this.formBuilder.control(this.data.entrypoint, Validators.required),
+      files: this.formBuilder.control(this.data.files || []),
+      name: this.formBuilder.control(this.data.name, Validators.required),
+      namespaceId: this.formBuilder.control(this.namespaceId),
+      platform: this.formBuilder.control(
+        this.data.platform || this.platforms[0].value,
+        Validators.required,
+      ),
+      reference: this.formBuilder.group({
+        _id: this.formBuilder.control(null),
+        files: this.formBuilder.control([]),
+      }),
     });
 
     if (!this.hasWriteAuthorization) {
@@ -250,17 +266,40 @@ export class BuildsFormPageComponent implements OnInit {
       this.form.get('platform').disable({ emitEvent: false });
       this.form.get('reference').disable({ emitEvent: false });
 
-      this.$data = this.buildState
+      this.updateBuild$ = this.buildState
         .selectMany()
         .pipe(map((bs) => bs.filter((b) => b._id === this.data._id)))
-        .pipe(
-          map(([b]) => {
-            this.dataSource.data = b.getNestedStatusNodes();
-            this.form.get('files').setValue(b.files);
-            return b;
-          }),
-        );
+        .subscribe((bs) => {
+          const build = bs[0];
+          this.data = build;
+          this.form.get('files').setValue(build.files);
+          this.statusNodes = build.getNestedStatusNodes();
+        });
     }
+  }
+
+  private subscribe() {
+    const promises = this.subscriptions.map((s) => {
+      const options = { acks: true };
+
+      return this.subscriptionService.subscribe(
+        s.Model,
+        { ...s.request },
+        s.service,
+        this.webSocket,
+        options,
+      );
+    });
+
+    return Promise.all(promises);
+  }
+
+  private unsubscribe() {
+    const promises = this.subscriptions.map((s) =>
+      this.subscriptionService.unsubscribe(s.request._id, this.webSocket),
+    );
+
+    return Promise.all(promises);
   }
 
   private async upsert(data: Partial<BuildModel>) {

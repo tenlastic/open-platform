@@ -1,5 +1,4 @@
 import { BaseModel } from './base';
-import { IWorkflow } from './workflow';
 
 export namespace IBuild {
   export interface File {
@@ -37,6 +36,15 @@ export namespace IBuild {
     _id: string;
     files: string[];
   }
+
+  export interface Status {
+    finishedAt?: Date;
+    message?: string;
+    nodes?: Node[];
+    phase?: string;
+    startedAt?: Date;
+    version?: string;
+  }
 }
 
 export class BuildModel extends BaseModel {
@@ -47,7 +55,7 @@ export class BuildModel extends BaseModel {
   public platform: IBuild.Platform;
   public publishedAt: Date;
   public reference: IBuild.Reference;
-  public status: IWorkflow.Status;
+  public status: IBuild.Status;
 
   constructor(parameters?: Partial<BuildModel>) {
     super(parameters);

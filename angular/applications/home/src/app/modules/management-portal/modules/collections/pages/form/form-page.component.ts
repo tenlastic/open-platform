@@ -18,6 +18,7 @@ import {
 } from '@tenlastic/http';
 
 import { FormService, IdentityService } from '../../../../../../core/services';
+import { PropertyFieldComponent } from '../../components';
 
 export interface CriterionFormGroup {
   field?: string;
@@ -106,7 +107,7 @@ export class CollectionsFormPageComponent implements OnInit {
   }
 
   public addProperty() {
-    const property = this.getDefaultPropertyFormGroup();
+    const property = PropertyFieldComponent.getDefaultFormGroup();
     const formArray = this.form.get('properties') as FormArray;
 
     formArray.push(property);
@@ -117,6 +118,30 @@ export class CollectionsFormPageComponent implements OnInit {
     const formArray = this.form.get('roles') as FormArray;
 
     formArray.push(role);
+  }
+
+  public getDefaultCriterionFormGroup() {
+    const form = this.formBuilder.group({
+      field: [null as string, Validators.required],
+      operator: '$eq',
+      reference: null as string,
+      type: 'reference',
+      value: this.formBuilder.group({ boolean: false, number: 0, string: '' }),
+    });
+
+    form.get('type').valueChanges.subscribe((value) => {
+      const reference = form.get('reference');
+
+      if (value === 'reference') {
+        reference.addValidators([Validators.required]);
+      } else {
+        reference.removeValidators([Validators.required]);
+      }
+
+      reference.updateValueAndValidity({ emitEvent: false });
+    });
+
+    return form;
   }
 
   public moveRoleDown(index: number) {
@@ -200,43 +225,6 @@ export class CollectionsFormPageComponent implements OnInit {
     const invalid = keys.includes(control.value);
 
     return invalid ? { excludeKeys: { value: control.value } } : null;
-  }
-
-  /**
-   * Used for test mocks.
-   */
-  private getDefaultCriterionFormGroup() {
-    const form = this.formBuilder.group({
-      field: [null as string, Validators.required],
-      operator: '$eq',
-      reference: null as string,
-      type: 'reference',
-      value: this.formBuilder.group({ boolean: false, number: 0, string: '' }),
-    });
-
-    form.get('type').valueChanges.subscribe((value) => {
-      const reference = form.get('reference');
-
-      if (value === 'reference') {
-        reference.addValidators([Validators.required]);
-      } else {
-        reference.removeValidators([Validators.required]);
-      }
-
-      reference.updateValueAndValidity({ emitEvent: false });
-    });
-
-    return form;
-  }
-
-  private getDefaultPropertyFormGroup() {
-    return this.formBuilder.group({
-      array: 'boolean',
-      default: false as any,
-      key: ['', [Validators.required, Validators.pattern(/^[0-9A-Za-z\-]{2,64}$/)]],
-      required: false,
-      type: 'boolean',
-    });
   }
 
   private getDefaultRoleFormGroup() {
@@ -332,6 +320,7 @@ export class CollectionsFormPageComponent implements OnInit {
       array: this.formBuilder.control(array),
       default: this.formBuilder.control(property.default),
       key: this.formBuilder.control(key),
+      properties: this.formBuilder.array([]),
       required: this.formBuilder.control(required),
       type: this.formBuilder.control(type),
     };
@@ -493,7 +482,7 @@ export class CollectionsFormPageComponent implements OnInit {
     }
 
     if (properties.length === 0) {
-      properties.push(this.getDefaultPropertyFormGroup());
+      properties.push(PropertyFieldComponent.getDefaultFormGroup());
     }
 
     const roles = [];

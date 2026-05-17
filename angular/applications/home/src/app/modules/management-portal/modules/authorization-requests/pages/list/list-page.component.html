@@ -1,34 +1,26 @@
-<div class="page"
-     row-gap-16>
-  <app-title>Authorization Requests</app-title>
+<div class="page">
+  <div class="header">
+    <app-title>Authorization Requests</app-title>
 
-  <div align-items="end"
-       column-gap-16
-       flex-wrap-16>
-    <app-data-source-filter (OnValueSet)="setFilter($event)">
-      Name
-    </app-data-source-filter>
-
-    <div align-items="end"
-         column-gap-8
-         margin-left-auto>
-      <div *ngIf="hasWriteAuthorization">
-        <app-button color="accent"
-                    [routerLink]="['new']">
-          <mat-icon>add</mat-icon>
-          <div>New Authorization Request</div>
-        </app-button>
-      </div>
-
-      <div>
-        <app-button color="accent"
-                    (OnClick)="table.refresh()">
-          <mat-icon>refresh</mat-icon>
-          <div>Refresh</div>
-        </app-button>
-      </div>
+    <div class="header-end">
+      <app-button color="accent"
+                  (OnClick)="table.refresh()">
+        <mat-icon>refresh</mat-icon>
+        <div>Refresh</div>
+      </app-button>
     </div>
   </div>
+
+  <hr>
+
+  <app-toggle-section [isVisible]="false"
+                      title="Filters">
+    <app-data-source-filter (OnValueSet)="setFilter($event)">
+      User ID
+    </app-data-source-filter>
+  </app-toggle-section>
+
+  <hr>
 
   <ng-template #actions
                let-element>

@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   AuthorizationState,
   IAuthorization,
@@ -11,7 +11,14 @@ import {
 } from '@tenlastic/http';
 import { map, Subscription } from 'rxjs';
 
-import { FormService, IdentityService } from '../../../../../../core/services';
+import { FormService, IdentityService } from '@home/app/core/services';
+
+export interface SteamIntegrationForm {
+  apiKey: FormControl<string>;
+  applicationId: FormControl<number>;
+  name: FormControl<string>;
+  roles: FormGroup<{ [key: string]: FormControl<boolean> }>;
+}
 
 @Component({
   standalone: false,
@@ -21,15 +28,16 @@ import { FormService, IdentityService } from '../../../../../../core/services';
 export class SteamIntegrationsFormPageComponent implements OnDestroy, OnInit {
   public data: SteamIntegrationModel;
   public errors: string[] = [];
-  public form: FormGroup;
+  public form: FormGroup<SteamIntegrationForm>;
   public hasWriteAuthorization: boolean;
   public get isNew() {
-    return this.params.steamIntegrationId === 'new';
+    return this.steamIntegrationId === 'new';
   }
   public isSaving: boolean;
 
   private updateSteamIntegration$ = new Subscription();
-  private params: Params;
+  private namespaceId: string;
+  private steamIntegrationId: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -45,7 +53,8 @@ export class SteamIntegrationsFormPageComponent implements OnDestroy, OnInit {
 
   public ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
-      this.params = params;
+      this.namespaceId = params.namespaceId;
+      this.steamIntegrationId = params.steamIntegrationId;
 
       const roles = [IAuthorization.Role.SteamIntegrationsWrite];
       const userId = this.identityService.user?._id;
@@ -95,7 +104,7 @@ export class SteamIntegrationsFormPageComponent implements OnDestroy, OnInit {
       apiKey: this.form.get('apiKey').value,
       applicationId: this.form.get('applicationId').value,
       name: this.form.get('name').value,
-      namespaceId: this.params.namespaceId,
+      namespaceId: this.namespaceId,
       roles,
     };
 
@@ -121,9 +130,9 @@ export class SteamIntegrationsFormPageComponent implements OnDestroy, OnInit {
     }, {});
 
     this.form = this.formBuilder.group({
-      apiKey: [this.data.apiKey, Validators.required],
-      applicationId: [this.data.applicationId, Validators.required],
-      name: [this.data.name, Validators.required],
+      apiKey: this.formBuilder.control(this.data.apiKey, Validators.required),
+      applicationId: this.formBuilder.control(this.data.applicationId, Validators.required),
+      name: this.formBuilder.control(this.data.name, Validators.required),
       roles: this.formBuilder.group(roles),
     });
 
@@ -148,8 +157,8 @@ export class SteamIntegrationsFormPageComponent implements OnDestroy, OnInit {
 
   private async upsert(values: Partial<SteamIntegrationModel>) {
     const result = values._id
-      ? await this.steamIntegrationService.update(this.params.namespaceId, values._id, values)
-      : await this.steamIntegrationService.create(this.params.namespaceId, values);
+      ? await this.steamIntegrationService.update(this.namespaceId, values._id, values)
+      : await this.steamIntegrationService.create(this.namespaceId, values);
 
     this.matSnackBar.open(`Steam Integration saved successfully.`);
     this.router.navigate(['../', result._id], { relativeTo: this.activatedRoute });

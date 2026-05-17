@@ -1,3 +1,4 @@
+@use 'src/assets/scss/responsive.scss' as responsive;
 @use 'src/assets/scss/shadows.scss' as shadows;
 
 :host {
@@ -9,19 +10,10 @@
 div.toolbar {
   background: rgba(0, 0, 0, 0.75);
   box-shadow: shadows.$box-shadow;
+  column-gap: 4px;
   display: flex;
   overflow: initial;
   padding: 4px;
-
-  &::ng-deep {
-    > app-button {
-      margin-right: 4px;
-
-      &:last-of-type {
-        margin-right: 0px;
-      }
-    }
-  }
 
   div.space {
     color: white;
@@ -60,5 +52,16 @@ div.toolbar {
     div.container {
       display: flex;
     }
+  }
+}
+
+@include responsive.mobile {
+  div.space {
+    display: none;
+  }
+
+  div.toolbar {
+    column-gap: initial;
+    justify-content: space-between;
   }
 }

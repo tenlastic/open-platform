@@ -12,13 +12,14 @@
          type="file"
          (change)="onFilesChanged($event)" />
 
-  <div class="row">
+  <div column-gap-16
+       flex-wrap-8>
     <div *ngIf="isNew"
-         class="col-sm-6">
-      <div class="margin-bottom">
-        <mat-form-field floatLabel="always"
-                        formGroupName="reference">
-          <mat-label>Reference Build</mat-label>
+         flex-1
+         max-width>
+      <div class="form-row">
+        <app-form-field formGroupName="reference">
+          <label>Reference Build</label>
 
           <mat-select formControlName="_id"
                       placeholder="No Reference Build">
@@ -28,111 +29,118 @@
               {{ build.name }}
             </mat-option>
           </mat-select>
-        </mat-form-field>
+        </app-form-field>
       </div>
 
-      <div class="list">
-        <mat-label>
-          <div>Reference Files</div>
-        </mat-label>
+      <div class="list-container">
+        <label>Reference Files</label>
 
-        <mat-list>
-          <mat-list-item *ngFor="let file of referenceBuild?.files"
-                         [attr.status]="file.status">
-            <div>{{ file.path }}</div>
-            <div *ngIf="file.uncompressedBytes !== undefined && file.uncompressedBytes !== null">
+        <div class="list">
+          <div *ngFor="let file of referenceBuild?.files"
+               class="list-item">
+            <div class="file-path">{{ file.path }}</div>
+            <div *ngIf="file.uncompressedBytes !== undefined && file.uncompressedBytes !== null"
+                 class="file-size">
               {{ file.uncompressedBytes | filesize }}
             </div>
-          </mat-list-item>
-        </mat-list>
+          </div>
+        </div>
 
-        <mat-hint>
-          <div>Count: {{ referenceBuild ? referenceBuild.files.length : 0 }}</div>
-          <div>Size: {{ referenceBuild ? (referenceBuild.files | sum: 'uncompressedBytes' | filesize) : '0 B' }}</div>
-        </mat-hint>
+        <div class="list-summary">
+          <div class="summary-count">Count: {{ referenceBuild ? referenceBuild.files.length : 0 }}</div>
+          <div class="summary-size">Size: {{ referenceBuild ? (referenceBuild.files | sum: 'uncompressedBytes' |
+            filesize)
+            : '0 B' }}</div>
+        </div>
       </div>
     </div>
 
     <div *ngIf="!isNew || form.get('files').value.length > 0 || referenceBuild"
-         class="col-sm-6">
-      <div class="margin-bottom">
-        <mat-form-field floatLabel="always">
-          <mat-label>{{ form.get('platform').value === 'server64' ? 'Dockerfile' : 'Entrypoint' }}</mat-label>
+         flex-1
+         max-width>
+      <div class="form-row">
+        <app-form-field>
+          <label>{{ entrypoint }}</label>
           <input formControlName="entrypoint"
-                 matInput
                  maxlength="256"
                  required />
-          <mat-error>Enter a valid entrypoint.</mat-error>
-        </mat-form-field>
+          <app-error>Enter a valid entrypoint.</app-error>
+        </app-form-field>
       </div>
 
       <div *ngIf="!isNew || form.get('files').value.length > 0"
-           class="list">
-        <mat-label>
-          <div>{{ isNew ? 'Staged Files' : 'Files' }}</div>
-        </mat-label>
+           class="list-container">
+        <label>{{ isNew ? 'Staged Files' : 'Files' }}</label>
 
-        <mat-list>
-          <mat-list-item *ngFor="let file of form.get('files').value"
-                         [attr.status]="file.status"
-                         [ngClass]="{ pointer: isNew }"
-                         (click)="setEntrypoint(file.path)">
-            <div>{{ file.path }}</div>
+        <div class="list">
+          <div *ngFor="let file of form.get('files').value"
+               [attr.status]="file.status || 'unmodified'"
+               class="list-item"
+               [ngClass]="{ pointer: isNew }"
+               (click)="setEntrypoint(file.path)">
+            <div class="file-path">{{ file.path }}</div>
             <div *ngIf="
               file.uncompressedBytes !== undefined && file.uncompressedBytes !== null
-            ">
+            "
+                 class="file-size">
               {{ file.uncompressedBytes | filesize }}
             </div>
-          </mat-list-item>
-        </mat-list>
+          </div>
+        </div>
 
-        <mat-hint>
-          <div *ngIf="isNew">
+        <div class="list-summary">
+          <div *ngIf="isNew"
+               class="summary-count">
             Count: {{ modifiedFiles.length }} Modified, {{ removedFiles.length }} Removed,
             {{ unmodifiedFiles.length }} Unmodified
           </div>
-          <div *ngIf="isNew">
+          <div *ngIf="isNew"
+               class="summary-size">
             Size: {{ modifiedFiles | sum: 'uncompressedBytes' | filesize }} Modified,
             {{ removedFiles | sum: 'uncompressedBytes' | filesize }} Removed,
             {{ unmodifiedFiles | sum: 'uncompressedBytes' | filesize }} Unmodified
           </div>
-        </mat-hint>
+        </div>
       </div>
 
       <div *ngIf="isNew && form.get('files').value.length === 0 && referenceBuild"
-           class="list">
-        <mat-label>
-          <div>{{ isNew ? 'Staged Files' : 'Files' }}</div>
-        </mat-label>
+           class="list-container">
+        <label>{{ isNew ? 'Staged Files' : 'Files' }}</label>
 
-        <mat-list>
-          <mat-list-item *ngFor="let file of referenceBuild?.files"
-                         [attr.status]="file.status"
-                         [ngClass]="{ pointer: isNew }"
-                         (click)="setEntrypoint(file.path)">
-            <div>{{ file.path }}</div>
-            <div *ngIf="file.uncompressedBytes !== undefined && file.uncompressedBytes !== null">
+        <div class="list">
+          <div *ngFor="let file of referenceBuild?.files"
+               [attr.status]="file.status || 'unmodified'"
+               class="list-item"
+               [ngClass]="{ pointer: isNew }"
+               (click)="setEntrypoint(file.path)">
+            <div class="file-path">{{ file.path }}</div>
+            <div *ngIf="file.uncompressedBytes !== undefined && file.uncompressedBytes !== null"
+                 class="file-size">
               {{ file.uncompressedBytes | filesize }}
             </div>
-          </mat-list-item>
-        </mat-list>
+          </div>
+        </div>
 
-        <mat-hint>
-          <div *ngIf="isNew">
+        <div class="list-summary">
+          <div *ngIf="isNew"
+               class="summary-count">
             Count: {{ modifiedFiles.length }} Modified, {{ removedFiles.length }} Removed,
             {{ referenceBuild.files.length }} Unmodified
           </div>
-          <div *ngIf="isNew">
+          <div *ngIf="isNew"
+               class="summary-size">
             Size: {{ modifiedFiles | sum: 'uncompressedBytes' | filesize }} Modified,
             {{ removedFiles | sum: 'uncompressedBytes' | filesize }} Removed,
             {{ referenceBuild.files | sum: 'uncompressedBytes' | filesize }} Unmodified
           </div>
-        </mat-hint>
+        </div>
       </div>
     </div>
   </div>
 
-  <ng-container *ngIf="isNew">
+  <div *ngIf="!disabled && isNew"
+       column-gap-8
+       flex-wrap-8>
     <app-button *ngIf="form.get('files').value.length === 0 || !referenceBuild || status"
                 [color]="form.get('files').value.length && !status ? 'accent' : 'primary'"
                 [disabled]="status"
@@ -154,5 +162,5 @@
                 (OnClick)="useReferenceFiles()">
       <div>Select Reference Files</div>
     </app-button>
-  </ng-container>
+  </div>
 </ng-container>

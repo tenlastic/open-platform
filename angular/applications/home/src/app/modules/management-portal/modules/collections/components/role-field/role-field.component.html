@@ -1,37 +1,40 @@
-<ng-container [formGroup]="form">
-  <mat-form-field floatLabel="always">
-    <mat-label>Key</mat-label>
-    <input formControlName="key"
-           matInput
-           required />
-    <mat-error *ngIf="!form.get('key').hasError('alphabeticalKeys') && !form.get('key').hasError('excludeKeys')">
-      Enter a valid key.
-    </mat-error>
-    <mat-error *ngIf="form.get('key').hasError('alphabeticalKeys')">
-      Key can contain only letters.
-    </mat-error>
-    <mat-error *ngIf="form.get('key').hasError('excludeKeys')">
-      Key cannot be 'default', 'namespace-read', 'namespace-write', 'user-read', or 'user-write'.
-    </mat-error>
-  </mat-form-field>
+<div class="form-column"
+     [formGroup]="form">
+  <div class="form-row">
+    <app-form-field>
+      <label>Key</label>
 
-  <div class="row">
+      <input formControlName="key"
+             required />
+
+      <app-error *ngIf="!form.get('key').hasError('alphabeticalKeys') && !form.get('key').hasError('excludeKeys')">
+        Enter a valid key.
+      </app-error>
+      <app-error *ngIf="form.get('key').hasError('alphabeticalKeys')">
+        Key can contain only letters.
+      </app-error>
+      <app-error *ngIf="form.get('key').hasError('excludeKeys')">
+        Key cannot be 'default', 'namespace-read', 'namespace-write', 'user-read', or 'user-write'.
+      </app-error>
+    </app-form-field>
+
     <app-toggle-section [isVisible]="false"
                         title="Criteria">
-      <div class="row">
-        <mat-form-field floatLabel="always">
-          <mat-label>Required Matches</mat-label>
-          <mat-select formControlName="operator">
-            <mat-option value="$and">All</mat-option>
-            <mat-option value="$or">At Least One</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
+      <div class="form-column">
+        <div class="form-row">
+          <app-form-field>
+            <label>Required Matches</label>
+            <mat-select formControlName="operator">
+              <mat-option value="$and">All</mat-option>
+              <mat-option value="$or">At Least One</mat-option>
+            </mat-select>
+          </app-form-field>
+        </div>
 
-      <ng-container *ngFor="let criterion of criteria.controls; let i = index">
-        <h4>Criterion {{ i + 1 }}</h4>
+        <div *ngFor="let criterion of criteria.controls; let i = index"
+             row-gap-4>
+          <h4>Criterion {{ i + 1 }}</h4>
 
-        <div class="row">
           <app-criterion-field [fields]="criteriaFields"
                                [form]="criterion"
                                [operators]="criteriaOperators"
@@ -39,11 +42,9 @@
                                [referenceFields]="criteriaFields"
                                (remove)="removeCriterion(i)"></app-criterion-field>
         </div>
-      </ng-container>
 
-      <div *ngIf="!form.disabled"
-           class="row">
-        <app-button color="accent"
+        <app-button *ngIf="!form.disabled"
+                    color="accent"
                     layout="left"
                     (OnClick)="addCriterion()">
           <mat-icon>add</mat-icon>
@@ -55,50 +56,52 @@
     <app-toggle-section formGroupName="permissions"
                         [isVisible]="false"
                         title="Permissions">
-      <div class="row">
-        <mat-form-field floatLabel="always">
-          <mat-label>Create</mat-label>
-          <mat-select formControlName="create"
-                      multiple
-                      placeholder="None">
-            <mat-option *ngFor="let field of propertyFields"
-                        [value]="field">
-              {{ field }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
+      <div class="form-column">
+        <div class="form-row">
+          <app-form-field>
+            <label>Create</label>
+            <mat-select formControlName="create"
+                        multiple
+                        placeholder="None">
+              <mat-option *ngFor="let field of propertyFields"
+                          [value]="field">
+                {{ field }}
+              </mat-option>
+            </mat-select>
+          </app-form-field>
 
-        <mat-form-field floatLabel="always">
-          <mat-label>Read</mat-label>
-          <mat-select formControlName="read"
-                      multiple
-                      placeholder="None">
-            <mat-option *ngFor="let field of recordFieldsWithProperties"
-                        [value]="field">
-              {{ field }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
+          <app-form-field>
+            <label>Read</label>
+            <mat-select formControlName="read"
+                        multiple
+                        placeholder="None">
+              <mat-option *ngFor="let field of recordFieldsWithProperties"
+                          [value]="field">
+                {{ field }}
+              </mat-option>
+            </mat-select>
+          </app-form-field>
 
-        <mat-form-field floatLabel="always">
-          <mat-label>Update</mat-label>
-          <mat-select formControlName="update"
-                      multiple
-                      placeholder="None">
-            <mat-option *ngFor="let field of propertyFields"
-                        [value]="field">
-              {{ field }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
+          <app-form-field>
+            <label>Update</label>
+            <mat-select formControlName="update"
+                        multiple
+                        placeholder="None">
+              <mat-option *ngFor="let field of propertyFields"
+                          [value]="field">
+                {{ field }}
+              </mat-option>
+            </mat-select>
+          </app-form-field>
 
-        <mat-form-field floatLabel="always">
-          <mat-label>Delete</mat-label>
-          <mat-select formControlName="delete">
-            <mat-option [value]="true">True</mat-option>
-            <mat-option [value]="false">False</mat-option>
-          </mat-select>
-        </mat-form-field>
+          <app-form-field>
+            <label>Delete</label>
+            <mat-select formControlName="delete">
+              <mat-option [value]="true">True</mat-option>
+              <mat-option [value]="false">False</mat-option>
+            </mat-select>
+          </app-form-field>
+        </div>
       </div>
     </app-toggle-section>
 
@@ -107,7 +110,7 @@
       <ng-container *ngFor="let criterion of find.controls;let i = index">
         <h4>Criterion {{ i + 1 }}</h4>
 
-        <div class="row">
+        <div class="form-row">
           <app-criterion-field [fields]="recordFieldsWithProperties"
                                [form]="criterion"
                                [operators]="findOperators"
@@ -118,7 +121,7 @@
       </ng-container>
 
       <div *ngIf="!form.disabled"
-           class="row">
+           class="form-row">
         <app-button color="accent"
                     layout="left"
                     (OnClick)="addFindCriterion()">
@@ -154,4 +157,4 @@
       <div>Remove Role</div>
     </app-button>
   </div>
-</ng-container>
+</div>

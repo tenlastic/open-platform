@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ApiError } from '@tenlastic/http';
-import { PromptComponent } from '../../../shared/components';
+
+import { OverlayService } from '@home/app/core/services';
+import { PromptOverlayComponent, PromptOverlayComponentData } from '@home/app/shared/components';
 
 @Injectable({ providedIn: 'root' })
 export class FormService {
-  constructor(private matDialog: MatDialog, private router: Router) {}
+  constructor(private overlayService: OverlayService, private router: Router) {}
 
   public handleHttpError(err: ApiError, pathMap?: { [key: string]: string }) {
     if (!err.errors) {
@@ -39,17 +40,18 @@ export class FormService {
 
   public navigateToForm(form: FormGroup) {
     if (form.dirty) {
-      const dialogRef = this.matDialog.open(PromptComponent, {
-        data: {
+      const overlay = this.overlayService.open<PromptOverlayComponentData, string>(
+        PromptOverlayComponent,
+        {
           buttons: [
             { color: 'primary', label: 'No' },
             { color: 'accent', label: 'Yes' },
           ],
           message: 'Changes will not be saved. Is this OK?',
         },
-      });
+      );
 
-      dialogRef.afterClosed().subscribe(async (result) => {
+      overlay.$close.subscribe(async (result) => {
         if (result === 'Yes') {
           this.router.navigateByUrl(this.getUrl(this.router.url.concat('/', '../')));
         }
@@ -61,17 +63,18 @@ export class FormService {
 
   public navigateToJson(form: FormGroup) {
     if (form.dirty) {
-      const dialogRef = this.matDialog.open(PromptComponent, {
-        data: {
+      const overlay = this.overlayService.open<PromptOverlayComponentData, string>(
+        PromptOverlayComponent,
+        {
           buttons: [
             { color: 'primary', label: 'No' },
             { color: 'accent', label: 'Yes' },
           ],
           message: 'Changes will not be saved. Is this OK?',
         },
-      });
+      );
 
-      dialogRef.afterClosed().subscribe(async (result) => {
+      overlay.$close.subscribe(async (result) => {
         if (result === 'Yes') {
           this.router.navigateByUrl(this.getUrl(this.router.url.concat('/', 'json')));
         }

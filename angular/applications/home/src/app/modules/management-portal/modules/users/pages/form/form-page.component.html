@@ -1,13 +1,11 @@
 <ng-container *ngIf="form">
   <div class="page">
-    <div class="row">
-      <div class="col-sm-6">
-        <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} User</app-title>
-        <app-title *ngIf="!hasWriteAuthorization">View User</app-title>
-      </div>
+    <div class="header">
+      <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} User</app-title>
+      <app-title *ngIf="!hasWriteAuthorization">View User</app-title>
 
       <div *ngIf="hasWriteAuthorization"
-           class="col-sm-6 align-right">
+           class="header-end">
         <app-button color="accent"
                     (OnClick)="navigateToJson()">
           <mat-icon>code</mat-icon>
@@ -16,54 +14,50 @@
       </div>
     </div>
 
+    <hr>
+
     <form autocomplete="off"
           [formGroup]="form"
           id="form"
           (ngSubmit)="save()">
-      <div class="row">
-        <mat-form-field floatLabel="always">
-          <mat-label>Email Address</mat-label>
+      <div class="form-row">
+        <app-form-field>
+          <label>Email Address</label>
           <input appAutofocus
                  formControlName="email"
-                 matInput
                  maxlength="256"
                  type="email" />
-          <mat-error>Enter a valid email address.</mat-error>
-        </mat-form-field>
+          <app-error>Enter a valid email address.</app-error>
+        </app-form-field>
 
-        <mat-form-field floatLabel="always">
-          <mat-label>Username</mat-label>
+        <app-form-field>
+          <label>Username</label>
           <input formControlName="username"
-                 matInput
                  maxlength="24"
                  required />
-          <mat-error>Enter a valid alphanumeric username.</mat-error>
-        </mat-form-field>
+          <app-error>Enter a valid alphanumeric username.</app-error>
+        </app-form-field>
       </div>
 
       <div *ngIf="form.get('steamId').value || form.get('steamPersonaName').value"
            class="row">
-        <mat-form-field *ngIf="form.get('steamId').value"
-                        floatLabel="always">
-          <mat-label>Steam ID</mat-label>
-          <input matInput
-                 formControlName="steamId" />
-          <mat-error>Enter a valid Steam ID.</mat-error>
-        </mat-form-field>
+        <app-form-field *ngIf="form.get('steamId').value">
+          <label>Steam ID</label>
+          <input formControlName="steamId" />
+          <app-error>Enter a valid Steam ID.</app-error>
+        </app-form-field>
 
-        <mat-form-field *ngIf="form.get('steamPersonaName').value"
-                        floatLabel="always">
-          <mat-label>Steam Persona name</mat-label>
-          <input matInput
-                 formControlName="steamPersonaName" />
-          <mat-error>Enter a valid Steam Persona Name.</mat-error>
-        </mat-form-field>
+        <app-form-field *ngIf="form.get('steamPersonaName').value">
+          <label>Steam Persona name</label>
+          <input formControlName="steamPersonaName" />
+          <app-error>Enter a valid Steam Persona Name.</app-error>
+        </app-form-field>
       </div>
     </form>
   </div>
 
   <div *ngIf="!form.disabled"
-       class="page-actions">
+       class="actions">
     <div *ngFor="let error of errors"
          class="form-error">
       {{ error }}
@@ -79,7 +73,7 @@
     </app-button>
     <app-button *ngIf="isSaving"
                 color="primary"
-                disabled
+                disabled="true"
                 size="large"
                 width="full">
       <mat-spinner diameter="20"></mat-spinner>

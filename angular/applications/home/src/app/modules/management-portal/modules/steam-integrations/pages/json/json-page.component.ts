@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SteamIntegrationModel, SteamIntegrationService } from '@tenlastic/http';
 
-import { FormService, TextareaService } from '../../../../../../core/services';
-import { jsonValidator } from '../../../../../../shared/validators';
+import { FormService, TextareaService } from '@home/app/core/services';
+import { jsonValidator } from '@home/app/shared/validators';
 
 @Component({
   standalone: false,
@@ -18,7 +18,7 @@ export class SteamIntegrationsJsonPageComponent implements OnInit {
   public form: FormGroup;
   public isSaving: boolean;
 
-  private params: Params;
+  private namespaceId: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -32,7 +32,7 @@ export class SteamIntegrationsJsonPageComponent implements OnInit {
 
   public ngOnInit() {
     this.activatedRoute.params.subscribe(async (params) => {
-      this.params = params;
+      this.namespaceId = params.namespaceId;
 
       if (params.steamIntegrationId !== 'new') {
         this.data = await this.steamIntegrationService.findOne(
@@ -71,7 +71,7 @@ export class SteamIntegrationsJsonPageComponent implements OnInit {
     const values = JSON.parse(json) as SteamIntegrationModel;
 
     values._id = this.data._id;
-    values.namespaceId = this.params.namespaceId;
+    values.namespaceId = this.namespaceId;
 
     try {
       this.data = await this.upsert(values);
@@ -106,8 +106,8 @@ export class SteamIntegrationsJsonPageComponent implements OnInit {
 
   private async upsert(values: Partial<SteamIntegrationModel>) {
     const result = values._id
-      ? await this.steamIntegrationService.update(this.params.namespaceId, values._id, values)
-      : await this.steamIntegrationService.create(this.params.namespaceId, values);
+      ? await this.steamIntegrationService.update(this.namespaceId, values._id, values)
+      : await this.steamIntegrationService.create(this.namespaceId, values);
 
     this.matSnackBar.open(`Steam Integration saved successfully.`);
     this.router.navigate(['../../', result._id], { relativeTo: this.activatedRoute });

@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { ApiError, StorefrontModel, StorefrontService } from '@tenlastic/http';
 
-import { PromptComponent } from '../../../../../../shared/components';
-import { MediaDialogComponent } from '../../components';
+import { OverlayService } from '@home/app/core/services';
+import { PromptOverlayComponent, PromptOverlayComponentData } from '@home/app/shared/components';
+import { MediaDialogComponent, MediaDialogComponentData } from '../../components';
 
 @Component({
   standalone: false,
@@ -45,8 +45,8 @@ export class StorefrontsMultimediaFormPageComponent implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
+    private overlayService: OverlayService,
     private storefrontService: StorefrontService,
   ) {}
 
@@ -70,17 +70,18 @@ export class StorefrontsMultimediaFormPageComponent implements OnInit {
   }
 
   public async remove(field: string, index = -1) {
-    const dialogRef = this.matDialog.open(PromptComponent, {
-      data: {
+    const overlay = this.overlayService.open<PromptOverlayComponentData, string>(
+      PromptOverlayComponent,
+      {
         buttons: [
           { color: 'primary', label: 'No' },
           { color: 'accent', label: 'Yes' },
         ],
         message: `Are you sure you want to remove this item?`,
       },
-    });
+    );
 
-    dialogRef.afterClosed().subscribe(async (result) => {
+    overlay.$close.subscribe(async (result) => {
       if (result === 'Yes') {
         let _id: string;
         if (index >= 0) {
@@ -101,8 +102,8 @@ export class StorefrontsMultimediaFormPageComponent implements OnInit {
     });
   }
 
-  public view(src: string, type: string = 'image') {
-    this.matDialog.open(MediaDialogComponent, { autoFocus: false, data: { src, type } });
+  public view(src: string, type: 'image' | 'video' = 'image') {
+    this.overlayService.open<MediaDialogComponentData>(MediaDialogComponent, { src, type });
   }
 
   private async handleHttpError(err: ApiError) {

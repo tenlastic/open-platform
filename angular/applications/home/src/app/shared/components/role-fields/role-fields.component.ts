@@ -1,5 +1,9 @@
 import { Component, Input } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
+
+export interface RolesForm {
+  [key: string]: FormControl<boolean>;
+}
 
 @Component({
   selector: 'app-role-fields',
@@ -8,7 +12,7 @@ import { FormGroup } from '@angular/forms';
   templateUrl: 'role-fields.component.html',
 })
 export class RoleFieldsComponent {
-  @Input() public form: FormGroup;
+  @Input() public form: FormGroup<RolesForm>;
   @Input() public formGroupName = 'roles';
   @Input() public play = false;
 }

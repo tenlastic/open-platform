@@ -1,70 +1,92 @@
 <ng-container [formGroup]="form">
-  <mat-form-field floatLabel="always">
-    <mat-label>Key</mat-label>
-    <input formControlName="key"
-           matInput
-           maxlength="32"
-           required />
-    <mat-error>Enter a valid key.</mat-error>
-  </mat-form-field>
+  <div class="form-row">
+    <app-form-field>
+      <label>Key</label>
+      <input formControlName="key"
+             maxlength="32"
+             required />
+      <app-error>Enter a valid key.</app-error>
+    </app-form-field>
 
-  <mat-form-field floatLabel="always">
-    <mat-label>Type</mat-label>
-    <mat-select formControlName="type">
-      <mat-option value="array">Array</mat-option>
-      <mat-option value="boolean">Boolean</mat-option>
-      <mat-option value="number">Number</mat-option>
-      <mat-option value="string">String</mat-option>
-    </mat-select>
-  </mat-form-field>
+    <app-form-field>
+      <label>Type</label>
+      <mat-select formControlName="type">
+        <mat-option value="array">Array</mat-option>
+        <mat-option value="boolean">Boolean</mat-option>
+        <mat-option value="number">Number</mat-option>
+        <mat-option value="object">Object</mat-option>
+        <mat-option value="string">String</mat-option>
+      </mat-select>
+    </app-form-field>
 
-  <mat-form-field *ngIf="type === 'array'"
-                  floatLabel="always">
-    <mat-label>Array Type</mat-label>
-    <mat-select formControlName="array">
-      <mat-option value="boolean">Boolean</mat-option>
-      <mat-option value="number">Number</mat-option>
-      <mat-option value="string">String</mat-option>
-    </mat-select>
-  </mat-form-field>
+    <app-form-field *ngIf="type === 'array'">
+      <label>Array Type</label>
+      <mat-select formControlName="array">
+        <mat-option value="boolean">Boolean</mat-option>
+        <mat-option value="number">Number</mat-option>
+        <mat-option value="object">Object</mat-option>
+        <mat-option value="string">String</mat-option>
+      </mat-select>
+    </app-form-field>
 
-  <mat-form-field *ngIf="type === 'boolean'"
-                  floatLabel="always">
-    <mat-label>Default Value</mat-label>
-    <mat-select formControlName="default">
-      <mat-option [value]="true">True</mat-option>
-      <mat-option [value]="false">False</mat-option>
-    </mat-select>
-  </mat-form-field>
+    <app-form-field *ngIf="type === 'boolean'">
+      <label>Default Value</label>
+      <mat-select formControlName="default">
+        <mat-option [value]="true">True</mat-option>
+        <mat-option [value]="false">False</mat-option>
+      </mat-select>
+    </app-form-field>
 
-  <mat-form-field *ngIf="type === 'number'"
-                  floatLabel="always">
-    <mat-label>Default Value</mat-label>
-    <input formControlName="default"
-           matInput
-           type="number" />
-  </mat-form-field>
+    <app-form-field *ngIf="type === 'number'">
+      <label>Default Value</label>
+      <input formControlName="default"
+             type="number" />
+    </app-form-field>
 
-  <mat-form-field *ngIf="type === 'string'"
-                  floatLabel="always">
-    <mat-label>Default Value</mat-label>
-    <input formControlName="default"
-           matInput />
-  </mat-form-field>
+    <app-form-field *ngIf="type === 'string'">
+      <label>Default Value</label>
+      <input formControlName="default" />
+    </app-form-field>
 
-  <mat-form-field *ngIf="type !== 'array'"
-                  floatLabel="always">
-    <mat-label>Required</mat-label>
-    <mat-select formControlName="required">
-      <mat-option [value]="true">True</mat-option>
-      <mat-option [value]="false">False</mat-option>
-    </mat-select>
-  </mat-form-field>
+    <app-form-field *ngIf="type !== 'array'">
+      <label>Required</label>
+      <mat-select formControlName="required">
+        <mat-option [value]="true">True</mat-option>
+        <mat-option [value]="false">False</mat-option>
+      </mat-select>
+    </app-form-field>
 
-  <app-button *ngIf="!form.disabled"
-              color="accent"
-              (OnClick)="remove.emit()">
-    <mat-icon>remove</mat-icon>
-    <div>Remove</div>
-  </app-button>
+    <app-button *ngIf="!form.disabled"
+                color="accent"
+                (OnClick)="remove.emit()">
+      <mat-icon>remove</mat-icon>
+      <div>Remove</div>
+    </app-button>
+  </div>
+
+  <div column-gap-16>
+    <div class="form-indent"></div>
+
+    <div *ngIf="type === 'object'"
+         class="form-column">
+
+      <div *ngFor="let property of properties.controls; let i = index"
+           row-gap-4>
+        <h4>Property {{ i + 1 }}</h4>
+
+        <ng-container formArrayName="properties">
+          <app-property-field [form]="property"
+                              (remove)="removeProperty(i)"></app-property-field>
+        </ng-container>
+      </div>
+
+      <app-button *ngIf="!form.disabled"
+                  color="accent"
+                  layout="left"
+                  (OnClick)="addProperty()">
+        <mat-icon>add</mat-icon>
+        <div>Add Property</div>
+      </app-button>
+    </div>
+  </div>
 </ng-container>

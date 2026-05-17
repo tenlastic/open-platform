@@ -1,8 +1,7 @@
-import { ANIMATION_MODULE_TYPE, NgModule } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatGridListModule } from '@angular/material/grid-list';
@@ -18,13 +17,11 @@ import { MAT_SNACK_BAR_DEFAULT_OPTIONS, MatSnackBarModule } from '@angular/mater
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatTreeModule } from '@angular/material/tree';
 
 const modules = [
   MatAutocompleteModule,
   MatButtonModule,
   MatCheckboxModule,
-  MatChipsModule,
   MatDialogModule,
   MatFormFieldModule,
   MatGridListModule,
@@ -40,15 +37,11 @@ const modules = [
   MatSortModule,
   MatTableModule,
   MatTooltipModule,
-  MatTreeModule,
 ];
 
 @NgModule({
   exports: [modules],
   imports: [modules],
-  providers: [
-    { provide: ANIMATION_MODULE_TYPE, useValue: 'NoopAnimations' },
-    { provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: { duration: 2500 } },
-  ],
+  providers: [{ provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: { duration: 2500 } }],
 })
 export class MaterialModule {}

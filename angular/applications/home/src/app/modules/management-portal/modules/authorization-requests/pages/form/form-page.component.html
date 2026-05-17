@@ -1,59 +1,60 @@
 <ng-container *ngIf="form">
   <div class="page">
-    <div class="row">
-      <div class="col-sm-6">
-        <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Authorization Request</app-title>
-        <app-title *ngIf="!hasWriteAuthorization">View Authorization Request</app-title>
-      </div>
+    <div class="header">
+      <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Authorization Request</app-title>
+      <app-title *ngIf="!hasWriteAuthorization">View Authorization Request</app-title>
     </div>
 
+    <hr>
+
     <form [formGroup]="form">
-      <div class="row">
+      <div class="form-row">
         <app-autocomplete-user-field [control]="form.get('user')"></app-autocomplete-user-field>
       </div>
+
+      <hr>
 
       <app-toggle-section title="Roles">
         <app-role-fields [form]="form"></app-role-fields>
       </app-toggle-section>
 
+      <hr>
+
       <app-toggle-section title="Status">
-        <mat-form-field *ngIf="data.deniedAt"
+        <app-form-field *ngIf="data.deniedAt"
                         floatLabel="always">
-          <mat-label>Denied At</mat-label>
-          <input matInput
-                 disabled
+          <label>Denied At</label>
+          <input disabled
                  [value]="data.deniedAt | date" />
-        </mat-form-field>
+        </app-form-field>
 
-        <mat-form-field *ngIf="data.grantedAt"
+        <app-form-field *ngIf="data.grantedAt"
                         floatLabel="always">
-          <mat-label>Granted At</mat-label>
-          <input matInput
-                 disabled
+          <label>Granted At</label>
+          <input disabled
                  [value]="data.grantedAt | date" />
-        </mat-form-field>
+        </app-form-field>
 
-        <mat-form-field *ngIf="!data.deniedAt && !data.grantedAt"
+        <app-form-field *ngIf="!data.deniedAt && !data.grantedAt"
                         floatLabel="always">
-          <mat-label>Requested At</mat-label>
-          <input matInput
-                 disabled
+          <label>Requested At</label>
+          <input disabled
                  [value]="data.updatedAt | date" />
-        </mat-form-field>
+        </app-form-field>
       </app-toggle-section>
     </form>
   </div>
 
   <div *ngIf="!data.deniedAt && !data.grantedAt"
-       class="page-actions">
+       class="actions">
     <div *ngFor="let error of errors"
          class="form-error">
       {{ error }}
     </div>
 
     <div *ngIf="!isSaving"
-         class="flex">
-      <div class="col-sm-6">
+         column-gap-8>
+      <div flex-1>
         <app-button color="accent"
                     size="large"
                     width="full"
@@ -63,7 +64,7 @@
         </app-button>
       </div>
 
-      <div class="col-sm-6">
+      <div flex-1>
         <app-button color="primary"
                     size="large"
                     width="full"

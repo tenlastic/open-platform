@@ -1,5 +1,10 @@
 <div [ngClass]="{'invalid' : invalid}">
   <ng-content select="label"></ng-content><span *ngIf="required">*</span>
-  <ng-content select="input, select, mat-select, textarea"></ng-content>
+
+  <div class="input">
+    <ng-content select="input, select, mat-select, textarea"></ng-content>
+    <ng-content select="app-button[end]"></ng-content>
+  </div>
+
   <ng-content select="app-error"></ng-content>
 </div>

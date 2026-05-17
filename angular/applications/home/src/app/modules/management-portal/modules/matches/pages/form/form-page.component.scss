@@ -1,31 +1,5 @@
 @use 'src/assets/scss/form.scss' as form;
+@use 'src/assets/scss/page.scss' as page;
 
 @include form.styles;
-
-::ng-deep {
-  app-toggle-section {
-    div.row:last-child div.row:last-child {
-      mat-form-field.mat-form-field div.mat-form-field-wrapper {
-        margin-bottom: -8px;
-      }
-    }
-  }
-}
-
-app-toggle-section {
-  div.row {
-    align-items: baseline;
-
-    > * {
-      margin-right: 16px;
-    }
-
-    app-button {
-      margin-bottom: 16px;
-    }
-  }
-}
-
-mat-form-field.mat-form-field {
-  margin-right: 16px;
-}
+@include page.styles;

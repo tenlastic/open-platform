@@ -1,23 +1,5 @@
 @use 'src/assets/scss/form.scss' as form;
+@use 'src/assets/scss/page.scss' as page;
 
 @include form.styles;
-
-app-toggle-section {
-  app-button {
-    margin-right: 8px;
-  }
-}
-
-div.col-sm-6 {
-  margin: 0px;
-  padding: 0px;
-}
-
-mat-form-field.mat-form-field {
-  display: inline-block;
-  margin-right: 16px;
-
-  input[disabled] {
-    text-overflow: ellipsis;
-  }
-}
+@include page.styles;

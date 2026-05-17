@@ -1,6 +1,15 @@
+@use 'src/assets/scss/form.scss' as form;
+
+@include form.styles;
+
 :host {
-  align-items: center;
   display: flex;
+  flex-direction: column;
+  row-gap: 8px;
+}
+
+div.hidden {
+  display: none;
 }
 
 div.node-info {

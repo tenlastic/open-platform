@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 
 import { FormResolver } from '../../../../core/resolvers';
 import { SharedModule } from '../../../../shared/shared.module';
-import { BuildStatusNodeComponent, FilesFormComponent } from './components';
+import { FilesFormComponent, LogsOverlayComponent, StatusNodeComponent } from './components';
 import { BuildsFormPageComponent, BuildsJsonPageComponent, BuildsListPageComponent } from './pages';
 
 export const ROUTES: Routes = [
@@ -27,8 +27,9 @@ export const ROUTES: Routes = [
     BuildsFormPageComponent,
     BuildsJsonPageComponent,
     BuildsListPageComponent,
-    BuildStatusNodeComponent,
+    StatusNodeComponent,
     FilesFormComponent,
+    LogsOverlayComponent,
   ],
   imports: [SharedModule, RouterModule.forChild(ROUTES)],
 })

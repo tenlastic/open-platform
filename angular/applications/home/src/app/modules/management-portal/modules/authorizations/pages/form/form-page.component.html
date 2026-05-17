@@ -1,23 +1,16 @@
 <ng-container *ngIf="form">
-  <div class="page"
-       row-gap-16>
-
-    <div align-items="end"
-         column-gap-16
-         flex-wrap-16>
+  <div class="page">
+    <div class="header">
       <app-title *ngIf="hasWriteAuthorization">{{ data?._id ? 'Edit' : 'Create' }} Authorization</app-title>
       <app-title *ngIf="!hasWriteAuthorization">View Authorization</app-title>
 
-      <div align-items="end"
-           column-gap-8
-           margin-left-auto>
-        <div *ngIf="hasWriteAuthorization">
-          <app-button color="accent"
-                      (OnClick)="navigateToJson()">
-            <mat-icon>code</mat-icon>
-            <div>{{ data?._id ? 'Edit' : 'Create' }} as JSON</div>
-          </app-button>
-        </div>
+      <div class="header-end">
+        <app-button *ngIf="hasWriteAuthorization"
+                    color="accent"
+                    (OnClick)="navigateToJson()">
+          <mat-icon>code</mat-icon>
+          <div>{{ data?._id ? 'Edit' : 'Create' }} as JSON</div>
+        </app-button>
       </div>
     </div>
 
@@ -26,11 +19,8 @@
     <form autocomplete="off"
           [formGroup]="form"
           id="form"
-          row-gap-16
           (ngSubmit)="save()">
-      <div align-items="start"
-           column-gap-16
-           flex-wrap>
+      <div class="form-row">
         <app-form-field>
           <label>Type</label>
           <mat-select formControlName="type">

@@ -38,6 +38,7 @@ export class GameServersListPageComponent implements OnInit {
   public columns: ListTableColumn<GameServerModel>[] = [];
   public hasLogAuthorization = false;
   public hasWriteAuthorization = false;
+  public matches = false;
   public queueId: string;
   public get queues() {
     return this._queues;
@@ -90,8 +91,13 @@ export class GameServersListPageComponent implements OnInit {
 
     if (this.queueId) {
       where.queueId = this.queueId;
-    } else if (!this.queues) {
-      where.queueId = null;
+    } else {
+      if (!this.matches) {
+        where.matchId = null;
+      }
+      if (!this.queues) {
+        where.queueId = null;
+      }
     }
 
     return where;
@@ -116,6 +122,7 @@ export class GameServersListPageComponent implements OnInit {
     this.$records = this.gameServerState.selectMany();
 
     this.activatedRoute.params.subscribe(async (params) => {
+      this.matches = false;
       this.namespaceId = params.namespaceId;
       this.queueId = params.queueId;
       this.queues = false;
@@ -152,8 +159,14 @@ export class GameServersListPageComponent implements OnInit {
       return false;
     }
 
-    if (!this.queueId && !this.queues && record.queueId) {
-      return false;
+    if (!this.queueId) {
+      if (!this.matches && record.matchId) {
+        return false;
+      }
+
+      if (!this.queues && record.queueId) {
+        return false;
+      }
     }
 
     return true;

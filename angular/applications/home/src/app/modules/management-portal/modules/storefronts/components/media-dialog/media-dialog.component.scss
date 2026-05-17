@@ -1,44 +1,33 @@
+@use 'src/assets/scss/shadows.scss' as shadows;
+
 ::ng-deep {
-  div.media-dialog-component {
-    div.mat-dialog-content {
+  div.cdk-overlay-pane.dialog-content.media-dialog-component {
+    background: none;
+    box-shadow: none;
+    padding: 0px;
+
+    div.mat-mdc-dialog-content {
+      align-items: center;
+      display: flex;
+      justify-content: center;
       margin: 0px;
       max-height: initial;
       padding: 0px;
       position: relative;
-
-      img {
-        display: block;
-        max-height: 100%;
-        max-width: 100%;
-      }
-
-      app-button {
-        position: absolute;
-        right: 8px;
-        top: 8px;
-      }
-
-      video {
-        display: block;
-        max-height: 100%;
-        max-width: 100%;
-      }
-    }
-
-    mat-dialog-container.mat-dialog-container {
-      margin: 0px;
-      padding: 0px;
-    }
-
-    div.mat-dialog-title {
-      text-align: right;
-    }
-
-    div.type-date {
-      color: rgba(255, 255, 255, 0.75);
-      font-size: 12px;
-      font-weight: normal;
-      line-height: 12px;
     }
   }
+}
+
+img {
+  box-shadow: shadows.$box-shadow;
+  display: block;
+  max-height: 100%;
+  max-width: 100%;
+}
+
+video {
+  box-shadow: shadows.$box-shadow;
+  display: block;
+  max-height: 100%;
+  max-width: 100%;
 }

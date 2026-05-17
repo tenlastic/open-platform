@@ -18,8 +18,6 @@ import {
   StorefrontState,
   UserState,
   WebSocketState,
-  WorkflowLogState,
-  WorkflowState,
 } from '@tenlastic/http';
 
 @Injectable({ providedIn: 'root' })
@@ -43,8 +41,6 @@ export class ResetService {
     private storefrontState: StorefrontState,
     private userState: UserState,
     private webSocketState: WebSocketState,
-    private workflowLogState: WorkflowLogState,
-    private workflowState: WorkflowState,
   ) {}
 
   public reset() {
@@ -66,7 +62,5 @@ export class ResetService {
     this.storefrontState.reset();
     this.userState.reset();
     this.webSocketState.reset();
-    this.workflowLogState.reset();
-    this.workflowState.reset();
   }
 }

@@ -109,12 +109,6 @@ export class LogsComponent implements OnDestroy, OnInit {
     return this.logJson[log._id];
   }
 
-  public async getNodeFromValue(value: string) {
-    const [container, pod] = JSON.parse(value);
-    const nodes = await firstValueFrom(this.$nodes);
-    return nodes.find((n) => n.container === container && n.pod === pod);
-  }
-
   public getValueFromNode(node: LogsComponentNode) {
     if (!node) {
       return null;
@@ -156,6 +150,12 @@ export class LogsComponent implements OnDestroy, OnInit {
     for (const log of logs) {
       this.visibility[log.unix] = this.isVisible;
     }
+  }
+
+  private async getNodeFromValue(value: string) {
+    const [container, pod] = JSON.parse(value);
+    const nodes = await firstValueFrom(this.$nodes);
+    return nodes.find((n) => n.container === container && n.pod === pod);
   }
 
   private async scrollToBottom() {
